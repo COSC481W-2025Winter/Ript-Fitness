@@ -1,0 +1,45 @@
+backend/Ript-Fitness-Backend/HELP.md
+backend/Ript-Fitness-Backend/target/
+!backend/Ript-Fitness-Backend/.mvn/wrapper/maven-wrapper.jar
+!backend/Ript-Fitness-Backend/**/src/main/**/target/
+!backend/Ript-Fitness-Backend/**/src/test/**/target/
+
+### STS ###
+backend/Ript-Fitness-Backend/.apt_generated
+backend/Ript-Fitness-Backend/.classpath
+backend/Ript-Fitness-Backend/.factorypath
+backend/Ript-Fitness-Backend/.project
+backend/Ript-Fitness-Backend/.settings
+backend/Ript-Fitness-Backend/.springBeans
+backend/Ript-Fitness-Backend/.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+# Ignore Node.js modules and other build directories in frontend (if applicable)
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+
+# If frontend is using a build system like npm or yarn
+frontend/.npm/
+frontend/.yarn/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+# Enviornment variables
+.env 
