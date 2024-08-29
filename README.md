@@ -9,3 +9,5 @@ Ript Fitness is a fitness application that will help people track their workouts
 <h3 style="font-size:20px; font-weight:bold;">Chris Pichler - Co-Team Lead</h3>
 <p style="font-size:16px;">This is my last semester at EMU. This degree will be my second bachelor's degree, my first is a Communications degree from the University of Michigan where I graduated in 2018. My job outside of school is being a high school varsity football/basketball referee, and I will be working as a software developer at UWM once I graduate.</p>
 
+<h3 style="font-size:20px; font-weight:bold;">Ciara Wheeler</h3>
+<p style="font-size:16px;">This is my final semester of my bachelor's degree in computer science. I am a student-athlete here at EMU, on the diving team. I also coach gymnastics and am an IT Technician for a company called Maximus. I am from Iowa and am looking to move back home after this year to find a full time job.</p>
