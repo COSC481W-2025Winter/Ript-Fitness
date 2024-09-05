@@ -5,17 +5,18 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
-@Entity // Creates a database table with that name and and columns equal to the variables in the object class
+@Entity // This tells spring that it needs to create a table named the same as the class
+		// and also that there needs to be columns the same as the variables in the class.
 public class TestModel {
 	
-	@Id	//This means this is the primary key of the TestModel database table
-	@GeneratedValue(strategy = GenerationType.IDENTITY) // Generates an ID via auto-increment
+	@Id	//This means this is the primary key of the TestModel database table.
+	@GeneratedValue(strategy = GenerationType.IDENTITY) // This is basically auto increment for the prim.key
 	public Long id;
 	
 	public String firstName;
 	public String lastName;
 	
-	// Getters & Setters:
+	// Getters and setters for fields:
 	public Long getId() {
 		return id;
 	}
@@ -33,6 +34,5 @@ public class TestModel {
 	}
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
-	} 
-	
+	}
 }
