@@ -10,8 +10,8 @@ import com.riptFitness.Ript_Fitness_Backend.web.dto.TestDto;
 @Service
 public class TestService {
 	
-	public TestRepository testRepository;
-	
+	private TestRepository testRepository;
+	// Setter for testRepository:
 	public TestService(TestRepository testRepository) {
 		this.testRepository = testRepository;
 	}
@@ -20,24 +20,9 @@ public class TestService {
 		return "The call to the endpoint was successful!";
 	}
 	
-	// Below is for adding a object into the database:
-	public TestDto addTestDto(TestDto testDto) {
+	public TestDto testAddDto(TestDto testDto) {
 		TestModel testModel = TestMapper.INSTANCE.toTestModel(testDto);
-		TestModel testObj = testRepository.save(testModel);
-		return TestMapper.INSTANCE.toTestDto(testObj);
+		TestModel test = testRepository.save(testModel);
+		return TestMapper.INSTANCE.toTestDto(test);
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -10,15 +10,14 @@ import com.riptFitness.Ript_Fitness_Backend.web.dto.TestDto;
 
 @Mapper
 public interface TestMapper {
-	//Can implement an automapper if we want to! We don't have to :)
-	
 	TestMapper INSTANCE = Mappers.getMapper(TestMapper.class);
 	
-	TestDto toTestDto(TestModel testDto);
+	TestDto toTestDto(TestModel testModel);
 	
 	TestModel toTestModel(TestDto testDto);
-	
+		
 	@Mapping(target = "id", ignore = true)
 	void updateTestRowFromDto(TestDto testDto, @MappingTarget TestModel testModel);
+	
 	
 }
