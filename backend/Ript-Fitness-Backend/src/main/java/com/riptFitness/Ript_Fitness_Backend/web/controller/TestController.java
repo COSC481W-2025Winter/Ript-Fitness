@@ -3,6 +3,7 @@ package com.riptFitness.Ript_Fitness_Backend.web.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.TestService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.TestDto;
 
-@RestController
-@RequestMapping("/")
+@RestController // Always put this at he top of the controller class
+@RequestMapping("/") // Put this underneath the RestController annotation
 public class TestController {
 	
 	TestService testService;
@@ -21,10 +22,19 @@ public class TestController {
 		this.testService = testService;
 	}
 
+	// Below is a GET test simply for testing to see if we can reach an end point
 	@GetMapping("/test")
 	public ResponseEntity<String> testEndpoint(){
 		String returnedString = testService.testEndpointService();
 		return new ResponseEntity<>(returnedString, HttpStatus.OK);
+	}
+	
+	// Below is a GET test to see if we can retrieve a test object from a database
+	@GetMapping("/getTestObject/{id}") 
+	public ResponseEntity<String> getObjectTest(@PathVariable Long id) {
+		TestDto retrievedTestDto = testService.getTestDto(id);
+		String testDtoFields = "First: " + retrievedTestDto.getFirstName() + " Last: " + retrievedTestDto.getLastName();
+		return new ResponseEntity<>(testDtoFields, HttpStatus.OK);
 	}
 	
 	// Below is a POST test for adding something to a database
@@ -33,6 +43,8 @@ public class TestController {
 		TestDto savedTestDto = testService.addTestDto(testDto);
 		return new ResponseEntity<>(savedTestDto, HttpStatus.CREATED);
 	}
+	
+	// Below is a PUT 
 }
 
 

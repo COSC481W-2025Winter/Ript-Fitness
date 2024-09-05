@@ -20,11 +20,17 @@ public class TestService {
 		return "The call to the endpoint was successful!";
 	}
 	
-	// Below is for adding a object into the database:
+	// Below is for adding a object into the database(POST):
 	public TestDto addTestDto(TestDto testDto) {
 		TestModel testModel = TestMapper.INSTANCE.toTestModel(testDto);
 		TestModel testObj = testRepository.save(testModel);
 		return TestMapper.INSTANCE.toTestDto(testObj);
+	}
+	
+	// Below is for getting a object from the database(GET):
+	public TestDto getTestDto(Long id) {
+		TestModel testModel = testRepository.getReferenceById(id);
+		return TestMapper.INSTANCE.toTestDto(testModel);
 	}
 }
 
