@@ -32,7 +32,34 @@ public class TestService {
 		TestModel testModel = testRepository.getReferenceById(id);
 		return TestMapper.INSTANCE.toTestDto(testModel);
 	}
+	
+	// Below is for editing the first/last name of an object:
+	public TestDto editFirstLast(TestDto testDto) {
+		// Get the object via id:
+		TestModel testModel = testRepository.getReferenceById(testDto.id);
+		// Update (edit) the first and last name:
+		testModel.setFirstName(testDto.getFirstName());
+		testModel.setLastName(testDto.getLastName());
+		// Save the edited object:
+		TestModel editedObj = testRepository.save(testModel);
+		// Return updated object as a DTO:
+		return TestMapper.INSTANCE.toTestDto(editedObj);
+	}
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
