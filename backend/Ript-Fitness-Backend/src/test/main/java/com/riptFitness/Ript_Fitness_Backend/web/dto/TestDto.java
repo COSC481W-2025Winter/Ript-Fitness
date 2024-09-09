@@ -7,7 +7,7 @@ public class TestDto {
 	public String firstName;
 	public String lastName;
 	
-	// Getters & Setters:
+	// Getters and Setters below:
 	
 	public Long getId() {
 		return id;
@@ -15,6 +15,7 @@ public class TestDto {
 	public void setId(Long id) {
 		this.id = id;
 	}
+	
 	public String getFirstName() {
 		return firstName;
 	}
@@ -27,5 +28,4 @@ public class TestDto {
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
-	
 }
