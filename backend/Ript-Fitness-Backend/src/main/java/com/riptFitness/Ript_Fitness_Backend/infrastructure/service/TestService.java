@@ -46,6 +46,19 @@ public class TestService {
 		return TestMapper.INSTANCE.toTestDto(editedObj);
 	}
 	
+	// Below is a method for hard deletion of an object in the database:
+	public boolean deleteTestObjectById(Long id) {
+		// Check if the object was deleted via id:
+		boolean exists = testRepository.existsById(id);
+		// If the object exists, delete it:
+		boolean deleted = false;
+		if(exists) {
+			testRepository.deleteById(id);
+			deleted = true;
+		}
+		return deleted;
+	}
+	
 }
 
 

@@ -2,6 +2,7 @@ package com.riptFitness.Ript_Fitness_Backend.web.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,6 +56,18 @@ public class TestController {
 								+ "\n" + "Last Name: " + editedTestDto.getLastName(); 
 		return new ResponseEntity<>(updatedDto, HttpStatus.OK);
 	}
+	
+	// Below is an example of a hard deletion (DELETE), although we may implement soft deletion with a boolean later
+	@DeleteMapping("deleteTestObjectById/{id}")
+	public ResponseEntity<String> deleteTestObjectById(@PathVariable Long id) {
+		// Call the service method with the object's ID to delete:
+		boolean isDeleted = testService.deleteTestObjectById(id);
+		// Create a message that uses the boolean that is returned from the service method:
+		String message = "Object was deleted: " + isDeleted;
+		// Return the response entity with the message that we created:
+		return new ResponseEntity<>(message, HttpStatus.OK);
+	}
+	
 }
 
 
