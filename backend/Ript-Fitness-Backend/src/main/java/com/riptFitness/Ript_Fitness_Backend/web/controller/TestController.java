@@ -48,13 +48,13 @@ public class TestController {
 	
 	// Below is a PUT test for editing an object in the database (first/last name)
 	@PutMapping("/editNameTest")
-	public ResponseEntity<String> editNameTest(@RequestBody TestDto testDto) {
+	public ResponseEntity<TestDto> editNameTest(@RequestBody TestDto testDto) {
 		// Call the service method to edit the object:
 		TestDto editedTestDto = testService.editFirstLast(testDto);
 		// Create a string representation of the object:
-		String updatedDto = "Id: " + editedTestDto.getId() + "\n" + "First Name: " + editedTestDto.getFirstName() 
-								+ "\n" + "Last Name: " + editedTestDto.getLastName(); 
-		return new ResponseEntity<>(updatedDto, HttpStatus.OK);
+//		String updatedDto = "Id: " + editedTestDto.getId() + "\n" + "First Name: " + editedTestDto.getFirstName() 
+//								+ "\n" + "Last Name: " + editedTestDto.getLastName(); 
+		return new ResponseEntity<>(editedTestDto, HttpStatus.OK);
 	}
 	
 	// Below is an example of a hard deletion (DELETE), although we may implement soft deletion with a boolean later
