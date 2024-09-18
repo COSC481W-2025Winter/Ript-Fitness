@@ -33,10 +33,10 @@ public class TestController {
 	
 	// Below is a GET test to see if we can retrieve a test object from a database
 	@GetMapping("/getTestObject/{id}") 
-	public ResponseEntity<String> getObjectTest(@PathVariable Long id) {
+	public ResponseEntity<TestDto> getObjectTest(@PathVariable Long id) {
 		TestDto retrievedTestDto = testService.getTestDto(id);
-		String testDtoFields = "First: " + retrievedTestDto.getFirstName() + " Last: " + retrievedTestDto.getLastName();
-		return new ResponseEntity<>(testDtoFields, HttpStatus.OK);
+		//String testDtoFields = "First: " + retrievedTestDto.getFirstName() + " Last: " + retrievedTestDto.getLastName();
+		return new ResponseEntity<>(retrievedTestDto, HttpStatus.OK);
 	}
 	
 	// Below is a POST test for adding something to a database
@@ -59,13 +59,11 @@ public class TestController {
 	
 	// Below is an example of a hard deletion (DELETE), although we may implement soft deletion with a boolean later
 	@DeleteMapping("deleteTestObjectById/{id}")
-	public ResponseEntity<String> deleteTestObjectById(@PathVariable Long id) {
+	public ResponseEntity<TestDto> deleteTestObjectById(@PathVariable Long id) {
 		// Call the service method with the object's ID to delete:
-		boolean isDeleted = testService.deleteTestObjectById(id);
-		// Create a message that uses the boolean that is returned from the service method:
-		String message = "Object was deleted: " + isDeleted;
+		TestDto objectDeletedDto = testService.deleteTestObjectById(id);
 		// Return the response entity with the message that we created:
-		return new ResponseEntity<>(message, HttpStatus.OK);
+		return new ResponseEntity<>(objectDeletedDto, HttpStatus.OK);
 	}
 	
 }
