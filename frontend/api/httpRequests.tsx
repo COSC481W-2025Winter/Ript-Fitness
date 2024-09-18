@@ -1,4 +1,4 @@
-const BASE_URL = 'http://192.168.1.160:8080'; // Replace with your actual URL
+const BASE_URL = 'http://164.76.13.58:8080'; // Replace with your actual URL
 export class httpRequests {
 
   // Method to handle GET requests and return JSON
@@ -10,8 +10,8 @@ static async get(endpoint: string, data? : Record<string, any>): Promise<any> {
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
     }
-    console.log(response);
-    const json = await response.text() //.json(); // Parse the response as JSON
+    const json = await response.json() //.json(); // Parse the response as JSON
+    console.log(json)
     return json; // Return the JSON data directly
   } catch (error) {
 
@@ -31,6 +31,7 @@ static jsonToQueryString(obj?: Record<string, any>): string {
     .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`)
     .join('&');
 
+
   return `?${queryString}`;
 }
 
@@ -39,7 +40,6 @@ static jsonToQueryString(obj?: Record<string, any>): string {
 // Method to handle POST requests and return JSON
 static async post(endpoint: string, data: Record<string, any>): Promise<any> { // Return type set as Promise<any> to reflect async behavior
   try {
-    console.log(JSON.stringify(data))
     // Convert JSON data to string format for POST request body
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'POST', // Change method to POST
@@ -49,6 +49,8 @@ static async post(endpoint: string, data: Record<string, any>): Promise<any> { /
       body: JSON.stringify(data), // Convert the JSON object to a string
     });
 
+
+  
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
     }
@@ -80,7 +82,6 @@ static async put(endpoint: string, data: Record<string, any>): Promise<any> {
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
     }
-
     const json = await response.json();
     return json;
   } catch (error) {

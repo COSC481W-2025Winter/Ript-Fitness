@@ -31,24 +31,22 @@ import { useEffect, useState } from 'react';
 export default function HomeScreen() {
 
 
-  const [ myVal, setMyVal ] = useState("")
+  const [ myVal, setMyVal ] = useState("Test Push me Here")
   const [ val2, setMyVal2 ] = useState("")
 
 
-  useEffect(() => {
-    const setValues = async () => {
-      const response = await httpRequests.get("/test")
-      const exampleJson = {
-        id: 1,
-        firstName: "John",
-        lastName: "Doe"
-      };
-      const res2 = await httpRequests.post("/addTestObject", exampleJson)
-      setMyVal(response);//[0].text);
-      setMyVal2(res2)
-     }
-    setValues();
-  }, []);
+  const setValues = async () => {
+    //const response = await httpRequests.get("/test")
+    const exampleJson = {
+      firstName: "John",
+      lastName: "Doe",
+    };
+    console.log("effect")
+    const res2 = await httpRequests.post("/addTestObject", exampleJson)
+    //setMyVal(response);//[0].text);
+    console.log(res2.firstName)
+    setMyVal(res2.firstName)
+   }
 
   return (
     <ParallaxScrollView
@@ -59,7 +57,7 @@ export default function HomeScreen() {
           style={styles.reactLogo}
         />
       }>
-      <TouchableOpacity onPress={() => alert(myVal)}><ThemedText>buttonHere</ThemedText></TouchableOpacity>
+      <TouchableOpacity onPress={() => {setValues()}}><ThemedText>{myVal}</ThemedText></TouchableOpacity>
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Welcome!</ThemedText>
         <HelloWave />
