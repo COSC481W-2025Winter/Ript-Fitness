@@ -44,4 +44,7 @@ build/
 # Enviornment variables
 .env 
 
+# application-test/properties
+backend/Ript-Fitness-Backend/src/test/resources/application-test.properties
+
 .metadata/
