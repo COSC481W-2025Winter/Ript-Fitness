@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Request Tester</title>
+</head>
+<body>
+
+<h1>API Request Tester</h1>
+
+<div>
+    <label for="urlInput">Enter URL:</label>
+    <input type="text" id="urlInput" placeholder="https://example.com/test" style="width: 400px;" />
+</div>
+
+<div>
+    <button onclick="sendRequest('GET')">Send GET Request</button>
+    <button onclick="sendRequest('POST')">Send POST Request</button>
+    <button onclick="sendRequest('PUT')">Send PUT Request</button>
+    <button onclick="sendRequest('DELETE')">Send DELETE Request</button>
+</div>
+
+<h3>Request Body (for POST and PUT):</h3>
+<textarea id="requestBody" rows="5" cols="50" placeholder='{"key": "value"}'></textarea>
+
+<h3>Response:</h3>
+<pre id="responseOutput"></pre>
+
+<script>
+const BASE_URL = ''; // Replace with your actual URL
+
+class httpRequests {
+  // Method to handle GET requests and return JSON
+  static async get(endpoint, data) {
+    try {
+      // Fetch data from the specified endpoint
+      const params = httpRequests.jsonToQueryString(data);
+      const response = await fetch(`${BASE_URL}${endpoint}${params}`); // Use endpoint or replace with BASE_URL if needed
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      console.log(response);
+      const json = await response.text(); // Parse the response as text
+      return json; // Return the JSON data directly
+    } catch (error) {
+      // If access denied, handle accordingly
+      console.error('GET request failed:', error);
+      throw error; // Throw the error for further handling if needed
+    }
+  }
+
+  // Helper function to convert JSON to query string
+  static jsonToQueryString(obj) {
+    if (obj == undefined) {
+      return "";
+    }
+    // Convert JSON object to query string format
+    const queryString = Object.keys(obj)
+      .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`)
+      .join('&');
+
+    return `?${queryString}`;
+  }
+
+  // Method to handle POST requests and return JSON
+  static async post(endpoint, data) {
+    try {
+      console.log(JSON.stringify(data));
+      // Convert JSON data to string format for POST request body
+      const response = await fetch(`${BASE_URL}${endpoint}`, {
+        method: 'POST', // Change method to POST
+        headers: {
+          'Content-Type': 'application/json', // Set content type to JSON
+        },
+        body: JSON.stringify(data), // Convert the JSON object to a string
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const json = await response.json(); // Parse the response as JSON
+      return json; // Return the JSON data directly
+    } catch (error) {
+      // If access denied, handle accordingly
+      console.error('POST request failed:', error);
+      throw error; // Throw the error for further handling if needed
+    }
+  }
+
+  // Method to handle PUT requests and return JSON
+  static async put(endpoint, data) {
+    try {
+      const response = await fetch(`${BASE_URL}${endpoint}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const json = await response.json();
+      return json;
+    } catch (error) {
+      // If access denied, handle accordingly
+      console.error('PUT request failed:', error);
+      throw error;
+    }
+  }
+
+  // Method to handle DELETE requests and return JSON
+  static async delete(endpoint, data) {
+    try {
+      const response = await fetch(`${BASE_URL}${endpoint}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const json = await response.json();
+      return json;
+    } catch (error) {
+      // If access denied, handle accordingly
+      console.error('DELETE request failed:', error);
+      throw error;
+    }
+  }
+}
+
+
+
+    async function sendRequest(method) {
+        const url = document.getElementById('urlInput').value.trim();
+        if (!url) {
+            document.getElementById('responseOutput').textContent = 'Please enter a valid URL.';
+            return;
+        }
+        
+        let body = null;
+
+        if (method === 'POST' || method === 'PUT') {
+            try {
+                body = JSON.parse(document.getElementById('requestBody').value);
+            } catch (error) {
+                document.getElementById('responseOutput').textContent = 'Invalid JSON input.';
+                return;
+            }
+        }
+
+        try {
+            let response;
+            switch (method) {
+                case 'GET':
+                    response = await httpRequests.get(url);
+                    break;
+                case 'POST':
+                    response = await httpRequests.post(url, body);
+                    break;
+                case 'PUT':
+                    response = await httpRequests.put(url, body);
+                    break;
+                case 'DELETE':
+                    response = await httpRequests.delete(url);
+                    break;
+            }
+            document.getElementById('responseOutput').textContent = JSON.stringify(response, null, 2);
+        } catch (error) {
+            document.getElementById('responseOutput').textContent = `Error: ${error.message}`;
+        }
+    }
+</script>
+
+</body>
+</html>
