@@ -13,22 +13,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-
-
-    # List root directory contents for debugging
-    - name: List root directory
-      run: ls -la
-
-    # List contents of backend directory to confirm its presence
-    - name: List backend directory
-      run: ls -la ./backend
-
-    # List contents of the ript-fitness-backend directory for further confirmation
-    - name: List ript-fitness-backend directory
-      run: ls -la ./backend/ript-fitness-backend
-
-
-
       
           # Move to the backend folder where the Spring Boot app is located
     - name: Change directory to backend
@@ -43,12 +27,12 @@ jobs:
 
     # Grant execute permission to the Maven wrapper script
     - name: Make mvnw executable
-      run: chmod +x /backend/ript-fitness-backend/mvnw
+      run: chmod +x /backend/Ript-Fitness-Backend/mvnw
 
         
     # Build the Spring Boot application
     - name: Build Spring Boot Application
-      run: /backend/ript-fitness-backend/mvnw clean package
+      run: /backend/Ript-Fitness-Backend/mvnw clean package
 
     # Log in to Azure Container Registry (ACR)
     - name: Log in to Azure Container Registry
