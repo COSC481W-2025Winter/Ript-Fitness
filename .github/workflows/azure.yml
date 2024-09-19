@@ -15,7 +15,7 @@ jobs:
       
           # Move to the backend folder where the Spring Boot app is located
     - name: Change directory to backend
-      run: cd backend/ript-fitness-backend
+      run: cd ./backend/ript-fitness-backend
 
     # Set up JDK 17 for building Spring Boot application
     - name: Set up JDK 17
