@@ -15,7 +15,7 @@ jobs:
       
           # Move to the backend folder where the Spring Boot app is located
     - name: Change directory to backend
-      run: cd ./backend/ript-fitness-backend
+      run: cd backend/Ript-Fitness-Backend
 
     # Set up JDK 17 for building Spring Boot application
     - name: Set up JDK 17
@@ -26,7 +26,7 @@ jobs:
     # Build the Spring Boot application
     - name: Build Spring Boot Application
       run: ./mvnw clean package
-      working-directory: ./backend/ript-fitness-backend
+      working-directory: ./backend/Ript-Fitness-Backend
 
     # Log in to Azure Container Registry (ACR)
     - name: Log in to Azure Container Registry
@@ -39,7 +39,7 @@ jobs:
     # Build and tag the Docker image
     - name: Build Docker image
       run: docker build -t riptacrregistry.azurecr.io/ript-fitness:latest .
-      working-directory: ./backend/ript-fitness-backend
+      working-directory: ./backend/Ript-Fitness-Backend
 
     # Push the Docker image to ACR
     - name: Push Docker image to ACR
