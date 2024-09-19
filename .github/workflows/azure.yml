@@ -31,8 +31,7 @@ jobs:
         
     # Build the Spring Boot application
     - name: Build Spring Boot Application
-      run: ./mvnw clean package
-      working-directory: ./backend/Ript-Fitness-Backend
+      run: ./backend/ript-fitness-backend/mvnw clean package
 
     # Log in to Azure Container Registry (ACR)
     - name: Log in to Azure Container Registry
