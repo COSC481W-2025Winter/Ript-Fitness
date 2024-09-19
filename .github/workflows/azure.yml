@@ -25,9 +25,18 @@ jobs:
         java-version: '17'
         distribution: 'temurin'  # Specify the Java distribution you want to use (temurin is a common choice)
 
-    # Grant execute permission to the Maven wrapper script
+    # List contents of Ript-Fitness-Backend to confirm the presence of pom.xml
+    - name: List Ript-Fitness-Backend directory
+      run: ls -la ./backend/Ript-Fitness-Backend
+
+    # Change directory to where the pom.xml is located
+    - name: Navigate to Ript-Fitness-Backend directory
+      working-directory: ./backend/Ript-Fitness-Backend
+      run: ls -la  # Confirm we are in the right directory
+
+    # Make the mvnw script executable
     - name: Make mvnw executable
-      run: chmod +x ./backend/Ript-Fitness-Backend/mvnw
+      run: chmod +x mvnw
 
         
     # Build the Spring Boot application
