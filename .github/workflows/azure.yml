@@ -12,6 +12,23 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+
+
+
+    # List root directory contents for debugging
+    - name: List root directory
+      run: ls -la
+
+    # List contents of backend directory to confirm its presence
+    - name: List backend directory
+      run: ls -la ./backend
+
+    # List contents of the ript-fitness-backend directory for further confirmation
+    - name: List ript-fitness-backend directory
+      run: ls -la ./backend/ript-fitness-backend
+
+
+
       
           # Move to the backend folder where the Spring Boot app is located
     - name: Change directory to backend
