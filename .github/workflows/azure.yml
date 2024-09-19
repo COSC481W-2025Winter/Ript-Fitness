@@ -57,6 +57,12 @@ jobs:
     - name: Push Docker image to ACR
       run: docker push riptacrregistry.azurecr.io/ript-fitness:latest
 
+    # Log in to Azure (mandatory for deployment)
+    - name: Log in to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}  # Secret containing the Azure credentials in JSON format
+      
     # Deploy the new image to Azure Web App
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
