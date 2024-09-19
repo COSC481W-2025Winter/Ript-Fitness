@@ -26,6 +26,14 @@ jobs:
       working-directory: ./backend/Ript-Fitness-Backend
       run: chmod +x mvnw
 
+    - name: Set up environment variables
+      run: |
+        echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> $GITHUB_ENV
+        echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> $GITHUB_ENV
+        echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
+        echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> $GITHUB_ENV
+        echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> $GITHUB_ENV
+        echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> $GITHUB_ENV
         
     # Build the Spring Boot application
     - name: Build Spring Boot Application
