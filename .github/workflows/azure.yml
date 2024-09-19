@@ -13,10 +13,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-      
-          # Move to the backend folder where the Spring Boot app is located
-    - name: Change directory to backend
-      run: cd backend/Ript-Fitness-Backend
 
     # Set up JDK 17 for building Spring Boot application
     - name: Set up JDK 17
@@ -25,23 +21,16 @@ jobs:
         java-version: '17'
         distribution: 'temurin'  # Specify the Java distribution you want to use (temurin is a common choice)
 
-    # List contents of Ript-Fitness-Backend to confirm the presence of pom.xml
-    - name: List Ript-Fitness-Backend directory
-      run: ls -la ./backend/Ript-Fitness-Backend
-
-    # Change directory to where the pom.xml is located
-    - name: Navigate to Ript-Fitness-Backend directory
-      working-directory: ./backend/Ript-Fitness-Backend
-      run: ls -la  # Confirm we are in the right directory
-
     # Make the mvnw script executable
     - name: Make mvnw executable
+      working-directory: ./backend/Ript-Fitness-Backend
       run: chmod +x mvnw
 
         
     # Build the Spring Boot application
     - name: Build Spring Boot Application
-      run: ./backend/Ript-Fitness-Backend/mvnw clean package
+      working-directory: ./backend/Ript-Fitness-Backend
+      run: mvnw clean package
 
     # Log in to Azure Container Registry (ACR)
     - name: Log in to Azure Container Registry
