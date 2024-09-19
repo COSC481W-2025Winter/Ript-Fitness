@@ -17,7 +17,7 @@ public class TestService {
 	}
 
 	public String testEndpointService() {
-		return "The call to the endpoint was successful!";
+		return "The call to the endpoint was successful! gitHub Action Success!";
 	}
 	
 	// Below is for adding a object into the database(POST):
