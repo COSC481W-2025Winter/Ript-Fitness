@@ -45,6 +45,7 @@ jobs:
         echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> backend/Ript-Fitness-Backend/.env
         echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> backend/Ript-Fitness-Backend/.env
         
+        
     # Build the Spring Boot application
     - name: Build Spring Boot Application
       working-directory: ./backend/Ript-Fitness-Backend
