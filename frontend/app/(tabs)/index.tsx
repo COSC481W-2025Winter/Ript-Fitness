@@ -19,7 +19,7 @@
 //Running your android emulator (yours may vary):
   //emulator -avd Pixel_3a_API_34_extension_level_7_x86_64
 
-import { Image, StyleSheet, Platform, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, Platform, TouchableOpacity, View } from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -27,28 +27,111 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { httpRequests } from '@/api/httpRequests'
 import { useEffect, useState } from 'react';
+import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 
 export default function HomeScreen() {
 
+  //these are variables with setters
+  const [responseText, setResponseText] = useState('') //Response in string format initialized as empty string
+  const [firstNamePOST, setFirstNamePOST] = useState(''); //firstName initialized as empty string
+  const [lastNamePOST, setLastNamePOST] = useState(''); //lastName initialized as empty string
+  const [id, setID] = useState(''); //ID for GET initialized as empty string
+  const [Putid, setPutID] = useState(''); //ID for POST initialized as empty string
+  const [Deleteid, setDeleteID] = useState(''); //ID for POST initialized as empty string
+  const [firstNamePUT, setFirstNamePUT] = useState(''); //firstName initialized as empty string
+  const [lastNamePUT, setLastNamePUT] = useState(''); //lastName initialized as empty string
 
-  const [ myVal, setMyVal ] = useState("Test Push me Here")
-  const [ val2, setMyVal2 ] = useState("")
+  // Handle the text input change for First Name
+  const handleChangeFirstNamePost = (text: string) => {
+    setFirstNamePOST(text);
+  };
+  // Handle the text input change for Last Name
+  const handleChangeLastNamePost = (text: string) => {
+    setLastNamePOST(text);
+  };
+
+  const handleGetID = (text: string) => {
+    setID(text);
+  };
+  const handlePutID = (text: string) => {
+    setPutID(text);
+  };
+
+  const handleDeleteID = (text: string) => {
+    setDeleteID(text);
+  };
+  const handleChangeFirstNamePut = (text: string) => {
+    setFirstNamePUT(text);
+  };
+  // Handle the text input change for Last Name
+  const handleChangeLastNamePut = (text: string) => {
+    setLastNamePUT(text);
+  };
 
 
-  const setValues = async () => {
-    //const response = await httpRequests.get("/test")
-    const exampleJson = {
-      firstName: "John",
-      lastName: "Doe",
+/* This function is marked as async because HTTP requests to a server involve network delays, 
+ so the function needs to wait for the server response. 
+ Using async/await ensures the function pauses until the request completes, 
+ preventing premature updates to the UI or state.*/
+
+  const postValues = async () => { //run "Post Names" button is pressed
+    const exampleJson = { //create a json object using the variables set in our textboxes
+      firstName: firstNamePOST,
+      lastName: lastNamePOST,
     };
-    console.log("effect")
-    const res2 = await httpRequests.post("/addTestObject", exampleJson)
-    //setMyVal(response);//[0].text);
-    console.log(res2.firstName)
-    setMyVal(res2.firstName)
+    //make a post request
+    const response = await httpRequests.post("/addTestObject", exampleJson)
+    //convert the recieved json response to a string for visualizing
+    //alternatively, you could get specific information with response.firstName
+    setResponseText(JSON.stringify(response))
+   }
+
+
+
+   const getValues = async () => { //run "Push Names" button is pressed
+    const exampleJson = { //create a json object using the variables set in our textboxes
+      id: id,
+    };
+    //make a post request
+    const response = await httpRequests.get("/getTestObject", exampleJson)
+    //convert the recieved json response to a string for visualizing
+    //alternatively, you could get specific information with response.firstName
+    setResponseText(JSON.stringify(response))
+   }
+
+
+   const putValues = async () => { //run "Push Names" button is pressed
+    const exampleJson = { //create a json object using the variables set in our textboxes
+      id: Putid,
+      firstName:firstNamePUT,
+      lastName:lastNamePUT
+    };
+    //make a post request
+    const response = await httpRequests.put("/editNameTest", exampleJson)
+    //convert the recieved json response to a string for visualizing
+    //alternatively, you could get specific information with response.firstName
+    setResponseText(JSON.stringify(response))
+   }
+
+   const deleteValues = async () => { //run "Push Names" button is pressed
+    const exampleJson = { //create a json object using the variables set in our textboxes
+      id: Deleteid,
+    };
+    //make a post request
+    const response = await httpRequests.delete("/deleteTestObjectById", exampleJson)
+    //convert the recieved json response to a string for visualizing
+    //alternatively, you could get specific information with response.firstName
+    setResponseText(JSON.stringify(response))
+   }
+
+
+
+  const clearResponse = () => { //sets the response text to be empty
+    setResponseText("")
    }
 
   return (
+
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
       headerImage={
@@ -57,38 +140,123 @@ export default function HomeScreen() {
           style={styles.reactLogo}
         />
       }>
-      <TouchableOpacity onPress={() => {setValues()}}><ThemedText>{myVal}</ThemedText></TouchableOpacity>
+        {/* This is apparently how you have to leave comments in the return...*/}
+
+
+        {/*************************POST********************************/}
+
+        {/* TextInput must be in the GestureHandlerRootView it seems */}
+        <GestureHandlerRootView style={styles.container}>
+              <TextInput
+        style={styles.input}
+        placeholder="First Name"
+        placeholderTextColor="gray"
+        value={firstNamePOST}
+        onChangeText={handleChangeFirstNamePost}
+      />
+                    <TextInput
+        style={styles.input}
+        placeholder="Last Name"
+        placeholderTextColor="gray"
+        value={lastNamePOST}
+        onChangeText={handleChangeLastNamePost}
+      />
+        </GestureHandlerRootView>
+
+        {/* This is the button, on press it runs pushValues() which pushes our username and password. to the
+        MYSQL database in Azure. storing it in the test_model database. */}
+      <TouchableOpacity style={styles.button} onPress={() => {postValues()}}><ThemedText style={styles.buttonText}>POST Names</ThemedText></TouchableOpacity>
+      
+      
+      
+
+
+
+
+      {/*************************GET********************************/}
+      <GestureHandlerRootView style={styles.container}>
+              <TextInput
+        style={styles.input}
+        placeholder="ID"
+        placeholderTextColor="gray"
+        value={id}
+        onChangeText={handleGetID}
+      />
+        </GestureHandlerRootView>
+
+        {/* This is the button, on press it runs pushValues() which pushes our username and password. to the
+        MYSQL database in Azure. storing it in the test_model database. */}
+      <TouchableOpacity style={styles.button} onPress={() => {getValues()}}><ThemedText style={styles.buttonText}>GET Names</ThemedText></TouchableOpacity>
+
+
+
+
+
+
+        {/*************************PUT********************************/}
+
+        <GestureHandlerRootView style={styles.container}>
+              <TextInput
+        style={styles.input}
+        placeholder="ID of Names to edit"
+        placeholderTextColor="gray"
+        value={Putid}
+        onChangeText={handlePutID}
+      />
+                    <TextInput
+        style={styles.input}
+        placeholder="New First Name"
+        placeholderTextColor="gray"
+        value={firstNamePUT}
+        onChangeText={handleChangeFirstNamePut}
+      />
+                    <TextInput
+        style={styles.input}
+        placeholder="New Last Name"
+        placeholderTextColor="gray"
+        value={lastNamePUT}
+        onChangeText={handleChangeLastNamePut}
+      />
+        </GestureHandlerRootView>
+
+        {/* This is the button, on press it runs pushValues() which pushes our username and password. to the
+        MYSQL database in Azure. storing it in the test_model database. */}
+      <TouchableOpacity style={styles.button} onPress={() => {putValues()}}><ThemedText style={styles.buttonText}>PUT Names</ThemedText></TouchableOpacity>
+
+
+
+
+        {/*************************DELETE********************************/}
+        <GestureHandlerRootView style={styles.container}>
+              <TextInput
+        style={styles.input}
+        placeholder="ID"
+        placeholderTextColor="gray"
+        value={Deleteid}
+        onChangeText={handleDeleteID}
+      />
+        </GestureHandlerRootView>
+
+        {/* This is the button, on press it runs pushValues() which pushes our username and password. to the
+        MYSQL database in Azure. storing it in the test_model database. */}
+      <TouchableOpacity style={styles.button} onPress={() => {deleteValues()}}><ThemedText style={styles.buttonText}>DELETE Names</ThemedText></TouchableOpacity>
+
+
+
+
+      
+      
+      
+      {/* The Response section. I have it set to just display the entire JSON */}
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
+        <ThemedText type="title">Response:</ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1:  {myVal} fy it</ThemedText>
         <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to {val2} changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
+          {responseText}
         </ThemedText>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
+      <TouchableOpacity style={styles.button} onPress={() => {clearResponse()}}><ThemedText style={styles.buttonText}>Clear Response</ThemedText></TouchableOpacity>
     </ParallaxScrollView>
   );
 }
@@ -109,5 +277,28 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     position: 'absolute',
+  },
+  button: {
+    height:50,
+    width:'90%',
+    backgroundColor:'green',
+    borderRadius:10,
+    textAlign:'center',
+    justifyContent:'center',
+  },
+  buttonText: {
+    textAlign:'center',
+  },
+
+  input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    marginBottom: 20,
+    color:'white',
+  },
+  container: {
+    width:'100%',
   },
 });
