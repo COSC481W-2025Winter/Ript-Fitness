@@ -1,4 +1,4 @@
-const BASE_URL = 'http://164.76.13.58:8080'; // Replace with your actual URL
+const BASE_URL = 'https://ript-fitness-app.azurewebsites.net'; // Replace with your actual URL
 export class httpRequests {
 
   // Method to handle GET requests and return JSON
@@ -6,7 +6,8 @@ static async get(endpoint: string, data? : Record<string, any>): Promise<any> {
   try {
     // Fetch data from the specified endpoint
     const params = httpRequests.jsonToQueryString(data)
-    const response = await fetch(`${BASE_URL}${endpoint}${params}`); // Use endpoint or replace with BASE_URL if needed
+    const response = await fetch(`${BASE_URL}${endpoint}/${params}`); // Use endpoint or replace with BASE_URL if needed
+    console.log(`${BASE_URL}${endpoint}/${params}`)
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
     }
@@ -26,11 +27,19 @@ static async get(endpoint: string, data? : Record<string, any>): Promise<any> {
 static jsonToQueryString(obj?: Record<string, any>): string {
   if (obj == undefined) {
     return "";
-  } // Casting JSON to a usable object format
-  const queryString = Object.keys(obj)
+  }
+
+  const keys = Object.keys(obj);
+
+  // If there's only one key-value pair, return just the value
+  if (keys.length === 1) {
+    return encodeURIComponent(obj[keys[0]]);
+  }
+
+  // Otherwise, construct the query string as usual
+  const queryString = keys
     .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`)
     .join('&');
-
 
   return `?${queryString}`;
 }
@@ -95,30 +104,27 @@ static async put(endpoint: string, data: Record<string, any>): Promise<any> {
 }
 
 // Method to handle DELETE requests and return JSON
-static async delete(endpoint: string, data: Record<string, any>): Promise<any> {
+static async delete(endpoint: string, data? : Record<string, any>): Promise<any> { 
   try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
+    // Fetch data from the specified endpoint
+    const params = httpRequests.jsonToQueryString(data)
+    const response = await fetch(`${BASE_URL}${endpoint}/${params}`, {
+      method: 'DELETE'
     });
-
+    console.log(`${BASE_URL}${endpoint}/${params}`)
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
     }
-
-    const json = await response.json();
-    return json;
+    const json = await response.json() //.json(); // Parse the response as JSON
+    console.log(json)
+    return json; // Return the JSON data directly
   } catch (error) {
 
     // If access denied
     // Send to login page
 
-
     console.error('DELETE request failed:', error);
-    throw error;
+    throw error; // Throw the error for further handling if needed
   }
 }
 }
