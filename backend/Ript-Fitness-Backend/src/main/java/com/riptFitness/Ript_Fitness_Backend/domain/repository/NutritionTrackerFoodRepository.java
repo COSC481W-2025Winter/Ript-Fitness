@@ -7,10 +7,7 @@ import java.util.Optional;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Food;
 
-public interface NutritionTrackerFoodRepository extends JpaRepository<Food, Long> {
-	@Query("SELECT f FROM Food f WHERE f.name = :name AND f.isDeleted = true")
-	Optional<Food> findByName(String name);
-	
+public interface NutritionTrackerFoodRepository extends JpaRepository<Food, Long> {	
 //Queries needed: 
 	//Optional<Food> findByName(String foodName): Looks in database for a "Name" equal to "foodName". Returns Optional<Food> object equal to that row if exists. Returns empty Optional<Food> object if it does not exist in DB.
 	//Food save(Food foodModel): Saves foodModel to "Food" database table
