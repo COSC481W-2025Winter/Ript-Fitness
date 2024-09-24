@@ -18,7 +18,7 @@ import com.riptFitness.Ript_Fitness_Backend.web.dto.TestDto;
 @RequestMapping("/") // Put this underneath the RestController annotation
 public class TestController {
 	
-	TestService testService;
+	TestService testService;      
 	
 	public TestController(TestService testService) {
 		this.testService = testService;
