@@ -17,7 +17,7 @@ public class TestService {
 	}
 
 	public String testEndpointService() {
-		return "The call to the endpoint was successful!";
+		return "Success! Workflow button Success!";
 	}
 	
 	// Below is for adding a object into the database(POST):
@@ -32,7 +32,46 @@ public class TestService {
 		TestModel testModel = testRepository.getReferenceById(id);
 		return TestMapper.INSTANCE.toTestDto(testModel);
 	}
+	
+	// Below is for editing the first/last name of an object:
+	public TestDto editFirstLast(TestDto testDto) {
+		// Get the object via id:
+		TestModel testModel = testRepository.getReferenceById(testDto.id);
+		// Update (edit) the first and last name:
+		testModel.setFirstName(testDto.getFirstName());
+		testModel.setLastName(testDto.getLastName());
+		// Save the edited object:
+		TestModel editedObj = testRepository.save(testModel);
+		// Return updated object as a DTO:
+		return TestMapper.INSTANCE.toTestDto(editedObj);
+	}
+	
+	// Below is a method for hard deletion of an object in the database:
+	public TestDto deleteTestObjectById(Long id) {
+		// Check if the object was deleted via id:
+		boolean exists = testRepository.existsById(id);
+		TestModel objectToBeDeleted = testRepository.getReferenceById(id);
+		// If the object exists, delete it:
+		if(exists) {
+			testRepository.deleteById(id);
+		}
+		return TestMapper.INSTANCE.toTestDto(objectToBeDeleted);
+	}
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
