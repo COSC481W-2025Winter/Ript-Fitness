@@ -49,6 +49,7 @@ static jsonToQueryString(obj?: Record<string, any>): string {
 // Method to handle POST requests and return JSON
 static async post(endpoint: string, data: Record<string, any>): Promise<any> { // Return type set as Promise<any> to reflect async behavior
   try {
+    console.log(JSON.stringify(data))
     // Convert JSON data to string format for POST request body
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'POST', // Change method to POST
