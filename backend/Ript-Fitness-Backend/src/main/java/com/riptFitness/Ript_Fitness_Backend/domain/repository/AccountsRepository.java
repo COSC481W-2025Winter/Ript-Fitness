@@ -16,7 +16,7 @@ public interface AccountsRepository extends JpaRepository <AccountsModel, Long> 
 	
 	// ---------------------------------------------------------------------------------------------------------
 
-	// Q2. I need a query to be written for the below method which returns true or false depending on wether a username is in the database
+	// Q2. I need a query to be written for the below method which returns true or false depending on wether the given username is in the accounts_model database table
 	public boolean existsByUsername(String username); // (your query will replace this method)
 	
 	// ---------------------------------------------------------------------------------------------------------
