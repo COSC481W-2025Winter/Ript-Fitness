@@ -21,7 +21,7 @@ public interface AccountsRepository extends JpaRepository <AccountsModel, Long> 
 	
 	// ---------------------------------------------------------------------------------------------------------
     
-	// Q3. I need a query here that gets the ID based off of the username that is entered in the login page
+	// Q3. I need a query here that gets the ID based off of the username that is entered in the login page from the accounts_model table in DB
     @Query("")
     Optional<Long> findIdByUsername(@Param("username") String username);
 
