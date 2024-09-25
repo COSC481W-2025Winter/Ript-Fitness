@@ -1,5 +1,6 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +58,7 @@ public class AccountsService {
 	
 	
 	// Method to get account details:
-	public AccountsDto logIntoAccount(String username, String password) {
+	public AccountsDto logIntoAccount(String username, String password, LocalDateTime lastLogin) {
 	    // Get the ID via username
 	    Optional<Long> optionalId = accountsRepository.findIdByUsername(username);
 	    
@@ -72,6 +73,9 @@ public class AccountsService {
 	            							  + username + "' does not exist..."));
 	        // Verify the password
 	        if (possibleAccount.getPassword().equals(password)) {
+	        	// Update the login date:
+	        	accountsRepository.updateLoginDate(username, lastLogin);
+	        	// Convert to DTO:
 	            System.out.println("Login successful for user: " + username);
 	            return AccountsMapper.INSTANCE.convertToDto(possibleAccount);
 	        } else {

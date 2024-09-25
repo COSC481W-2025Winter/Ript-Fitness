@@ -1,5 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.web.controller;
 
+import java.time.LocalDateTime;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,8 +38,9 @@ public class AccountsController {
         // Extract username and password from the request body
         String username = loginRequest.getUsername();
         String password = loginRequest.getPassword();
+        LocalDateTime lastLogin = loginRequest.getlastLogin();
         // Attempt to log into the specified account
-        AccountsDto accountToLogin = accountsService.logIntoAccount(username, password);
+        AccountsDto accountToLogin = accountsService.logIntoAccount(username, password, lastLogin);
         return new ResponseEntity<>(accountToLogin, HttpStatus.OK);
     }
 	

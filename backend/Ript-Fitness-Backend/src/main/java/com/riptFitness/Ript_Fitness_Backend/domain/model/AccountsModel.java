@@ -1,9 +1,12 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
 
 @Entity // Creates a database table with that name and columns equal to the variables in the object class
@@ -18,6 +21,14 @@ public class AccountsModel {
     private String username;
     private String password;
     private String email;
+    private LocalDateTime lastLogin;
+    
+    // Automatically set the date
+    @PostPersist
+    protected void onCreate() {
+        this.lastLogin = LocalDateTime.now();
+    }
+
 
     // Getters:
     public Long getId() {
@@ -35,6 +46,10 @@ public class AccountsModel {
     public String getEmail() {
         return email;
     }
+    
+    public LocalDateTime getlastLogin(){
+    	return lastLogin;
+    }
 
     // Setters:
     public void setId(Long id) {
@@ -46,10 +61,14 @@ public class AccountsModel {
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = password; 
     }
 
     public void setEmail(String email) {
         this.email = email;
+    }
+    
+    public void setlastLogin(LocalDateTime lastLogin) {
+    	this.lastLogin = lastLogin;
     }
 }
