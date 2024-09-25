@@ -20,7 +20,7 @@ public interface NutritionTrackerDayRepository extends JpaRepository<Day, Long>{
 		//Day save(Day dayModel): Saves dayModel to "Dahy" database table
 	
 	@Override
-	@Query("SELECT d FROM Day d WHERE d.dayId = :dayId AND f.isDeleted = false")
+	@Query("SELECT d FROM Day d WHERE d.dayId = :dayId AND d.isDeleted = false")
 	Optional<Day> findById(Long dayId);
 	
 	 @Modifying
@@ -32,7 +32,7 @@ public interface NutritionTrackerDayRepository extends JpaRepository<Day, Long>{
 			   @Param("totalFat") double totalFat,
 			   @Param("isDeleted") boolean isDeleted, 
 			   
-			   @Param("foodIdsInFoodsEatenInDayList") List<Long> foodIdsInFoodsEatenInDayList; 
+			   @Param("foodIdsInFoodsEatenInDayList") List<Long> foodIdsInFoodsEatenInDayList); 
 			   //@Param("foodsEatenInDay") int foodsEatenInDay);
 	
 
