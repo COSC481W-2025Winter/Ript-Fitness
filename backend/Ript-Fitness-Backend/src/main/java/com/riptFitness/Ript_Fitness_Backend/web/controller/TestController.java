@@ -2,6 +2,7 @@ package com.riptFitness.Ript_Fitness_Backend.web.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,10 +33,10 @@ public class TestController {
 	
 	// Below is a GET test to see if we can retrieve a test object from a database
 	@GetMapping("/getTestObject/{id}") 
-	public ResponseEntity<String> getObjectTest(@PathVariable Long id) {
+	public ResponseEntity<TestDto> getObjectTest(@PathVariable Long id) {
 		TestDto retrievedTestDto = testService.getTestDto(id);
-		String testDtoFields = "First: " + retrievedTestDto.getFirstName() + " Last: " + retrievedTestDto.getLastName();
-		return new ResponseEntity<>(testDtoFields, HttpStatus.OK);
+		//String testDtoFields = "First: " + retrievedTestDto.getFirstName() + " Last: " + retrievedTestDto.getLastName();
+		return new ResponseEntity<>(retrievedTestDto, HttpStatus.OK);
 	}
 	
 	// Below is a POST test for adding something to a database
@@ -47,14 +48,24 @@ public class TestController {
 	
 	// Below is a PUT test for editing an object in the database (first/last name)
 	@PutMapping("/editNameTest")
-	public ResponseEntity<String> editNameTest(@RequestBody TestDto testDto) {
+	public ResponseEntity<TestDto> editNameTest(@RequestBody TestDto testDto) {
 		// Call the service method to edit the object:
 		TestDto editedTestDto = testService.editFirstLast(testDto);
 		// Create a string representation of the object:
-		String updatedDto = "Id: " + editedTestDto.getId() + "\n" + "First Name: " + editedTestDto.getFirstName() 
-								+ "\n" + "Last Name: " + editedTestDto.getLastName(); 
-		return new ResponseEntity<>(updatedDto, HttpStatus.OK);
+//		String updatedDto = "Id: " + editedTestDto.getId() + "\n" + "First Name: " + editedTestDto.getFirstName() 
+//								+ "\n" + "Last Name: " + editedTestDto.getLastName(); 
+		return new ResponseEntity<>(editedTestDto, HttpStatus.OK);
 	}
+	
+	// Below is an example of a hard deletion (DELETE), although we may implement soft deletion with a boolean later
+	@DeleteMapping("deleteTestObjectById/{id}")
+	public ResponseEntity<TestDto> deleteTestObjectById(@PathVariable Long id) {
+		// Call the service method with the object's ID to delete:
+		TestDto objectDeletedDto = testService.deleteTestObjectById(id);
+		// Return the response entity with the message that we created:
+		return new ResponseEntity<>(objectDeletedDto, HttpStatus.OK);
+	}
+	
 }
 
 

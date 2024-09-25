@@ -17,7 +17,7 @@ public class TestService {
 	}
 
 	public String testEndpointService() {
-		return "The call to the endpoint was successful!";
+		return "Success! Workflow button Success!";
 	}
 	
 	// Below is for adding a object into the database(POST):
@@ -44,6 +44,18 @@ public class TestService {
 		TestModel editedObj = testRepository.save(testModel);
 		// Return updated object as a DTO:
 		return TestMapper.INSTANCE.toTestDto(editedObj);
+	}
+	
+	// Below is a method for hard deletion of an object in the database:
+	public TestDto deleteTestObjectById(Long id) {
+		// Check if the object was deleted via id:
+		boolean exists = testRepository.existsById(id);
+		TestModel objectToBeDeleted = testRepository.getReferenceById(id);
+		// If the object exists, delete it:
+		if(exists) {
+			testRepository.deleteById(id);
+		}
+		return TestMapper.INSTANCE.toTestDto(objectToBeDeleted);
 	}
 	
 }

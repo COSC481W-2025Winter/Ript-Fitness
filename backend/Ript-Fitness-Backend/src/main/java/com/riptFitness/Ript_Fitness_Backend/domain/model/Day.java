@@ -1,0 +1,38 @@
+package com.riptFitness.Ript_Fitness_Backend.domain.model;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.JoinColumn;
+
+@Entity		//Tells database to create a table in the database called "Food" with column defined below
+public class Day {
+
+	@Id		//Defines "id" as the primary key in the database
+	@GeneratedValue(strategy = GenerationType.IDENTITY)		//Tells database to add 1 to previous row's id value and assign to next row (first row id = 1, second row id = 2...)
+	public Long id;
+	
+	//Defines many-to-many foreign key relationship in database between Day and Food. ChatGpt/Stack Overflow will define this for you
+	//Disclaimer: ChatGpt helped me create this command
+	@ManyToMany
+	@JoinTable(
+			name = "day_food",
+			joinColumns = @JoinColumn(name = "day_id"),
+			inverseJoinColumns = @JoinColumn(name = "food_id")
+	)
+	public List<Food> foodsEatenInDay = new ArrayList<>();
+	
+	public List<Long> foodIdsInFoodsEatenInDayList = new ArrayList<>();
+
+	public double calories;
+	public double totalCarbs;
+	public double totalProtein;
+	public double totalFat;
+	public boolean isDeleted = false;
+}
