@@ -16,7 +16,7 @@ import jakarta.transaction.Transactional;
 public interface AccountsRepository extends JpaRepository <AccountsModel, Long> { 
 	
 	// Q1. I need a query that saves an AccountsModel object into the accounts_model table given that the user enteres a username, password, and email
-	//public AccountsModel saveAccountModel(String username, String password, String email, LocalDateTime loginDate);
+	public AccountsModel saveAccountModel(String username, String password, String email, LocalDateTime loginDate);
 	
 	// ---------------------------------------------------------------------------------------------------------
 
