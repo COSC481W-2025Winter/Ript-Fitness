@@ -169,7 +169,7 @@ public class NutritionTrackerService {
 		return DayMapper.INSTANCE.toDayDto(dayBeingUpdated);
 	}
 	
-	private void calculateTotalDayStats(Day day) {	
+	public void calculateTotalDayStats(Day day) {	
 		if(day == null)
 			throw new IllegalArgumentException("Day cannot be null in calculateTotalDayStats method in CalculateStats class.");
 		
