@@ -15,6 +15,7 @@ import { ThemedView } from './components/ThemedView';
 import { ThemedText } from './components/ThemedText';
 import { BodyContext } from './context/BodyContext';
 import SplashScreen from '@/app/screens/SplashScreen';
+import WelcomeScreen from '@/app/screens/WelcomeScreen';
 
 // Define types for the navigation stack
 type RootStackParamList = {
@@ -30,6 +31,8 @@ export default function App() {
   return (
     <GlobalProvider>
 
+    {false ?
+    
     <NavigationContainer>
       <Tab.Navigator initialRouteName="Social">
         <Tab.Screen name="Social" component={SocialStack}  //Each Tab!
@@ -61,7 +64,10 @@ export default function App() {
                   }}/>
       </Tab.Navigator>
     </NavigationContainer>
-    <SplashScreen />
+    :
+    // <SplashScreen />
+    <WelcomeScreen />
+                }
     </GlobalProvider>
   );
 }
