@@ -8,14 +8,15 @@ type CustomButtonProps = {
   width?: number,
   textColor?: string;
   fontSize?: number;
+  onPress?: () => void;
 };
 
-const CustomButton: React.FC<CustomButtonProps> = ({ title, backgroundColor, borderColor, borderWidth, width, textColor, fontSize }) => {
+const CustomButton: React.FC<CustomButtonProps> = ({ title, backgroundColor, borderColor, borderWidth, width, textColor, fontSize, onPress }) => {
   const buttonStyle: ViewStyle = {
     backgroundColor: backgroundColor || '#03A696',
     borderColor: borderColor || 'transparent',
     borderWidth: borderWidth !== undefined ? borderWidth : borderColor ? 1 : 0,
-    width: width || 'auto'
+    width: width || '70%'
   };
 
   const textStyle: TextStyle = {
@@ -24,7 +25,11 @@ const CustomButton: React.FC<CustomButtonProps> = ({ title, backgroundColor, bor
   };
 
   return (
-    <TouchableOpacity style={[styles.button, buttonStyle]}>
+    <TouchableOpacity 
+      style={[styles.button, buttonStyle]} 
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
       <Text style={[textStyle]}>{title}</Text>
     </TouchableOpacity>
   )

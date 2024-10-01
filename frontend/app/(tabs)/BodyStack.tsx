@@ -4,7 +4,6 @@ import { Image, StyleSheet, Platform, ScrollView, View } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import ContactButton from '@/components/custom/ContactButton';
 import { createStackNavigator } from '@react-navigation/stack';
 import { BodyProvider } from '@/context/BodyContext';
 import ApiScreen from '@/app/screens/ApiScreen';

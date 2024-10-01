@@ -2,6 +2,7 @@ import 'react-native-gesture-handler';  // Necessary for React Navigation
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,14 +17,19 @@ import { ThemedText } from './components/ThemedText';
 import { BodyContext } from './context/BodyContext';
 import SplashScreen from '@/app/screens/SplashScreen';
 import WelcomeScreen from '@/app/screens/WelcomeScreen';
+import LoginScreen from '@/app/screens/LoginScreen';
+import SignupScreen from './app/screens/SignupScreen';
 
 // Define types for the navigation stack
-type RootStackParamList = {
+export type RootStackParamList = {
+  Welcome: undefined;
+  Login: undefined;
+  Signup: undefined;
   Home: undefined;
-  Details: undefined;
+  // Details: undefined;
 };
 
-//const Stack = createStackNavigator<RootStackParamList>();
+const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 
 export default function App() {
@@ -31,9 +37,16 @@ export default function App() {
   return (
     <GlobalProvider>
 
-    {false ?
-    
+    {/* {false ? */}
     <NavigationContainer>
+      <Stack.Navigator initialRouteName="Welcome">
+        <Stack.Screen options={{headerShown: false}}  name="Welcome" component={WelcomeScreen} />
+        <Stack.Screen options={{headerShown: false}}  name="Login" component={LoginScreen} />
+        <Stack.Screen options={{headerShown: false}}  name="Signup" component={SignupScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+
+    {/* <NavigationContainer>
       <Tab.Navigator initialRouteName="Social">
         <Tab.Screen name="Social" component={SocialStack}  //Each Tab!
                   options={{
@@ -63,11 +76,11 @@ export default function App() {
                     ),
                   }}/>
       </Tab.Navigator>
-    </NavigationContainer>
-    :
+    </NavigationContainer> */}
+    {/* // :
     // <SplashScreen />
     <WelcomeScreen />
-                }
+                } */}
     </GlobalProvider>
   );
 }

@@ -2,31 +2,24 @@ import CustomButton from '@/components/custom/CustomButton';
 import LogoImage from '@/components/custom/LogoImage';
 import { View, Text, StyleSheet } from 'react-native'
 
-// Navigation imports
-
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../App';
-
-type WelcomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Welcome'>;
-
-
-const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
+export default function SignupScreen() {
   return (
     <View style={styles.container}>
       <View>
           <LogoImage style={styles.logo}/>
       </View>
       <View>
-        <Text style={styles.welcomeText}>Welcome to Ript Fitness</Text>
+        <Text style={styles.welcomeText}>Register</Text>
+        <Text style={styles.descText}>Create your Account</Text>
         <View style={styles.buttonContainer}>
           <CustomButton 
-            title="Log in" 
-            width={210} 
+            title="Sign up" 
             fontSize={16}
-            onPress={()  => navigation.navigate('Login')}
+            width={150} 
+            // onPress={()  => navigation.navigate('Login')}
           />
         </View>
-        <View style={styles.buttonContainer}>
+        {/* <View style={styles.buttonContainer}>
           <CustomButton
             title="Sign up"
             width={210}
@@ -34,10 +27,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
             borderColor='#03A696'
             borderWidth={2}
             textColor='#03A696'
-            fontSize={16}
-            onPress={()  => navigation.navigate('Signup')}
+            // handlePress={() => TabRouter.push('/LoginScreen')}
           />
-        </View>
+        </View> */}
       </View>        
     </View>
   );
@@ -55,13 +47,16 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     fontSize: 24,
+    // margin: 10,
+    textAlign: 'center'
+  },
+  descText: {
+    fontSize: 15,
     margin: 10,
     textAlign: 'center'
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
 });
-
-export default WelcomeScreen;
