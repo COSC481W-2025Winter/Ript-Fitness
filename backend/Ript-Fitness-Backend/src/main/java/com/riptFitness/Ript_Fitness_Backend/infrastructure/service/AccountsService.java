@@ -48,7 +48,12 @@ public class AccountsService {
 		// Get the username:
 		String username = accountsModel.getUsername();
 		// Check to see if the username already exists:
-		boolean usernameExists = accountsRepository.existsByUsername(username);
+		Long count = accountsRepository.existsByUsername(username);
+		// Convert the Long to a boolean:
+		boolean usernameExists = false;
+		if(count > 0) {
+			usernameExists = true;
+		}
 		if (usernameExists) {
 		    // If the username exists, we need to throw an error code:
 			throw new RuntimeException("The username: '" + username + "' already has an account associated with it");

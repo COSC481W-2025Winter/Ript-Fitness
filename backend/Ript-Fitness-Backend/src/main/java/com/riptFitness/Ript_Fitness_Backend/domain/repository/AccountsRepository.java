@@ -17,8 +17,8 @@ public interface AccountsRepository extends JpaRepository <AccountsModel, Long> 
 	
 	// Query that saves an AccountsModel object into the accounts_model table given that the user enters a username, password, and email
 	@Modifying
-    @Query(value = "INSERT INTO accounts_model (username, password, email, loginDate) VALUES (:username, :password, :email)", nativeQuery = true)
-    void saveAccountModel(@Param("username") String username, @Param("password") String password, @Param("email") String email, @Param("loginDate") LocalDateTime loginDate );
+    @Query(value = "INSERT INTO accounts_model (username, password, email, loginDate) VALUES (:username, :password, :email, :loginDate)", nativeQuery = true)
+    void saveAccountModel(@Param("username") String username, @Param("password") String password, @Param("email") String email, @Param("loginDate") LocalDateTime loginDate);
 	
 	//public AccountsModel saveAccountModel(String username, String password, String email, LocalDateTime loginDate);
 	
@@ -26,8 +26,9 @@ public interface AccountsRepository extends JpaRepository <AccountsModel, Long> 
 
 	// Query which returns true or false depending on whether the given username is in the accounts_model database table
 	//public boolean existsByUsername(String username); // (your query will replace this method)
-	@Query(value = "SELECT COUNT(*) > 0 FROM accounts_model WHERE username = :username", nativeQuery = true)
-    boolean existsByUsername(@Param("username") String username);
+	@Query(value = "SELECT CASE WHEN COUNT(*) > 0 THEN true ELSE false END FROM accounts_model WHERE username = :username", nativeQuery = true)
+	Long existsByUsername(@Param("username") String username);
+
 	
 	
 	// ---------------------------------------------------------------------------------------------------------
@@ -42,7 +43,7 @@ public interface AccountsRepository extends JpaRepository <AccountsModel, Long> 
     // Query that resets 'lastLogin' in the database every time that a login has been made (UPDATE) based off of username.
     @Modifying // This is neccesary because we are modifying the database instead of creating something new
     @Transactional // This is required for modifying queries
-    @Query(value = "UPDATE accounts_model SET last_login = CURRENT_TIMESTAMP WHERE username = :username", nativeQuery = true)
+    @Query(value = "UPDATE accounts_model SET last_login = :lastLogin WHERE username = :username", nativeQuery = true)
     void updateLoginDate(@Param("username") String username, @Param("lastLogin") LocalDateTime lastLogin);
     
     
