@@ -4,11 +4,9 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.AccountsMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
@@ -20,10 +18,12 @@ public class AccountsService {
 	// Create an instance of the repository layer:
 	@Autowired
 	public AccountsRepository accountsRepository;
+	private final PasswordEncoder passwordEncoder;
 	
 	// Constructor:
-	public AccountsService(AccountsRepository accountsRepository) {
+	public AccountsService(AccountsRepository accountsRepository, PasswordEncoder passwordEncoder) {
 		this.accountsRepository = accountsRepository;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	
@@ -58,7 +58,16 @@ public class AccountsService {
 		    // If the username exists, we need to throw an error code:
 			throw new RuntimeException("The username: '" + username + "' already has an account associated with it");
 		} else {
-		// If the username does not exist; allow the user to create an account:
+			// If the username does not exist; allow the user to create an account.
+			// Encode and set password:
+			String rawPassword = accountsModel.getPassword();
+			String encodedPassword = passwordEncoder.encode(rawPassword);
+			accountsModel.setPassword(encodedPassword);
+			// Encode and set email.
+			String rawEmail = accountsModel.getEmail();
+			String encodedEmail = passwordEncoder.encode(rawEmail);
+			accountsModel.setEmail(encodedEmail);
+			//accountsRepository.saveAccountModel(accountsModel.getUsername(), accountsModel.getPassword(), accountsModel.getEmail(), accountsModel.getlastLogin());
 			accountsRepository.save(accountsModel);
 		}
 		return AccountsMapper.INSTANCE.convertToDto(accountsModel);
@@ -68,6 +77,7 @@ public class AccountsService {
 	
 	
 	// Method to get account details:
+	@Transactional
 	public AccountsDto logIntoAccount(String username, String password, LocalDateTime lastLogin) {
 	    // Get the ID via username
 	    Optional<Long> optionalId = accountsRepository.findIdByUsername(username);
@@ -81,8 +91,12 @@ public class AccountsService {
 	        AccountsModel possibleAccount = accountsRepository.findById(id)
 	            .orElseThrow(() -> new RuntimeException("Account with username: '" 
 	            							  + username + "' does not exist..."));
+	        // Verify the password using Argon2
+	        String encodedPassword = possibleAccount.getPassword();
+	        boolean passwordMatches = passwordEncoder.matches(password, encodedPassword);
+	        
 	        // Verify the password
-	        if (possibleAccount.getPassword().equals(password)) {
+	        if (passwordMatches) {
 	        	// Update the login date:
 	        	accountsRepository.updateLoginDate(username, lastLogin);
 	        	// Convert to DTO:

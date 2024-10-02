@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 
 public interface AccountsRepository extends JpaRepository <AccountsModel, Long> { 
