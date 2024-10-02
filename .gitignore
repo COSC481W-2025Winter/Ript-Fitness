@@ -28,6 +28,24 @@ frontend/build/
 frontend/.npm/
 frontend/.yarn/
 
+#Additional frontend ignores for React Native
+frontend/.expo/
+frontend/npm-debug.*
+frontend/*.jks
+frontend/*.p8
+frontend/*.p12
+frontend/*.key
+frontend/*.mobileprovision
+frontend/*.orig.*
+frontend/web-build/
+frontend/package-lock.json
+frontend/%ProgramData%
+# macOS
+frontend/.DS_Store
+
+frontend/expo-env.d.ts
+# @end expo-cli
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
