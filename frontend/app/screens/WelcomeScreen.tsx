@@ -3,7 +3,6 @@ import LogoImage from '@/components/custom/LogoImage';
 import { View, Text, StyleSheet } from 'react-native'
 
 // Navigation imports
-
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
 

@@ -1,16 +1,34 @@
 import CustomButton from '@/components/custom/CustomButton';
 import CustomTextInput from '@/components/custom/CustomTextInput';
 import LogoImage from '@/components/custom/LogoImage';
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native'
+import React, { useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Dimensions, TouchableOpacity } from 'react-native'
 
-export default function LoginScreen() {
+// Navigation imports
+import { RootStackParamList } from '../../App';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+
+
+type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
+
+const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+  const [showPassword, setShowPassword] = useState(false);
+
+  const { width } = Dimensions.get('window');
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+  
   return (
     <KeyboardAvoidingView 
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.container}>
           <View>
               <LogoImage style={styles.logo}/>
@@ -20,23 +38,43 @@ export default function LoginScreen() {
             <Text style={styles.descText}>Sign into your Account</Text>
             <CustomTextInput
               placeholder='Username'
-              width={240}
+              width={width * 0.65}
             />
-            <CustomTextInput
-              placeholder='Password'
-              width={240}
-            />
+            <View style={styles.inputIconContainer}>
+              <CustomTextInput
+                placeholder='Password'
+                secureTextEntry={!showPassword}
+                width={width * 0.65}
+              />
+              <TouchableOpacity onPress={toggleShowPassword} style={styles.iconContainer}>
+                <Ionicons 
+                  name={showPassword ? 'eye-off-outline' : 'eye-outline'} 
+                  color={'#A69B8F'}
+                  size={24}
+                />
+              </TouchableOpacity>
+            </View>
             <CustomButton 
               title="Log in" 
               fontSize={16}
-              width={150} 
+              width={width * 0.4} 
               // onPress={()  => navigation.navigate('Login')}
             />
+            <View style={styles.textButtonContainer}>
+              <Text style={{ fontSize: 12}}>Don't have an account?</Text>
+              <CustomButton
+                title='Sign up'
+                backgroundColor='transparent'
+                textColor='#03A696'
+                fontSize={12}
+                underlineOnPress={true}
+                onPress={() => navigation.navigate('Signup')}
+              />
+            </View>
           </View>       
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
-
   );
 }
 
@@ -66,10 +104,27 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center'
   },
+  inputIconContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    // position: 'relative',
+    justifyContent: 'flex-end'
+  },
+  iconContainer: {
+    position: 'absolute',
+    paddingRight: 7
+  },
   buttonContainer: {
     flexDirection: 'column',
     // justifyContent: 'center',
     alignItems: 'center',
     paddingBottom: 20
   },
+  textButtonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: -10
+  },
 });
+
+export default LoginScreen; 

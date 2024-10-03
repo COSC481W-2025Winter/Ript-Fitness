@@ -3,7 +3,7 @@ import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { View, Text } from 'react-native';
+import { View, Text, StatusBar } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import SocialStack from './app/(tabs)/SocialStack';
@@ -36,15 +36,16 @@ export default function App() {
 
   return (
     <GlobalProvider>
+      <StatusBar barStyle="default" />
 
     {/* {false ? */}
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Welcome">
-        <Stack.Screen options={{headerShown: false}}  name="Welcome" component={WelcomeScreen} />
-        <Stack.Screen options={{headerShown: false}}  name="Login" component={LoginScreen} />
-        <Stack.Screen options={{headerShown: false}}  name="Signup" component={SignupScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Welcome">
+          <Stack.Screen options={{headerShown: false}}  name="Welcome" component={WelcomeScreen} />
+          <Stack.Screen options={{headerShown: false}}  name="Login" component={LoginScreen} />
+          <Stack.Screen options={{headerShown: false}}  name="Signup" component={SignupScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
 
     {/* <NavigationContainer>
       <Tab.Navigator initialRouteName="Social">
