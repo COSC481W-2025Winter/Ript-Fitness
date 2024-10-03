@@ -35,12 +35,8 @@ public class AccountsController {
 	// Below is a Get for verifying login details
 	@GetMapping("/login")
     public ResponseEntity<AccountsDto> login(@RequestBody LoginRequestDto loginRequest) {
-        // Extract username and password from the request body
-        String username = loginRequest.getUsername();
-        String password = loginRequest.getPassword();
-        LocalDateTime lastLogin = loginRequest.getlastLogin();
         // Attempt to log into the specified account
-        AccountsDto accountToLogin = accountsService.logIntoAccount(username, password, lastLogin);
+        AccountsDto accountToLogin = accountsService.logIntoAccount(loginRequest);
         return new ResponseEntity<>(accountToLogin, HttpStatus.OK);
     }
 	

@@ -1,10 +1,17 @@
 package com.riptFitness.Ript_Fitness_Backend.infastructure.serviceTests;
 
-import com.riptFitness.Ript_Fitness_Backend.domain.mapper.AccountsMapper;
-import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
-import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
-import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AccountsService;
-import com.riptFitness.Ript_Fitness_Backend.web.dto.AccountsDto;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,18 +19,23 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import com.riptFitness.Ript_Fitness_Backend.domain.mapper.AccountsMapper;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AccountsService;
+import com.riptFitness.Ript_Fitness_Backend.web.dto.AccountsDto;
+import com.riptFitness.Ript_Fitness_Backend.web.dto.LoginRequestDto;
 
 @ExtendWith(MockitoExtension.class)
 public class AccountsServiceTest {
 
     @Mock
     private AccountsRepository accountsRepository;
+    
+    @Mock
+    private PasswordEncoder passwordEncoder; // Add PasswordEncoder mock
 
     @InjectMocks
     private AccountsService accountsService;
@@ -49,7 +61,7 @@ public class AccountsServiceTest {
     @Test
     public void testCreateNewAccount_Success() {
         // Mocking
-        when(accountsRepository.existsByUsername(accountsDto.getUsername())).thenReturn(false);
+        when(accountsRepository.existsByUsername(accountsDto.getUsername())).thenReturn((long) 0);
         when(accountsRepository.save(any(AccountsModel.class))).thenReturn(accountsModel);
 
         // Execute
@@ -73,7 +85,7 @@ public class AccountsServiceTest {
     @Test
     public void testCreateNewAccount_UsernameExists() {
         // Mocking
-        when(accountsRepository.existsByUsername(accountsDto.getUsername())).thenReturn(true);
+        when(accountsRepository.existsByUsername(accountsDto.getUsername())).thenReturn((long) 1);
 
         // Execute and Verify
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -95,15 +107,20 @@ public class AccountsServiceTest {
         AccountsModel existingAccount = new AccountsModel();
         existingAccount.setId(id);
         existingAccount.setUsername(username);
-        existingAccount.setPassword(password);
+        existingAccount.setPassword("encodedPassword123"); // Assume this is the encoded password
         existingAccount.setEmail("test@example.com");
 
         // Mocking
         when(accountsRepository.findIdByUsername(username)).thenReturn(Optional.of(id));
         when(accountsRepository.findById(id)).thenReturn(Optional.of(existingAccount));
+        when(passwordEncoder.matches(password, "encodedPassword123")).thenReturn(true); // Mock password comparison
 
         // Execute
-        AccountsDto result = accountsService.logIntoAccount(username, password, lastLogin);
+        LoginRequestDto loginRequest = new LoginRequestDto();
+        loginRequest.setUsername(username);
+        loginRequest.setPassword(password);
+        loginRequest.setlastLogin(lastLogin);
+        AccountsDto result = accountsService.logIntoAccount(loginRequest);
 
         // Verify
         assertNotNull(result);
@@ -132,7 +149,11 @@ public class AccountsServiceTest {
 
         // Execute and Verify
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            accountsService.logIntoAccount(username, password, lastLogin);
+        	LoginRequestDto loginRequest = new LoginRequestDto();
+            loginRequest.setUsername(username);
+            loginRequest.setPassword(password);
+            loginRequest.setlastLogin(lastLogin);
+            accountsService.logIntoAccount(loginRequest);
         });
 
         assertEquals("An unexpected error has occured. Message: The password: 'wrongPassword' is incorrect", exception.getMessage());
@@ -151,7 +172,11 @@ public class AccountsServiceTest {
 
         // Execute and Verify
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            accountsService.logIntoAccount(username, password, lastLogin);
+        	LoginRequestDto loginRequest = new LoginRequestDto();
+            loginRequest.setUsername(username);
+            loginRequest.setPassword(password);
+            loginRequest.setlastLogin(lastLogin);
+            accountsService.logIntoAccount(loginRequest);
         });
 
         assertEquals("Account with username: 'nonExistingUser' does not exist...", exception.getMessage());

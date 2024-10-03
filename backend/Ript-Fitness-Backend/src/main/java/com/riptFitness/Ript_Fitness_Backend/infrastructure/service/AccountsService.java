@@ -12,6 +12,7 @@ import com.riptFitness.Ript_Fitness_Backend.domain.mapper.AccountsMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.AccountsDto;
+import com.riptFitness.Ript_Fitness_Backend.web.dto.LoginRequestDto;
 
 @Service 
 public class AccountsService {
@@ -78,7 +79,12 @@ public class AccountsService {
 	
 	// Method to get account details:
 	@Transactional
-	public AccountsDto logIntoAccount(String username, String password, LocalDateTime lastLogin) {
+	public AccountsDto logIntoAccount(LoginRequestDto loginRequest) {
+		 // Extract username and password from the request body
+        String username = loginRequest.getUsername();
+        String password = loginRequest.getPassword();
+        LocalDateTime lastLogin = loginRequest.getlastLogin();
+		
 	    // Get the ID via username
 	    Optional<Long> optionalId = accountsRepository.findIdByUsername(username);
 	    
