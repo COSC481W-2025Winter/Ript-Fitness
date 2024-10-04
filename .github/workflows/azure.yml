@@ -5,12 +5,12 @@ on:
     branches:
       - main  # You can change this to whatever branch you want to trigger the workflow
 
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Which branch to push to the Azure Server'
-        default: 'main'
-        required: true
+  #workflow_dispatch:
+    #inputs:
+      #branch:
+        #description: 'Which branch to push to the Azure Server'
+        #default: 'main'
+        #required: true
 
 jobs:
   build:
