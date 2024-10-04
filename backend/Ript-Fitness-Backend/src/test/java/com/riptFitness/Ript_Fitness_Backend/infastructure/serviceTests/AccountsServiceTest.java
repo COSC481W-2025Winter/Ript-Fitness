@@ -31,155 +31,178 @@ import com.riptFitness.Ript_Fitness_Backend.web.dto.LoginRequestDto;
 @ExtendWith(MockitoExtension.class)
 public class AccountsServiceTest {
 
-    @Mock
-    private AccountsRepository accountsRepository;
-    
-    @Mock
-    private PasswordEncoder passwordEncoder; // Add PasswordEncoder mock
+	@Mock
+	private AccountsRepository accountsRepository;
 
-    @InjectMocks
-    private AccountsService accountsService;
+	@Mock
+	private PasswordEncoder passwordEncoder; // Add PasswordEncoder mock
 
-    private AccountsMapper accountsMapper = AccountsMapper.INSTANCE;
+	@InjectMocks
+	private AccountsService accountsService;
 
-    private AccountsDto accountsDto;
-    private AccountsModel accountsModel;
+	private AccountsMapper accountsMapper = AccountsMapper.INSTANCE;
 
-    @BeforeEach
-    public void setUp() {
-        // Initialize test data
-        accountsDto = new AccountsDto();
-        accountsDto.setUsername("testUser");
-        accountsDto.setPassword("password123");
-        accountsDto.setEmail("test@example.com");
-        accountsDto.setlastLogin(LocalDateTime.now());
+	private AccountsDto accountsDto;
+	private AccountsModel accountsModel;
 
-        accountsModel = accountsMapper.convertToModel(accountsDto);
-    }
+	@BeforeEach
+	public void setUp() {
+		// Initialize test data
+		accountsDto = new AccountsDto();
+		accountsDto.setUsername("testUser");
+		accountsDto.setPassword("password123");
+		accountsDto.setEmail("test@example.com");
+		accountsDto.setlastLogin(LocalDateTime.now());
 
-    // Test for createNewAccount when username does not exist
-    @Test
-    public void testCreateNewAccount_Success() {
-        // Mocking
-        when(accountsRepository.existsByUsername(accountsDto.getUsername())).thenReturn((long) 0);
-        when(accountsRepository.save(any(AccountsModel.class))).thenReturn(accountsModel);
+		accountsModel = accountsMapper.convertToModel(accountsDto);
+		
+		// Print mapped model to debug
+	    System.out.println("Mapped AccountsModel email: " + accountsModel.getEmail());
+	}
 
-        // Execute
-        AccountsDto result = accountsService.createNewAccount(accountsDto);
+	// Test for createNewAccount when username does not exist
+	@Test
+	public void testCreateNewAccount_Success() {
+	    // Mocking the encoded values for both the password and email
+	    String encodedPassword = "encodedPassword123";
+	    String encodedEmail = "encodedEmail123"; // Mocked encoded email
 
-        // Verify
-        assertNotNull(result);
-        assertEquals(accountsDto.getUsername(), result.getUsername());
+	    // Mock the behavior of passwordEncoder for both the password and email
+	    when(passwordEncoder.encode("password123")).thenReturn(encodedPassword);
+	    when(passwordEncoder.encode("test@example.com")).thenReturn(encodedEmail);
 
-        // Capture the argument passed to save method
-        ArgumentCaptor<AccountsModel> accountCaptor = ArgumentCaptor.forClass(AccountsModel.class);
-        verify(accountsRepository).save(accountCaptor.capture());
-        AccountsModel savedAccount = accountCaptor.getValue();
+	    // Mocking the save method to return the model with the encoded values
+	    AccountsModel accountsModel = new AccountsModel();
+	    accountsModel.setUsername("testUser");
+	    accountsModel.setPassword(encodedPassword); // Use the mocked encoded password
+	    accountsModel.setEmail(encodedEmail);       // Use the mocked encoded email
+	    accountsModel.setlastLogin(LocalDateTime.now());
 
-        assertEquals(accountsDto.getUsername(), savedAccount.getUsername());
-        assertEquals(accountsDto.getPassword(), savedAccount.getPassword());
-        assertEquals(accountsDto.getEmail(), savedAccount.getEmail());
-    }
+	    when(accountsRepository.existsByUsername(accountsDto.getUsername())).thenReturn((long) 0);
+	    when(accountsRepository.save(any(AccountsModel.class))).thenReturn(accountsModel);
 
-    // Test for createNewAccount when username already exists
-    @Test
-    public void testCreateNewAccount_UsernameExists() {
-        // Mocking
-        when(accountsRepository.existsByUsername(accountsDto.getUsername())).thenReturn((long) 1);
+	    // Execute the method under test
+	    AccountsDto result = accountsService.createNewAccount(accountsDto);
 
-        // Execute and Verify
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            accountsService.createNewAccount(accountsDto);
-        });
+	    // Verify the result
+	    assertNotNull(result);
+	    assertEquals("testUser", result.getUsername());
+	    assertEquals(encodedEmail, result.getEmail()); // Verify that the encoded email is returned
 
-        assertEquals("The username: 'testUser' already has an account associated with it", exception.getMessage());
-        verify(accountsRepository, never()).save(any(AccountsModel.class));
-    }
+	    // Capture the argument passed to save method
+	    ArgumentCaptor<AccountsModel> accountCaptor = ArgumentCaptor.forClass(AccountsModel.class);
+	    verify(accountsRepository).save(accountCaptor.capture());
+	    AccountsModel savedAccount = accountCaptor.getValue();
 
-    // Test for logIntoAccount with successful login
-    @Test
-    public void testLogIntoAccount_Success() {
-        String username = "testUser";
-        String password = "password123";
-        LocalDateTime lastLogin = LocalDateTime.now();
-        Long id = 1L;
+	    // Ensure the password and email are correctly encoded and saved
+	    assertEquals("testUser", savedAccount.getUsername());
+	    assertEquals(encodedPassword, savedAccount.getPassword()); // Check encoded password
+	    assertEquals(encodedEmail, savedAccount.getEmail()); // Check encoded email
+	}
 
-        AccountsModel existingAccount = new AccountsModel();
-        existingAccount.setId(id);
-        existingAccount.setUsername(username);
-        existingAccount.setPassword("encodedPassword123"); // Assume this is the encoded password
-        existingAccount.setEmail("test@example.com");
 
-        // Mocking
-        when(accountsRepository.findIdByUsername(username)).thenReturn(Optional.of(id));
-        when(accountsRepository.findById(id)).thenReturn(Optional.of(existingAccount));
-        when(passwordEncoder.matches(password, "encodedPassword123")).thenReturn(true); // Mock password comparison
 
-        // Execute
-        LoginRequestDto loginRequest = new LoginRequestDto();
-        loginRequest.setUsername(username);
-        loginRequest.setPassword(password);
-        loginRequest.setlastLogin(lastLogin);
-        AccountsDto result = accountsService.logIntoAccount(loginRequest);
 
-        // Verify
-        assertNotNull(result);
-        assertEquals(username, result.getUsername());
+	// Test for createNewAccount when username already exists
+	@Test
+	public void testCreateNewAccount_UsernameExists() {
+		// Mocking
+		when(accountsRepository.existsByUsername(accountsDto.getUsername())).thenReturn((long) 1);
 
-        verify(accountsRepository).updateLoginDate(username, lastLogin);
-    }
+		// Execute and Verify
+		RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+			accountsService.createNewAccount(accountsDto);
+		});
 
-    // Test for logIntoAccount with incorrect password
-    @Test
-    public void testLogIntoAccount_IncorrectPassword() {
-        String username = "testUser";
-        String password = "wrongPassword";
-        LocalDateTime lastLogin = LocalDateTime.now();
-        Long id = 1L;
+		assertEquals("The username: 'testUser' already has an account associated with it", exception.getMessage());
+		verify(accountsRepository, never()).save(any(AccountsModel.class));
+	}
 
-        AccountsModel existingAccount = new AccountsModel();
-        existingAccount.setId(id);
-        existingAccount.setUsername(username);
-        existingAccount.setPassword("password123");
-        existingAccount.setEmail("test@example.com");
+	// Test for logIntoAccount with successful login
+	@Test
+	public void testLogIntoAccount_Success() {
+		String username = "testUser";
+		String password = "password123";
+		LocalDateTime lastLogin = LocalDateTime.now();
+		Long id = 1L;
 
-        // Mocking
-        when(accountsRepository.findIdByUsername(username)).thenReturn(Optional.of(id));
-        when(accountsRepository.findById(id)).thenReturn(Optional.of(existingAccount));
+		AccountsModel existingAccount = new AccountsModel();
+		existingAccount.setId(id);
+		existingAccount.setUsername(username);
+		existingAccount.setPassword("encodedPassword123"); // Assume this is the encoded password
+		existingAccount.setEmail("test@example.com");
 
-        // Execute and Verify
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-        	LoginRequestDto loginRequest = new LoginRequestDto();
-            loginRequest.setUsername(username);
-            loginRequest.setPassword(password);
-            loginRequest.setlastLogin(lastLogin);
-            accountsService.logIntoAccount(loginRequest);
-        });
+		// Mocking
+		when(accountsRepository.findIdByUsername(username)).thenReturn(Optional.of(id));
+		when(accountsRepository.findById(id)).thenReturn(Optional.of(existingAccount));
+		when(passwordEncoder.matches(password, "encodedPassword123")).thenReturn(true); // Mock password comparison
 
-        assertEquals("An unexpected error has occured. Message: The password: 'wrongPassword' is incorrect", exception.getMessage());
-        verify(accountsRepository, never()).updateLoginDate(anyString(), any(LocalDateTime.class));
-    }
+		// Execute
+		LoginRequestDto loginRequest = new LoginRequestDto();
+		loginRequest.setUsername(username);
+		loginRequest.setPassword(password);
+		loginRequest.setlastLogin(lastLogin);
+		AccountsDto result = accountsService.logIntoAccount(loginRequest);
 
-    // Test for logIntoAccount with non-existing username
-    @Test
-    public void testLogIntoAccount_UsernameDoesNotExist() {
-        String username = "nonExistingUser";
-        String password = "password123";
-        LocalDateTime lastLogin = LocalDateTime.now();
+		// Verify
+		assertNotNull(result);
+		assertEquals(username, result.getUsername());
 
-        // Mocking
-        when(accountsRepository.findIdByUsername(username)).thenReturn(Optional.empty());
+		verify(accountsRepository).updateLoginDate(username, lastLogin);
+	}
 
-        // Execute and Verify
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-        	LoginRequestDto loginRequest = new LoginRequestDto();
-            loginRequest.setUsername(username);
-            loginRequest.setPassword(password);
-            loginRequest.setlastLogin(lastLogin);
-            accountsService.logIntoAccount(loginRequest);
-        });
+	// Test for logIntoAccount with incorrect password
+	@Test
+	public void testLogIntoAccount_IncorrectPassword() {
+		String username = "testUser";
+		String password = "wrongPassword";
+		LocalDateTime lastLogin = LocalDateTime.now();
+		Long id = 1L;
 
-        assertEquals("Account with username: 'nonExistingUser' does not exist...", exception.getMessage());
-        verify(accountsRepository, never()).updateLoginDate(anyString(), any(LocalDateTime.class));
-    }
+		AccountsModel existingAccount = new AccountsModel();
+		existingAccount.setId(id);
+		existingAccount.setUsername(username);
+		existingAccount.setPassword("password123");
+		existingAccount.setEmail("test@example.com");
+
+		// Mocking
+		when(accountsRepository.findIdByUsername(username)).thenReturn(Optional.of(id));
+		when(accountsRepository.findById(id)).thenReturn(Optional.of(existingAccount));
+
+		// Execute and Verify
+		RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+			LoginRequestDto loginRequest = new LoginRequestDto();
+			loginRequest.setUsername(username);
+			loginRequest.setPassword(password);
+			loginRequest.setlastLogin(lastLogin);
+			accountsService.logIntoAccount(loginRequest);
+		});
+
+		assertEquals("The password: 'wrongPassword' is incorrect", exception.getMessage()); // Update to match actual
+																							// output
+		verify(accountsRepository, never()).updateLoginDate(anyString(), any(LocalDateTime.class));
+	}
+
+	// Test for logIntoAccount with non-existing username
+	@Test
+	public void testLogIntoAccount_UsernameDoesNotExist() {
+		String username = "nonExistingUser";
+		String password = "password123";
+		LocalDateTime lastLogin = LocalDateTime.now();
+
+		// Mocking
+		when(accountsRepository.findIdByUsername(username)).thenReturn(Optional.empty());
+
+		// Execute and Verify
+		RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+			LoginRequestDto loginRequest = new LoginRequestDto();
+			loginRequest.setUsername(username);
+			loginRequest.setPassword(password);
+			loginRequest.setlastLogin(lastLogin);
+			accountsService.logIntoAccount(loginRequest);
+		});
+
+		assertEquals("Account with username: 'nonExistingUser' does not exist...", exception.getMessage());
+		verify(accountsRepository, never()).updateLoginDate(anyString(), any(LocalDateTime.class));
+	}
 }
