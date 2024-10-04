@@ -1,19 +1,58 @@
-import { StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 
-import { createStackNavigator } from '@react-navigation/stack';
-import ApiScreen from '@/app/screens/ApiScreen';
+import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
 import { WorkoutProvider } from '@/context/WorkoutContext';
+import AddWorkoutScreen from '@/app/screens/workout/AddWorkoutScreen';
+import ApiScreen from '../screens/ApiScreen';
+import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+import { Ionicons } from '@expo/vector-icons';
+import { ThemedText } from '@/components/ThemedText';
+import { useNavigation } from '@react-navigation/native';
+
 
 
 
 const Stack = createStackNavigator();
 
+
+export type WorkoutStackParamList = {
+  ApiScreen: {};
+};
+
+export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamList>;
+
 export default function WorkoutStack(props : any) {
+  const navigation = useNavigation<WorkoutScreenNavigationProp >();
   return (
     <WorkoutProvider>
     <Stack.Navigator initialRouteName="MyHomeScreen123" screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="MyHomeScreen123" component={ApiScreen} />
+      <Stack.Screen name="MyHomeScreen123" component={AddWorkoutScreen} options={{ headerShown: true,
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={[styles.leftButton, styles.button, styles.buttonSize]}>
+            <TabBarIcon style={styles.leftArrow} name='arrow-down' size={30} color='#bbbbbb' />
+          </TouchableOpacity>
+        ),
+        headerTitle: () => (
+          <View style={styles.headerTitleView}>
+            <ThemedText style={styles.title}>Add Workout</ThemedText>
+          </View>
+        ),
+        // <Svg ... /> commented out
+        headerRight: () => (
+          <TouchableOpacity
+            onPress={() => { console.log("pressed2") }}
+            style={[styles.rightButton, styles.button, styles.buttonSize]}
+          >
+            <TabBarIcon name='add-circle-outline' size={30} color='#bbbbbb' />
+          </TouchableOpacity>
+        ),
+        headerTitleAlign: 'center',
+        }}
+        />
+      <Stack.Screen name="ApiScreen" component={ApiScreen} />
       {/* Put any additional screens for your tab here. This allows us to use a stack.
         A stack allows us to easily navigate back a page when we're in a secondary screen on a certain tab.
       */}
@@ -21,6 +60,50 @@ export default function WorkoutStack(props : any) {
     </WorkoutProvider>
   );
 }
+
+
+
+
+
+
+
+
+
+var maxWidth = Dimensions.get('window').width;
+var buttonDimension = maxWidth * 0.1; // This sets button size to 10% of screen width
+var titleWidth = maxWidth - (buttonDimension * 2) - 32; // Title width minus button space
+
+const styles = StyleSheet.create({
+  headerTitleView: {
+    width: titleWidth,          // Limit the width of the title to avoid overlap
+    justifyContent: 'center',   // Center vertically
+    alignItems: 'center',       // Center horizontally
+  },
+  title: {
+    fontSize: 20,               // Adjust the base font size
+    textAlign: 'center',        // Center the text content
+  },
+  leftButton: {
+    paddingLeft:10,
+  },
+  buttonSize: {
+    height: '100%',
+    aspectRatio: 1,             // Keep buttons square
+  },
+  rightButton: {
+    paddingRight:10,
+  },
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  leftArrow: {
+    transform: [{ rotate: '90deg' }],
+  },
+});
+
+
+
 
 /*
       {contacts.map((contact, index) => (
@@ -33,33 +116,98 @@ export default function WorkoutStack(props : any) {
 
 */
 
+
+
+
+
+
+
+
+
+
+
+/*
+var maxWidth = Dimensions.get('window').width;
+var buttonDimension = maxWidth * 0.1;
+
+var titleWidth = maxWidth - (buttonDimension*2)-32;
+
+
+
 const styles = StyleSheet.create({
+  /*headerTitleView: {
+    //paddingRight:155,
+    width:'100%',
+    alignItems:'center',
+    borderWidth:1,
+  },
+  headerTitleView: {
+    flex: 1,                   // Make sure the view takes up available space
+    justifyContent: 'center',   // Center vertically
+    alignItems: 'center',       // Center horizontally
+  },
+  title: {
+    fontSize: 20,               // Adjust the base font size
+    transform: [{ scale: 1.5 }], // Scale the text (1.5 times bigger)
+    textAlign: 'center',        // Center the text content
+  },
+  leftButton: {
+    //marginLeft:'8%',
+    borderWidth:1,
+  },
+
+  buttonSize: {
+    height:'100%',
+    //width:buttonDimension,
+    aspectRatio:1,
+  },
+
+  rightButton: {
+    //marginRight:'8%',
+    borderWidth:1,
+  },
+
+  button: {
+    alignItems: 'center',
+    justifyContent:'center',
+    //backgroundColor: '#DDDDDD',
+    //padding: buttonPadding,
+    //borderWidth:1,
+  },
+  leftArrow: {
+    transform: [{ rotate: '90deg' }],
+  },
   scrollView: {
     backgroundColor:'#005500',
     padding:0,
     margin:0,
     width:'100%',
-    },
+   },
     
-    centerContentContainer: {
-      alignItems:'center',
-    },
-      SafeAreaView: {
+  centerContentContainer: {
+    alignItems:'center',
+  },
 
-        //alignItems: 'center',
-        backgroundColor: '#0ffff0',
-        height:'100%',
-        width:'100%',
-        //overflow:'scroll',
-        paddingTop:20,
-        justifyContent: 'flex-start',
-        flexDirection:'column',
-      },
-    
-      sectionContainer: {
-        marginTop: 32,
-        paddingHorizontal: 24,
-      },
+  SafeAreaView: {
+
+    //alignItems: 'center',
+    backgroundColor: '#0ffff0',
+    height:'100%',
+    width:'100%',
+    //overflow:'scroll',
+    paddingTop:20,
+    justifyContent: 'flex-start',
+    flexDirection:'column',
+  },
+
+  /*title: {
+    fontSize:22,
+  },
+  sectionContainer: {
+    marginTop: 32,
+    paddingHorizontal: 24,
+  },
+
       sectionTitle: {
         fontSize: 24,
         fontWeight: '600',
@@ -78,3 +226,4 @@ const styles = StyleSheet.create({
         width:40,
       },
     });
+*/

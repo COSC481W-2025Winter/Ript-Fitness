@@ -15,6 +15,7 @@ import { ThemedView } from './components/ThemedView';
 import { ThemedText } from './components/ThemedText';
 import { BodyContext } from './context/BodyContext';
 import SplashScreen from '@/app/screens/SplashScreen';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // Define types for the navigation stack
 type RootStackParamList = {
@@ -29,27 +30,27 @@ export default function App() {
 
   return (
     <GlobalProvider>
-
+      <GestureHandlerRootView style={{ flex: 1 }}>
     <NavigationContainer>
       <Tab.Navigator initialRouteName="Social">
         <Tab.Screen name="Social" component={SocialStack}  //Each Tab!
                   options={{
                     tabBarIcon: ({ color, size }) => (
-                      <Ionicons name="home" size={size} color={color} /> //recommend changing the icon
+                      <Ionicons name="globe-outline" size={size} color={color} /> //recommend changing the icon
                     ),
                   }}/>
                   
         <Tab.Screen name="Workout" component={WorkoutStack} 
-                  options={{
+                  options={{  headerShown: false,
                     tabBarIcon: ({ color, size }) => (
-                      <Ionicons name="home" size={size} color={color} />
+                      <Ionicons name="barbell" size={size} color={color} />
                     ),
                   }}/>
     
         <Tab.Screen name="Body" component={BodyStack} 
                   options={{
                     tabBarIcon: ({ color, size }) => (
-                      <Ionicons name="home" size={size} color={color} />
+                      <Ionicons name="body" size={size} color={color} />
                     ),
                   }}/>
                   
@@ -61,7 +62,9 @@ export default function App() {
                   }}/>
       </Tab.Navigator>
     </NavigationContainer>
+
     <SplashScreen />
+    </GestureHandlerRootView>
     </GlobalProvider>
   );
 }
