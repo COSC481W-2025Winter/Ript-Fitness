@@ -10,8 +10,8 @@ import { WorkoutScreenNavigationProp } from '../(tabs)/WorkoutStack';
 // https://www.youtube.com/watch?v=ooEFRONfq_s just a good watch
 // https://www.youtube.com/watch?v=q2s6VTHl2kE went off this video 
 // https://reactnativeelements.com/docs/1.2.0/icon
-
-
+ 
+ 
 export default function WorkoutApiScreen() {
   
   const navigation = useNavigation<WorkoutScreenNavigationProp >();
