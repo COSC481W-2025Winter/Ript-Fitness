@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { View, Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import SocialStack from './app/(tabs)/SocialStack';
 import WorkoutStack from './app/(tabs)/WorkoutStack';
 import BodyStack from './app/(tabs)/BodyStack';
@@ -42,21 +42,21 @@ export default function App() {
         <Tab.Screen name="Workout" component={WorkoutStack} 
                   options={{
                     tabBarIcon: ({ color, size }) => (
-                      <Ionicons name="home" size={size} color={color} />
+                      <Ionicons name="barbell" size={size} color={color} />
                     ),
                   }}/>
     
         <Tab.Screen name="Body" component={BodyStack} 
                   options={{
                     tabBarIcon: ({ color, size }) => (
-                      <Ionicons name="home" size={size} color={color} />
+                      <Ionicons name="body" size={size} color={color} />
                     ),
                   }}/>
                   
                   <Tab.Screen name="Profile" component={ProfileStack} 
                   options={{
                     tabBarIcon: ({ color, size }) => (
-                      <Ionicons name="home" size={size} color={color} />
+                      <Ionicons name="person-circle-outline" size={size} color={color} />
                     ),
                   }}/>
       </Tab.Navigator>
