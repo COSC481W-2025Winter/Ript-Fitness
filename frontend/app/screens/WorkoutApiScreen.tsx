@@ -12,7 +12,7 @@ import { WorkoutScreenNavigationProp } from '../(tabs)/WorkoutStack';
 // https://reactnativeelements.com/docs/1.2.0/icon
  
  
-export default function WorkoutApiScreen() {
+export default function WorkoutApiScreen() { 
   
   const navigation = useNavigation<WorkoutScreenNavigationProp >();
   // TouchableOpacity is what gives the fade effect
