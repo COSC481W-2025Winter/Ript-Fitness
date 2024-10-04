@@ -32,6 +32,48 @@ export type RootStackParamList = {
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 
+function MainApp() {
+  return (
+    <Tab.Navigator 
+      initialRouteName="Social"
+      screenOptions={{
+        // tabBarLabelStyle: { fontWeight: 'bold' },
+        tabBarActiveTintColor: '#0D0D0D',
+        tabBarInactiveTintColor: '#73726F',
+      }}
+    >
+      <Tab.Screen name="Social" component={SocialStack}  //Each Tab!
+                options={{
+                  tabBarIcon: ({ focused, size, color }) => (
+                    <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color}/> //recommend changing the icon
+                  ),
+                }}/>
+                
+      <Tab.Screen name="Workout" component={WorkoutStack} 
+                options={{
+                  tabBarIcon: ({ focused, size, color }) => (
+                    <Ionicons name={focused ? 'barbell' : 'barbell-outline'} size={size} color={color} />
+                  ),
+                }}/>
+
+      <Tab.Screen name="Body" component={BodyStack} 
+                options={{
+                  tabBarIcon: ({ focused, size, color }) => (
+                    <Ionicons name={focused ? 'body' : 'body-outline'} size={size} color={color}/>
+                  ),
+                }}/>
+                
+                <Tab.Screen name="Profile" component={ProfileStack} 
+                options={{
+                  tabBarIcon: ({ focused, size, color }) => (
+                    <Ionicons name={focused ? 'person' : 'person-outline'} size={size} color={color} />
+                  ),
+                }}/>
+    </Tab.Navigator>
+  );
+}
+// gestureEnabled to False for a simple fix so users can't navigate to login
+
 export default function App() {
 
   return (
@@ -40,48 +82,29 @@ export default function App() {
 
     {/* {false ? */}
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Welcome">
-          <Stack.Screen options={{headerShown: false}}  name="Welcome" component={WelcomeScreen} />
-          <Stack.Screen options={{headerShown: false}}  name="Login" component={LoginScreen} />
-          <Stack.Screen options={{headerShown: false}}  name="Signup" component={SignupScreen} />
+        <Stack.Navigator screenOptions={{gestureEnabled: true }} initialRouteName="Welcome">  
+          <Stack.Screen 
+            options={{headerShown: false}}  
+            name="Welcome" component={WelcomeScreen} 
+          />
+          <Stack.Screen 
+            options={{headerShown: false}}  
+            name="Login" component={LoginScreen} 
+          />
+          <Stack.Screen 
+            options={{headerShown: false}}  
+            name="Signup" component={SignupScreen} 
+          />
+          <Stack.Screen 
+            options={{headerShown: false}} 
+            name="Home" 
+            component={MainApp} 
+          />
         </Stack.Navigator>
       </NavigationContainer>
-
-    {/* <NavigationContainer>
-      <Tab.Navigator initialRouteName="Social">
-        <Tab.Screen name="Social" component={SocialStack}  //Each Tab!
-                  options={{
-                    tabBarIcon: ({ color, size }) => (
-                      <Ionicons name="home" size={size} color={color} /> //recommend changing the icon
-                    ),
-                  }}/>
-                  
-        <Tab.Screen name="Workout" component={WorkoutStack} 
-                  options={{
-                    tabBarIcon: ({ color, size }) => (
-                      <Ionicons name="home" size={size} color={color} />
-                    ),
-                  }}/>
-    
-        <Tab.Screen name="Body" component={BodyStack} 
-                  options={{
-                    tabBarIcon: ({ color, size }) => (
-                      <Ionicons name="home" size={size} color={color} />
-                    ),
-                  }}/>
-                  
-                  <Tab.Screen name="Profile" component={ProfileStack} 
-                  options={{
-                    tabBarIcon: ({ color, size }) => (
-                      <Ionicons name="home" size={size} color={color} />
-                    ),
-                  }}/>
-      </Tab.Navigator>
-    </NavigationContainer> */}
     {/* // :
     // <SplashScreen />
-    <WelcomeScreen />
-                } */}
+    <WelcomeScreen /> } */}
     </GlobalProvider>
   );
 }

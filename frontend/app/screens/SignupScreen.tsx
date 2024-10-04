@@ -61,10 +61,10 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
               </TouchableOpacity>
             </View>
             <CustomButton 
-              title="Log in" 
+              title="Sign up" 
               fontSize={16}
               width={width * 0.4} 
-              // onPress={()  => navigation.navigate('Login')}
+              onPress={()  => navigation.navigate('Home')}
             />
             <View style={styles.textButtonContainer}>
               <Text style={{ fontSize: 12}}>Don't have an account?</Text>

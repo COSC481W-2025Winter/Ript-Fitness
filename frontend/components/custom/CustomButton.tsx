@@ -30,13 +30,6 @@ const CustomButton: React.FC<CustomButtonProps> = ({ title, backgroundColor, bor
   };
 
   return (
-    // <TouchableOpacity 
-    //   style={[styles.button, buttonStyle]} 
-    //   onPress={onPress}
-    //   activeOpacity={0.7}
-    // >
-    //   <Text style={[textStyle]}>{title}</Text>
-    // </TouchableOpacity>
     <TouchableOpacity
       style={[styles.button, buttonStyle]}
       onPressIn={() => setIsPressed(true)} // Set pressed state to true on press in

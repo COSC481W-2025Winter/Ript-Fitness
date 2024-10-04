@@ -58,7 +58,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               title="Log in" 
               fontSize={16}
               width={width * 0.4} 
-              // onPress={()  => navigation.navigate('Login')}
+              onPress={()  => navigation.navigate('Home')}
             />
             <View style={styles.textButtonContainer}>
               <Text style={{ fontSize: 12}}>Don't have an account?</Text>
