@@ -20,7 +20,7 @@ public class StreakController {
 		this.streakService = streakService;
 	}
 
-	@GetMapping("streak")
+	@GetMapping("/currentStreak")
 	public ResponseEntity<StreakDto> getStreak(@RequestBody StreakDto streakDto){
 		StreakDto streak = streakService.getStreak(streakDto);
 		return new ResponseEntity<>(streak, HttpStatus.OK);
