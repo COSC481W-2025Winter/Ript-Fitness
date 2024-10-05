@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.AccountsMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.Streak;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.StreakRepository;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.AccountsDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.LoginRequestDto;
 
@@ -19,11 +21,14 @@ public class AccountsService {
 	// Create an instance of the repository layer:
 	@Autowired
 	public AccountsRepository accountsRepository;
+	@Autowired
+	public StreakRepository streakRepository;
 	private final PasswordEncoder passwordEncoder;
 	
 	// Constructor:
-	public AccountsService(AccountsRepository accountsRepository, PasswordEncoder passwordEncoder) {
+	public AccountsService(AccountsRepository accountsRepository, StreakRepository streakRepository, PasswordEncoder passwordEncoder) {
 		this.accountsRepository = accountsRepository;
+		this.streakRepository = streakRepository;
 		this.passwordEncoder = passwordEncoder;
 	}
 
@@ -70,6 +75,13 @@ public class AccountsService {
 			accountsModel.setEmail(encodedEmail);
 			//accountsRepository.saveAccountModel(accountsModel.getUsername(), accountsModel.getPassword(), accountsModel.getEmail(), accountsModel.getlastLogin());
 			accountsRepository.save(accountsModel);
+			
+			//creating a corresponding streak for the account
+			Streak streak = new Streak();
+	        streak.account = accountsModel;  // Associate the streak with the account
+	        streak.currentSt = 0;    // Initialize streak count to 0
+	        streak.prevLogin = LocalDateTime.now();
+	        streakRepository.save(streak);
 		}
 		return AccountsMapper.INSTANCE.convertToDto(accountsModel);
 	}
