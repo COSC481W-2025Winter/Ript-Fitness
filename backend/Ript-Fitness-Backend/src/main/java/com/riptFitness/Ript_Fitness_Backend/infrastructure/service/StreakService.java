@@ -18,7 +18,7 @@ public class StreakService {
 		this.streakRepository = streakRepository;
 	}
 	
-	public StreakDto getStreak(StreakDto streakDto) {
+	public StreakDto updateStreak(StreakDto streakDto) {
 		LocalDateTime curTime = LocalDateTime.now();
 		LocalDateTime prevLogin = streakDto.prevLogin;
 		Streak streak = StreakMapper.INSTANCE.toStreak(streakDto);
@@ -32,5 +32,10 @@ public class StreakService {
 		}
 		streak.prevLogin = curTime;
 		return StreakMapper.INSTANCE.toStreakDto(streak);
+	}
+	
+	public StreakDto getStreak(Long id) {
+		
+		return null;
 	}
 }
