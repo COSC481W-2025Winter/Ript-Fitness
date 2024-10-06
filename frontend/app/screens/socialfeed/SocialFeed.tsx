@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   SafeAreaView,
   FlatList,
@@ -79,6 +79,38 @@ const MOCK_FEED_DATA: PostData[] = [
     },
     timestamp: '2024-09-25T12:01:00Z',
   },
+    {
+    id: '6',
+    type: 'text',
+    content: 'Add the greatest workout ever yesterday! 💪💪💪',
+    user: {
+      name: 'Franky McDonald',
+      profilePicture: 'https://avatar.iran.liara.run/public/boy?username=Ash',
+    },
+    timestamp: '2023-10-26T10:00:00Z',
+  },
+      {
+    id: '7',
+    type: 'image',
+    imageUrl: 'https://i.insider.com/5f46c955db1ed0002971418c?width=1136&format=jpeg',
+    caption: 'I ate some good food after my workout',
+    user: {
+      name: 'Robbie Fazel',
+      profilePicture: 'https://avatar.iran.liara.run/public/37',
+    },
+    timestamp: '2023-10-26T10:00:00Z',
+  },
+        {
+    id: '8',
+    type: 'image',
+    imageUrl: 'https://www.superstock.com/cdn/5507/Comp/5507-48208576.webp',
+    caption: 'I just finished my workout and feeling great',
+    user: {
+      name: 'Kate Grantson',
+      profilePicture: 'https://avatar.iran.liara.run/public/59',
+    },
+    timestamp: '2023-10-30T23:57:00Z',
+  },
 ];
 
 // Sort the MOCK_FEED_DATA once to prevent re-sorting on every render
@@ -109,18 +141,23 @@ const toggleLike = (id: string) => {
   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid); //Medium also viable
 };
 
+const renderItem = useCallback(
+  ({ item }: { item: PostData }) => (
+    <PostItem
+      item={item}
+      liked={likedPosts.includes(item.id)}
+      onLikePress={() => toggleLike(item.id)}
+    />
+  ),
+  [likedPosts, toggleLike]
+);
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="default" />
       <FlatList
         data={sortedMockFeedData}
-        renderItem={({ item }) => (
-          <PostItem
-            item={item}
-            liked={likedPosts.includes(item.id)}
-            onLikePress={() => toggleLike(item.id)}
-          />
-        )}
+        renderItem={renderItem}
         keyExtractor={(item) => item.id}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListEmptyComponent={

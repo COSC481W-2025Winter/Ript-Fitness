@@ -30,7 +30,7 @@ const formatTimestamp = (timestamp: string): string => {
     day: 'numeric',
     hour: 'numeric',
     minute: 'numeric',
-    hour12: true, //remove if 24-hour format is preferred
+    hour12: true, //converts to 12 hour format
   });
 };
 
@@ -75,14 +75,24 @@ const PostItem = ({ item, liked, onLikePress }: ItemProps) => {
         <View style={styles.footer}>
 
           <View style={styles.likecomment}>
-            <TouchableOpacity onPress={onLikePress} style={styles.likeButton}>
+            <TouchableOpacity 
+              onPress={onLikePress} 
+              style={styles.likeButton}
+              accessibilityLabel="Like comment"
+              accessibilityHint="Toggles the like state for this comment"
+              >
               <Ionicons name="heart" size={24} color={liked ? '#FF3B30' : '#B1B6C0'} />
             </TouchableOpacity>
-            <Text style={styles.likeCounter}>40</Text>
-            <TouchableOpacity onPress={handleCommentPress} style={styles.commentButton}>
-              <Octicons name="comment" color="#B1B6C0" size={24} />
+            <Text style={styles.likeCounter}>120</Text>
+            <TouchableOpacity 
+            onPress={handleCommentPress} 
+            style={styles.commentButton}
+            accessibilityLabel="Open comments"
+            accessibilityHint="Opens the comments screen for this post"
+            >
+            <Octicons name="comment" color="#B1B6C0" size={24} />
             </TouchableOpacity>
-            <Text style={styles.commentCounter}>2</Text>
+            <Text style={styles.commentCounter}>9</Text>
           </View>
           <Text style={styles.timestamp}>{formatTimestamp(item.timestamp)}</Text>
         </View>
