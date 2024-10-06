@@ -24,7 +24,7 @@ public class AppConfig {
 	}
 	
 	@Bean
-    public PasswordEncoder passwordEncoder() {
-        return new Argon2PasswordEncoder(0, 0, 0, 0, 0);
-    }
+	public PasswordEncoder passwordEncoder() {
+	    return new Argon2PasswordEncoder(16, 32, 1, 16, 32); 
+	}
 }
