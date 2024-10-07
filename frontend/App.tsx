@@ -15,15 +15,20 @@ import { ThemedView } from './components/ThemedView';
 import { ThemedText } from './components/ThemedText';
 import { BodyContext } from './context/BodyContext';
 import SplashScreen from '@/app/screens/SplashScreen';
+import ApiScreen from './app/screens/ApiScreen';
 
 // Define types for the navigation stack
 type RootStackParamList = {
   Home: undefined;
   Details: undefined;
+  Social: undefined;
+  ApiScreen: undefined;
 };
+
 
 //const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
 export default function App() {
 
@@ -42,24 +47,27 @@ export default function App() {
         <Tab.Screen name="Workout" component={WorkoutStack} 
                   options={{
                     tabBarIcon: ({ color, size }) => (
-                      <Ionicons name="home" size={size} color={color} />
+                      <Ionicons name="barbell-outline" size={size} color={color} />
                     ),
                   }}/>
     
         <Tab.Screen name="Body" component={BodyStack} 
                   options={{
                     tabBarIcon: ({ color, size }) => (
-                      <Ionicons name="home" size={size} color={color} />
+                      <Ionicons name="body" size={size} color={color} />
                     ),
                   }}/>
                   
                   <Tab.Screen name="Profile" component={ProfileStack} 
                   options={{
                     tabBarIcon: ({ color, size }) => (
-                      <Ionicons name="home" size={size} color={color} />
+                      <Ionicons name="person" size={size} color={color} />
                     ),
                   }}/>
-      </Tab.Navigator>
+      </Tab.Navigator> 
+        <Stack.Screen 
+            name="ApiScreen" component={ApiScreen} 
+          />
     </NavigationContainer>
     <SplashScreen />
     </GlobalProvider>
