@@ -2,7 +2,7 @@ package com.riptFitness.Ript_Fitness_Backend.web.controllerTests;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -86,9 +86,9 @@ public class AccountsControllerTest {
 
 		when(accountsService.logIntoAccount(any(LoginRequestDto.class))).thenReturn(accountsDto);
 
-		// Use GET method to match the controller's method
-		mockMvc.perform(get("/accounts/login").contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(loginRequest))) // Include content in GET request
+		// Use put method to match the controller's method
+		mockMvc.perform(put("/accounts/login").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(loginRequest))) // Include content in put request
 				.andExpect(status().isOk()).andExpect(jsonPath("$.username").value("testUser"))
 				.andExpect(jsonPath("$.email").value("test@example.com"));
 	}
@@ -104,7 +104,7 @@ public class AccountsControllerTest {
 		when(accountsService.logIntoAccount(any(LoginRequestDto.class)))
 				.thenThrow(new RuntimeException("The password: 'wrongPassword' is incorrect"));
 
-		mockMvc.perform(get("/accounts/login").contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(put("/accounts/login").contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(loginRequest))).andExpect(status().isInternalServerError())
 				// Expecting the prefixed error message
 				.andExpect(content().string(
@@ -122,7 +122,7 @@ public class AccountsControllerTest {
 		when(accountsService.logIntoAccount(any(LoginRequestDto.class)))
 				.thenThrow(new RuntimeException("Account with username: 'nonExistingUser' does not exist"));
 
-		mockMvc.perform(get("/accounts/login").contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(put("/accounts/login").contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(loginRequest))).andExpect(status().isInternalServerError())
 				// Expecting the prefixed error message
 				.andExpect(content().string(
