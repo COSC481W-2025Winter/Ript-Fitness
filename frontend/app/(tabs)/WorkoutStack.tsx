@@ -6,6 +6,7 @@ import WorkoutApiScreen from '@/app/screens/WorkoutApiScreen';
 import { WorkoutProvider } from '@/context/WorkoutContext';
 import { StackNavigationProp } from '@react-navigation/stack';
 import ApiScreen from '../screens/ApiScreen';
+import StartWorkoutScreen from '../screens/StartWorkoutScreen';
 
 
 const Stack = createStackNavigator();
@@ -13,6 +14,7 @@ const Stack = createStackNavigator();
 
 export type WorkoutStackParamList = {
   ApiScreen: {};
+  StartWorkoutScreen: {};
 };
 
 export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamList>;
@@ -23,6 +25,8 @@ export default function WorkoutStack(props : any) {
     <Stack.Navigator initialRouteName="WorkoutApiScreen" screenOptions={{ headerShown: false }}>
       <Stack.Screen name="WorkoutApiScreen" component={WorkoutApiScreen} />
       <Stack.Screen name="ApiScreen" component={ApiScreen} />
+      <Stack.Screen name="StartWorkoutScreen" component={StartWorkoutScreen} />
+
 
       {/* Put any additional screens for your tab here. This allows us to use a stack.
         A stack allows us to easily navigate back a page when we're in a secondary screen on a certain tab.

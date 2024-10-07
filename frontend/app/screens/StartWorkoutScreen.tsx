@@ -12,7 +12,7 @@ import { WorkoutScreenNavigationProp } from '../(tabs)/WorkoutStack';
 // https://reactnativeelements.com/docs/1.2.0/icon
  
  
-export default function WorkoutApiScreen() { 
+export default function StartWorkoutScreen() { 
   
   const navigation = useNavigation<WorkoutScreenNavigationProp >();
   // TouchableOpacity is what gives the fade effect
@@ -21,29 +21,18 @@ export default function WorkoutApiScreen() {
 // makes button clickable 
   return (
     <View style={styles.container}>
-      {/* My Workouts */}
+      {/* Add excerise */}
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ApiScreen', { })}  > 
-        <Text style={styles.buttonText}>My Workouts</Text>
+        <Text style={styles.buttonText}>Add excerises</Text>
         <Icon name="heart-outline" size={30} color="red" />
       </TouchableOpacity>
-
-      {/* Add Workout */}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ApiScreen', { })}  >
-        <Text style={styles.buttonText}>Add Workout</Text>
-        <Icon name="add" size={30} color="green" />
+     
+      {/* Timer */}
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ApiScreen', { })}  > 
+        <Text style={styles.buttonText}>Timer</Text>
+      <Icon name="timer-outline" size={30} color="black" />
       </TouchableOpacity>
 
-      {/* Ript Workouts */}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ApiScreen', { })}  >
-        <Text style={styles.buttonText}>Ript Workouts</Text>
-        <Icon name="barbell-outline" size={30} color="black" />
-      </TouchableOpacity>
-
-      {/* Start Workout */}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('StartWorkoutScreen', { })} >
-        <Text style={styles.buttonText}>Start Workout</Text>
-        <Icon name="chevron-forward-outline" size={30} color="blue" />
-      </TouchableOpacity>
     </View>
   );
 }
@@ -53,16 +42,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 30,
+    paddingTop: 15,
     backgroundColor: '#FFFFFF',
   },
 
-  // add a button for ript fitness influencer links
   button: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 25,
+    padding: 35,
     backgroundColor: '#F5F5F5',
     borderRadius: 20,
     marginVertical: 10,
