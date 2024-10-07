@@ -75,12 +75,12 @@ build/
 *.tsbuildinfo
 
 # Metro
-.metro-health-check*
+*.metro-health-check*
 
 # debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
+*npm-debug.*
+*yarn-debug.*
+*yarn-error.*
 
 # application-test/properties
 backend/Ript-Fitness-Backend/src/test/resources/application-test.properties
