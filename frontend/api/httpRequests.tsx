@@ -5,6 +5,7 @@ export class httpRequests {
 static async get(endpoint: string, data? : Record<string, any>): Promise<any> { 
   try {
     // Fetch data from the specified endpoint
+    console.log(JSON.stringify(data))
     const params = httpRequests.jsonToQueryString(data)
     const response = await fetch(`${BASE_URL}${endpoint}/${params}`); // Use endpoint or replace with BASE_URL if needed
     console.log(`${BASE_URL}${endpoint}/${params}`)
