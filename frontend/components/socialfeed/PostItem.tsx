@@ -90,7 +90,7 @@ const PostItem = ({ item, liked, onLikePress }: ItemProps) => {
             accessibilityLabel="Open comments"
             accessibilityHint="Opens the comments screen for this post"
             >
-            <Octicons name="comment" color="#B1B6C0" size={24} />
+            <Ionicons name="chatbubble" color="#B1B6C0" size={23} />
             </TouchableOpacity>
             <Text style={styles.commentCounter}>9</Text>
           </View>

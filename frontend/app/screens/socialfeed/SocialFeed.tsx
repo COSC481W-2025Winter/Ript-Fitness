@@ -114,6 +114,7 @@ const MOCK_FEED_DATA: PostData[] = [
 ];
 
 // Sort the MOCK_FEED_DATA once to prevent re-sorting on every render
+// we might need to re-sort everything when the refresh is pulled down
 const sortedMockFeedData = MOCK_FEED_DATA.sort(
   (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
 );
@@ -156,6 +157,7 @@ const renderItem = useCallback(
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="default" />
       <FlatList
+        ListHeaderComponent={() => <View style={{ marginTop: StatusBar.currentHeight || 0 }} />}
         data={sortedMockFeedData}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
@@ -174,7 +176,6 @@ const renderItem = useCallback(
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: StatusBar.currentHeight || 0,
   },
   emptyContainer: {
     alignItems: 'center',

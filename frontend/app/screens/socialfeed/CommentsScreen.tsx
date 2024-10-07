@@ -1,5 +1,12 @@
 import React, { useState, useCallback } from 'react';
-import { StyleSheet, Text, View, FlatList, RefreshControl } from 'react-native';
+import { 
+  StyleSheet, 
+  Text, 
+  View, 
+  FlatList,
+   RefreshControl,
+    StatusBar,
+   } from 'react-native';
 
 // potential information to used in comments (profile picture isn't implemented yet)
 interface Comment {
@@ -14,23 +21,19 @@ interface CommentItemProps {
   item: Comment;
 }
 
-// Mock data for comments (There is a lot so you can see the scrolling effect)
+// Mock data for comments
 const mockComments: Comment[] = [
   { id: 1, user: 'John Doe', content: 'Great post!~', timestamp: '2023-04-20T10:30:00Z' },
   { id: 2, user: 'Bart Simpson', content: 'lookin good 💪', timestamp: '2023-04-20T11:15:00Z' },
   { id: 3, user: 'Andrew Renner', content: 'You made some awesome gains!', timestamp: '2023-04-20T12:00:00Z' },
   { id: 4, user: 'Rob H', content: 'Great post!~', timestamp: '2024-04-20T10:30:00Z' },
-  { id: 5, user: 'Alexis Dewisse', content: 'I wish I was as strong as you 💪', timestamp: '2023-04-20T11:15:00Z' },
-  { id: 6, user: 'Hank Jones', content: 'You made some awesome gains!', timestamp: '2023-04-20T12:00:00Z' },
-  { id: 7, user: 'John Pork', content: 'hey call me back and we can workout together', timestamp: '2023-05-20T10:30:00Z' },
-  { id: 8, user: 'Simon McDonald', content: '🔥🔥🔥🔥', timestamp: '2022-04-20T11:15:00Z' },
-  { id: 9, user: 'Franky McDonald', content: 'You have terrible form bro', timestamp: '2023-06-20T12:00:00Z' },
-  { id: 10, user: 'Joshua B', content: 'Great post!~', timestamp: '2024-07-20T10:30:00Z' },
-  { id: 11, user: 'Ben W', content: 'You made some awesome gains! 💪🔥', timestamp: '2023-08-20T11:15:00Z' },
-  { id: 12, user: 'Ethan D', content: 'Sample Comment', timestamp: '2023-09-20T12:00:00Z' },
-  { id: 13, user: 'Olivia S', content: 'Great post!~', timestamp: '2023-10-20T10:30:00Z' },
-  { id: 14, user: 'Megan O', content: '🔥🔥🔥🔥', timestamp: '2023-11-20T11:15:00Z' },
-  { id: 15, user: 'Frank F', content: 'Crushed my leg day today too! Feeling the burn 🔥🔥', timestamp: '2023-04-20T12:00:00Z' },
+  { id: 5, user: 'Franky McDonald', content: 'You have terrible form bro', timestamp: '2023-06-20T12:00:00Z' },
+  { id: 6, user: 'Joshua B', content: 'Great post!~', timestamp: '2024-07-20T10:30:00Z' },
+  { id: 7, user: 'Ben W', content: 'You made some awesome gains! 💪🔥', timestamp: '2023-08-20T11:15:00Z' },
+  { id: 8, user: 'Ethan D', content: 'Sample Comment', timestamp: '2023-09-20T12:00:00Z' },
+  { id: 9, user: 'Olivia S', content: 'Great post!~', timestamp: '2023-10-20T10:30:00Z' },
+  { id: 10, user: 'Megan O', content: '🔥🔥🔥🔥', timestamp: '2023-11-20T11:15:00Z' },
+  { id: 11, user: 'Frank F', content: 'Crushed my leg day today too! Feeling the burn 🔥🔥', timestamp: '2023-04-20T12:00:00Z' },
 ];
 
 const CommentItem = ({ item }: CommentItemProps) => (
@@ -57,6 +60,7 @@ const CommentsScreen = () => {
   return (
     <View style={styles.container}>
       <FlatList
+        ListHeaderComponent={() => <View style={{ marginTop: StatusBar.currentHeight || 0 }} />}
         data={comments}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
