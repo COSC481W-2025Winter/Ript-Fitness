@@ -8,8 +8,8 @@ import {
   RefreshControl,
   View,
 } from 'react-native';
-import PostItem from 'components/socialfeed/PostItem';
 import * as Haptics from 'expo-haptics';
+import PostItem from '@/components/socialfeed/PostItem';
 
 type PostData = {
   id: string;
