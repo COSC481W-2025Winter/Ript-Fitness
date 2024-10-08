@@ -57,7 +57,7 @@ public class AccountsService {
 		}
 		if (usernameExists) {
 		    // If the username exists, we need to throw an error code:
-			throw new RuntimeException("The username: '" + username + "' already has an account associated with it");
+			throw new RuntimeException("Username is already taken.");
 		} else {
 			// If the username does not exist; allow the user to create an account.
 			// Encode and set password:
@@ -95,8 +95,7 @@ public class AccountsService {
 
 	        // Retrieve the account using the ID
 	        AccountsModel possibleAccount = accountsRepository.findById(id)
-	            .orElseThrow(() -> new RuntimeException("Account with username: '" 
-	            							  + username + "' does not exist..."));
+	            .orElseThrow(() -> new RuntimeException("Username does not exist."));
 	        // Verify the password using Argon2
 	        String encodedPassword = possibleAccount.getPassword();
 	        boolean passwordMatches = passwordEncoder.matches(password, encodedPassword);
@@ -110,11 +109,10 @@ public class AccountsService {
 	            return AccountsMapper.INSTANCE.convertToDto(possibleAccount);
 	        } else {
 	            System.out.println("Incorrect password for user: " + username);
-	            throw new RuntimeException("The password: '" + password + "' is incorrect");
+	            throw new RuntimeException("Incorrect password.");
 	        }
 	    } else {
-	    	throw new RuntimeException("Account with username: '" 
-					  + username + "' does not exist...");
+	    	throw new RuntimeException("Username does not exist.");
 	    }
 	}
 
