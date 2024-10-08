@@ -172,7 +172,6 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'column',
-    // justifyContent: 'center',
     alignItems: 'center',
     paddingBottom: 20
   },
