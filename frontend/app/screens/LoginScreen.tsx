@@ -51,8 +51,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         const text = await response.text(); // Get the response body as text
         console.error('Login failed:', text); // Log the response body for debugging
   
+        let errorMessage = 'Login failed. Please check your inputs.';
+        if (text.includes('Message:')) {
+          const startIndex = text.indexOf('Message:') + 'Message:'.length;
+          errorMessage = text.substring(startIndex).trim();
+        }
         // Set the error message for the user
-        setErrorMessage(text || 'Login failed. Please check your credentials.');
+        setErrorMessage(errorMessage);
       }
     } catch (error) {
       console.error("Login error:", error);

@@ -39,32 +39,38 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
     setPassword(text);
   };
 
-    // Signup handling
-    const handleSignup = async () => { 
-      const credentials = {
-        email,
-        username,
-        password,
-      };
-    
-      try {
-        // Calls POST 
-        const response = await httpRequests.post("/accounts/createNewAccount", credentials);
-    
-        // Success case
-        if (response.status === 201) {
-          navigateToMainApp(); // Navigate to the main app on successful signup
-        } else {
-          // Failure case
-          const text = await response.text();
-          console.error("Signup failed:", text);
-          setErrorMessage(text || 'Signup failed. Please check your inputs.');
-        }
-      } catch (error) {
-        console.error("Signup error:", error);
-        setErrorMessage('An error occurred. Please try again later.');
-      }
+  // Signup handling
+  const handleSignup = async () => { 
+    const credentials = {
+      email,
+      username,
+      password,
     };
+  
+    try {
+      // Calls POST 
+      const response = await httpRequests.post("/accounts/createNewAccount", credentials);
+  
+      // Success case
+      if (response.status === 201) {
+        navigateToMainApp(); // Navigate to the main app on successful signup
+      } else {
+        // Failure case
+        const text = await response.text();
+        console.error("Signup failed:", text);
+
+        let errorMessage = 'Signup failed. Please check your inputs.';
+        if (text.includes('Message:')) {
+          const startIndex = text.indexOf('Message:') + 'Message:'.length;
+          errorMessage = text.substring(startIndex).trim();
+        }        
+        setErrorMessage(errorMessage);
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      setErrorMessage('An error occurred. Please try again later.');
+    }
+  };
 
   // After logging in, the user cannot go back to the previous screens
   const navigateToMainApp = () => {
