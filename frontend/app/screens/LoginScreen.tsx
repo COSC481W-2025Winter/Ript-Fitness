@@ -1,134 +1,3 @@
-// import CustomButton from '@/components/custom/CustomButton';
-// import CustomTextInput from '@/components/custom/CustomTextInput';
-// import LogoImage from '@/components/custom/LogoImage';
-// import React, { useState } from 'react';
-// import { Ionicons } from '@expo/vector-icons';
-// import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Dimensions, TouchableOpacity } from 'react-native'
-
-// // Navigation imports
-// import { RootStackParamList } from '../../App';
-// import { NativeStackScreenProps } from '@react-navigation/native-stack';
-
-
-// type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
-
-// const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
-//   const [showPassword, setShowPassword] = useState(false);
-
-//   const { width } = Dimensions.get('window');
-//   const toggleShowPassword = () => {
-//     setShowPassword(!showPassword);
-//   };
-  
-//   return (
-//     <KeyboardAvoidingView 
-//       style={styles.container}
-//       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-//     >
-//       <ScrollView 
-//         contentContainerStyle={styles.scrollContainer}
-//         showsVerticalScrollIndicator={false}
-//       >
-//         <View style={styles.container}>
-//           <View>
-//               <LogoImage style={styles.logo}/>
-//           </View>          
-//           <View style={styles.buttonContainer}>
-//             <Text style={styles.welcomeText}>Welcome Back</Text>
-//             <Text style={styles.descText}>Sign into your Account</Text>
-//             <CustomTextInput
-//               placeholder='Username'
-//               width={width * 0.65}
-//             />
-//             <View style={styles.inputIconContainer}>
-//               <CustomTextInput
-//                 placeholder='Password'
-//                 secureTextEntry={!showPassword}
-//                 width={width * 0.65}
-//               />
-//               <TouchableOpacity onPress={toggleShowPassword} style={styles.iconContainer}>
-//                 <Ionicons 
-//                   name={showPassword ? 'eye-off-outline' : 'eye-outline'} 
-//                   color={'#A69B8F'}
-//                   size={24}
-//                 />
-//               </TouchableOpacity>
-//             </View>
-//             <CustomButton 
-//               title="Log in" 
-//               fontSize={16}
-//               width={width * 0.4} 
-//               onPress={()  => navigation.navigate('Home')}
-//             />
-//             <View style={styles.textButtonContainer}>
-//               <Text style={{ fontSize: 12}}>Don't have an account?</Text>
-//               <CustomButton
-//                 title='Sign up'
-//                 backgroundColor='transparent'
-//                 textColor='#03A696'
-//                 fontSize={12}
-//                 underlineOnPress={true}
-//                 onPress={() => navigation.navigate('Signup')}
-//               />
-//             </View>
-//           </View>       
-//         </View>
-//       </ScrollView>
-//     </KeyboardAvoidingView>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "#fff",
-//     justifyContent: 'center',
-//     alignItems: 'center'
-//   },
-//   scrollContainer: {
-//     flexGrow: 1, 
-//     // justifyContent: 'center',
-//     // alignItems: 'center',
-//   },
-//   logo: {
-//     margin: 25
-//   },
-//   welcomeText: {
-//     fontSize: 24,
-//     // marginTop: 60,
-//     textAlign: 'center'
-//   },
-//   descText: {
-//     fontSize: 15,
-//     marginTop: 10,
-//     marginBottom: 20,
-//     textAlign: 'center'
-//   },
-//   inputIconContainer: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     // position: 'relative',
-//     justifyContent: 'flex-end'
-//   },
-//   iconContainer: {
-//     position: 'absolute',
-//     paddingRight: 7
-//   },
-//   buttonContainer: {
-//     flexDirection: 'column',
-//     // justifyContent: 'center',
-//     alignItems: 'center',
-//     paddingBottom: 20
-//   },
-//   textButtonContainer: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     marginTop: -10
-//   },
-// });
-
-// export default LoginScreen; 
-
 import CustomButton from '@/components/custom/CustomButton';
 import CustomTextInput from '@/components/custom/CustomTextInput';
 import LogoImage from '@/components/custom/LogoImage';
@@ -168,34 +37,37 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   };
 
   // Login handling
-  const handleLogin = async () => { 
-    const credentials = { //create a json object using the variables set in our textboxes
-      "username": username,
-      "password": password,
-    };
-    console.log(username);
-    console.log(password);
+  const handleLogin = async () => {
+    const credentials = { username, password }; // Assuming these states are set
+  
     try {
-      // Make GET request
-      const response = await httpRequests.put("/accounts/login", credentials);
-
-      // Check if login was successful
-      if (response && response.status === 200) {
-        // Go to Home page
-        navigation.navigate('Home');
+      const response = await httpRequests.put("/accounts/login", credentials); // Ensure this matches your API
+  
+      // Check if the request was successful
+      if (response.status === 200) {
+        navigateToMainApp(); // Navigate to the main app on success
+      } else {
+        // Attempt to read the error message from the response body
+        const text = await response.text(); // Get the response body as text
+        console.error('Login failed:', text); // Log the response body for debugging
+  
+        // Set the error message for the user
+        setErrorMessage(text || 'Login failed. Please check your credentials.');
       }
-      else {
-        // Unsuccessful login
-        console.error("Login failed:", response.data.message || "Unknown error");
-        setErrorMessage(response.data.message || "Login failed. Please check your username and password.");
-      }
-      // setResponseText(JSON.stringify(response))
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Login error:", error);
       setErrorMessage('An error occurred. Please try again later.');
     }
-  }
+  };
+
+    // After logging in, the user cannot go back to the previous screens
+  const navigateToMainApp = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Home' }],  // Only 'Home' will be in the stack
+    });
+  };
+  
   
   return (
     <KeyboardAvoidingView 
