@@ -24,7 +24,7 @@ Ript Fitness is a fitness application that will help people track their workouts
 <h3 style="font-size:20px; font-weight:bold;">Michael Shahine - Team Member - Backend</h3>
 <p style="font-size:16px;">I am in my senior year at Eastern Michigan University I will be getting my bachelors degree in Computer science. I plan to continue my education after EMU in a masters program and higher education. Outside of school I love to play basketball, and spend time by the water.</p>
 
-<h3 style="font-size:20px; font-weight:bold;">Rob Hewinson - Team Member - Frontend</h3>
+<h3 style="font-size:20px; font-weight:bold;">Rob Hewison - Team Member - Frontend</h3>
 <p style="font-size:16px;">I'm in my final semester at Eastern Michigan University and will receive my bachelor's degree in Computer Science. Once I graduate I plan on getting a job as a Web Developer. I enjoy making websites and have done many web projects previously. One of the projects I have previously worked on was movierex.org. It's a movie recommendation website. I have experience in React JS, Java Spring Boot, and Django.</p>
 
 <h3 style="font-size:20px; font-weight:bold;">Natalie Hoang - Team Member - Frontend</h3>
