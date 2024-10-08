@@ -1,10 +1,20 @@
-const BASE_URL = 'https://ript-fitness-app.azurewebsites.net'; // Replace with your actual URL
+import { USE_LOCAL, LOCAL_IP } from '@env';
+
+const Azure_URL = 'https://ript-fitness-app.azurewebsites.net';
+const BASE_URL = USE_LOCAL === 'true' ? `http://${LOCAL_IP}` : Azure_URL;
+
+async function getBaseUrl() {
+  return USE_LOCAL === 'true' ? `http://${LOCAL_IP}` : Azure_URL;
+}
+
 export class httpRequests {
 
   // Method to handle GET requests and return JSON
 static async get(endpoint: string, data? : Record<string, any>): Promise<any> { 
   try {
     // Fetch data from the specified endpoint
+    console.log(USE_LOCAL)
+    console.log(LOCAL_IP)
     const params = httpRequests.jsonToQueryString(data)
     const response = await fetch(`${BASE_URL}${endpoint}/${params}`); // Use endpoint or replace with BASE_URL if needed
     console.log(`${BASE_URL}${endpoint}/${params}`)
