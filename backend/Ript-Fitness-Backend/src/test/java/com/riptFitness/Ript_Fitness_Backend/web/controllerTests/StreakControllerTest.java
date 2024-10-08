@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -56,13 +57,13 @@ public class StreakControllerTest {
 		streakDto.id = (long) 100;
 		streakDto.currentSt = 10;
 		streakDto.prevLogin = LocalDateTime.of(
-	            2021, 04, 24, 14, 33);
+	            2021, 04, 24, 14, 33, 00);
 		
 		streak = new Streak();
 		streak.id = (long) 100;
 		streak.currentSt = 10;
 		streak.prevLogin = LocalDateTime.of(
-				2021, 04, 24, 14, 33);
+				2021, 04, 24, 14, 33, 00);
 		
 	}
 	
@@ -82,8 +83,24 @@ public class StreakControllerTest {
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(jsonPath("$.id").value((long) 100))
 				.andExpect(jsonPath("$.currentSt").value(10))
-				.andExpect(jsonPath("$.prevLogin").value(LocalDateTime.of(
-						2021, 04, 24, 14, 33)))//weird error here
+				.andExpect(jsonPath("$.prevLogin").value("2021-04-24T14:33:00"))//weird error here
 				.andReturn();
 	}
+	
+	@Test
+	public void testUpdateStreakValidRequest() throws Exception{
+		when(streakService.updateStreak(any(Long.class))).thenReturn(streakDto);
+		
+		mockMvc.perform(put("/streak/updateStreak/100")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(streakDto)))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$.id").value((long) 100))
+				.andExpect(jsonPath("$.currentSt").value(10))
+				.andExpect(jsonPath("$.prevLogin").value("2021-04-24T14:33:00"))//weird error here
+				.andReturn();
+	}
+	
+	
 }

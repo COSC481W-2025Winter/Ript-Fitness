@@ -62,8 +62,9 @@ public class AccountsService {
 			usernameExists = true;
 		}
 		if (usernameExists) {
-			// If the username exists, we need to throw an error code:
-			throw new RuntimeException("The username: '" + username + "' already has an account associated with it");
+		    // If the username exists, we need to throw an error code:
+			throw new RuntimeException("Username is already taken.");
+
 		} else {
 			// If the username does not exist; allow the user to create an account.
 			// Encode and set password:
@@ -100,6 +101,7 @@ public class AccountsService {
 		String password = loginRequest.getPassword();
 		LocalDateTime lastLogin = loginRequest.getlastLogin();
 
+
 		// Get the ID via username
 		Optional<Long> optionalId = accountsRepository.findIdByUsername(username);
 
@@ -108,27 +110,28 @@ public class AccountsService {
 			// Store the ID in a variable to be used later
 			Long id = optionalId.get();
 
-			// Retrieve the account using the ID
-			AccountsModel possibleAccount = accountsRepository.findById(id).orElseThrow(
-					() -> new RuntimeException("Account with username: '" + username + "' does not exist..."));
-			// Verify the password using Argon2
-			String encodedPassword = possibleAccount.getPassword();
-			boolean passwordMatches = passwordEncoder.matches(password, encodedPassword);
+	        // Retrieve the account using the ID
+	        AccountsModel possibleAccount = accountsRepository.findById(id)
+	            .orElseThrow(() -> new RuntimeException("Username does not exist."));
+	        // Verify the password using Argon2
+	        String encodedPassword = possibleAccount.getPassword();
+	        boolean passwordMatches = passwordEncoder.matches(password, encodedPassword);
+	        
+	        // Verify the password
+	        if (passwordMatches) {
+	        	// Update the login date:
+	        	accountsRepository.updateLoginDate(username, lastLogin);
+	        	// Convert to DTO:
+	            System.out.println("Login successful for user: " + username);
+	            return AccountsMapper.INSTANCE.convertToDto(possibleAccount);
+	        } else {
+	            System.out.println("Incorrect password for user: " + username);
+	            throw new RuntimeException("Incorrect password.");
+	        }
+	    } else {
+	    	throw new RuntimeException("Username does not exist.");
+	    }
 
-			// Verify the password
-			if (passwordMatches) {
-				// Update the login date:
-				accountsRepository.updateLoginDate(username, lastLogin);
-				// Convert to DTO:
-				System.out.println("Login successful for user: " + username);
-				return AccountsMapper.INSTANCE.convertToDto(possibleAccount);
-			} else {
-				System.out.println("Incorrect password for user: " + username);
-				throw new RuntimeException("The password: '" + password + "' is incorrect");
-			}
-		} else {
-			throw new RuntimeException("Account with username: '" + username + "' does not exist...");
-		}
 	}
 
 }

@@ -1,6 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
 import java.time.LocalDateTime;
+
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -10,6 +11,8 @@ import com.riptFitness.Ript_Fitness_Backend.domain.model.Streak;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.StreakRepository;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.StreakDto;
 
+import java.time.Clock;
+
 @Service
 public class StreakService {
 	
@@ -18,6 +21,8 @@ public class StreakService {
 	public StreakService(StreakRepository streakRepository) {
 		this.streakRepository = streakRepository;
 	}
+	
+
 	
 	public StreakDto updateStreak(Long id) {
 		Optional<Streak> optionalStr = streakRepository.findById(id);
@@ -35,7 +40,7 @@ public class StreakService {
 				streak.currentSt++;
 				streakRepository.save(streak);
 				
-			} if(prevLogin.getYear() % 4 != 0 && prevLogin.getDayOfYear() == 365 && curTime.getDayOfYear() == 1) { //checks for leap year and if it is the last day of the year
+			} else if(prevLogin.getDayOfYear() == 365 && curTime.getDayOfYear() == 1) { //checks for leap year and if it is the last day of the year
 				streak.currentSt++;
 				streakRepository.save(streak);
 				

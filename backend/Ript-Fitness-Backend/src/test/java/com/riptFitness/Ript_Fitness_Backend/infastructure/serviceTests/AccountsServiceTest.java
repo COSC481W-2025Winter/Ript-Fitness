@@ -118,7 +118,7 @@ public class AccountsServiceTest {
 			accountsService.createNewAccount(accountsDto);
 		});
 
-		assertEquals("The username: 'testUser' already has an account associated with it", exception.getMessage());
+		assertEquals("Username is already taken.", exception.getMessage());
 		verify(accountsRepository, never()).save(any(AccountsModel.class));
 	}
 
@@ -182,7 +182,7 @@ public class AccountsServiceTest {
 			accountsService.logIntoAccount(loginRequest);
 		});
 
-		assertEquals("The password: 'wrongPassword' is incorrect", exception.getMessage()); // Update to match actual
+		assertEquals("Incorrect password.", exception.getMessage()); // Update to match actual
 																							// output
 		verify(accountsRepository, never()).updateLoginDate(anyString(), any(LocalDateTime.class));
 	}
@@ -206,7 +206,7 @@ public class AccountsServiceTest {
 			accountsService.logIntoAccount(loginRequest);
 		});
 
-		assertEquals("Account with username: 'nonExistingUser' does not exist...", exception.getMessage());
+		assertEquals("Username does not exist.", exception.getMessage());
 		verify(accountsRepository, never()).updateLoginDate(anyString(), any(LocalDateTime.class));
 	}
 }
