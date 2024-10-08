@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, TouchableOpacity, View, FlatList, ScrollView } from 'react-native';
+import { Image, StyleSheet, Platform, TouchableOpacity, View, FlatList, ScrollView, Dimensions } from 'react-native';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -14,6 +14,7 @@ import { WorkoutScreenNavigationProp } from '@/app/(tabs)/WorkoutStack';
 import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist';
 import { isAndroid } from 'react-native-draggable-flatlist/lib/typescript/constants';
 import * as Haptics from 'expo-haptics';
+import React from 'react';
 
 export default function AddWorkoutScreen() {
   const navigation = useNavigation<WorkoutScreenNavigationProp >();
@@ -24,8 +25,7 @@ export default function AddWorkoutScreen() {
    }
 
    const editWorkout = (id : any) => {
-    //navigation.navigate('')
-    //console.log("edit " + id);
+    navigation.navigate("ApiScreen", {})
    }
 
   
@@ -33,8 +33,8 @@ export default function AddWorkoutScreen() {
     
     
    }
-const viewWorkoutDetails = () => {
-  console.log("view")
+const viewWorkoutDetails = (id : any) => {
+  navigation.navigate("ApiScreen", {})
 }
 
    const data = [
@@ -104,8 +104,18 @@ const viewWorkoutDetails = () => {
   }
 
   const [maxWidth, setMaxWidth] = useState(false)
-
-
+/*
+  const testGet = async () => {
+    const exampleJson =  //create a json object using the variables set in our textboxes
+      {
+        "username": "nhalash",
+        "password": "password123"
+    };
+    //make a post request
+    const response = await httpRequests.get("/getTestObject", exampleJson)
+    console.log(JSON.stringify(response))
+  }
+*/
   const renderItem = ({ item, drag, isActive }: RenderItemParams<typeof workouts[0]>) => (
     <Swipeable 
     renderLeftActions={() => renderLeftActions(item.id, maxWidth)}
@@ -141,7 +151,7 @@ const viewWorkoutDetails = () => {
       sideButtons={sideButtons}
     >
 
-
+      
       {item.values.map((value : any, index : any) => (
         <View key={index} style={styles.rowItem}>
           <ThemedText style={styles.floatLeft}>{value}</ThemedText>
@@ -158,22 +168,39 @@ const viewWorkoutDetails = () => {
   const onDragEnd = (data : any) => {
     setWorkouts(data)
   }
+
+  const test = async () => {
+    const obj = {
+      "username": "nhalash2",
+      "password": "password"
+  }
+    const response = await httpRequests.put("/accounts/login", obj)
+    console.log(JSON.stringify(response))
+    console.log(response.id)
+  }
+
   return (
     <View style={styles.totalView}>
       <View style={styles.flatListView}>
+      
+
       <DraggableFlatList
       style={styles.flatList}
         data={workouts}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         onDragEnd={({ data }) => onDragEnd(data)} // Update the order after dragging
+        ListFooterComponent={() => <View style={{ height: submitHeight }} />}
       />
+      <View style={styles.submitView}>
+        <TouchableOpacity onPress={test} style={styles.button}><View style={styles.submitButtonView}><ThemedText style={styles.buttonText}>Submit </ThemedText><Ionicons name="chevron-up" style={[styles.submitIcon]} size={20} color="white"/></View></TouchableOpacity>
+      </View>
     </View>
     </View>
   );
-}
+}//
 
-
+const submitHeight = Dimensions.get("screen").height * 0.09;
 const styles = StyleSheet.create({
   viewButton: {
     transform: [{ rotate: '90deg' }],
@@ -280,9 +307,14 @@ test: {
     backgroundColor:'#f3f3f2',*/
     alignItems:'center',
     position:'absolute',
-    height:'10%',
+    height:submitHeight,
     bottom:0,
     padding:10,
+  },
+  submitIcon: {
+    //position:'absolute',
+    //right:50,
+    transform: [{ rotate: '90deg' }],
   },
   stepContainer: {
     gap: 8,
@@ -302,12 +334,17 @@ test: {
     borderRadius:10,
     textAlign:'center',
     justifyContent:'center',
+    alignItems:'center',
   },
   buttonText: {
     textAlign:'center',
     color:'white',
   },
-
+  submitButtonView: {
+    flexDirection:'row',
+    //width:'30%',
+    //backgroundColor:'red',
+  },
   input: {
     height: 40,
     borderColor: 'gray',

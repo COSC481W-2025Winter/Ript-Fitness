@@ -43,7 +43,7 @@ export default function WorkoutStack(props : any) {
         // <Svg ... /> commented out
         headerRight: () => (
           <TouchableOpacity
-            onPress={() => { console.log("pressed2") }}
+            onPress={() => { navigation.navigate("ApiScreen", {}) }}
             style={[styles.rightButton, styles.button, styles.buttonSize]}
           >
             <TabBarIcon name='add-circle-outline' size={30} color='#bbbbbb' />
