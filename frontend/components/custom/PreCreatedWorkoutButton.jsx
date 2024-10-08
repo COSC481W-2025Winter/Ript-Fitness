@@ -1,5 +1,5 @@
-import { TouchableOpacity, View, Text, StyleSheet } from 'react-native' 
-import React from 'react'
+import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 
 const PreCreatedWorkoutButton = () => {
@@ -13,7 +13,7 @@ const PreCreatedWorkoutButton = () => {
                     key={index}
                     title={title}
                     lastCompleted={"10/07/2024"}
-                    onPress={() => navigation.navigate('ApiScreen')}
+                    onPress={() => navigation.navigate('Social')}
                     style={styles.button}>
                     <View style={styles.buttonContent}>
                         <Text
@@ -88,4 +88,4 @@ const styles = StyleSheet.create({
     },
 })
 
-export default PreCreatedWorkoutButton
+export default PreCreatedWorkoutButton;
