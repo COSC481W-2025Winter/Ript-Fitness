@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons'; // libary of icons
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { WorkoutScreenNavigationProp } from '../(tabs)/WorkoutStack';
 
@@ -24,25 +24,25 @@ export default function WorkoutApiScreen() {
       {/* My Workouts */}
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ApiScreen', { })}  > 
         <Text style={styles.buttonText}>My Workouts</Text>
-        <Icon name="heart-outline" size={30} color="red" />
+        <Ionicons name="heart-outline" size={30} color="red" />
       </TouchableOpacity>
 
       {/* Add Workout */}
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ApiScreen', { })}  >
         <Text style={styles.buttonText}>Add Workout</Text>
-        <Icon name="add" size={30} color="green" />
+        <Ionicons name="add" size={30} color="green" />
       </TouchableOpacity>
 
       {/* Ript Workouts */}
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ApiScreen', { })}  >
         <Text style={styles.buttonText}>Ript Workouts</Text>
-        <Icon name="barbell-outline" size={30} color="black" />
+        <Ionicons name="barbell-outline" size={30} color="black" />
       </TouchableOpacity>
 
       {/* Start Workout */}
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('StartWorkoutScreen', { })} >
         <Text style={styles.buttonText}>Start Workout</Text>
-        <Icon name="chevron-forward-outline" size={30} color="blue" />
+        <Ionicons name="chevron-forward-outline" size={30} color="blue" />
       </TouchableOpacity>
     </View>
   );
