@@ -13,8 +13,7 @@ export class httpRequests {
 static async get(endpoint: string, data? : Record<string, any>): Promise<any> { 
   try {
     // Fetch data from the specified endpoint
-    console.log(USE_LOCAL)
-    console.log(LOCAL_IP)
+
     const params = httpRequests.jsonToQueryString(data)
     const response = await fetch(`${BASE_URL}${endpoint}/${params}`); // Use endpoint or replace with BASE_URL if needed
     console.log(`${BASE_URL}${endpoint}/${params}`)
@@ -54,63 +53,40 @@ static jsonToQueryString(obj?: Record<string, any>): string {
   return `?${queryString}`;
 }
 
-
-
-// Method to handle POST requests and return JSON
-static async post(endpoint: string, data: Record<string, any>): Promise<any> { // Return type set as Promise<any> to reflect async behavior
+// Method to handle POST requests and return Response
+static async post(endpoint: string, data: Record<string, any>): Promise<Response> {
   try {
-    console.log(JSON.stringify(data))
-    // Convert JSON data to string format for POST request body
     const response = await fetch(`${BASE_URL}${endpoint}`, {
-      method: 'POST', // Change method to POST
+      method: 'POST', // Set method to POST
       headers: {
         'Content-Type': 'application/json', // Set content type to JSON
       },
-      body: JSON.stringify(data), // Convert the JSON object to a string
+      body: JSON.stringify(data), // Convert the data to a JSON string
     });
 
-
-  
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
-    }
-
-    const json = await response.json(); // Parse the response as JSON
-    return json; // Return the JSON data directly
+    return response; // Return the full response object
   } catch (error) {
-
-    //if access denied
-    //send to login page
-
     console.error('POST request failed:', error);
-    throw error; // Throw the error for further handling if needed
+    throw error; 
   }
 }
 
 
-// Method to handle PUT requests and return JSON
-static async put(endpoint: string, data: Record<string, any>): Promise<any> {
+// Method to handle PUT requests and return JSON and status
+static async put(endpoint: string, data: Record<string, any>): Promise<Response> {
   try {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
-      method: 'PUT',
+      method: 'PUT', // Set method to PUT
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json', // Set content type to JSON
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(data), // Convert the data to a JSON string
     });
 
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
-    }
-    const json = await response.json();
-    return json;
+    return response; // Return the full response object
   } catch (error) {
-
-    // If access denied
-    // Send to login page
-
     console.error('PUT request failed:', error);
-    throw error;
+    throw error; 
   }
 }
 
