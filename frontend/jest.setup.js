@@ -18,11 +18,7 @@ jest.mock('expo-modules-core', () => ({
         navigate: jest.fn(),
       }),
     };
-
   });
-
-
-
 
   import React from 'react';
 

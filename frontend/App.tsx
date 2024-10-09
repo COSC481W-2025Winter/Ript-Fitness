@@ -16,9 +16,10 @@ import { ThemedView } from './components/ThemedView';
 import { ThemedText } from './components/ThemedText';
 import { BodyContext } from './context/BodyContext';
 import SplashScreen from '@/app/screens/SplashScreen';
+import ApiScreen from '@/app/screens/ApiScreen';
 import WelcomeScreen from '@/app/screens/WelcomeScreen';
 import LoginScreen from '@/app/screens/LoginScreen';
-import SignupScreen from './app/screens/SignupScreen';
+import SignupScreen from '@/app/screens/SignupScreen';
 
 // Define types for the navigation stack
 export type RootStackParamList = {
@@ -30,7 +31,9 @@ export type RootStackParamList = {
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
+
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
 function MainApp() {
   return (
@@ -80,6 +83,7 @@ export default function App() {
     <GlobalProvider>
       <StatusBar barStyle="default" />
 
+
     {/* {false ? */}
       <NavigationContainer>
         <Stack.Navigator screenOptions={{gestureEnabled: true }} initialRouteName="Welcome">  
@@ -105,6 +109,7 @@ export default function App() {
     {/* // :
     // <SplashScreen />
     <WelcomeScreen /> } */}
+
     </GlobalProvider>
   );
 }
