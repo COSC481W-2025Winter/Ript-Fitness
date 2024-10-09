@@ -18,6 +18,7 @@ jest.mock('expo-modules-core', () => ({
         navigate: jest.fn(),
       }),
     };
+
   });
 
 
@@ -52,4 +53,3 @@ jest.mock('expo-modules-core', () => ({
       RotationGestureHandler: View,
     };
   });
-  

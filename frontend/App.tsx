@@ -5,7 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Text, StatusBar } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import SocialStack from './app/(tabs)/SocialStack';
 import WorkoutStack from './app/(tabs)/WorkoutStack';
 import BodyStack from './app/(tabs)/BodyStack';
