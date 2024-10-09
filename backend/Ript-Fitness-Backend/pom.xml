@@ -101,7 +101,8 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<mainClass>com.riptFitness.Ript_Fitness_Backend.RiptFitnessBackendApplication</mainClass>
+					<mainClass>
+						com.riptFitness.Ript_Fitness_Backend.RiptFitnessBackendApplication</mainClass>
 				</configuration>
 			</plugin>
 			<plugin>
