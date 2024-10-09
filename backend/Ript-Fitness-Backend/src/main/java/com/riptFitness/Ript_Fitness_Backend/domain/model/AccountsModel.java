@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
 
@@ -16,6 +17,10 @@ public class AccountsModel {
     @Id // This means this is the primary key of the AccountsModel database table
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Generates an ID via auto-increment
     private Long id;
+    
+    // Bidirectional relationship with Streak
+    @OneToOne(mappedBy = "account")
+    private Streak streak;
 
     // Fields:
     private String username;
@@ -70,5 +75,13 @@ public class AccountsModel {
     
     public void setlastLogin(LocalDateTime lastLogin) {
     	this.lastLogin = lastLogin;
+    }
+    
+    public Streak getStreak() {
+        return streak;
+    }
+
+    public void setStreak(Streak streak) {
+        this.streak = streak;
     }
 }

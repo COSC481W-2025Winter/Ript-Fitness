@@ -1,15 +1,16 @@
 import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 
-import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
+import ApiScreen from '@/app/screens/ApiScreen';
+import MyWorkoutsScreen from '@/app/screens/MyWorkoutsScreen';
+import WorkoutApiScreen from '@/app/screens/WorkoutApiScreen';
 import { WorkoutProvider } from '@/context/WorkoutContext';
-import AddWorkoutScreen from '@/app/screens/workout/AddWorkoutScreen';
-import ApiScreen from '../screens/ApiScreen';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Ionicons } from '@expo/vector-icons';
+import AddWorkoutScreen from '../screens/workout/AddWorkoutScreen';
+import StartWorkoutScreen from '../screens/StartWorkoutScreen';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation } from '@react-navigation/native';
-
 
 
 
@@ -18,6 +19,7 @@ const Stack = createStackNavigator();
 
 export type WorkoutStackParamList = {
   ApiScreen: {};
+  StartWorkoutScreen: {};
 };
 
 export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamList>;
@@ -26,7 +28,11 @@ export default function WorkoutStack(props : any) {
   const navigation = useNavigation<WorkoutScreenNavigationProp >();
   return (
     <WorkoutProvider>
-    <Stack.Navigator initialRouteName="MyHomeScreen123" screenOptions={{ headerShown: false }}>
+    <Stack.Navigator initialRouteName="WorkoutApiScreen" screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="WorkoutApiScreen" component={WorkoutApiScreen} />
+      <Stack.Screen name="ApiScreen" component={ApiScreen} />
+      <Stack.Screen name="StartWorkoutScreen" component={StartWorkoutScreen} />
+      <Stack.Screen name="MyHomeScreen123" component={MyWorkoutsScreen} />
       <Stack.Screen name="MyHomeScreen123" component={AddWorkoutScreen} options={{ headerShown: true,
         headerLeft: () => (
           <TouchableOpacity
@@ -55,6 +61,7 @@ export default function WorkoutStack(props : any) {
       <Stack.Screen name="ApiScreen" component={ApiScreen} />
       {/* Put any additional screens for your tab here. This allows us to use a stack.
         A stack allows us to easily navigate back a page when we're in a secondary screen on a certain tab.
+
       */}
     </Stack.Navigator>
     </WorkoutProvider>

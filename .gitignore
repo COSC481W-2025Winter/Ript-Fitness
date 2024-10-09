@@ -61,6 +61,26 @@ build/
 # Enviornment variables
 .env 
 
+# .DS_Store
+.DS_Store
+**/.DS_Store
+*/.DS_Store
+../.DS_Store
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# Metro
+*.metro-health-check*
+
+# debug
+*npm-debug.*
+*yarn-debug.*
+*yarn-error.*
+
 # application-test/properties
 backend/Ript-Fitness-Backend/src/test/resources/application-test.properties
 

@@ -5,7 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Text, StatusBar } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import SocialStack from './app/(tabs)/SocialStack';
 import WorkoutStack from './app/(tabs)/WorkoutStack';
 import BodyStack from './app/(tabs)/BodyStack';
@@ -17,9 +17,10 @@ import { ThemedText } from './components/ThemedText';
 import { BodyContext } from './context/BodyContext';
 import SplashScreen from '@/app/screens/SplashScreen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import ApiScreen from '@/app/screens/ApiScreen';
 import WelcomeScreen from '@/app/screens/WelcomeScreen';
 import LoginScreen from '@/app/screens/LoginScreen';
-import SignupScreen from './app/screens/SignupScreen';
+import SignupScreen from '@/app/screens/SignupScreen';
 
 
 // Define types for the navigation stack
@@ -32,6 +33,7 @@ export type RootStackParamList = {
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
+
 const Tab = createBottomTabNavigator();
 
 function MainApp() {
@@ -83,6 +85,7 @@ export default function App() {
 
       <StatusBar barStyle="default" />
 
+
     {/* {false ? */}
       <NavigationContainer>
         <Stack.Navigator screenOptions={{gestureEnabled: true }} initialRouteName="Welcome">  
@@ -108,6 +111,7 @@ export default function App() {
     {/* // :
     // <SplashScreen />
     <WelcomeScreen /> } */}
+
     </GlobalProvider>
   );
 }
