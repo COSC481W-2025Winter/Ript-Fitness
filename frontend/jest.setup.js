@@ -22,6 +22,7 @@ jest.mock('expo-modules-core', () => ({
 
 
 
+
   import React from 'react';
 
   jest.mock('react-native-gesture-handler', () => {
@@ -42,6 +43,7 @@ jest.mock('expo-modules-core', () => ({
       DrawerLayoutAndroid: View,
       WebView: View,
       State: {},
+      PanGestureHandler: View,
       TapGestureHandler: View,
       FlingGestureHandler: View,
       ForceTouchGestureHandler: View,
