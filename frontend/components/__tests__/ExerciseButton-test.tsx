@@ -1,5 +1,5 @@
 import * as React from 'react';
-import renderer from 'react-test-renderer';
+import { render } from '@testing-library/react-native';
 import { StyleSheet, View } from 'react-native';
 import { ThemedText } from '../ThemedText';
 import { ExerciseButton } from '../custom/ExerciseButton';
@@ -15,7 +15,7 @@ it(`ExerciseButton renders correctly`, () => {
   ];
 
   const item = workouts[0]; // Access the first workout
-  const tree = renderer.create(
+  const { tree } = render(
     <ExerciseButton
       id={item.id}
       leftColor={item.color}

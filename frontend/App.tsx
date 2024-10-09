@@ -58,6 +58,7 @@ function MainApp() {
                   tabBarIcon: ({ focused, size, color }) => (
                     <Ionicons name={focused ? 'barbell' : 'barbell-outline'} size={size} color={color} />
                   ),
+                  headerShown: false,
                 }}/>
 
       <Tab.Screen name="Body" component={BodyStack} 

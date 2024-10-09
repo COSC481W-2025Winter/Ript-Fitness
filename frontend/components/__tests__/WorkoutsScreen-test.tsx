@@ -45,10 +45,10 @@ describe('WorkoutApiScreen', () => {
     );
 
     fireEvent.press(getByText('My Workouts'));
-    expect(mockNavigate).toHaveBeenCalledWith('ApiScreen', {});
+    expect(mockNavigate).toHaveBeenCalledWith('MyWorkoutsScreen', {});
 
     fireEvent.press(getByText('Add Workout'));
-    expect(mockNavigate).toHaveBeenCalledWith('ApiScreen', {});
+    expect(mockNavigate).toHaveBeenCalledWith('AddWorkoutScreen', {});
 
     fireEvent.press(getByText('Ript Workouts'));
     expect(mockNavigate).toHaveBeenCalledWith('ApiScreen', {});

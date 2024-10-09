@@ -19,7 +19,7 @@ export default function MyWorkoutsScreen() {
   return (
     <View style= {styles.container}> 
       <SearchBarHeader></SearchBarHeader>
-      <SafeAreaView>
+      <SafeAreaView style= {styles.safeView}>
         <ScrollView
           showsVerticalScrollIndicator={false}>
           <WorkoutButton></WorkoutButton>
@@ -33,9 +33,12 @@ export default function MyWorkoutsScreen() {
 
 const styles = StyleSheet.create({
   searchContainer: {
-    height: 35,
+    height: 'auto',
     margin: 10,
     gap: 8, 
+  },
+  safeView: {
+    flex:1
   },
   text: {
     fontSize: 20,

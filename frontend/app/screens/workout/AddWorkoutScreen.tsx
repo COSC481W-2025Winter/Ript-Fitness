@@ -169,15 +169,6 @@ const viewWorkoutDetails = (id : any) => {
     setWorkouts(data)
   }
 
-  const test = async () => {
-    const obj = {
-      "username": "nhalash2",
-      "password": "password"
-  }
-    const response = await httpRequests.put("/accounts/login", obj)
-    console.log(JSON.stringify(response))
-    console.log(response.id)
-  }
 
   return (
     <View style={styles.totalView}>
@@ -193,7 +184,7 @@ const viewWorkoutDetails = (id : any) => {
         ListFooterComponent={() => <View style={{ height: submitHeight }} />}
       />
       <View style={styles.submitView}>
-        <TouchableOpacity onPress={test} style={styles.button}><View style={styles.submitButtonView}><ThemedText style={styles.buttonText}>Submit </ThemedText><Ionicons name="chevron-up" style={[styles.submitIcon]} size={20} color="white"/></View></TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("ApiScreen", {})} style={styles.button}><View style={styles.submitButtonView}><ThemedText style={styles.buttonText}>Submit </ThemedText><Ionicons name="chevron-up" style={[styles.submitIcon]} size={20} color="white"/></View></TouchableOpacity>
       </View>
     </View>
     </View>

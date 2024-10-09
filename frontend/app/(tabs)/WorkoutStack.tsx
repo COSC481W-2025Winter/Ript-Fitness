@@ -1,7 +1,7 @@
 import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
 import ApiScreen from '@/app/screens/ApiScreen';
 import MyWorkoutsScreen from '@/app/screens/MyWorkoutsScreen';
 import WorkoutApiScreen from '@/app/screens/WorkoutApiScreen';
@@ -20,6 +20,8 @@ const Stack = createStackNavigator();
 export type WorkoutStackParamList = {
   ApiScreen: {};
   StartWorkoutScreen: {};
+  AddWorkoutScreen: {};
+  MyWorkoutsScreen: {};
 };
 
 export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamList>;
@@ -28,12 +30,13 @@ export default function WorkoutStack(props : any) {
   const navigation = useNavigation<WorkoutScreenNavigationProp >();
   return (
     <WorkoutProvider>
-    <Stack.Navigator initialRouteName="WorkoutApiScreen" screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="WorkoutApiScreen" component={WorkoutApiScreen} />
+    <Stack.Navigator initialRouteName="WorkoutApiScreen" screenOptions={{ headerShown: true }}>
+      <Stack.Screen name="WorkoutApiScreen" component={WorkoutApiScreen} options={{ headerShown: false }}/>
       <Stack.Screen name="ApiScreen" component={ApiScreen} />
       <Stack.Screen name="StartWorkoutScreen" component={StartWorkoutScreen} />
-      <Stack.Screen name="MyHomeScreen123" component={MyWorkoutsScreen} />
-      <Stack.Screen name="MyHomeScreen123" component={AddWorkoutScreen} options={{ headerShown: true,
+      <Stack.Screen name="MyWorkoutsScreen" component={MyWorkoutsScreen} />
+
+      <Stack.Screen name="AddWorkoutScreen" component={AddWorkoutScreen} options={{ headerShown: true,
         headerLeft: () => (
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -58,7 +61,6 @@ export default function WorkoutStack(props : any) {
         headerTitleAlign: 'center',
         }}
         />
-      <Stack.Screen name="ApiScreen" component={ApiScreen} />
       {/* Put any additional screens for your tab here. This allows us to use a stack.
         A stack allows us to easily navigate back a page when we're in a secondary screen on a certain tab.
 
