@@ -1,9 +1,26 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.repository;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Streak;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
 
 public interface StreakRepository extends JpaRepository <Streak, Long> {
 	
+	//Looks in the Streak table for a record with the inputed ID. If it is found Return the row. If not return an empty Optional object.
+	 @Query(value = "SELECT i FROM streak i WHERE i.id = :id", nativeQuery = true)
+	 Optional<Streak> findById(@Param("id") Long id);
+	
+	
+	// Saves inputted Streak object to the streak table.
+	@Modifying
+	@Query(value = "INSERT INTO streak (streak) VALUES (:streak)", nativeQuery = true)
+	void saveStreak(@Param("streak") Streak streak);
 
 }
