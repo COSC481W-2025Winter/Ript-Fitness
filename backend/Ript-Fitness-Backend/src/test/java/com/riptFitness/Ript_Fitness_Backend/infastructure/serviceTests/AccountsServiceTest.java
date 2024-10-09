@@ -24,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.AccountsMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.StreakRepository;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AccountsService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.AccountsDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.LoginRequestDto;
@@ -33,6 +34,9 @@ public class AccountsServiceTest {
 
 	@Mock
 	private AccountsRepository accountsRepository;
+	
+	@Mock
+	private StreakRepository streakRepository;
 
 	@Mock
 	private PasswordEncoder passwordEncoder; // Add PasswordEncoder mock
