@@ -22,13 +22,13 @@ export default function WorkoutApiScreen() {
   return (
     <View style={styles.container}>
       {/* My Workouts */}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ApiScreen', { })}  > 
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('MyWorkoutsScreen', { })}  > 
         <Text style={styles.buttonText}>My Workouts</Text>
         <Ionicons name="heart-outline" size={30} color="red" />
       </TouchableOpacity>
 
       {/* Add Workout */}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ApiScreen', { })}  >
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AddWorkoutScreen', { })}  >
         <Text style={styles.buttonText}>Add Workout</Text>
         <Ionicons name="add" size={30} color="green" />
       </TouchableOpacity>

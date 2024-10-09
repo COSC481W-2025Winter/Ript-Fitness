@@ -16,10 +16,12 @@ import { ThemedView } from './components/ThemedView';
 import { ThemedText } from './components/ThemedText';
 import { BodyContext } from './context/BodyContext';
 import SplashScreen from '@/app/screens/SplashScreen';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import ApiScreen from '@/app/screens/ApiScreen';
 import WelcomeScreen from '@/app/screens/WelcomeScreen';
 import LoginScreen from '@/app/screens/LoginScreen';
 import SignupScreen from '@/app/screens/SignupScreen';
+
 
 // Define types for the navigation stack
 export type RootStackParamList = {
@@ -33,7 +35,6 @@ export type RootStackParamList = {
 const Stack = createStackNavigator<RootStackParamList>();
 
 const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
 
 function MainApp() {
   return (
@@ -57,6 +58,7 @@ function MainApp() {
                   tabBarIcon: ({ focused, size, color }) => (
                     <Ionicons name={focused ? 'barbell' : 'barbell-outline'} size={size} color={color} />
                   ),
+                  headerShown: false,
                 }}/>
 
       <Tab.Screen name="Body" component={BodyStack} 
@@ -81,6 +83,7 @@ export default function App() {
 
   return (
     <GlobalProvider>
+
       <StatusBar barStyle="default" />
 
 
