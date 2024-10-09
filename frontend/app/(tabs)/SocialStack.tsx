@@ -4,7 +4,10 @@ import { StyleSheet } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { SocialProvider } from '@/context/SocialContext';
 import ApiScreen from '@/app/screens/ApiScreen';
-
+import SocialFeed from '../screens/socialfeed/SocialFeed';
+import CommentsScreen from '../screens/socialfeed/CommentsScreen'
+import TextPostScreen from '../screens/socialfeed/TextPostScreen';
+import ImagePostScreen from '../screens/socialfeed/ImagePostScreen';
 
 
 const Stack = createStackNavigator();
@@ -12,8 +15,11 @@ const Stack = createStackNavigator();
 export default function SocialStack(props : any) {
   return (
     <SocialProvider>
-    <Stack.Navigator initialRouteName="MyHomeScreen123" screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="MyHomeScreen123" component={ApiScreen} />
+    <Stack.Navigator initialRouteName="SocialFeed" screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="SocialFeed" component={SocialFeed} />
+      <Stack.Screen name="CommentsScreen" component={CommentsScreen} />
+      <Stack.Screen name="TextPostScreen" component={TextPostScreen} />
+      <Stack.Screen name="ImagePostScreen" component={ImagePostScreen} />
       {/* Put any additional screens for your tab here. This allows us to use a stack.
         A stack allows us to easily navigate back a page when we're in a secondary screen on a certain tab.
       */}
