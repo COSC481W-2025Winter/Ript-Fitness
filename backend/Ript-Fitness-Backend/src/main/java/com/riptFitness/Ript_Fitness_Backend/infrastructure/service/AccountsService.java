@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,10 @@ import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.StreakRepository;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.AccountsDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.LoginRequestDto;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+
 
 @Service
 public class AccountsService {
@@ -47,6 +53,26 @@ public class AccountsService {
 	// - If the password does not match, display a error message.
 	// - If user name does not exist, display a message that it does not exist. Ask
 	// if they would like to create an account with that user name
+	
+	
+	// Method to retrieve the logged-in user's ID
+    public Long getLoggedInUserId() {
+        // Get the principal (logged-in user) from the security context
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails) principal).getUsername(); // Get the logged-in user's username
+
+            // Query the AccountsRepository to get the user based on the username
+            AccountsModel account = accountsRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+
+            // Return the ID of the logged-in user
+            return account.getId();
+        } else {
+            throw new RuntimeException("No authenticated user found.");
+        }
+    }
 
 	// Below is the logic for creating an account:
 	public AccountsDto createNewAccount(AccountsDto accountsDto) {
