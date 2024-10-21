@@ -15,7 +15,7 @@ public class ExerciseDto {
 	public String nameOfExercise;
 	
 	// Reference to the users account (AccountsModel)
-	public Long accountReferenceId; // Reference to the account that owns this exercise
+	public AccountsModel account; // Reference to the account that owns this exercise
 	
 	// We also will need a reference to the workout model: (UNCOMMENT BELOW ONCE CHRIS IS DONE)
 	//public WorkoutModel workout;
@@ -53,12 +53,12 @@ public class ExerciseDto {
         this.nameOfExercise = nameOfExercise;
     }
 
-    public Long getAccountReferenceId() {
-        return accountReferenceId;
+    public Long getAccountreferenceId() {
+        return account.getId();
     }
 
-    public void setAccountReferenceId(Long accountId) {
-        this.accountReferenceId = accountId;
+    public void setAccountreferenceId(Long AccountReferenceId) {
+        account.setId(AccountReferenceId);
     }
 
     // Optional WorkoutId field

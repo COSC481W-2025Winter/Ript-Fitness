@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.riptFitness.Ript_Fitness_Backend.config.JwtUtil;
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.AccountsMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Streak;
@@ -17,9 +18,6 @@ import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.StreakRepository;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.AccountsDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.LoginRequestDto;
-
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 
 
 @Service
@@ -118,10 +116,13 @@ public class AccountsService {
 		}
 		return AccountsMapper.INSTANCE.convertToDto(accountsModel);
 	}
+	
+	@Autowired
+	private JwtUtil jwtUtil; // Inject JWT utility
 
 	// Method to get account details:
 	@Transactional
-	public AccountsDto logIntoAccount(LoginRequestDto loginRequest) {
+	public String logIntoAccount(LoginRequestDto loginRequest) {
 		// Extract username and password from the request body
 		String username = loginRequest.getUsername();
 		String password = loginRequest.getPassword();
@@ -147,9 +148,12 @@ public class AccountsService {
 	        if (passwordMatches) {
 	        	// Update the login date:
 	        	accountsRepository.updateLoginDate(username, lastLogin);
-	        	// Convert to DTO:
+	        	
+	        	// Generate a JWT token and return it
+	            String token = jwtUtil.generateToken(username);
 	            System.out.println("Login successful for user: " + username);
-	            return AccountsMapper.INSTANCE.convertToDto(possibleAccount);
+	            return token;
+	            
 	        } else {
 	            System.out.println("Incorrect password for user: " + username);
 	            throw new RuntimeException("Incorrect password.");

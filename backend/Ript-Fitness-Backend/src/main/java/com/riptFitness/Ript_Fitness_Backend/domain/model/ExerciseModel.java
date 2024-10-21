@@ -1,13 +1,14 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
-import org.springframework.data.annotation.Id;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;  // Correct import for JPA
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 
 
@@ -34,13 +35,23 @@ public class ExerciseModel {
 	
 	// Reference to the users account (to get the ID of the account)
 	@ManyToOne
-	@JoinColumn(name = "account_id") // Creates a foriegn key column in the exercise table
-	public Long accountReferenceId; // Reference to the account that owns this exercise
+	@JoinColumn(name = "account_id") // Creates a foreign key column in the exercise table
+	@JsonIgnoreProperties("exercises") // Ignore the exercises list inside account when serializing
+	private AccountsModel account; // Reference to the account that owns this exercise
 	
 	// We also will need a reference to the workout model: (UNCOMMENT BELOW ONCE CHRIS IS DONE)
 	//@ManyToOne
 	//@JoinColumn(name = "workout_id")
 	//public WorkoutModel workout;
+	
+	// Getters and Setters for all fields
+    public AccountsModel getAccount() {
+        return account;
+    }
+
+    public void setAccount(AccountsModel account) {
+        this.account = account;
+    }
 
 	public Long getExerciseId() {
 		return exerciseId;
@@ -74,13 +85,13 @@ public class ExerciseModel {
 		this.nameOfExercise = nameOfExercise;
 	}
 
-	public Long getAccountReferenceId() {
-		return accountReferenceId;
-	}
-
-	public void setAccountReferenceId(Long accountReferenceId) {
-		this.accountReferenceId = accountReferenceId;
-	}
+//	public Long getAccountreferenceId() {
+//        return account.getId();
+//    }
+//
+//    public void setAccountreferenceId(Long AccountReferenceId) {
+//        account.setId(AccountReferenceId);
+//    }
 
 	
 
