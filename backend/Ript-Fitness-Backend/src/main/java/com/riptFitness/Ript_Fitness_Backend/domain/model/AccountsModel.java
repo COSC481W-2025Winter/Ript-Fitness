@@ -1,11 +1,14 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
@@ -21,6 +24,10 @@ public class AccountsModel {
     // Bidirectional relationship with Streak
     @OneToOne(mappedBy = "account")
     private Streak streak;
+    
+    // If you want to define a bi-directional relationship
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Workouts> workouts;
 
     // Fields:
     private String username;
