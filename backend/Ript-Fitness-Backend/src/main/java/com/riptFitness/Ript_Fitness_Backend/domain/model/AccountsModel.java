@@ -2,13 +2,9 @@ package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
 import java.time.LocalDateTime;
 import java.util.List;
-<<<<<<< HEAD
-=======
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
->>>>>>> a4133bf4bada5247ecc9e8cfe9f208319c970894
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;

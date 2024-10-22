@@ -26,7 +26,7 @@ public class Workouts {
     // One-to-Many relationship with Exercise
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "workout_id")
-    //public List<Exercise> exercises;
+    public List<ExerciseModel> exercises;
 	
 	public String name;
 	

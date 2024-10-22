@@ -40,9 +40,9 @@ public class ExerciseModel {
 	private AccountsModel account; // Reference to the account that owns this exercise
 	
 	// We also will need a reference to the workout model: (UNCOMMENT BELOW ONCE CHRIS IS DONE)
-	//@ManyToOne
-	//@JoinColumn(name = "workout_id")
-	//public WorkoutModel workout;
+	@ManyToOne
+	@JoinColumn(name = "workout_id")
+	public Workouts workout;
 	
 	// Getters and Setters for all fields
     public AccountsModel getAccount() {
