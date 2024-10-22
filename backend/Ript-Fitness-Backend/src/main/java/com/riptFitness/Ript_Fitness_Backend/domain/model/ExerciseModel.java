@@ -30,8 +30,9 @@ public class ExerciseModel {
 	
 	public int sets;
 	public int reps;
-	// private int weight; Not sure what to do with this yet; may use later.
 	public String nameOfExercise;
+	public boolean isDeleted = false; // False to start because true means the exercisde is deleted.
+	// private int weight; Not sure what to do with this yet; may use later.
 	
 	// Reference to the users account (to get the ID of the account)
 	@ManyToOne
@@ -83,6 +84,14 @@ public class ExerciseModel {
 
 	public void setNameOfExercise(String nameOfExercise) {
 		this.nameOfExercise = nameOfExercise;
+	}
+
+	public boolean isIsDeleted() {
+		return this.isDeleted;
+	}
+
+	public void setIsDeleted(boolean isDeleted) {
+		this.isDeleted = isDeleted;
 	}
 
 //	public Long getAccountreferenceId() {
