@@ -1,5 +1,5 @@
 
-import { TextInput, StyleSheet, ScrollView, Text, View, KeyboardAvoidingView, Platform, TouchableOpacity, Dimensions, Button  } from "react-native";
+import { TextInput, StyleSheet, ScrollView, Text, View, KeyboardAvoidingView, Platform, TouchableOpacity, Dimensions, Button, Alert  } from "react-native";
 import React, { useState } from 'react';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ThemedText } from '@/components/ThemedText';
@@ -23,6 +23,16 @@ import MacroButton from "@/components/foodlog/MacroButton";
   "multiplier": 1.0,
   "isDeleted": false
 }
+
+DayDto object  (for addDay endpoint, always make a new Day object empty like below:
+{
+    "foodsEatenInDay": [],
+    "foodIdsInFoodsEatenInDayList": []
+}
+
+Array of Food Ids:
+[2]
+[1, 2, 3] 
 */
 
 //const FoodLogAddScreen: React.FC<FoodLogAddProps> = ({navigation}) => {
@@ -34,7 +44,7 @@ const FoodLogAddForm = () => {
     const [foodProtein, setProtein] = useState('');
 
 
-    const handleFoodData = async () => {
+    const handleFoodDataSaveOnly = async () => {
         const foodData = {
             name: foodName, 
             calories: foodCalories, 
@@ -52,15 +62,62 @@ const FoodLogAddForm = () => {
                     'Content-Type': 'application/json',
                   },
                   body: JSON.stringify(foodData),
-            });
-            if (response.status === 200) {
+            }, 
+            );
+            if (response.status === 201) {
                 console.log('Success', 'Food data saved successfully!');
+                Alert.alert("Success", 'Food data saved successfully!');
               } else {
                 console.log('Error', 'Failed to save food data.');
+                Alert.alert("Error", 'Failed to save food data');
               }
         } catch (error) {
               console.log('Error', 'An error occurred. Please try again.');
         }
+    };
+
+    const handleFoodDataSaveAddDay = async () => {
+        const foodData = {
+            name: foodName, 
+            calories: foodCalories, 
+            protein: foodProtein,
+            carbs: foodCarbs,  
+            fat: foodFat, 
+            multiplier: 1.0, 
+            isDelted: false, 
+        };
+
+        const dayData = {
+            foodsEatenInDay: [13],
+            foodIdsInFoodsEatenInDayList: [21, 20]
+        }
+
+        try {
+            const response = await fetch('https://ript-fitness-app.azurewebsites.net/nutritionCalculator/addFood', { 
+                method: 'POST', 
+                headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(foodData),
+            });
+            const reponse = await fetch('https://ript-fitness-app.azurewebsites.net/nutritionCalculator/addDay', {
+                method: 'POST', 
+                headers: {
+                    'Content-Type': 'applciation/json', 
+                }, 
+                body: JSON.stringify(dayData),
+            });
+            if (response.status === 201) {
+                console.log('Success', 'Food data saved successfully!');
+                Alert.alert("Success", 'Food data saved successfully!');
+              } else {
+                console.log('Error', 'Failed to save food data.');
+                Alert.alert("Error", 'Failed to save food data');
+              }
+        } catch (error) {
+              console.log('Error', 'An error occurred. Please try again.');
+        }
+
     };
         
 
@@ -82,68 +139,6 @@ const FoodLogAddForm = () => {
 
 
     return(
-        //<View>
-        //  <View style={styles.calendarNav}>
-        //             <Ionicons 
-        //                 name={"chevron-back-outline"} 
-        //                 size={24} 
-        //                 style={styles.leftArrow}
-        //                 onPress={() => navigation.navigate('ApiScreen')}
-        //         />
-        //             <Ionicons name={"calendar-clear-outline"} size={24}></Ionicons>
-        //             {/* This will be "today" when it is the current date, if not it will display the date of the data they are viewing*/}
-        //             <Text>Today</Text>
-        //             <Ionicons 
-        //                 name={"chevron-forward-outline"} 
-        //                 size={24} 
-        //                 style={styles.rightArrow}
-        //                 onPress={() => navigation.navigate('ApiScreen')}
-        //             />
-        //         </View>
-        //     <View style={styles.macroView}> 
-        //         <View style={styles.macroRow}>
-        //             <MacroButton
-        //                 title="Calories" 
-        //                 backgroundColor="#0E598D"
-        //                 fontSize={16}
-        //                 width={100} 
-        //             ></MacroButton>
-        //             <MacroButton
-        //                 title="Protein" 
-        //                 backgroundColor="#F2846C"
-        //                 fontSize={16}
-        //                 width={100} 
-        //             ></MacroButton>
-        //             <MacroButton
-        //                 title="Carbs" 
-        //                 backgroundColor="#088C7F"
-        //                 fontSize={16}
-        //                 width={100} 
-        //             ></MacroButton>
-        //         </View>
-        //         <View style={styles.macroRow}>
-        //             <MacroButton
-        //                 title="Fat" 
-        //                 backgroundColor="#AC2641"
-        //                 fontSize={16}
-        //                 width={100} 
-        //             ></MacroButton>
-        //             <MacroButton
-        //                 title="Water" 
-        //                 backgroundColor="black"
-        //                 fontSize={16}
-        //                 width={100} 
-        //             ></MacroButton>
-        //         </View>
-        //     </View> 
-        //     <View style={styles.dataBar}>
-        //         <Text style={styles.text}
-        //             onPress={()  => navigation.navigate('ApiScreen')}>Logged</Text>
-        //         <Text style={styles.text}
-        //             onPress={()  => navigation.navigate('ApiScreen')}>Saved</Text>
-        //         <Text style={styles.text}
-        //             onPress={()  => navigation.navigate('ApiScreen')}>Add</Text>
-        //     </View>
 // {/* THIS IS THE NEW STUFF FOR THE ADD PAGE*/}
 <View>
         <ScrollView>
@@ -202,52 +197,16 @@ const FoodLogAddForm = () => {
             /></View>
 
             {/* Save button */}
-            <Button title="Save Food" onPress={handleFoodData} />
+            <View style={styles.row}>
+                <Button title="Save Food" onPress={handleFoodDataSaveOnly} />
+                <Button title="Add Day" onPress={handleFoodDataSaveAddDay} />
+            </View>
             </View>
         </ScrollView>
 </View>
     );
     };
 const styles = StyleSheet.create({
-    calendarNav: {
-        height: 50,
-        width: '100%', 
-        backgroundColor: 'lightgray',
-        flexDirection: 'row',
-        padding: 5,
-        alignItems: 'center',
-        position: 'relative',
-        justifyContent: 'center',
-    },
-    rightArrow: {
-        position: 'absolute',
-        right: 0,
-    }, 
-    leftArrow: {
-        position: 'absolute',
-        left: 0,
-    },
-    macroView: {
-        height: 200,
-        width: '100%',
-        backgroundColor: 'white', 
-    }, 
-    macroRow: {
-        flexDirection: 'row',
-    }, 
-    dataBar: {
-        height: 50,
-        width: '100%', 
-        backgroundColor: 'lightgray',
-        flexDirection: 'row',
-        padding: 5,
-        alignItems: 'center',
-        position: 'relative',
-        justifyContent: 'space-between',
-    }, 
-    text: {
-        padding: 10,
-    }, 
     addFoodContainer: {
         padding: 20,
       },
@@ -259,7 +218,7 @@ const styles = StyleSheet.create({
         flex: 100,
         borderWidth: 1,
         borderColor: '#ccc',
-        padding: 10,
+        padding: 5,
         marginVertical: 5,
         borderRadius: 5,
       },
@@ -272,8 +231,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row', // Align items in a row
         alignItems: 'center', // Vertically center the text and input
         marginBottom: 10,
-      }
-
+      }, 
 })
 
 export default FoodLogAddForm;

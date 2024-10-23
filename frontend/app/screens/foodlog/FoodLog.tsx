@@ -42,20 +42,26 @@ export default function FoodLogScreen() {
             <View style={styles.macroView}> 
                 <View style={styles.macroRow}>
                     <MacroButton
-                        title="Calories" 
-                        backgroundColor="#0E598D"
+                        title="Calories"
+                        textColor="#0E598D"
+                        borderColor="#0E598D"
+                        borderWidth={5}
                         fontSize={16}
                         width={100} 
                     ></MacroButton>
                     <MacroButton
                         title="Protein" 
-                        backgroundColor="#F2846C"
+                        textColor="#F2846C"
+                        borderColor="#F2846C"
+                        borderWidth={5}
                         fontSize={16}
                         width={100} 
                     ></MacroButton>
                     <MacroButton
                         title="Carbs" 
-                        backgroundColor="#088C7F"
+                        textColor="#088C7F"
+                        borderColor="#088C7F"
+                        borderWidth={5}
                         fontSize={16}
                         width={100} 
                     ></MacroButton>
@@ -63,13 +69,17 @@ export default function FoodLogScreen() {
                 <View style={styles.macroRow}>
                     <MacroButton
                         title="Fat" 
-                        backgroundColor="#AC2641"
+                        textColor="#AC2641"
+                        borderColor="#AC2641"
+                        borderWidth={5}
                         fontSize={16}
                         width={100} 
                     ></MacroButton>
                     <MacroButton
                         title="Water" 
-                        backgroundColor="black"
+                        textColor="black"
+                        borderColor="black"
+                        borderWidth={5}
                         fontSize={16}
                         width={100} 
                     ></MacroButton>
@@ -108,7 +118,7 @@ const styles = StyleSheet.create({
         left: 0,
     },
     macroView: {
-        height: 200,
+        height: 220,
         width: '100%',
         backgroundColor: 'white', 
     }, 
