@@ -73,7 +73,7 @@ public class AccountsService {
     }
 
 	// Below is the logic for creating an account:
-	public AccountsDto createNewAccount(AccountsDto accountsDto) {
+	public String createNewAccount(AccountsDto accountsDto) {
 		// Convert DTO to model:
 		AccountsModel accountsModel = AccountsMapper.INSTANCE.convertToModel(accountsDto);
 		// Get the username:
@@ -114,7 +114,11 @@ public class AccountsService {
 			 streakRepository.save(streak);
 			 
 		}
-		return AccountsMapper.INSTANCE.convertToDto(accountsModel);
+		// Generate a JWT token for the newly created account:
+	    String token = jwtUtil.generateToken(username);
+
+	    // Return the token as the response:
+	    return token;
 	}
 	
 	@Autowired

@@ -1,6 +1,9 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Entity;
@@ -29,7 +32,7 @@ public class ExerciseModel {
 	public Long exerciseId;
 	
 	public int sets;
-	public int reps;
+	public List<Integer> reps; // List to store the number of reps per set
 	public String nameOfExercise;
 	public boolean isDeleted = false; // False to start because true means the exercisde is deleted.
 	// private int weight; Not sure what to do with this yet; may use later.
@@ -66,15 +69,24 @@ public class ExerciseModel {
 		return sets;
 	}
 
-	public void setSets(int sets) {
-		this.sets = sets;
-	}
+	// When the number of sets is updated, initialize or adjust the size of the reps list accordingly
+    public void setSets(int sets) {
+        this.sets = sets;
 
-	public int getReps() {
+        // If reps is null or its size doesn't match the number of sets, resize it
+        if (this.reps == null || this.reps.size() != sets) {
+            this.reps = new ArrayList<>(sets);
+            for (int i = 0; i < sets; i++) {
+                this.reps.add(null); // Initialize all elements to null
+            }
+        }
+    }
+
+	public List<Integer> getReps() {
 		return reps;
 	}
 
-	public void setReps(int reps) {
+	public void setReps(List<Integer> reps) {
 		this.reps = reps;
 	}
 
@@ -94,13 +106,13 @@ public class ExerciseModel {
 		this.isDeleted = isDeleted;
 	}
 
-//	public Long getAccountreferenceId() {
-//        return account.getId();
-//    }
-//
-//    public void setAccountreferenceId(Long AccountReferenceId) {
-//        account.setId(AccountReferenceId);
-//    }
+	public Long getAccountreferenceId() {
+        return account.getId();
+    }
+
+    public void setAccountreferenceId(Long AccountReferenceId) {
+        account.setId(AccountReferenceId);
+    }
 
 	
 

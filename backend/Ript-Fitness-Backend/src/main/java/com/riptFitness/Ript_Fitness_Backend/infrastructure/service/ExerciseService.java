@@ -28,15 +28,15 @@ public class ExerciseService {
 
 	// Method to add a new exercise:
 	public ExerciseDto addExercise(ExerciseDto exerciseDto) {
-		// Convert DTO to model
-		ExerciseModel newExercise = ExerciseMapper.INSTANCE.convertToModel(exerciseDto);
-
 		// Get the ID of the user that is trying to add the exercise:
 		Long currentUserId = accountsService.getLoggedInUserId();
 
 		// Retrieve the account associated with the current user
 		AccountsModel account = accountsRepository.findById(currentUserId)
 				.orElseThrow(() -> new RuntimeException("Account not found"));
+
+		// Convert DTO to model
+		ExerciseModel newExercise = ExerciseMapper.INSTANCE.convertToModel(exerciseDto);
 
 		// Set the account in the ExerciseModel
 		newExercise.setAccount(account);
@@ -82,29 +82,11 @@ public class ExerciseService {
 
 	// Method to edit the reps on an exercise:
 	public ExerciseDto editReps(Long exerciseId, int setNumber, int rep) {
-		// Since the exercise_id is unique; we do not need to worry about who is logged in:
+		// Since the exercise_id is unique; we do not need to worry about who is logged
+		// in:
 		ExerciseModel editedReps = exerciseRepository.getReferenceById(exerciseId);
 		// Edit the reps:
-		
+		return null;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
 }

@@ -1,21 +1,22 @@
 package com.riptFitness.Ript_Fitness_Backend.web.dto;
 
-import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
+import java.util.List;
 
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.ExerciseModel;
 
 public class ExerciseDto {
 	
 	
 	public Long exerciseId;
 	public int sets;
-	public int reps;
+	public List<Integer> reps; // List to store the number of reps per set
+	public boolean isDeleted = false; // False to start because true means the exercisde is deleted.
 	// private int weight; Not sure what to do with this yet; may use later.
 	public String nameOfExercise;
 	
 	// Reference to the users account (AccountsModel)
-	public AccountsModel account; // Reference to the account that owns this exercise
+	public Long accountReferenceId; // Reference to the account that owns this exercise
 	
 	// We also will need a reference to the workout model: (UNCOMMENT BELOW ONCE CHRIS IS DONE)
 	//public WorkoutModel workout;
@@ -37,11 +38,11 @@ public class ExerciseDto {
         this.sets = sets;
     }
 
-    public int getReps() {
+    public List<Integer> getReps() {
         return reps;
     }
 
-    public void setReps(int reps) {
+    public void setReps(List<Integer> reps) {
         this.reps = reps;
     }
 
@@ -53,13 +54,22 @@ public class ExerciseDto {
         this.nameOfExercise = nameOfExercise;
     }
 
-    public Long getAccountreferenceId() {
-        return account.getId();
+    public Long getAccountReferenceId() {
+        return accountReferenceId;
     }
 
-    public void setAccountreferenceId(Long AccountReferenceId) {
-        account.setId(AccountReferenceId);
+    public void setAccountReferenceId(Long accountReferenceId) {
+        this.accountReferenceId = accountReferenceId;
     }
+
+	public boolean isDeleted() {
+		return isDeleted;
+	}
+
+	public void setDeleted(boolean isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
 
     // Optional WorkoutId field
     // public Long getWorkoutId() {
