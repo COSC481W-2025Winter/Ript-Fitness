@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.WorkoutsService;
+import com.riptFitness.Ript_Fitness_Backend.web.dto.WorkoutsDto;
 
 @RestController
 @RequestMapping("/workouts")
@@ -23,5 +24,9 @@ public class WorkoutsController {
 		
 	}
 	
-	
+	@PutMapping("/addWorkout")
+	public ResponseEntity<WorkoutsDto> addWorkout(WorkoutsDto workoutDto){
+		WorkoutsDto newWorkout = workoutsService.addWorkout(workoutDto);
+		return ResponseEntity.ok(newWorkout);
+	}
 }

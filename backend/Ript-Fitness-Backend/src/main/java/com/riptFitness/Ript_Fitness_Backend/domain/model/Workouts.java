@@ -31,7 +31,13 @@ public class Workouts {
 	public String name;
 	
 	
-	
+    public AccountsModel getAccount() {
+        return account;
+    }
+
+    public void setAccount(AccountsModel account) {
+        this.account = account;
+    }
 	
 
 }
