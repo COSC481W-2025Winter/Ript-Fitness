@@ -5,17 +5,9 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNavigation } from "@react-navigation/native";
 import MacroButton from "@/components/foodlog/MacroButton";
 import FoodLogAddFrom from "@/app/screens/foodlog/FoodLogAdd";
+import FoodLogSaved from "@/app/screens/foodlog/FoodLogSaved";
 
 export default function FoodLogScreen() {
-    // const calendarBar = (
-    //     <View style = {styles.calendarNav}>
-    //         <Ionicons name={"chevron-back-outline"} size={24} style={styles.leftArrow}></Ionicons>
-    //         <Ionicons name={"calendar-clear-outline"} size={24}></Ionicons>
-    //         {/* This will be "today" when it is the current date, if not it will display the date of the data they are viewing*/}
-    //         <Text>Today</Text>
-    //         <Ionicons name={"chevron-forward-outline"} size={24} style={styles.rightArrow}></Ionicons>
-    //     </View>
-    // );
     
     const navigation = useNavigation();
 
@@ -87,12 +79,13 @@ export default function FoodLogScreen() {
             </View> 
             <View style={styles.dataBar}>
                 <Text style={styles.text}
-                    onPress={()  => navigation.navigate('ApiScreen')}>Logged</Text>
+                    onPress={()  => }>Logged</Text>
                 <Text style={styles.text}
                     onPress={()  => navigation.navigate('ApiScreen')}>Saved</Text>
                 <Text style={styles.textAdd}
-                    onPress={()  => navigation.navigate('ApiScreen')}>Add</Text>
+                    onPress={()  => <FoodLogAddFrom></FoodLogAddFrom>}>Add</Text>
             </View>
+        
         <FoodLogAddFrom></FoodLogAddFrom>
         </View>
     );

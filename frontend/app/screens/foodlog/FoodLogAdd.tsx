@@ -10,6 +10,7 @@ import Add from '@/app/screens/foodlog/FoodLogAdd';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNavigation } from "@react-navigation/native";
 import MacroButton from "@/components/foodlog/MacroButton";
+import AddFoodButton from "@/components/foodlog/AddFoodButton";
 
 
 
@@ -42,6 +43,7 @@ const FoodLogAddForm = () => {
     const [foodFat, setFat] = useState('');
     const [foodCarbs, setCarbs] = useState('');
     const [foodProtein, setProtein] = useState('');
+    const [day, setDay] = useState('');
 
 
     const handleFoodDataSaveOnly = async () => {
@@ -88,25 +90,48 @@ const FoodLogAddForm = () => {
         };
 
         const dayData = {
-            foodsEatenInDay: [13],
-            foodIdsInFoodsEatenInDayList: [21, 20]
+            foodsEatenInDay: [],
+            foodIdsInFoodsEatenInDayList: []
         }
 
+        //This will create a new day everytime the user logs a new food today so will need to change this later.
         try {
-            const response = await fetch('https://ript-fitness-app.azurewebsites.net/nutritionCalculator/addFood', { 
+            const response = await fetch('https://ript-fitness-app.azurewebsites.net/nutritionCalculator/addDay', {
                 method: 'POST', 
                 headers: {
                     'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(foodData),
-            });
-            const reponse = await fetch('https://ript-fitness-app.azurewebsites.net/nutritionCalculator/addDay', {
-                method: 'POST', 
-                headers: {
-                    'Content-Type': 'applciation/json', 
                 }, 
                 body: JSON.stringify(dayData),
             });
+            if (response.status === 201) {
+                const data = await response.json();
+                setDay(data.id);
+                console.log('New Day ID: ', day);
+                console.log('Success', 'Food data saved successfully!');
+                Alert.alert("Success", 'Food data saved successfully!');
+              } else {
+                console.log('Error', 'Failed to save food data.');
+                Alert.alert("Error", 'Failed to save food data');
+              }
+        } catch {
+            console.log('Error', 'An error occurred. Please try again.');
+        }
+
+        try {
+            const response = await fetch(`https://ript-fitness-app.azurewebsites.net/nutritionCalculator/addFoodsToDay/${day}`, {
+                method: 'POST', 
+                headers: {
+                    'Content-Type': 'application/json',
+                }, 
+                body: JSON.stringify([34,33]),
+            });
+            // const response = await fetch('https://ript-fitness-app.azurewebsites.net/nutritionCalculator/addFood', { 
+            //     method: 'POST', 
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //       },
+            //       body: JSON.stringify(foodData),
+            // });
             if (response.status === 201) {
                 console.log('Success', 'Food data saved successfully!');
                 Alert.alert("Success", 'Food data saved successfully!');
@@ -120,20 +145,6 @@ const FoodLogAddForm = () => {
 
     };
         
-
-
-
-
-//export default function FoodLogScreen() {
-    // const calendarBar = (
-    //     <View style = {styles.calendarNav}>
-    //         <Ionicons name={"chevron-back-outline"} size={24} style={styles.leftArrow}></Ionicons>
-    //         <Ionicons name={"calendar-clear-outline"} size={24}></Ionicons>
-    //         {/* This will be "today" when it is the current date, if not it will display the date of the data they are viewing*/}
-    //         <Text>Today</Text>
-    //         <Ionicons name={"chevron-forward-outline"} size={24} style={styles.rightArrow}></Ionicons>
-    //     </View>
-    // );
     
     const navigation = useNavigation();
 
@@ -198,8 +209,22 @@ const FoodLogAddForm = () => {
 
             {/* Save button */}
             <View style={styles.row}>
-                <Button title="Save Food" onPress={handleFoodDataSaveOnly} />
-                <Button title="Add Day" onPress={handleFoodDataSaveAddDay} />
+                <AddFoodButton   
+                        title="Save Food" 
+                        textColor="white"
+                        backgroundColor="#F2846C"
+                        borderWidth={1}
+                        fontSize={16}
+                        width={150}
+                        onPress={handleFoodDataSaveOnly} />
+                <AddFoodButton   
+                        title="Log Food Today" 
+                        textColor="white"
+                        backgroundColor="#088C7F"
+                        borderWidth={1}
+                        fontSize={16}
+                        width={150}
+                        onPress={handleFoodDataSaveAddDay} />
             </View>
             </View>
         </ScrollView>
