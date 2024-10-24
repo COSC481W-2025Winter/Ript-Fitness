@@ -39,11 +39,11 @@ public class NutritionTrackerService {
 	}
 	
 	//Gets a specific row's values from the Food table (with id = foodId) and returns it to the controller class
-	public FoodDto getFoodStats(String foodName) {
-		Optional<Food> returnedOptionalFoodObject = nutritionTrackerFoodRepository.findByName(foodName);
+	public FoodDto getFoodStats(Long foodId) {
+		Optional<Food> returnedOptionalFoodObject = nutritionTrackerFoodRepository.findById(foodId);
 		
 		if(returnedOptionalFoodObject.isEmpty())
-			throw new RuntimeException("Food object not found in database with name = " + foodName);
+			throw new RuntimeException("Food object not found in database with ID = " + foodId);
 		
 		Food returnedFoodObject = returnedOptionalFoodObject.get();
 		
@@ -51,11 +51,11 @@ public class NutritionTrackerService {
 	}
 	
 	//Edits a specific row's values from the Food table (with id = foodId) to match stats with foodDto and returns the updated object to the controller class
-	public FoodDto editFood(String foodName, FoodDto foodDto) {
-		Optional<Food> optionalFoodToBeEdited = nutritionTrackerFoodRepository.findByName(foodName);
+	public FoodDto editFood(Long foodId, FoodDto foodDto) {
+		Optional<Food> optionalFoodToBeEdited = nutritionTrackerFoodRepository.findById(foodId);
 		
 		if(optionalFoodToBeEdited.isEmpty())
-			throw new RuntimeException("Food object not found in database with name = " + foodName);
+			throw new RuntimeException("Food object not found in database with ID = " + foodId);
 		
 		Food foodToBeEdited = optionalFoodToBeEdited.get();
 		FoodMapper.INSTANCE.updateFoodRowFromDto(foodDto, foodToBeEdited);
@@ -63,11 +63,11 @@ public class NutritionTrackerService {
 		return FoodMapper.INSTANCE.toFoodDto(foodToBeEdited);
 	}
 	
-	public FoodDto deleteFood(String foodName) {
-		Optional<Food> optionalFoodToBeDeleted = nutritionTrackerFoodRepository.findByName(foodName);
+	public FoodDto deleteFood(Long foodId) {
+		Optional<Food> optionalFoodToBeDeleted = nutritionTrackerFoodRepository.findById(foodId);
 		
 		if(optionalFoodToBeDeleted.isEmpty())
-			throw new RuntimeException("Food object not found in database with name = " + foodName);
+			throw new RuntimeException("Food object not found in database with name = " + foodId);
 		
 		Food foodToBeDeleted = optionalFoodToBeDeleted.get();
 		foodToBeDeleted.isDeleted = true;
@@ -166,6 +166,24 @@ public class NutritionTrackerService {
 		
 		calculateTotalDayStats(dayBeingUpdated);	
 		nutritionTrackerDayRepository.save(dayBeingUpdated);
+		return DayMapper.INSTANCE.toDayDto(dayBeingUpdated);
+	}
+	
+	public DayDto editWaterIntake(Long dayId, int waterIntake) {
+		Optional<Day> optionalDayBeingUpdated = nutritionTrackerDayRepository.findById(dayId);
+		
+		if(optionalDayBeingUpdated.isEmpty())
+			throw new RuntimeException("Day object not found in database with ID = " + dayId);
+		
+		Day dayBeingUpdated = optionalDayBeingUpdated.get();
+		
+		dayBeingUpdated.totalWaterConsumed += waterIntake;
+		
+		if(dayBeingUpdated.totalWaterConsumed < 0)
+			dayBeingUpdated.totalWaterConsumed = 0;
+		
+		nutritionTrackerDayRepository.save(dayBeingUpdated);
+		
 		return DayMapper.INSTANCE.toDayDto(dayBeingUpdated);
 	}
 	

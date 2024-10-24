@@ -25,13 +25,13 @@ public interface NutritionTrackerDayRepository extends JpaRepository<Day, Long>{
 	
 	 @Modifying
 	 @Transactional
-	 @Query(value = "INSERT INTO Day (calories, foodIdsInFoodsEatenInDayList, foodsEatenInDay, isDeleted, totalCarbs, totalFat, totalProtein) VALUES (:calories, :foodIdsInFoodsEatenInDayList, :foodsEatenInDay, :id, :isDeleted, :totalCarbs, :totalFat, :totalProtein)", nativeQuery = true)
+	 @Query(value = "INSERT INTO Day (calories, foodIdsInFoodsEatenInDayList, foodsEatenInDay, isDeleted, totalCarbs, totalFat, totalProtein, totalWaterConsumed) VALUES (:calories, :foodIdsInFoodsEatenInDayList, :foodsEatenInDay, :id, :isDeleted, :totalCarbs, :totalFat, :totalProtein, :totalWaterConsumed)", nativeQuery = true)
 	 void save(@Param("calories") double calories, 
 			   @Param("totalCarbs") double totalCarbs,
 			   @Param("totalProtein") double totalProtein,
 			   @Param("totalFat") double totalFat,
 			   @Param("isDeleted") boolean isDeleted, 
-			   
+			   @Param("totalWaterConsumed") int totalWaterConsumed,
 			   @Param("foodIdsInFoodsEatenInDayList") List<Long> foodIdsInFoodsEatenInDayList); 
 			   //@Param("foodsEatenInDay") int foodsEatenInDay);
 	

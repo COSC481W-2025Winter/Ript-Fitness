@@ -85,9 +85,11 @@ public class NutritionTrackerControllerTest {
 				
 		dayDto = new DayDto();
 		dayDto.foodsEatenInDay = List.of(food, foodTwo);
+		dayDto.totalWaterConsumed = 0;
 
 		day = new Day();
 		day.foodsEatenInDay = List.of(food, foodTwo);
+		day.totalWaterConsumed = 0;
 	}
 	
 	@AfterAll
@@ -124,9 +126,9 @@ public class NutritionTrackerControllerTest {
 	}	
 	@Test
 	public void testGetFoodValidRequest() throws Exception{
-		when(nutritionTrackerService.getFoodStats(any(String.class))).thenReturn(foodDto);
+		when(nutritionTrackerService.getFoodStats(any(Long.class))).thenReturn(foodDto);
 		
-		mockMvc.perform(get("/nutritionCalculator/getFood/test")
+		mockMvc.perform(get("/nutritionCalculator/getFood/1")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(""))
 				.andExpect(status().isOk())
@@ -142,7 +144,7 @@ public class NutritionTrackerControllerTest {
 
 	@Test
 	public void testEditFoodValidRequest() throws Exception{
-		when(nutritionTrackerService.editFood(any(String.class), any(FoodDto.class))).thenReturn(foodDto);
+		when(nutritionTrackerService.editFood(any(Long.class), any(FoodDto.class))).thenReturn(foodDto);
 		
 		mockMvc.perform(put("/nutritionCalculator/editFood/1")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -171,7 +173,7 @@ public class NutritionTrackerControllerTest {
 	public void testDeleteFood() throws Exception{
 		foodDto.isDeleted = true;
 		
-		when(nutritionTrackerService.deleteFood(any(String.class))).thenReturn(foodDto);
+		when(nutritionTrackerService.deleteFood(any(Long.class))).thenReturn(foodDto);
 		
 		mockMvc.perform(delete("/nutritionCalculator/deleteFood/1")
 				.contentType(MediaType.APPLICATION_JSON))
@@ -245,4 +247,16 @@ public class NutritionTrackerControllerTest {
 				.andExpect(jsonPath("$.isDeleted").value(true))
 				.andReturn();
 	}
+	
+	@Test
+	public void testEditWaterIntake() throws Exception{		
+		when(nutritionTrackerService.editWaterIntake(any(Long.class), any(Integer.class))).thenReturn(dayDto);
+		
+		mockMvc.perform(put("/nutritionCalculator/editWaterIntake/1/5")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andReturn();
+	}
+	
 }

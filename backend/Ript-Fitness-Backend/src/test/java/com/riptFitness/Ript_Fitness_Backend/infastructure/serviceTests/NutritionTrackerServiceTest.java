@@ -106,9 +106,9 @@ public class NutritionTrackerServiceTest {
 	
 	@Test
 	void testServiceGetFoodStatsValid() {
-		when(nutritionTrackerFoodRepository.findByName("Chicken breast")).thenReturn(Optional.of(food));
+		when(nutritionTrackerFoodRepository.findById(1L)).thenReturn(Optional.of(food));
 		
-		FoodDto result = nutritionTrackerServiceForServiceTests.getFoodStats("Chicken breast");
+		FoodDto result = nutritionTrackerServiceForServiceTests.getFoodStats(1L);
 		
 		assertNotNull(result);
 		assertEquals(40, result.carbs);
@@ -116,17 +116,17 @@ public class NutritionTrackerServiceTest {
 	
 	@Test
 	void testServiceGetFoodStatsInvalidNotInDatabase() {
-		when(nutritionTrackerFoodRepository.findByName("Chicken breast")).thenReturn(Optional.empty());
+		when(nutritionTrackerFoodRepository.findById(1L)).thenReturn(Optional.empty());
 		
-		assertThrows(RuntimeException.class, () -> nutritionTrackerServiceForServiceTests.getFoodStats("Chicken breast"));
+		assertThrows(RuntimeException.class, () -> nutritionTrackerServiceForServiceTests.getFoodStats(1L));
 	}
 	
 	@Test
 	void testServiceEditFoodValid() {
-		when(nutritionTrackerFoodRepository.findByName("Chicken breast")).thenReturn(Optional.of(food));
+		when(nutritionTrackerFoodRepository.findById(1L)).thenReturn(Optional.of(food));
 		when(nutritionTrackerFoodRepository.save(any(Food.class))).thenReturn(food);
 		
-		FoodDto result = nutritionTrackerServiceForServiceTests.editFood("Chicken breast", foodDto);
+		FoodDto result = nutritionTrackerServiceForServiceTests.editFood(1L, foodDto);
 		
 		assertNotNull(result);
 		assertEquals(400, result.calories);
@@ -134,16 +134,16 @@ public class NutritionTrackerServiceTest {
 	
 	@Test
 	void testServiceEditFoodNotInDatabase() {
-		when(nutritionTrackerFoodRepository.findByName("Chicken breast")).thenReturn(Optional.empty());
+		when(nutritionTrackerFoodRepository.findById(1L)).thenReturn(Optional.empty());
 		
-		assertThrows(RuntimeException.class, () -> nutritionTrackerServiceForServiceTests.editFood("Chicken breast", foodDto));
+		assertThrows(RuntimeException.class, () -> nutritionTrackerServiceForServiceTests.editFood(1L, foodDto));
 	}
 	
 	@Test
 	void testServiceDeleteFoodValid() {
-		when(nutritionTrackerFoodRepository.findByName("Chicken breast")).thenReturn(Optional.of(food));
+		when(nutritionTrackerFoodRepository.findById(1L)).thenReturn(Optional.of(food));
 		
-		FoodDto result = nutritionTrackerServiceForServiceTests.deleteFood("Chicken breast");
+		FoodDto result = nutritionTrackerServiceForServiceTests.deleteFood(1L);
 		
 		assertNotNull(result);
 		assertTrue(result.isDeleted);
@@ -151,9 +151,9 @@ public class NutritionTrackerServiceTest {
 	
 	@Test
 	void testServiceDeleteFoodInvalidNotInDatabase() {
-		when(nutritionTrackerFoodRepository.findByName("Chicken breast")).thenReturn(Optional.empty());
+		when(nutritionTrackerFoodRepository.findById(1L)).thenReturn(Optional.empty());
 		
-		assertThrows(RuntimeException.class, () -> nutritionTrackerServiceForServiceTests.deleteFood("Chicken breast"));
+		assertThrows(RuntimeException.class, () -> nutritionTrackerServiceForServiceTests.deleteFood(1L));
 	}
 	
 	@Test
