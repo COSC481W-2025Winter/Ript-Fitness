@@ -19,10 +19,10 @@ import jakarta.persistence.Table;
 // - ExerciseID (auto incerment) *
 // - sets *
 // - reps *
-// - weight *
+// - weight 
 // - nameOfExercise *
 // - reference_user_id *
-// - refernce_workout_id (set after the workout has been set) * 
+// - refernce_workout_id * 
 @Entity
 @Table(name = "exercise_model")
 public class ExerciseModel {
@@ -69,18 +69,25 @@ public class ExerciseModel {
 		return sets;
 	}
 
-	// When the number of sets is updated, initialize or adjust the size of the reps list accordingly
-    public void setSets(int sets) {
-        this.sets = sets;
+	public void setSets(int sets) {
+	    this.sets = sets;
 
-        // If reps is null or its size doesn't match the number of sets, resize it
-        if (this.reps == null || this.reps.size() != sets) {
-            this.reps = new ArrayList<>(sets);
-            for (int i = 0; i < sets; i++) {
-                this.reps.add(null); // Initialize all elements to null
-            }
-        }
-    }
+	    // If reps is null, initialize it
+	    if (this.reps == null) {
+	        this.reps = new ArrayList<>();
+	    }
+
+	    // If the reps list is smaller than the number of sets, add elements
+	    while (this.reps.size() < sets) {
+	        this.reps.add(0); // Add default value (e.g., 0) for new sets
+	    }
+
+	    // If the reps list is larger than the number of sets, remove extra elements
+	    while (this.reps.size() > sets) {
+	        this.reps.remove(this.reps.size() - 1); // Remove the last element
+	    }
+	}
+
 
 	public List<Integer> getReps() {
 		return reps;

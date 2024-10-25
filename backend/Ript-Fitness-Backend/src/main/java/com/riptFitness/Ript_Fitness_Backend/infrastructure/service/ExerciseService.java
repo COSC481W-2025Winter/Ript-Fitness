@@ -1,5 +1,6 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -59,34 +60,94 @@ public class ExerciseService {
 
 		// Given a list of exercises associated with currently logged in user, mark the
 		// exercise deleted if the 'exerciseId' matches exercise_id in DB:
-		ExerciseDto deletedExercise = null;
+		ExerciseModel deletedExercise = null;
 		for (ExerciseModel exercise : exercisesToDelete) {
 			Long currentExerciseId = exercise.getExerciseId();
 			if (currentExerciseId.equals(exerciseId)) {
 				// Set deleted to true
 				exercise.setIsDeleted(true);
+				deletedExercise = exercise;
 				// Save the model in the database
 				exerciseRepository.save(exercise);
-				deletedExercise = ExerciseMapper.INSTANCE.convertToDto(exercise);
 				break;
 			}
 		}
 
 		// If no exercise was found to delete, throw an exception or return a message:
 		if (deletedExercise == null) {
-			throw new RuntimeException("Exercise not found for the current user.");
+			throw new RuntimeException(
+					"Exercise not found for the current user, or the exercises has already been deleted.");
 		}
-
-		return deletedExercise;
+		
+		return ExerciseMapper.INSTANCE.convertToDto(deletedExercise);
 	}
 
 	// Method to edit the reps on an exercise:
-	public ExerciseDto editReps(Long exerciseId, int setNumber, int rep) {
+	public ExerciseDto editReps(Long exerciseId, int setNumber, int newNumberOfReps) {
 		// Since the exercise_id is unique; we do not need to worry about who is logged
 		// in:
-		ExerciseModel editedReps = exerciseRepository.getReferenceById(exerciseId);
-		// Edit the reps:
-		return null;
+		ExerciseModel exerciseToEditReps = null;
+		exerciseToEditReps = exerciseRepository.findById(exerciseId)
+				.orElseThrow(() -> new RuntimeException("Exercise not found"));
+		if (setNumber > exerciseToEditReps.sets) {
+			throw new RuntimeException("The set that you are attempting to edit does not exist");
+		}
+		// Edit the reps given the set number: EXAMPLE: Given that we have 3 sets and
+		// reps = [1, 2, 3], then we pass in (exerciseId, 2, 4), reps will be [1, 4, 3]
+		List<Integer> repsCopy = exerciseToEditReps.getReps();
+		repsCopy.set(setNumber - 1, newNumberOfReps);
+		exerciseToEditReps.setReps(repsCopy);
+		exerciseRepository.save(exerciseToEditReps);
+		// Convert to Dto:
+		ExerciseDto editedExercise = ExerciseMapper.INSTANCE.convertToDto(exerciseToEditReps);
+		return editedExercise;
 	}
+
+	// Method to edit the number of sets:
+	public ExerciseDto editSets(Long exerciseId, int newNumberOfSets) {
+		ExerciseModel exerciseToEditSets = null;
+		exerciseToEditSets = exerciseRepository.findById(exerciseId)
+				.orElseThrow(() -> new RuntimeException("Exercise not found"));
+		// Set the sets:
+		exerciseToEditSets.setSets(newNumberOfSets);
+		exerciseRepository.save(exerciseToEditSets);
+		// Convert to Dto:
+		ExerciseDto editedExercise = ExerciseMapper.INSTANCE.convertToDto(exerciseToEditSets);
+		return editedExercise;
+	}
+	
+	// Method to edit exercise name:
+	public ExerciseDto editExerciseName(Long exerciseId, String newExerciseName) {
+		// Find the exercise:
+		ExerciseModel exerciseToEditName = null;
+		exerciseToEditName = exerciseRepository.findById(exerciseId)
+				.orElseThrow(() -> new RuntimeException("Exercise not found"));
+		// Set the name of the exercise to the new exercise name:
+		exerciseToEditName.setNameOfExercise(newExerciseName);
+		// Save the exercise in the database:
+		exerciseRepository.save(exerciseToEditName);
+		// Covert to DTO and return teh object:
+		ExerciseDto editedExercise = ExerciseMapper.INSTANCE.convertToDto(exerciseToEditName);
+		return editedExercise;
+	}
+	
+	
+	public List<String> findByKeyword(String keyword) {
+		// Get the currently logged in user ID:
+		Long currentUser = accountsService.getLoggedInUserId();
+		// Get a list of exercises from that ID:
+		List<ExerciseModel> exercises = exerciseRepository.findByAccountIdAndNotDeleted(currentUser);
+		// For each loop that iterates through a list of exercises that have account_id reference that matches above ID:
+		List<String> similarExercises = new ArrayList<>();
+		for(ExerciseModel exercise : exercises) {
+			// if the exercise name has a substring of keyword in it; append it to the similar list
+			if(exercise.getNameOfExercise().toLowerCase().contains(keyword.toLowerCase())) {
+				similarExercises.add(exercise.getNameOfExercise());
+			}
+		}
+		// Return the list of similar exercises:
+		return similarExercises;
+	}
+
 
 }
