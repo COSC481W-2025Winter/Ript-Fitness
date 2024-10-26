@@ -28,13 +28,16 @@ public class AccountsService {
 	@Autowired
 	public StreakRepository streakRepository;
 	private final PasswordEncoder passwordEncoder;
+	@Autowired
+	private JwtUtil jwtUtil;
 
 	// Constructor:
 	public AccountsService(AccountsRepository accountsRepository, StreakRepository streakRepository,
-			PasswordEncoder passwordEncoder) {
+			PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
 		this.accountsRepository = accountsRepository;
 		this.streakRepository = streakRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.jwtUtil = jwtUtil;
 	}
 
 	// List of methods that we need for the Create an account / Log in page:
@@ -73,7 +76,7 @@ public class AccountsService {
     }
 
 	// Below is the logic for creating an account:
-	public AccountsDto createNewAccount(AccountsDto accountsDto) {
+	public String createNewAccount(AccountsDto accountsDto) {
 		// Convert DTO to model:
 		AccountsModel accountsModel = AccountsMapper.INSTANCE.convertToModel(accountsDto);
 		// Get the username:
@@ -114,11 +117,12 @@ public class AccountsService {
 			 streakRepository.save(streak);
 			 
 		}
-		return AccountsMapper.INSTANCE.convertToDto(accountsModel);
+		// Generate a JWT token for the newly created account:
+	    String token = jwtUtil.generateToken(username);
+
+	    // Return the token as the response:
+	    return token;
 	}
-	
-	@Autowired
-	private JwtUtil jwtUtil; // Inject JWT utility
 
 	// Method to get account details:
 	@Transactional

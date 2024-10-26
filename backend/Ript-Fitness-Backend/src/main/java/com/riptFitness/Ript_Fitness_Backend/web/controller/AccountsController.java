@@ -24,10 +24,10 @@ public class AccountsController {
 	
 	// Below is a POST for adding a new object (account) to a database:
 	@PostMapping("/createNewAccount")
-	public ResponseEntity<AccountsDto> createNewAccount(@RequestBody AccountsDto accountsDto) {
+	public ResponseEntity<String> createNewAccount(@RequestBody AccountsDto accountsDto) {
 		// Create a new account; createNewAccount() method handles error logic
-		AccountsDto newAccountDto = accountsService.createNewAccount(accountsDto);
-		return new ResponseEntity<>(newAccountDto, HttpStatus.CREATED);
+		String token = accountsService.createNewAccount(accountsDto);
+		return new ResponseEntity<>(token, HttpStatus.CREATED);
 	}
 	
 	// Below is a Get for verifying login details

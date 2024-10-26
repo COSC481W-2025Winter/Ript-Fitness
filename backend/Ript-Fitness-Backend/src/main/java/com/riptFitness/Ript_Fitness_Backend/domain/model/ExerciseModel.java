@@ -1,6 +1,9 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Entity;
@@ -16,10 +19,10 @@ import jakarta.persistence.Table;
 // - ExerciseID (auto incerment) *
 // - sets *
 // - reps *
-// - weight *
+// - weight 
 // - nameOfExercise *
 // - reference_user_id *
-// - refernce_workout_id (set after the workout has been set) * 
+// - refernce_workout_id * 
 @Entity
 @Table(name = "exercise_model")
 public class ExerciseModel {
@@ -29,7 +32,7 @@ public class ExerciseModel {
 	public Long exerciseId;
 	
 	public int sets;
-	public int reps;
+	public List<Integer> reps; // List to store the number of reps per set
 	public String nameOfExercise;
 	public boolean isDeleted = false; // False to start because true means the exercisde is deleted.
 	// private int weight; Not sure what to do with this yet; may use later.
@@ -67,14 +70,30 @@ public class ExerciseModel {
 	}
 
 	public void setSets(int sets) {
-		this.sets = sets;
+	    this.sets = sets;
+
+	    // If reps is null, initialize it
+	    if (this.reps == null) {
+	        this.reps = new ArrayList<>();
+	    }
+
+	    // If the reps list is smaller than the number of sets, add elements
+	    while (this.reps.size() < sets) {
+	        this.reps.add(0); // Add default value (e.g., 0) for new sets
+	    }
+
+	    // If the reps list is larger than the number of sets, remove extra elements
+	    while (this.reps.size() > sets) {
+	        this.reps.remove(this.reps.size() - 1); // Remove the last element
+	    }
 	}
 
-	public int getReps() {
+
+	public List<Integer> getReps() {
 		return reps;
 	}
 
-	public void setReps(int reps) {
+	public void setReps(List<Integer> reps) {
 		this.reps = reps;
 	}
 
@@ -94,13 +113,13 @@ public class ExerciseModel {
 		this.isDeleted = isDeleted;
 	}
 
-//	public Long getAccountreferenceId() {
-//        return account.getId();
-//    }
-//
-//    public void setAccountreferenceId(Long AccountReferenceId) {
-//        account.setId(AccountReferenceId);
-//    }
+	public Long getAccountreferenceId() {
+        return account.getId();
+    }
+
+    public void setAccountreferenceId(Long AccountReferenceId) {
+        account.setId(AccountReferenceId);
+    }
 
 	
 
