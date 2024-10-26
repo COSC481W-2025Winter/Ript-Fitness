@@ -37,23 +37,23 @@ public class NutritionTrackerController {
 	}
 	
 	//localhost:8080/nutritionCalculator/getFood/{INSERT FOOD ID NUMBER HERE}, body is empty in this request
-	@GetMapping("/getFood/{foodName}")
-	public ResponseEntity<FoodDto> getFoodStats(@PathVariable String foodName){
-		FoodDto returnedFoodObject = nutritionTrackerService.getFoodStats(foodName);
+	@GetMapping("/getFood/{foodId}")
+	public ResponseEntity<FoodDto> getFoodStats(@PathVariable Long foodId){
+		FoodDto returnedFoodObject = nutritionTrackerService.getFoodStats(foodId);
 		return ResponseEntity.ok(returnedFoodObject);
 	}
 	
 	//localhost:8080/nutritionCalculator/editFood/{INSERT FOOD ID NUMBER HERE}, body is empty in this request
-	@PutMapping("/editFood/{foodName}")
-	public ResponseEntity<FoodDto> editFood(@PathVariable String foodName, @RequestBody FoodDto foodDto){
-		FoodDto foodToBeEdited = nutritionTrackerService.editFood(foodName, foodDto);
+	@PutMapping("/editFood/{foodId}")
+	public ResponseEntity<FoodDto> editFood(@PathVariable Long foodId, @RequestBody FoodDto foodDto){
+		FoodDto foodToBeEdited = nutritionTrackerService.editFood(foodId, foodDto);
 		return ResponseEntity.ok(foodToBeEdited);
 	}
 	
 	//localhost:8080/nutritionCalculator/deleteFood/{INSERT FOOD ID NUMBER HERE}, body is empty in this request
-	@DeleteMapping("/deleteFood/{foodName}")
-	public ResponseEntity<FoodDto> deleteFood(@PathVariable String foodName){
-		FoodDto foodToBeSoftDeleted = nutritionTrackerService.deleteFood(foodName);
+	@DeleteMapping("/deleteFood/{foodId}")
+	public ResponseEntity<FoodDto> deleteFood(@PathVariable Long foodId){
+		FoodDto foodToBeSoftDeleted = nutritionTrackerService.deleteFood(foodId);
 		return ResponseEntity.ok(foodToBeSoftDeleted);
 	}
 	
@@ -92,4 +92,9 @@ public class NutritionTrackerController {
 		return new ResponseEntity<>(updatedDayObject, HttpStatus.CREATED);
 	}
 	
+	@PutMapping("/editWaterIntake/{dayId}/{waterIntake}")
+	public ResponseEntity<DayDto> editWaterIntake(@PathVariable Long dayId, @PathVariable int waterIntake){
+		DayDto updatedDayObject = nutritionTrackerService.editWaterIntake(dayId, waterIntake);
+		return ResponseEntity.ok(updatedDayObject);
+	}
 }

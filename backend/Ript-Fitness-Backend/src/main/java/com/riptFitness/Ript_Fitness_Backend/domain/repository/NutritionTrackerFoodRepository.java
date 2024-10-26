@@ -16,6 +16,7 @@ public interface NutritionTrackerFoodRepository extends JpaRepository<Food, Long
 	//Optional<Food> findByName(String foodName): Looks in database for a "Name" equal to "foodName". Returns Optional<Food> object equal to that row if exists. Returns empty Optional<Food> object if it does not exist in DB.
 	//Food save(Food foodModel): Saves foodModel to "Food" database table
 	
+	//findByName currently isn't used, will be kept in Repository class in case anything changes
 	@Query("SELECT f FROM Food f WHERE f.name = :name AND f.isDeleted = false")
 	Optional<Food> findByName(String name);
 	
