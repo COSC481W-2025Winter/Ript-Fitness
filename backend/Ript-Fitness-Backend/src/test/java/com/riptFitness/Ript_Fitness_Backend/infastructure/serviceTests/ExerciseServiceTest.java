@@ -188,30 +188,30 @@ public class ExerciseServiceTest {
 	// Test for findByKeyword method
 	@Test
 	public void testFindByKeyword_Success() {
-		// Mock logged in user ID
-		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+	    // Mock the logged-in user ID
+	    when(accountsService.getLoggedInUserId()).thenReturn(1L);
 
-		// Prepare a list of exercises
-		ExerciseModel exercise1 = new ExerciseModel();
-		exercise1.setNameOfExercise("Push Ups");
+	    // Prepare mock ExerciseModel objects
+	    ExerciseModel exercise1 = new ExerciseModel();
+	    exercise1.setNameOfExercise("Push Ups");
 
-		ExerciseModel exercise2 = new ExerciseModel();
-		exercise2.setNameOfExercise("Pull Ups");
+	    ExerciseModel exercise2 = new ExerciseModel();
+	    exercise2.setNameOfExercise("Pull Ups");
 
-		List<ExerciseModel> exercises = Arrays.asList(exercise1, exercise2);
+	    List<ExerciseModel> exercises = Arrays.asList(exercise1, exercise2);
 
-		// Mock the exercise repository to return the prepared list of exercises for the
-		// user
-		when(exerciseRepository.findByAccountIdAndNotDeleted(1L)).thenReturn(exercises);
+	    // Mock the exerciseRepository to return the list of exercises for the user
+	    when(exerciseRepository.findByAccountIdAndNotDeleted(1L)).thenReturn(exercises);
 
-		// Call the findByKeyword method with the matching keyword
-		List<String> result = exerciseService.findByKeyword("ups");
+	    // Call the findByKeyword method with the matching keyword
+	    List<ExerciseDto> result = exerciseService.findByKeyword("ups");
 
-		// Verify the result
-		assertNotNull(result);
-		assertEquals(2, result.size());
-		assertEquals("Push Ups", result.get(0));
-		assertEquals("Pull Ups", result.get(1));
+	    // Verify the result
+	    assertNotNull(result);
+	    assertEquals(2, result.size());
+	    assertEquals("Push Ups", result.get(0).getNameOfExercise());
+	    assertEquals("Pull Ups", result.get(1).getNameOfExercise());
 	}
+	
 
 }

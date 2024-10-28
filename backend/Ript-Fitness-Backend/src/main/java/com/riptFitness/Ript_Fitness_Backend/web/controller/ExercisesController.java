@@ -66,11 +66,9 @@ public class ExercisesController {
 	
 	// Endpoint for finding a workout by keyWord:
 	@GetMapping("findByKeyword/{keyword}") 
-	public ResponseEntity<List<String>> editExerciseName(@PathVariable String keyword) {
-		List<String> similarExercises = exerciseService.findByKeyword(keyword);
+	public ResponseEntity<List<ExerciseDto>> editExerciseName(@PathVariable String keyword) {
+		List<ExerciseDto> similarExercises = exerciseService.findByKeyword(keyword);
 		return new ResponseEntity<>(similarExercises, HttpStatus.OK);
 	}
 	
-	
-
 }
