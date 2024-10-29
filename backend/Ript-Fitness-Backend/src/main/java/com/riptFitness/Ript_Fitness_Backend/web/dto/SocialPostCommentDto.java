@@ -12,4 +12,6 @@ public class SocialPostCommentDto {
 	public String content;
 	
     public SocialPost socialPost;
+    
+    public boolean isDeleted;
 }

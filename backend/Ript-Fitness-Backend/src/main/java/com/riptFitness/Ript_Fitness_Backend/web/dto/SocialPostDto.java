@@ -1,6 +1,5 @@
 package com.riptFitness.Ript_Fitness_Backend.web.dto;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
@@ -10,13 +9,15 @@ public class SocialPostDto {
 
 	public Long id;
 	
-	public AccountsModel accountsModel;
+	public Long accountId;
     
     public String content;
     
-    public int numberOfLikes = 0;
+    public int numberOfLikes;
     
-    public List<Long> userIDsOfLikes = new ArrayList<>();
+    public List<Long> userIDsOfLikes;
     
     public List<SocialPostComment> socialPostComments;
+    
+    public boolean isDeleted;
 }
