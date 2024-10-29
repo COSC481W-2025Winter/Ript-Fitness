@@ -161,10 +161,10 @@ public class SocialPostService {
 		
 		socialPostContainingDeletedComment.socialPostComments.remove(socialPostCommentToBeDeleted);
 		
-		socialPostRepository.save(socialPostContainingDeletedComment);
+		SocialPost updatedSocialPost = socialPostRepository.save(socialPostContainingDeletedComment);
 						
-		socialPostCommentObject = socialPostCommentRepository.save(socialPostCommentObject);
+		socialPostCommentRepository.save(socialPostCommentObject);
 		
-		return SocialPostMapper.INSTANCE.toSocialPostDto(socialPostContainingDeletedComment);
+		return SocialPostMapper.INSTANCE.toSocialPostDto(updatedSocialPost);
 	}
 }
