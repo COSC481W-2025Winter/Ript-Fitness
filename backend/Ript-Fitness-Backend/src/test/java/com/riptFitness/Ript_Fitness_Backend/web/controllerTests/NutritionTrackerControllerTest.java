@@ -19,10 +19,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.riptFitness.Ript_Fitness_Backend.config.JwtUtil;
+import com.riptFitness.Ript_Fitness_Backend.config.SecurityConfig;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Day;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Food;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.NutritionTrackerService;
@@ -31,6 +36,8 @@ import com.riptFitness.Ript_Fitness_Backend.web.dto.DayDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.FoodDto;
 
 @WebMvcTest(NutritionTrackerController.class)
+@ActiveProfiles("test")
+@Import(SecurityConfig.class)
 public class NutritionTrackerControllerTest {
 	
 	@Autowired
@@ -41,6 +48,13 @@ public class NutritionTrackerControllerTest {
 	
 	@Autowired
 	private ObjectMapper objectMapper;
+	
+	@MockBean
+    private JwtUtil jwtUtil;
+
+    @MockBean
+    private UserDetailsService userDetailsService;
+
 	
 	private FoodDto foodDto;
 	private FoodDto foodDtoTwo;
