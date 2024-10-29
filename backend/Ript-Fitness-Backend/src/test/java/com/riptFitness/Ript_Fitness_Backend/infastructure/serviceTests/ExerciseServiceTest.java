@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays; // Use java.util.Arrays for asList()
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +19,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
+import com.riptFitness.Ript_Fitness_Backend.config.JwtRequestFilter;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.ExerciseModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
@@ -26,8 +29,6 @@ import com.riptFitness.Ript_Fitness_Backend.domain.repository.ExerciseRepository
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AccountsService;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.ExerciseService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.ExerciseDto;
-
-import java.util.Arrays; // Use java.util.Arrays for asList()
 
 @ExtendWith(MockitoExtension.class)
 public class ExerciseServiceTest {
@@ -40,6 +41,9 @@ public class ExerciseServiceTest {
 
 	@Mock
 	private AccountsService accountsService;
+	
+	@MockBean
+	private JwtRequestFilter jwtRequestFilter;
 
 	@InjectMocks
 	private ExerciseService exerciseService;
