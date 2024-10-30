@@ -10,26 +10,66 @@ const ProfileScreen: React.FC = () => {
     //{ id: '3', avatar: require('../assets/friend3.png') },
   ];
 
-  const renderCalendarDay = (day: number, type: number) => { 
+  const renderCalendarDay = (day: number, month: number, year: number, type: number) => { 
     let myStyle;
     let textStyle;
+
+
     if (type == 1) {
         myStyle = styles.activeDay
     } else if (type == 2) {
         myStyle = styles.restDay
     } else if (type == 3) {
         myStyle = styles.inactiveDay
-    } else {
+    } else if (type == 4) {
         myStyle = styles.upcomingDay
         textStyle = styles.dayTextOverwrite;
+    } else if (type == 5) {
+        myStyle = styles.hiddenDay
+        textStyle = styles.hiddenDayText;
     }
 
     return (
+     
     <View style={[styles.day, myStyle]} key={day}>
       <Text style={[styles.dayText,textStyle]}>{day}</Text>
     </View>
   );}
   let exampleDays = [1,2,3,1,3,1,2,2,3,1,1,]
+
+
+
+
+    const Calendar = () => {
+    const year = 2024;
+    const month = 10; // October
+    const daysInMonth = new Date(year, month, 0).getDate(); // Directly calculate days
+  
+    const calendarDays = [...Array(daysInMonth)].map((_, i) => {
+      const day = i + 1;
+      let spacers: JSX.Element[] = [];
+  
+      if (i === 0) {
+        const firstDay = new Date(year, month - 1, 1).getDay(); // Get first weekday of the month
+        for (let j = 0; j < firstDay; j++) {
+          spacers.push(renderCalendarDay(0, month, year, 5)); // Render empty spacers
+        }
+      }
+  
+      return (
+        <React.Fragment key={i}>
+          {i === 0 && spacers}
+          {renderCalendarDay(day, month, year, i > 10 ? 4 : exampleDays[i])}
+        </React.Fragment>
+      );
+    });
+    return ( <React.Fragment key={0}> {calendarDays} </React.Fragment>);
+  }
+  
+
+
+
+
   return (
     <ScrollView style={styles.container}>
         <View style={styles.center}>
@@ -66,9 +106,10 @@ const ProfileScreen: React.FC = () => {
           <Ionicons name="chevron-forward-outline" size={24} />
         </View>
 
-        <View style={styles.daysRow}>
-          {[...Array(29)].map((_, i) => renderCalendarDay(i + 1, i > 10 ? 4 : exampleDays[i]))}
-        </View>
+       
+        <View style={styles.daysRow}>{Calendar}</View>
+
+
       </View>
 
       {/* Navigation Links */}
@@ -126,14 +167,16 @@ const styles = StyleSheet.create({
   calendar: { marginVertical: 20, alignItems: 'center' , width:'80%'},
   calendarHeader: { flexDirection: 'row', alignItems: 'center' },
   month: { marginHorizontal: 10, fontSize: 18, fontWeight: 'bold' },
-  daysRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
-  day: { width: 40, height: 40, margin: 4, alignItems: 'center', justifyContent: 'center', borderRadius: 20 },
+  daysRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent:'flex-start', width:'100%'},
+  day: { width: "11.42%", aspectRatio:0.725, margin: 4, alignItems: 'center', justifyContent: 'center', borderRadius: 20 },
   activeDay: { backgroundColor: 'green' },
   inactiveDay: { backgroundColor: 'red' },
   restDay: { backgroundColor: 'green' },
   upcomingDay:  { backgroundColor: 'white', borderColor:'black', borderWidth:1, color:'black'},
   dayText: { color: '#fff', fontWeight: 'bold' },
   dayTextOverwrite: { color: 'black', fontWeight: 'bold' },
+  hiddenDay:  { backgroundColor: 'white', borderColor:'black', borderWidth:1, color:'black', opacity:0},
+  hiddenDayText: { color: '#', fontWeight: 'bold', opacity:0 },
   links: { marginHorizontal: 16, width:'100%' },
   link: {
     flexDirection: 'row',
