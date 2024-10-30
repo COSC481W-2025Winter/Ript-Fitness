@@ -12,17 +12,20 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import java.nio.charset.StandardCharsets;
+
 
 @Component
 public class JwtUtil {
 
-	// Securely generate a 256-bit key for signing
-    private final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+	@Value("${jwt.secret}")
+    private String secret;
 
-    // No need for converting to string and back to bytes
-    private Key getSigningKey() {
-        return SECRET_KEY; // Directly return the secret key
-    }
+	private Key getSigningKey() {
+	    return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+	}
 
     // Extract username from JWT token
     public String extractUsername(String token) {
