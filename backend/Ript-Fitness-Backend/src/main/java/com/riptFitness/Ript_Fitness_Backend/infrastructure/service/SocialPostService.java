@@ -52,6 +52,9 @@ public class SocialPostService {
 	public ArrayList<Long> getPostsFromAccountId(Long accountId){
 		Optional<ArrayList<Long>> postsFromAccountId = socialPostRepository.getPostsFromAccountId(accountId);
 		
+		if(postsFromAccountId.isEmpty())
+			return new ArrayList<Long>();
+		
 		return postsFromAccountId.get();
 	}
 	

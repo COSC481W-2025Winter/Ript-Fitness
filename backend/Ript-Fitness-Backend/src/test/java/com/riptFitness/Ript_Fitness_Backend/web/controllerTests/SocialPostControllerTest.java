@@ -12,7 +12,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -141,6 +143,25 @@ public class SocialPostControllerTest {
 	public void testGetPostInvalidRequestNoPathVariable() throws Exception {
 		mockMvc.perform(get("/socialPost/getPost"))
 			.andExpect(status().isInternalServerError());
+	}
+	
+	@Test
+	public void testGetPostsFromAccountIdValidRequest() throws Exception {
+		ArrayList<Long> arr = new ArrayList<>();
+		arr.add(1L);
+		when(socialPostService.getPostsFromAccountId(any(Long.class))).thenReturn(arr);
+		
+		mockMvc.perform(get("/socialPost/getPostsFromAccountId/1")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.size()").value(1))
+				.andReturn();
+	}
+	
+	@Test
+	public void testGetPostsFromAccountIdInvalidRequestNoPathVariable() throws Exception {
+		mockMvc.perform(get("/socialPost/getPostsFromAccountId"))
+				.andExpect(status().isInternalServerError());			
 	}
 	
 	@Test
