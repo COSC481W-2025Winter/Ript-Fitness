@@ -32,7 +32,7 @@ public class ExerciseModel {
 	public Long exerciseId;
 	
 	public int sets;
-	public List<Integer> reps; // List to store the number of reps per set
+	public List<Integer> reps = new ArrayList<>(); // List to store the number of reps per set
 	public String nameOfExercise;
 	public boolean isDeleted = false; // False to start because true means the exercisde is deleted.
 	// private int weight; Not sure what to do with this yet; may use later.
@@ -105,7 +105,7 @@ public class ExerciseModel {
 		this.nameOfExercise = nameOfExercise;
 	}
 
-	public boolean isIsDeleted() {
+	public boolean isDeleted() {
 		return this.isDeleted;
 	}
 
@@ -113,18 +113,16 @@ public class ExerciseModel {
 		this.isDeleted = isDeleted;
 	}
 
-	public Long getAccountreferenceId() {
-        return account.getId();
+	// Convenience method to get the account ID
+    public Long getAccountReferenceId() {
+        return account != null ? account.getId() : null;
     }
 
-    public void setAccountreferenceId(Long AccountReferenceId) {
-        account.setId(AccountReferenceId);
+    public void setAccountReferenceId(Long accountReferenceId) {
+        if (this.account == null) {
+            this.account = new AccountsModel(); // Create a new AccountsModel if null
+        }
+        this.account.setId(accountReferenceId);
     }
-
-	
-
-
-	
-	
-
+    
 }

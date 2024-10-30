@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays; // Use java.util.Arrays for asList()
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +19,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
+import com.riptFitness.Ript_Fitness_Backend.config.JwtRequestFilter;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.ExerciseModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
@@ -26,8 +29,6 @@ import com.riptFitness.Ript_Fitness_Backend.domain.repository.ExerciseRepository
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AccountsService;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.ExerciseService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.ExerciseDto;
-
-import java.util.Arrays; // Use java.util.Arrays for asList()
 
 @ExtendWith(MockitoExtension.class)
 public class ExerciseServiceTest {
@@ -40,6 +41,9 @@ public class ExerciseServiceTest {
 
 	@Mock
 	private AccountsService accountsService;
+	
+	@MockBean
+	private JwtRequestFilter jwtRequestFilter;
 
 	@InjectMocks
 	private ExerciseService exerciseService;
@@ -188,30 +192,30 @@ public class ExerciseServiceTest {
 	// Test for findByKeyword method
 	@Test
 	public void testFindByKeyword_Success() {
-		// Mock logged in user ID
-		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+	    // Mock the logged-in user ID
+	    when(accountsService.getLoggedInUserId()).thenReturn(1L);
 
-		// Prepare a list of exercises
-		ExerciseModel exercise1 = new ExerciseModel();
-		exercise1.setNameOfExercise("Push Ups");
+	    // Prepare mock ExerciseModel objects
+	    ExerciseModel exercise1 = new ExerciseModel();
+	    exercise1.setNameOfExercise("Push Ups");
 
-		ExerciseModel exercise2 = new ExerciseModel();
-		exercise2.setNameOfExercise("Pull Ups");
+	    ExerciseModel exercise2 = new ExerciseModel();
+	    exercise2.setNameOfExercise("Pull Ups");
 
-		List<ExerciseModel> exercises = Arrays.asList(exercise1, exercise2);
+	    List<ExerciseModel> exercises = Arrays.asList(exercise1, exercise2);
 
-		// Mock the exercise repository to return the prepared list of exercises for the
-		// user
-		when(exerciseRepository.findByAccountIdAndNotDeleted(1L)).thenReturn(exercises);
+	    // Mock the exerciseRepository to return the list of exercises for the user
+	    when(exerciseRepository.findByAccountIdAndNotDeleted(1L)).thenReturn(exercises);
 
-		// Call the findByKeyword method with the matching keyword
-		List<String> result = exerciseService.findByKeyword("ups");
+	    // Call the findByKeyword method with the matching keyword
+	    List<ExerciseDto> result = exerciseService.findByKeyword("ups");
 
-		// Verify the result
-		assertNotNull(result);
-		assertEquals(2, result.size());
-		assertEquals("Push Ups", result.get(0));
-		assertEquals("Pull Ups", result.get(1));
+	    // Verify the result
+	    assertNotNull(result);
+	    assertEquals(2, result.size());
+	    assertEquals("Push Ups", result.get(0).getNameOfExercise());
+	    assertEquals("Pull Ups", result.get(1).getNameOfExercise());
 	}
+	
 
 }

@@ -2,25 +2,34 @@ package com.riptFitness.Ript_Fitness_Backend.web.controllerTests;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.riptFitness.Ript_Fitness_Backend.config.JwtUtil;
+import com.riptFitness.Ript_Fitness_Backend.config.SecurityConfig;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.UserProfileService;
 import com.riptFitness.Ript_Fitness_Backend.web.controller.UserProfileController;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.UserDto;
 
 @WebMvcTest(UserProfileController.class)
+@ActiveProfiles("test")
+@Import(SecurityConfig.class)
 public class UserProfileControllerTests {
 
     @Autowired
@@ -31,6 +40,13 @@ public class UserProfileControllerTests {
 
     @Autowired
     private ObjectMapper objectMapper;
+    
+    @MockBean
+    private JwtUtil jwtUtil;
+
+    @MockBean
+    private UserDetailsService userDetailsService;
+
 
     private UserDto userDto;
 

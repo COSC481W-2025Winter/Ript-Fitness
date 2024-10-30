@@ -15,12 +15,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Streak;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.StreakRepository;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.StreakService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.StreakDto;
 
+@ActiveProfiles("test")
 public class StreakServiceTest {
 
 	@Mock
