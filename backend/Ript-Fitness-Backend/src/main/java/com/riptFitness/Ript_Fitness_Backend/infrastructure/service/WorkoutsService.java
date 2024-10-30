@@ -1,6 +1,8 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Optional;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.WorkoutsMapper;
@@ -36,6 +38,52 @@ public class WorkoutsService {
 		
 		workoutsRepository.save(newWorkout);
 		return WorkoutsMapper.INSTANCE.toWorkoutsDto(newWorkout);
+	}
+	
+	//Retrieve a single workout object based on a workout Id
+	public WorkoutsDto getWorkout(Long workoutId) {
+		Optional<Workouts> optionalWrkout = workoutsRepository.findById(workoutId);
+		if(optionalWrkout.isEmpty()) {
+			throw new RuntimeException("No workout found with id = " + workoutId);
+		}
+		Workouts workout = optionalWrkout.get();
+		return WorkoutsMapper.INSTANCE.toWorkoutsDto(workout);
+		
+	}
+	
+	//Retrieves a list of workouts that have the foreign key of the current user
+	public List<WorkoutsDto> getUsersWorkouts(){
+		Long currentUserId = accountsService.getLoggedInUserId();
+		AccountsModel account = accountsRepository.findById(currentUserId)
+				.orElseThrow(() -> new RuntimeException("Account not found"));
+		List<Workouts> workouts = workoutsRepository.findByAccountId(currentUserId);
+		
+		return WorkoutsMapper.INSTANCE.toListWorkoutsDto(workouts);
+	}
+	
+	//updates a specific workouts row in the workouts table and returns the updatedWorkout object
+	public WorkoutsDto updateWorkout(Long workoutId, WorkoutsDto workoutsDto) {
+		Optional<Workouts> optWorkout = workoutsRepository.findById(workoutId);
+		if(optWorkout.isEmpty()) {
+			throw new RuntimeException("no workout found with id = " + workoutId);
+		}
+		Workouts workoutToBeUpdated = optWorkout.get();
+		WorkoutsMapper.INSTANCE.updateWorkoutRowFromDto(workoutsDto, workoutToBeUpdated);
+		workoutToBeUpdated = workoutsRepository.save(workoutToBeUpdated);
+		
+		return WorkoutsMapper.INSTANCE.toWorkoutsDto(workoutToBeUpdated);
+	}
+	
+	public WorkoutsDto deleteWorkout(Long workoutId) {
+		Optional<Workouts> optWorkoutToBeDeleted = workoutsRepository.findById(workoutId);
+		
+		if(optWorkoutToBeDeleted.isEmpty()) {
+			throw new RuntimeException("Workouts object not found in database with id = " + workoutId);
+		}
+		Workouts workoutToBeDeleted = optWorkoutToBeDeleted.get();
+		workoutToBeDeleted.isDeleted = true;
+		workoutsRepository.save(workoutToBeDeleted);
+		return WorkoutsMapper.INSTANCE.toWorkoutsDto(workoutToBeDeleted);
 	}
 
 }

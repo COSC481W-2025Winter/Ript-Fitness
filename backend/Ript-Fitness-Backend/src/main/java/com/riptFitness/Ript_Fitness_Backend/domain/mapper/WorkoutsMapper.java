@@ -1,5 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.mapper;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -17,7 +19,9 @@ public interface WorkoutsMapper {
 	
 	Workouts toWorkouts(WorkoutsDto workoutsDto);
 	
+	List<WorkoutsDto> toListWorkoutsDto(List<Workouts> workoutsL);
+	
 	@Mapping(target = "id", ignore = true)
-	void updateStreakRowFromDto(WorkoutsDto workoutsDto, @MappingTarget Workouts workouts);
+	void updateWorkoutRowFromDto(WorkoutsDto workoutsDto, @MappingTarget Workouts workouts);
 
 }

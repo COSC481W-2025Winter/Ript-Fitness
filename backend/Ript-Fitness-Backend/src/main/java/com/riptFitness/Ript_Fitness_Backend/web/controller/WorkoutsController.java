@@ -24,9 +24,11 @@ public class WorkoutsController {
 		
 	}
 	
-	@PutMapping("/addWorkout")
-	public ResponseEntity<WorkoutsDto> addWorkout(WorkoutsDto workoutDto){
+	@PostMapping("/addWorkout")
+	public ResponseEntity<WorkoutsDto> addWorkout(@RequestBody WorkoutsDto workoutDto){
 		WorkoutsDto newWorkout = workoutsService.addWorkout(workoutDto);
 		return ResponseEntity.ok(newWorkout);
 	}
+	
+	
 }

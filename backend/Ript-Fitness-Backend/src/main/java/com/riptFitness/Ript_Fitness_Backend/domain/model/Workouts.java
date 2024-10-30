@@ -29,6 +29,7 @@ public class Workouts {
     public List<ExerciseModel> exercises;
 	
 	public String name;
+	public Boolean isDeleted;
 	
 	
     public AccountsModel getAccount() {
