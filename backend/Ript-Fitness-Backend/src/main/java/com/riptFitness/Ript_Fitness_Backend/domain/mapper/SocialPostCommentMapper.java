@@ -14,5 +14,5 @@ public interface SocialPostCommentMapper {
 	
 	SocialPostCommentDto toSocialPostCommentDto(SocialPostComment socialPostComment);
 	
-	SocialPostComment toSocialPostComment(SocialPostComment socialPostComment);
+	SocialPostComment toSocialPostComment(SocialPostCommentDto socialPostComment);
 }

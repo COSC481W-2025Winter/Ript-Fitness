@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.riptFitness.Ript_Fitness_Backend.domain.mapper.SocialPostCommentMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.SocialPostMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.SocialPost;
@@ -11,6 +12,7 @@ import com.riptFitness.Ript_Fitness_Backend.domain.model.SocialPostComment;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.SocialPostCommentRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.SocialPostRepository;
+import com.riptFitness.Ript_Fitness_Backend.web.dto.SocialPostCommentDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.SocialPostDto;
 
 @Service
@@ -125,15 +127,17 @@ public class SocialPostService {
 		return SocialPostMapper.INSTANCE.toSocialPostDto(socialPostObject);
 	}
 	
-	public SocialPostDto addComment(SocialPostComment socialPostComment) {
+	public SocialPostDto addComment(SocialPostCommentDto socialPostComment) {
 		Optional<SocialPost> optionalSocialPostObject = socialPostRepository.findById(socialPostComment.postId);
 		
 		if(optionalSocialPostObject.isEmpty())
 			throw new RuntimeException("SocialPost object not found in database with ID = " + socialPostComment.postId);
 		
 		SocialPost socialPostObject = optionalSocialPostObject.get();
+		
+		SocialPostComment socialPostCommentModel = SocialPostCommentMapper.INSTANCE.toSocialPostComment(socialPostComment);
 				
-		socialPostObject.socialPostComments.add(socialPostComment);
+		socialPostObject.socialPostComments.add(socialPostCommentModel);
 		
 		socialPostObject = socialPostRepository.save(socialPostObject);
 		

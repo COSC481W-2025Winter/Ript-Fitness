@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.model.SocialPostComment;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.SocialPostService;
+import com.riptFitness.Ript_Fitness_Backend.web.dto.SocialPostCommentDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.SocialPostDto;
 
 @RestController
@@ -62,7 +63,7 @@ public class SocialPostController {
 	}
 	
 	@PutMapping("/addComment")
-	public ResponseEntity<SocialPostDto> addComment(@RequestBody SocialPostComment socialPostComment){
+	public ResponseEntity<SocialPostDto> addComment(@RequestBody SocialPostCommentDto socialPostComment){
 		SocialPostDto socialPostObject = socialPostService.addComment(socialPostComment);
 		return new ResponseEntity<>(socialPostObject, HttpStatus.OK);
 	}
