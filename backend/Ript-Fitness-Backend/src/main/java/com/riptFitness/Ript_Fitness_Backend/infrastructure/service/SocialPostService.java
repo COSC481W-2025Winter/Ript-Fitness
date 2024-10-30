@@ -1,5 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -45,6 +47,12 @@ public class SocialPostService {
 		SocialPost returnedSocialPostObject = returnedOptionalSocialPostObject.get();
 		
 		return SocialPostMapper.INSTANCE.toSocialPostDto(returnedSocialPostObject);
+	}
+	
+	public ArrayList<Long> getPostsFromAccountId(Long accountId){
+		Optional<ArrayList<Long>> postsFromAccountId = socialPostRepository.getPostsFromAccountId(accountId);
+		
+		return postsFromAccountId.get();
 	}
 	
 	public SocialPostDto editPostContent(Long socialPostId, String newSocialPostContent) {

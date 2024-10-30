@@ -1,5 +1,8 @@
 package com.riptFitness.Ript_Fitness_Backend.web.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -36,6 +39,12 @@ public class SocialPostController {
 	public ResponseEntity<SocialPostDto> getPost(@PathVariable Long socialPostId){
 		SocialPostDto returnedSocialPostObject = socialPostService.getPost(socialPostId);
 		return new ResponseEntity<>(returnedSocialPostObject, HttpStatus.OK);
+	}
+	
+	@GetMapping("/getPostsFromAccountId/{accountId}")
+	public ResponseEntity<ArrayList<Long>> getPostsFromAccountId(@PathVariable Long accountId){
+		ArrayList<Long> returnedListOfPostIds = socialPostService.getPostsFromAccountId(accountId);
+		return new ResponseEntity<>(returnedListOfPostIds, HttpStatus.OK);
 	}
 	
 	@PutMapping("/editPostContent/{socialPostId}")
