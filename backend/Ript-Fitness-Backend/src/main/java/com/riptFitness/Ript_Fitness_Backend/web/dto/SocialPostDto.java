@@ -2,7 +2,6 @@ package com.riptFitness.Ript_Fitness_Backend.web.dto;
 
 import java.util.List;
 
-import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.SocialPostComment;
 
 public class SocialPostDto {
@@ -17,7 +16,7 @@ public class SocialPostDto {
     
     public List<Long> userIDsOfLikes;
     
-    public List<SocialPostComment> socialPostComments;
+    public List<SocialPostCommentDto> socialPostComments;
     
     public boolean isDeleted;
 }
