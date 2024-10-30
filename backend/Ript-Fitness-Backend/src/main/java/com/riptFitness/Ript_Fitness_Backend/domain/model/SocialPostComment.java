@@ -1,6 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,12 +28,12 @@ public class SocialPostComment {
     public Long postId;
     
     @Column(name = "created_date", updatable = false)
-    public LocalDate dateTimeCreated;
+    public LocalDateTime dateTimeCreated;
     
     public boolean isDeleted = false;
     
     @PrePersist
     protected void onCreate() {
-    	dateTimeCreated = LocalDate.now();
+    	dateTimeCreated = LocalDateTime.now();
     }
 }
