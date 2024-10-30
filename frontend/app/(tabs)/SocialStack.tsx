@@ -40,12 +40,12 @@ const SocialStack: React.FC = () => {
           <Stack.Screen
             name="TextPostScreen"
             component={TextPostScreen}
-            options={{ title: 'New Text Post', headerRight: () => <StreakCounter />, }}
+            options={{ title: '', headerRight: () => <StreakCounter />, }}
           />
           <Stack.Screen
             name="ImagePostScreen"
             component={ImagePostScreen}
-            options={{ title: 'New Image Post', headerRight: () => <StreakCounter />, }}
+            options={{ title: '', headerRight: () => <StreakCounter />, }}
           />
           {/* Add any additional screens here */}
         </Stack.Navigator>
