@@ -1,6 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,11 +37,19 @@ public class WorkoutsService {
 		
 		newWorkout.setAccount(account);
 		
+		// Set the account and workout reference for each exercise in the workout
+	    if (newWorkout.getExercises() != null) {
+	        newWorkout.getExercises().forEach(exercise -> {
+	            exercise.setAccount(account);  // Set the account for each exercise
+	        });
+	    }
+
 		workoutsRepository.save(newWorkout);
 		return WorkoutsMapper.INSTANCE.toWorkoutsDto(newWorkout);
 	}
 	
 	//Retrieve a single workout object based on a workout Id
+	@Transactional 
 	public WorkoutsDto getWorkout(Long workoutId) {
 		Optional<Workouts> optionalWrkout = workoutsRepository.findById(workoutId);
 		if(optionalWrkout.isEmpty()) {

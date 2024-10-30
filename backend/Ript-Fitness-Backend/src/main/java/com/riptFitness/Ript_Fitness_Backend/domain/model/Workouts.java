@@ -2,6 +2,8 @@ package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,18 +20,16 @@ public class Workouts {
 	@GeneratedValue(strategy = GenerationType.IDENTITY) //Auto-increments the id
 	public Long id;
 	
-	//Many workouts belong to one user
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "account_id", nullable = false) // This creates the foreign key column
+    @JoinColumn(name = "account_id", nullable = false)
     private AccountsModel account;
-    
-    // One-to-Many relationship with Exercise
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "workout_id")
-    public List<ExerciseModel> exercises;
+    private List<ExerciseModel> exercises;
 	
 	public String name;
-	public Boolean isDeleted;
+	public boolean isDeleted = false;
 	
 	
     public AccountsModel getAccount() {
@@ -38,6 +38,14 @@ public class Workouts {
 
     public void setAccount(AccountsModel account) {
         this.account = account;
+    }
+    
+    public List<ExerciseModel> getExercises() {
+        return exercises;
+    }
+
+    public void setExercises(List<ExerciseModel> exercises) {
+        this.exercises = exercises;
     }
 	
 

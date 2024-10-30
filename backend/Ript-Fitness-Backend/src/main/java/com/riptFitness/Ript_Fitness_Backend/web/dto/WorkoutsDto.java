@@ -8,6 +8,16 @@ import com.riptFitness.Ript_Fitness_Backend.domain.model.ExerciseModel;
 public class WorkoutsDto {
 	public Long id;
 	public String name;
-	public List<ExerciseModel> exercises;
+	private List<ExerciseDto> exercises;
+	public boolean isDeleted = false;
+	
+	
+	public List<ExerciseDto> getExercises() {
+		return exercises;
+	}
+	public void setExercises(List<ExerciseDto> exercises) {
+		this.exercises = exercises;
+	}
+	
 	
 }
