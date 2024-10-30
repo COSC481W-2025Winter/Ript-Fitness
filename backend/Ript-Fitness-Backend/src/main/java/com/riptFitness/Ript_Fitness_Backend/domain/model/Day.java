@@ -34,5 +34,6 @@ public class Day {
 	public double totalCarbs;
 	public double totalProtein;
 	public double totalFat;
+	public int totalWaterConsumed;
 	public boolean isDeleted = false;
 }
