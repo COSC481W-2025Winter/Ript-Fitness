@@ -19,46 +19,45 @@ import com.riptFitness.Ript_Fitness_Backend.web.dto.UserDto;
 @RequestMapping("/userProfile") // base URL for all user profile endpoints
 public class UserProfileController {
 
-    private final UserProfileService userProfileService;
+	private final UserProfileService userProfileService;
 
-    public UserProfileController(UserProfileService userProfileService) {
-        this.userProfileService = userProfileService;
-    }
+	public UserProfileController(UserProfileService userProfileService) {
+		this.userProfileService = userProfileService;
+	}
 
-    // Helper method to retrieve username from the SecurityContext
-    private String getUsernameFromContext() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication.getName(); // Username from JWT token
-    }
+	private String getUsernameFromContext() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		return authentication.getName(); // Username from JWT token
+	}
 
-    // POST localhost:8080/userProfile/addUser
-    @PostMapping("/addUser")
-    public ResponseEntity<UserDto> addUser(@RequestBody UserDto userDto) {
-        UserDto savedUserObject = userProfileService.addUser(userDto);
-        return new ResponseEntity<>(savedUserObject, HttpStatus.CREATED);
-    }
+	// POST localhost:8080/userProfile/addUser
+	@PostMapping("/addUser")
+	public ResponseEntity<UserDto> addUser(@RequestBody UserDto userDto) {
+		UserDto savedUserObject = userProfileService.addUser(userDto);
+		return new ResponseEntity<>(savedUserObject, HttpStatus.CREATED);
+	}
 
-    // GET localhost:8080/userProfile/getUserProfile
-    @GetMapping("/getUserProfile")
-    public ResponseEntity<UserDto> getUserProfile() {
-        String username = getUsernameFromContext();
-        UserDto returnedUserObject = userProfileService.getUserByUsername(username);
-        return ResponseEntity.ok(returnedUserObject);
-    }
+	// GET localhost:8080/userProfile/getUserProfile
+	@GetMapping("/getUserProfile")
+	public ResponseEntity<UserDto> getUserProfile() {
+		String username = getUsernameFromContext();
+		UserDto returnedUserObject = userProfileService.getUserByUsername(username);
+		return ResponseEntity.ok(returnedUserObject);
+	}
 
-    // PUT localhost:8080/userProfile/updateUserProfile
-    @PutMapping("/updateUserProfile")
-    public ResponseEntity<UserDto> updateUserProfile(@RequestBody UserDto userDto) {
-        String username = getUsernameFromContext();
-        UserDto updatedUserObject = userProfileService.updateUserByUsername(username, userDto);
-        return ResponseEntity.ok(updatedUserObject);
-    }
+	// PUT localhost:8080/userProfile/updateUserProfile
+	@PutMapping("/updateUserProfile")
+	public ResponseEntity<UserDto> updateUserProfile(@RequestBody UserDto userDto) {
+		String username = getUsernameFromContext();
+		UserDto updatedUserObject = userProfileService.updateUserByUsername(username, userDto);
+		return ResponseEntity.ok(updatedUserObject);
+	}
 
-    // DELETE localhost:8080/userProfile/deleteUserProfile
-    @DeleteMapping("/deleteUserProfile")
-    public ResponseEntity<UserDto> deleteUserProfile() {
-        String username = getUsernameFromContext();
-        UserDto deletedUserObject = userProfileService.softDeleteUserByUsername(username);
-        return ResponseEntity.ok(deletedUserObject);
-    }
+	// DELETE localhost:8080/userProfile/deleteUserProfile
+	@DeleteMapping("/deleteUserProfile")
+	public ResponseEntity<UserDto> deleteUserProfile() {
+		String username = getUsernameFromContext();
+		UserDto deletedUserObject = userProfileService.softDeleteUserByUsername(username);
+		return ResponseEntity.ok(deletedUserObject);
+	}
 }

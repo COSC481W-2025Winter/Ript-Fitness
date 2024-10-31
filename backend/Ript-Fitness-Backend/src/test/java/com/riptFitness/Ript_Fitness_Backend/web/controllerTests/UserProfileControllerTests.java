@@ -47,8 +47,8 @@ public class UserProfileControllerTests {
     @MockBean
     private UserDetailsService userDetailsService;
 
-
     private UserDto userDto;
+    private final String token = "Bearer test-token";
 
     @BeforeEach
     public void setUp() {
@@ -58,6 +58,8 @@ public class UserProfileControllerTests {
         userDto.lastName = "Van";
         userDto.username = "tom.van";
         userDto.isDeleted = false;
+
+        when(jwtUtil.extractUsername(any(String.class))).thenReturn("tom.van");
     }
 
     @Test
@@ -73,10 +75,11 @@ public class UserProfileControllerTests {
     }
 
     @Test
-    public void testGetUser() throws Exception {
-        when(userProfileService.getUser(1L)).thenReturn(userDto);
+    public void testGetUserProfile() throws Exception {
+        when(userProfileService.getUserByUsername("tom.van")).thenReturn(userDto);
 
-        mockMvc.perform(get("/userProfile/getUser/1")
+        mockMvc.perform(get("/userProfile/getUserProfile")
+                .header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName").value("Tom"))
@@ -84,10 +87,11 @@ public class UserProfileControllerTests {
     }
 
     @Test
-    public void testEditUser() throws Exception {
-        when(userProfileService.editUser(any(Long.class), any(UserDto.class))).thenReturn(userDto);
+    public void testUpdateUserProfile() throws Exception {
+        when(userProfileService.updateUserByUsername(any(String.class), any(UserDto.class))).thenReturn(userDto);
 
-        mockMvc.perform(put("/userProfile/editUser/1")
+        mockMvc.perform(put("/userProfile/updateUserProfile")
+                .header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userDto)))
                 .andExpect(status().isOk())
@@ -96,11 +100,12 @@ public class UserProfileControllerTests {
     }
 
     @Test
-    public void testDeleteUser() throws Exception {
+    public void testDeleteUserProfile() throws Exception {
         userDto.isDeleted = true;
-        when(userProfileService.deleteUser(1L)).thenReturn(userDto);
+        when(userProfileService.softDeleteUserByUsername("tom.van")).thenReturn(userDto);
 
-        mockMvc.perform(delete("/userProfile/deleteUser/1")
+        mockMvc.perform(delete("/userProfile/deleteUserProfile")
+                .header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.isDeleted").value(true));
