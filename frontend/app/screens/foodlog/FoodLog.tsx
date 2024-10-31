@@ -4,8 +4,11 @@ import React from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNavigation } from "@react-navigation/native";
 import MacroButton from "@/components/foodlog/MacroButton";
-import FoodLogAddFrom from "@/app/screens/foodlog/FoodLogAdd";
-import FoodLogSaved from "@/app/screens/foodlog/FoodLogSaved";
+import FoodLogAddForm from "@/app/screens/foodlog/FoodLogAdd";
+import FoodLogLoggedForm from "@/app/screens/foodlog/FoodLogLogged";
+import Add from "@/app/screens/foodlog/FoodLogAdd";
+import Logged from "@/app/screens/foodlog/FoodLogLogged";
+// import FoodLogSaved from "@/app/screens/foodlog/FoodLogSaved";
 
 export default function FoodLogScreen() {
     
@@ -79,14 +82,12 @@ export default function FoodLogScreen() {
             </View> 
             <View style={styles.dataBar}>
                 <Text style={styles.text}
-                    onPress={()  => }>Logged</Text>
+                    onPress={()  => navigation.navigate('Logged')}>Logged</Text>
                 <Text style={styles.text}
                     onPress={()  => navigation.navigate('ApiScreen')}>Saved</Text>
                 <Text style={styles.textAdd}
-                    onPress={()  => <FoodLogAddFrom></FoodLogAddFrom>}>Add</Text>
+                    onPress={()  => navigation.navigate('Add')}>Add</Text>
             </View>
-        
-        <FoodLogAddFrom></FoodLogAddFrom>
         </View>
     );
 }
