@@ -1,5 +1,6 @@
 package com.riptFitness.Ript_Fitness_Backend.web.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -43,6 +44,12 @@ public class NutritionTrackerController {
 		return ResponseEntity.ok(returnedFoodObject);
 	}
 	
+	@GetMapping("/getFoodIdsOfLoggedInUser")
+	public ResponseEntity<ArrayList<Long>> getFoodIdsOfLoggedInUser(){
+		ArrayList<Long> listOfFoodIds = nutritionTrackerService.getFoodIdsOfLoggedInUser();
+		return ResponseEntity.ok(listOfFoodIds);
+	}
+	
 	//localhost:8080/nutritionCalculator/editFood/{INSERT FOOD ID NUMBER HERE}, body is empty in this request
 	@PutMapping("/editFood/{foodId}")
 	public ResponseEntity<FoodDto> editFood(@PathVariable Long foodId, @RequestBody FoodDto foodDto){
@@ -69,6 +76,12 @@ public class NutritionTrackerController {
 	public ResponseEntity<DayDto> getDayStats(@PathVariable Long dayId){
 		DayDto returnedDayObject = nutritionTrackerService.getDayStats(dayId);
 		return ResponseEntity.ok(returnedDayObject);
+	}
+	
+	@GetMapping("/getDayIdsOfLoggedInUser")
+	public ResponseEntity<ArrayList<Long>> getDayIdsOfLoggedInUser(){
+		ArrayList<Long> listOfDayIds = nutritionTrackerService.getDayIdsOfLoggedInUser();
+		return ResponseEntity.ok(listOfDayIds);
 	}
 	
 	//localhost:8080/nutritionCalculator/deleteDay/{INSERT DAY ID NUMBER HERE}
