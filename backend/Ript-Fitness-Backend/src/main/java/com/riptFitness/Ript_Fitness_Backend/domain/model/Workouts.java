@@ -18,7 +18,7 @@ public class Workouts {
 	
 	@Id //Declares this variable the primary key in the table
 	@GeneratedValue(strategy = GenerationType.IDENTITY) //Auto-increments the id
-	public Long id;
+	public Long workoutsId;
 	
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "account_id", nullable = false)
