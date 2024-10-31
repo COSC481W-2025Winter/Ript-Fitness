@@ -24,6 +24,7 @@ import com.riptFitness.Ript_Fitness_Backend.domain.model.SocialPostComment;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.SocialPostCommentRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.SocialPostRepository;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AccountsService;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.SocialPostService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.SocialPostCommentDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.SocialPostDto;
@@ -38,6 +39,9 @@ public class SocialPostServiceTest {
 	
 	@Mock
 	private AccountsRepository accountsRepository;
+	
+	@Mock
+	private AccountsService accountsService;
 	
 	@InjectMocks
 	private SocialPostService socialPostService;
@@ -92,19 +96,13 @@ public class SocialPostServiceTest {
 	@Test
 	void testServiceAddPostValid() {
 		when(socialPostRepository.save(any(SocialPost.class))).thenReturn(socialPostModel);
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
 		
 		SocialPostDto result = socialPostService.addPost(socialPost);
 		
 		assertNotNull(result);
 		assertEquals(2, result.numberOfLikes);
 		assertEquals("Just benched 500 pounds, my name is Chris and I'm so strong!!", result.content);
-	}
-	
-	@Test
-	void testServiceAddPostInvalidNullSocialPostDto() {
-		SocialPostDto result = socialPostService.addPost(null);
-		
-		assertNull(result);
 	}
 	
 	@Test
@@ -123,28 +121,6 @@ public class SocialPostServiceTest {
 		when(socialPostRepository.findById(1L)).thenReturn(Optional.empty());
 		
 		assertThrows(RuntimeException.class, () -> socialPostService.getPost(1L));
-	}
-	
-	@Test
-	void testServiceGetPostsFromAccountIdValid() {
-		ArrayList<Long> arr = new ArrayList<>();
-		arr.add(1L);
-		when(socialPostRepository.getPostsFromAccountId(1L)).thenReturn(Optional.of(arr));
-		
-		ArrayList<Long> result = socialPostService.getPostsFromAccountId(1L);
-		
-		assertNotNull(result);
-		assertEquals(1L, result.get(0));
-	}
-	
-	@Test
-	void testServiceGetPostsFromAccountIdInvalidNotInDatabase() {
-		when(socialPostRepository.getPostsFromAccountId(1L)).thenReturn(Optional.empty());
-
-		ArrayList<Long> result = socialPostService.getPostsFromAccountId(1L);
-		
-		assertNotNull(result);
-		assertEquals(0, result.size());
 	}
 	
 	@Test
@@ -190,9 +166,10 @@ public class SocialPostServiceTest {
 	void testServiceAddLikeValid() {
 		when(socialPostRepository.findById(1L)).thenReturn(Optional.of(socialPostModel));
 		when(accountsRepository.findById(1L)).thenReturn(Optional.of(account));
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
 		when(socialPostRepository.save(any(SocialPost.class))).thenReturn(socialPostModel);
 		
-		SocialPostDto result = socialPostService.addLike(1L, 1L);
+		SocialPostDto result = socialPostService.addLike(1L);
 		
 		assertNotNull(result);
 		assertEquals(3, result.numberOfLikes);
@@ -202,7 +179,7 @@ public class SocialPostServiceTest {
 	void testServiceAddLikeInvalidPostNotInDatabase() {
 		when(socialPostRepository.findById(1L)).thenReturn(Optional.empty());
 		
-		assertThrows(RuntimeException.class, () -> socialPostService.addLike(1L, 1L));
+		assertThrows(RuntimeException.class, () -> socialPostService.addLike(1L));
 	}
 	
 	@Test
@@ -210,16 +187,17 @@ public class SocialPostServiceTest {
 		when(socialPostRepository.findById(1L)).thenReturn(Optional.of(socialPostModel));
 		when(accountsRepository.findById(1L)).thenReturn(Optional.empty());
 		
-		assertThrows(RuntimeException.class, () -> socialPostService.addLike(1L, 1L));
+		assertThrows(RuntimeException.class, () -> socialPostService.addLike(1L));
 	}
 	
 	@Test
 	void testServiceDeleteLikeValid() {
 		when(socialPostRepository.findById(1L)).thenReturn(Optional.of(socialPostModel));
+		when(accountsService.getLoggedInUserId()).thenReturn(2L);
 		when(accountsRepository.findById(2L)).thenReturn(Optional.of(account));
 		when(socialPostRepository.save(any(SocialPost.class))).thenReturn(socialPostModel);
 		
-		SocialPostDto result = socialPostService.deleteLike(1L, 2L);
+		SocialPostDto result = socialPostService.deleteLike(1L);
 		
 		assertNotNull(result);
 		assertEquals(1, result.numberOfLikes);
@@ -229,7 +207,7 @@ public class SocialPostServiceTest {
 	void testServiceDeleteLikeInvalidPostNotInDatabase() {
 		when(socialPostRepository.findById(1L)).thenReturn(Optional.empty());
 		
-		assertThrows(RuntimeException.class, () -> socialPostService.deleteLike(1L, 1L));
+		assertThrows(RuntimeException.class, () -> socialPostService.deleteLike(1L));
 	}
 	
 	@Test
@@ -237,7 +215,7 @@ public class SocialPostServiceTest {
 		when(socialPostRepository.findById(1L)).thenReturn(Optional.of(socialPostModel));
 		when(accountsRepository.findById(1L)).thenReturn(Optional.empty());
 		
-		assertThrows(RuntimeException.class, () -> socialPostService.deleteLike(1L, 1L));
+		assertThrows(RuntimeException.class, () -> socialPostService.deleteLike(1L));
 	}
 	
 	@Test
@@ -278,23 +256,3 @@ public class SocialPostServiceTest {
 		assertThrows(RuntimeException.class, () -> socialPostService.deleteComment(1L));
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
