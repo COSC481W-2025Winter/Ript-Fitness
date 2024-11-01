@@ -34,7 +34,7 @@ public class AccountsModel {
     private List<Workouts> workouts;
 
     // 10/17/24: Adding One-To-Many relationship with the exercise class:
-    @OneToMany(mappedBy = "account") // "account" is the insatnce variable in the exercise class
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL) // "account" is the insatnce variable in the exercise class
     @JsonIgnoreProperties("account") // Ignore the account field inside exercises when serializing
     private List<ExerciseModel> exercises; // This is a collection (List) that holds exercises
 

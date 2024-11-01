@@ -54,7 +54,7 @@ public class WorkoutsController {
     }
 
     // Delete a workout by setting isDeleted flag to true
-    @DeleteMapping("/{workoutId}")
+    @DeleteMapping("/deleteWorkout/{workoutId}")
     public ResponseEntity<WorkoutsDto> deleteWorkout(@PathVariable Long workoutId) {
         WorkoutsDto deletedWorkout = workoutsService.deleteWorkout(workoutId);
         return ResponseEntity.ok(deletedWorkout);

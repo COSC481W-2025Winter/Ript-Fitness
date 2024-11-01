@@ -27,5 +27,5 @@ public interface WorkoutsMapper {
 	void updateWorkoutRowFromDto(WorkoutsDto workoutsDto, @MappingTarget Workouts workouts);
 	
 	@Mapping(target = "exerciseId", ignore = true) 
-    List<ExerciseModel> updateExercisesFromDto(List<ExerciseDto> exercisesDto);
+    void updateExercisesFromDto(List<ExerciseDto> exercisesDtos, @MappingTarget List<ExerciseModel> Exercises);
 }
