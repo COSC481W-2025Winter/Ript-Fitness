@@ -1,14 +1,17 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.JoinColumn;
 
 @Entity		//Tells database to create a table in the database called "Food" with column defined below
@@ -29,6 +32,11 @@ public class Day {
 	public List<Food> foodsEatenInDay = new ArrayList<>();
 	
 	public List<Long> foodIdsInFoodsEatenInDayList = new ArrayList<>();
+	
+	@Column(nullable = false)
+	public Long accountId;
+	
+	public LocalDate date;
 
 	public double calories;
 	public double totalCarbs;
@@ -36,4 +44,9 @@ public class Day {
 	public double totalFat;
 	public int totalWaterConsumed;
 	public boolean isDeleted = false;
+	
+    @PrePersist
+    protected void onCreate() {
+    	date = LocalDate.now();
+    }
 }
