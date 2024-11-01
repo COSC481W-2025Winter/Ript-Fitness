@@ -11,13 +11,20 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.context.ActiveProfiles;
 
+import com.riptFitness.Ript_Fitness_Backend.config.JwtUtil;
+import com.riptFitness.Ript_Fitness_Backend.config.SecurityConfig;
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.UserProfileMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.UserProfileRepository;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.UserProfileService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.UserDto;
 
+@ActiveProfiles("test")
+@Import(SecurityConfig.class)
 public class UserProfileServiceTest {
 
     @Mock
@@ -25,6 +32,12 @@ public class UserProfileServiceTest {
 
     @Mock
     private UserProfileMapper userProfileMapper;
+
+    @Mock
+    private JwtUtil jwtUtil;
+
+    @Mock
+    private UserDetailsService userDetailsService;
 
     @InjectMocks
     private UserProfileService userProfileService;
