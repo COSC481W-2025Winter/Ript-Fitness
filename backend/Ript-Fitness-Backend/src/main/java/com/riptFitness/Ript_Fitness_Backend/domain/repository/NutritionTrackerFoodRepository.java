@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import com.riptFitness.Ript_Fitness_Backend.domain.model.Day;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Food;
 
 import jakarta.transaction.Transactional;
@@ -20,6 +21,10 @@ public interface NutritionTrackerFoodRepository extends JpaRepository<Food, Long
 	//findByName currently isn't used, will be kept in Repository class in case anything changes
 	//@Query("SELECT f FROM Food f WHERE f.name = :name AND f.isDeleted = false")
 	//Optional<Food> findByName(String name);
+	
+	@Override
+	@Query("SELECT f FROM Food f WHERE f.id = :id AND f.isDeleted = false")
+	Optional<Food> findById(@Param("id")Long id);
 	
 	@Query("SELECT f.id FROM Food f WHERE f.accountId = :accountId AND f.isDeleted = false")
 	Optional<ArrayList<Long>> getPostsFromAccountId(@Param("accountId") Long accountId);
