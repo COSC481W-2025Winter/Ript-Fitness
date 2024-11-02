@@ -30,11 +30,11 @@ public class UserProfileController {
 		return authentication.getName(); // Username from JWT token
 	}
 
-	// POST localhost:8080/userProfile/addUser
 	@PostMapping("/addUser")
 	public ResponseEntity<UserDto> addUser(@RequestBody UserDto userDto) {
-		UserDto savedUserObject = userProfileService.addUser(userDto);
-		return new ResponseEntity<>(savedUserObject, HttpStatus.CREATED);
+	    String username = getUsernameFromContext(); // Get username from the authenticated user
+	    UserDto savedUserObject = userProfileService.addUser(userDto, username);
+	    return new ResponseEntity<>(savedUserObject, HttpStatus.CREATED);
 	}
 
 	// GET localhost:8080/userProfile/getUserProfile

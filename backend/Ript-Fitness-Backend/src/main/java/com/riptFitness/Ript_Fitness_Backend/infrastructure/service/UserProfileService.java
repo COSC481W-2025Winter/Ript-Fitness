@@ -18,9 +18,9 @@ public class UserProfileService {
         this.userRepository = userRepository;
     }
 
-    // Adds user profile to the database
-    public UserDto addUser(UserDto userDto) {
+    public UserDto addUser(UserDto userDto, String username) {
         UserProfile userToBeAdded = UserProfileMapper.INSTANCE.toUser(userDto);
+        userToBeAdded.setUsername(username); // Set the username from context
         userToBeAdded = userRepository.save(userToBeAdded);
         return UserProfileMapper.INSTANCE.toUserDto(userToBeAdded);
     }
