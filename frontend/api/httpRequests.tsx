@@ -12,6 +12,8 @@ export class httpRequests {
   static async get(endpoint: string, token: string, data?: Record<string, any>): Promise<any> {
     try {
       const params = httpRequests.jsonToQueryString(data);
+      console.log(params)
+      console.log(`${BASE_URL}${endpoint}${params}`)
       const response = await fetch(`${BASE_URL}${endpoint}${params}`, {
         headers: {
           'Content-Type': 'application/json',
@@ -50,7 +52,9 @@ export class httpRequests {
   // Method to handle PUT requests and return Response
   static async put(endpoint: string, token: string, data: Record<string, any>): Promise<Response> {
     try {
-      const response = await fetch(`${BASE_URL}${endpoint}`, {
+      let response;
+      if (token != "") {
+      response = await fetch(`${BASE_URL}${endpoint}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -58,6 +62,15 @@ export class httpRequests {
         },
         body: JSON.stringify(data),
       });
+    } else {
+      response = await fetch(`${BASE_URL}${endpoint}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+    }
       return response;
     } catch (error) {
       console.error('PUT request failed:', error);

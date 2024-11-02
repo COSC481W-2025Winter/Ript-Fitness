@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { GlobalContext, GlobalContextType } from './GlobalContext';
+import { GlobalContext } from './GlobalContext';
 import { httpRequests } from '@/api/httpRequests';
 
 interface StreakData {
@@ -28,16 +28,17 @@ export const StreakProvider: React.FC<StreakProviderProps> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchStreak = async () => {
-    const token = context.data.token;
+    const token = context?.data.token;
+    
+    setLoading(true);
+    setError(null);
+
     if (!token) {
       setStreak(0);
       setLoading(false);
       console.log("Streak was set to 0... no token found");
       return;
     }
-
-    setLoading(true);
-    setError(null);
 
     try {
       const data: StreakData = await httpRequests.get('/streak/getStreak', token);

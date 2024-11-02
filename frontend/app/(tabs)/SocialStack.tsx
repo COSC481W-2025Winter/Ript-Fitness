@@ -2,7 +2,7 @@
 
 import React, { useContext } from 'react';
 import { StyleSheet } from 'react-native';
-import { createStackNavigator, HeaderStyleInterpolators } from '@react-navigation/stack';
+import { createStackNavigator, HeaderStyleInterpolators, StackNavigationProp } from '@react-navigation/stack';
 import { SocialProvider } from '@/context/SocialContext';
 import SocialFeed from '../screens/socialfeed/SocialFeed';
 import CommentsScreen from '../screens/socialfeed/CommentsScreen';
@@ -12,6 +12,12 @@ import StreakCounter from '@/components/StreakCounter';
 import { StreakProvider} from '@/context/StreakContext';
 
 const Stack = createStackNavigator();
+
+export type SocialStackParamList = {
+  SocialFeed: undefined;
+};
+
+export type SocialScreenNavigationProp = StackNavigationProp<SocialStackParamList>;
 
 const SocialStack: React.FC = () => {
   return (

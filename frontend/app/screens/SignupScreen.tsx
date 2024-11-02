@@ -49,7 +49,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
   
     try {
       // Calls POST 
-      const response = await httpRequests.post("/accounts/createNewAccount", credentials);
+      const response = await httpRequests.post("/accounts/createNewAccount","", credentials);
   
       // Success case
       if (response.status === 201) {

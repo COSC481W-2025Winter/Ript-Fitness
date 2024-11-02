@@ -3,7 +3,7 @@
 import 'react-native-gesture-handler';
 import React, { useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
 import { View, Text, StatusBar, ActivityIndicator } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -25,6 +25,7 @@ export type RootStackParamList = {
   Signup: undefined;
   Home: undefined;
 };
+export type RootScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -81,10 +82,12 @@ function MainApp() {
 }
 
 function RootNavigator() {
-  const { user, isLoading } = useContext(GlobalContext)!;
+  const context = useContext(GlobalContext)
 
-  console.log('RootNavigator - user:', user);
-  console.log('RootNavigator - isLoading:', isLoading);
+  const isLoading = context.isLoaded
+  const user = (context.data.token != '')
+  //console.log('RootNavigator - user:', user);
+  //console.log('RootNavigator - isLoading:', isLoading);
 
   if (isLoading) {
     return (
