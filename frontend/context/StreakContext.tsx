@@ -1,6 +1,5 @@
-// StreakContext.tsx
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { GlobalContext } from './GlobalContext';
+import { GlobalContext, GlobalContextType } from './GlobalContext';
 import { httpRequests } from '@/api/httpRequests';
 
 interface StreakData {
@@ -23,16 +22,17 @@ interface StreakProviderProps {
 }
 
 export const StreakProvider: React.FC<StreakProviderProps> = ({ children }) => {
-  const { user } = useContext(GlobalContext);
+  const context = useContext(GlobalContext);
   const [streak, setStreak] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchStreak = async () => {
-    if (!user) {
+    const token = context.data.token;
+    if (!token) {
       setStreak(0);
       setLoading(false);
-      console.log("streak was set to 0... no user loaded")
+      console.log("Streak was set to 0... no token found");
       return;
     }
 
@@ -40,10 +40,7 @@ export const StreakProvider: React.FC<StreakProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-        const response = await httpRequests.get(`/streak/getStreak/${user.id}`)
-        console.log(response);
-      if (!response.ok) throw new Error('Failed to fetch streak');
-      const data: StreakData = await response.json();
+      const data: StreakData = await httpRequests.get('/streak/getStreak', token);
       setStreak(data.currentSt);
     } catch (err) {
       console.error('Error fetching streak:', err);
@@ -62,7 +59,7 @@ export const StreakProvider: React.FC<StreakProviderProps> = ({ children }) => {
       console.error('Unhandled error in fetchStreak:', err);
       setError('Failed to fetch streak. Please try again.');
     });
-  }, [user]);
+  }, [context.data.token]);
 
   const value = {
     streak,

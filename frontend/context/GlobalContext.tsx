@@ -1,36 +1,25 @@
-import React, { useContext, createContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// Define the structure of your user data
-interface User {
-  id: number;
-  username: string;
-}
 
 // Define the structure of your global data
 export interface GlobalData {
-  session_id: string;
+  token: string;
 }
+
 interface GlobalContextType {
   data: GlobalData;
   updateGlobalData: (updatedData: GlobalData) => void;
   isLoaded: boolean;
   loadInitialData: () => void;
-  user: User | null;
-  isLoading: boolean;
-  login: (userData: User) => void;
-  logout: () => void;
+  setToken: (token: string) => void;
 }
 
 const defaultGlobalContext: GlobalContextType = {
-  data: { session_id: '' },
+  data: { token: '' },
   updateGlobalData: () => {},
   isLoaded: false,
   loadInitialData: () => {},
-  user: null,
-  isLoading: true,
-  login: () => {},
-  logout: () => {},
+  setToken: () => {},
 };
 
 export const GlobalContext = createContext<GlobalContextType>(defaultGlobalContext);
@@ -41,12 +30,20 @@ interface GlobalProviderProps {
 
 export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [data, setData] = useState<GlobalData>({ session_id: "FakeSessionIdHere02u342" });
+  const [data, setData] = useState<GlobalData>({ token: '' });
 
   const updateGlobalData = (updatedData: GlobalData) => {
     setData(updatedData);
+  };
+
+  const setToken = async (token: string) => {
+    console.log('Setting token:', token);
+    try {
+      await AsyncStorage.setItem('@token', token);
+      setData((prevData) => ({ ...prevData, token }));
+    } catch (error) {
+      console.error('Failed to save token:', error);
+    }
   };
 
   const loadInitialData = async () => {
@@ -76,64 +73,36 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
   };
 
-  //Load the user data
+  // Load the token from AsyncStorage when the app starts
   useEffect(() => {
-    const loadUserData = async () => {
+    const loadToken = async () => {
       try {
-        console.log('Loading user data...');
-        setIsLoading(true);
-        const userDataString = await AsyncStorage.getItem('@user');
-        if (userDataString) {
-          const userData: User = JSON.parse(userDataString);
-          console.log('User data loaded:', userData);
-          setUser(userData);
+        console.log('Loading token...');
+        const storedToken = await AsyncStorage.getItem('@token');
+        if (storedToken) {
+          console.log('Token loaded:', storedToken);
+          setData((prevData) => ({ ...prevData, token: storedToken }));
         } else {
-          console.log('No user data found');
+          console.log('No token found');
         }
       } catch (error) {
-        console.error('Failed to load user data:', error);
-      } finally {
-        console.log('Setting isLoading to false');
-        setIsLoading(false);
+        console.error('Failed to load token:', error);
       }
     };
 
-    loadUserData().catch(error => {
-      console.error('Unhandled error in loadUserData:', error);
+    loadToken().catch((error) => {
+      console.error('Unhandled error in loadToken:', error);
     });
   }, []);
 
-  // Function to handle login
-  const login = async (userData: User) => {
-    try {
-      await AsyncStorage.setItem('@user', JSON.stringify(userData));
-      setUser(userData);
-    } catch (error) {
-      console.error('Failed to save user data:', error);
-    }
-  };
-
-  // Function to handle logout
-  const logout = async () => {
-    try {
-      await AsyncStorage.removeItem('@user');
-      setUser(null);
-    } catch (error) {
-      console.error('Failed to remove user data:', error);
-    }
-  };
-
   return (
-    <GlobalContext.Provider 
-      value={{ 
-        data, 
-        updateGlobalData, 
-        loadInitialData, 
+    <GlobalContext.Provider
+      value={{
+        data,
+        updateGlobalData,
+        loadInitialData,
         isLoaded,
-        user, 
-        isLoading, 
-        login, 
-        logout 
+        setToken,
       }}
     >
       {children}
