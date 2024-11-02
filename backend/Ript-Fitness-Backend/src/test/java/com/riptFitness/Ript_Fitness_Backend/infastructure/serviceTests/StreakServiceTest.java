@@ -17,8 +17,11 @@ import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Streak;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.StreakRepository;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AccountsService;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.StreakService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.StreakDto;
 
@@ -27,6 +30,12 @@ public class StreakServiceTest {
 
 	@Mock
 	private StreakRepository streakRepository;
+	
+	@Mock
+    private AccountsRepository accountsRepository;
+    
+    @Mock
+    private AccountsService accountsService;
 
 	@InjectMocks
 	private StreakService streakServiceForServiceTest;
@@ -39,48 +48,64 @@ public class StreakServiceTest {
 	private Streak streakThree;
 	private StreakDto streakDtoFour;
 	private Streak streakFour;
+	private AccountsModel account;
+	private AccountsModel accountTwo;
+	private AccountsModel accountThree;
+	private AccountsModel accountFour;
 
 	@BeforeEach
 	public void setUp() {
 		MockitoAnnotations.openMocks(this);
 
+		account = new AccountsModel();
+        account.setId(100L);
+        
+        accountTwo = new AccountsModel();
+        accountTwo.setId(101L);
+        
+        accountThree = new AccountsModel();
+        accountThree.setId(102L);
+        
+        accountFour = new AccountsModel();
+        accountFour.setId(103L);
+        
 		streakDto = new StreakDto();
-		streakDto.id = (long) 100;
+		streakDto.id = 100L;
 		streakDto.currentSt = 10;
 		streakDto.prevLogin = LocalDateTime.now();
 
 		streak = new Streak();
-		streak.id = (long) 100;
+		streak.id = 100L;
 		streak.currentSt = 10;
 		streak.prevLogin = LocalDateTime.now();
 
 		streakDtoTwo = new StreakDto();
-		streakDtoTwo.id = (long) 101;
+		streakDtoTwo.id = 101L;
 		streakDtoTwo.currentSt = 10;
 		streakDtoTwo.prevLogin = LocalDateTime.now().minusDays(1);
 
 		streakTwo = new Streak();
-		streakTwo.id = (long) 101;
+		streakTwo.id = 101L;
 		streakTwo.currentSt = 10;
 		streakTwo.prevLogin = LocalDateTime.now().minusDays(1);
 		
 		streakDtoThree = new StreakDto();
-		streakDtoThree.id = (long) 102;
+		streakDtoThree.id = 102L;
 		streakDtoThree.currentSt = 10;
 		streakDtoThree.prevLogin = LocalDateTime.of(2024, 12, 31, 10, 0);
 
 		streakThree = new Streak();
-		streakThree.id = (long) 102;
+		streakThree.id = 102L;
 		streakThree.currentSt = 10;
 		streakThree.prevLogin = LocalDateTime.of(2024, 12, 31, 10, 0);
 		
 		streakDtoFour = new StreakDto();
-		streakDtoFour.id = (long) 103;
+		streakDtoFour.id = 103L;
 		streakDtoFour.currentSt = 10;
 		streakDtoFour.prevLogin = LocalDateTime.of(2023, 12, 31, 10, 0);
 
 		streakFour = new Streak();
-		streakFour.id = (long) 103;
+		streakFour.id = 103L;
 		streakFour.currentSt = 10;
 		streakFour.prevLogin = LocalDateTime.of(2023, 12, 31, 10, 0);
 
@@ -88,25 +113,29 @@ public class StreakServiceTest {
 
 	@Test
 	void testServiceGetStreakValidId() {
-		when(streakRepository.findById((long) 100)).thenReturn(Optional.of(streak));
-
-		StreakDto result = streakServiceForServiceTest.getStreak((long) 100);
+		when(accountsService.getLoggedInUserId()).thenReturn(100L);
+        when(accountsRepository.findById(100L)).thenReturn(Optional.of(account));
+        when(streakRepository.findById(100L)).thenReturn(Optional.of(streak));
+        
+		StreakDto result = streakServiceForServiceTest.getStreak();
 		assertNotNull(result);
 		assertEquals(10, result.currentSt);
 	}
 
 	@Test
 	void testServiceGetStreakInvalidId() {
-		when(streakRepository.findById((long) 100)).thenReturn(Optional.empty());
+		when(accountsService.getLoggedInUserId()).thenReturn(999L);
+        when(accountsRepository.findById(999L)).thenReturn(Optional.empty());
 
-		assertThrows(RuntimeException.class, () -> streakServiceForServiceTest.getStreak((long) 100));
+		assertThrows(RuntimeException.class, () -> streakServiceForServiceTest.getStreak());
 	}
 
 	@Test
 	void testServiceUpdateStreakValidId() {
-		when(streakRepository.findById((long) 100)).thenReturn(Optional.of(streak));
-
-		StreakDto result = streakServiceForServiceTest.updateStreak((long) 100);
+		when(accountsService.getLoggedInUserId()).thenReturn(100L);
+        when(accountsRepository.findById(100L)).thenReturn(Optional.of(account));
+		when(streakRepository.findById(100L)).thenReturn(Optional.of(streak));
+		StreakDto result = streakServiceForServiceTest.updateStreak();
 
 		assertNotNull(result);
 		assertEquals(10, result.currentSt);
@@ -115,17 +144,19 @@ public class StreakServiceTest {
 
 	@Test
 	void testServiceUpdateStreakInValidId() {
-		when(streakRepository.findById((long) 100)).thenReturn(Optional.empty());
+		when(streakRepository.findById(100L)).thenReturn(Optional.empty());
 
-		assertThrows(RuntimeException.class, () -> streakServiceForServiceTest.updateStreak((long) 100));
+		assertThrows(RuntimeException.class, () -> streakServiceForServiceTest.updateStreak());
 
 	}
 
 	@Test
 	void testServiceUpdateStreakNextDay() {
-		when(streakRepository.findById((long) 101)).thenReturn(Optional.of(streakTwo));
-
-		StreakDto result = streakServiceForServiceTest.updateStreak((long) 101);
+		when(accountsService.getLoggedInUserId()).thenReturn(101L);
+        when(accountsRepository.findById(101L)).thenReturn(Optional.of(account));
+        when(streakRepository.findById(101L)).thenReturn(Optional.of(streakTwo));
+        
+		StreakDto result = streakServiceForServiceTest.updateStreak();
 
 		// System.out.println(result.prevLogin);
 		assertNotNull(result);
@@ -134,9 +165,11 @@ public class StreakServiceTest {
 	}
 	@Test
 	void testServiceUpdateStreakMissedDay() {
-		when(streakRepository.findById((long) 103)).thenReturn(Optional.of(streakFour));
-
-		StreakDto result = streakServiceForServiceTest.updateStreak((long) 103);
+		when(accountsService.getLoggedInUserId()).thenReturn(103L);
+        when(accountsRepository.findById(103L)).thenReturn(Optional.of(account));
+        when(streakRepository.findById(103L)).thenReturn(Optional.of(streakFour));
+        
+		StreakDto result = streakServiceForServiceTest.updateStreak();
 
 		// System.out.println(result.prevLogin);
 		assertNotNull(result);
@@ -152,9 +185,11 @@ public class StreakServiceTest {
         mockedStatic.when(LocalDateTime::now).thenReturn(mockCurrentTime);
         
         
-		when(streakRepository.findById((long) 102)).thenReturn(Optional.of(streakThree));
-
-		StreakDto result = streakServiceForServiceTest.updateStreak((long) 102);
+        when(accountsService.getLoggedInUserId()).thenReturn(102L);
+        when(accountsRepository.findById(102L)).thenReturn(Optional.of(account));
+        when(streakRepository.findById(102L)).thenReturn(Optional.of(streakThree));
+        
+		StreakDto result = streakServiceForServiceTest.updateStreak();
 		
 		//System.out.println(result.prevLogin);
 		assertNotNull(result);
@@ -170,9 +205,11 @@ public class StreakServiceTest {
         mockedStatic.when(LocalDateTime::now).thenReturn(mockCurrentTime);
         
         
-		when(streakRepository.findById((long) 103)).thenReturn(Optional.of(streakThree));
-
-		StreakDto result = streakServiceForServiceTest.updateStreak((long) 103);
+        when(accountsService.getLoggedInUserId()).thenReturn(103L);
+        when(accountsRepository.findById(103L)).thenReturn(Optional.of(account));
+        when(streakRepository.findById(103L)).thenReturn(Optional.of(streakFour));
+        
+		StreakDto result = streakServiceForServiceTest.updateStreak();
 		
 		//System.out.println(result.prevLogin);
 		assertNotNull(result);
