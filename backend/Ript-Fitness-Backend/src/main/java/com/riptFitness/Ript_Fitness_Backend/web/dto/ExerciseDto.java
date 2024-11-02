@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.ExerciseModel;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.Workouts;
 
 public class ExerciseDto {
 	
@@ -18,8 +19,8 @@ public class ExerciseDto {
 	// Reference to the users account (AccountsModel)
 	public Long accountReferenceId; // Reference to the account that owns this exercise
 	
-	// We also will need a reference to the workout model: (UNCOMMENT BELOW ONCE CHRIS IS DONE)
-	//public WorkoutModel workout;
+	// We also will need a reference to the workout model: (UNCOMMENT BELOW ONCE CHRIS IS DONE) Note: for Nate, Uncommenting this cause a infinite loop in a return statement.
+	//public Workouts workout;
 	
 	// Getters and Setters
     public Long getExerciseId() {
