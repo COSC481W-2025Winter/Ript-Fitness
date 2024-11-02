@@ -1,6 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.web.controllerTests;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -259,6 +260,18 @@ public class NutritionTrackerControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(jsonPath("$.isDeleted").value(true))
+				.andReturn();
+	}
+	
+	@Test
+	public void testAddFoodsToDay() throws Exception {
+		when(nutritionTrackerService.addFoodsToDay(any(Long.class), anyList())).thenReturn(dayDto);
+		
+		mockMvc.perform(post("/nutritionCalculator/addFoodsToDay/1")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("[1]"))
+				.andExpect(status().isCreated())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andReturn();
 	}
 	

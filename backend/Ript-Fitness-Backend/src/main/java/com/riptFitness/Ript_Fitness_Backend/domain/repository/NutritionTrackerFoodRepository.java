@@ -5,8 +5,10 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
+import com.riptFitness.Ript_Fitness_Backend.domain.model.Day;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Food;
 
 import jakarta.transaction.Transactional;
@@ -17,13 +19,13 @@ public interface NutritionTrackerFoodRepository extends JpaRepository<Food, Long
 	//Food save(Food foodModel): Saves foodModel to "Food" database table
 	
 	//findByName currently isn't used, will be kept in Repository class in case anything changes
-	@Query("SELECT f FROM Food f WHERE f.name = :name AND f.isDeleted = false")
-	Optional<Food> findByName(String name);
+	//@Query("SELECT f FROM Food f WHERE f.name = :name AND f.isDeleted = false")
+	//Optional<Food> findByName(String name);
 	
-	 @Modifying
-	 @Transactional
-	 @Query(value = "INSERT INTO Food (calories, carbs, fat, isDeleted, multiplier, name, protein) VALUES (:calories, :carbs, :fat, :isDeleted, :multiplier, :name, :protein)", nativeQuery = true)
-	 void save(@Param("calories") double calories, @Param("carbs") double carbs, @Param("fat") double fat, @Param("isDeleted") boolean isDeleted, @Param("multiplier") double multiplier, @Param("name") String name, @Param("protein") double protein);
+	@Override
+	@Query("SELECT f FROM Food f WHERE f.id = :id AND f.isDeleted = false")
+	Optional<Food> findById(@Param("id")Long id);
 	
-	
+	@Query("SELECT f.id FROM Food f WHERE f.accountId = :accountId AND f.isDeleted = false")
+	Optional<ArrayList<Long>> getPostsFromAccountId(@Param("accountId") Long accountId);
 }
