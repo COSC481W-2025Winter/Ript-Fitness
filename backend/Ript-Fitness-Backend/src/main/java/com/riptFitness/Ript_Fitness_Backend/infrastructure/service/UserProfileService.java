@@ -47,6 +47,7 @@ public class UserProfileService {
 
         UserProfile userToBeEdited = optionalUserToBeEdited.get();
         UserProfileMapper.INSTANCE.updateUserFromDto(userDto, userToBeEdited);
+        userToBeEdited.setUsername(username);
         userToBeEdited = userRepository.save(userToBeEdited);
         return UserProfileMapper.INSTANCE.toUserDto(userToBeEdited);
     }
