@@ -12,10 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.riptFitness.Ript_Fitness_Backend.config.JwtUtil;
 import com.riptFitness.Ript_Fitness_Backend.config.SecurityConfig;
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.UserProfileMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
@@ -32,13 +30,7 @@ public class UserProfileServiceTest {
 
     @Mock
     private UserProfileMapper userProfileMapper;
-
-    @Mock
-    private JwtUtil jwtUtil;
-
-    @Mock
-    private UserDetailsService userDetailsService;
-
+    
     @InjectMocks
     private UserProfileService userProfileService;
 
@@ -52,14 +44,12 @@ public class UserProfileServiceTest {
         userDto = new UserDto();
         userDto.firstName = "Tom";
         userDto.lastName = "Van";
-        userDto.username = "tom.van";
         userDto.isDeleted = false;
 
         userProfile = new UserProfile();
         userProfile.setId(1L);
         userProfile.setFirstName("Tom");
         userProfile.setLastName("Van");
-        userProfile.setUsername("tom.van");
         userProfile.setDeleted(false);
         
         when(userProfileMapper.toUser(any(UserDto.class))).thenReturn(userProfile);
@@ -70,12 +60,11 @@ public class UserProfileServiceTest {
     public void testAddUser() {
         when(userProfileRepository.save(any(UserProfile.class))).thenReturn(userProfile);
 
-        UserDto savedUser = userProfileService.addUser(userDto);
+        UserDto savedUser = userProfileService.addUser(userDto, "tom.van");
 
         assertNotNull(savedUser);
         assertEquals("Tom", savedUser.firstName);
         assertEquals("Van", savedUser.lastName);
-        assertEquals("tom.van", savedUser.username);
     }
 
     @Test
