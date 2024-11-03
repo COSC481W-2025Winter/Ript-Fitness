@@ -1,6 +1,8 @@
 package com.riptFitness.Ript_Fitness_Backend.web.controllerTests;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -49,6 +51,36 @@ public class ExerciseControllerTest {
 	@BeforeEach
 	public void setUp() {
 		MockitoAnnotations.openMocks(this);
+	}
+
+	@Test
+	public void testGetExercisesFromCurrentUser() throws Exception {
+		// Arrange
+		ExerciseDto exerciseDto1 = new ExerciseDto();
+		exerciseDto1.setExerciseId(1L);
+		exerciseDto1.setNameOfExercise("Push Ups");
+		exerciseDto1.setSets(3);
+		exerciseDto1.setReps(Arrays.asList(10, 12, 15));
+
+		ExerciseDto exerciseDto2 = new ExerciseDto();
+		exerciseDto2.setExerciseId(2L);
+		exerciseDto2.setNameOfExercise("Squats");
+		exerciseDto2.setSets(4);
+		exerciseDto2.setReps(Arrays.asList(8, 8, 10, 12));
+
+		List<ExerciseDto> exerciseDtoList = Arrays.asList(exerciseDto1, exerciseDto2);
+
+		when(exerciseService.getExercisesFromCurrentUser()).thenReturn(exerciseDtoList);
+
+		// Act & Assert
+		mockMvc.perform(get("/exercises/getAllExercises").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].exerciseId").value(1))
+				.andExpect(jsonPath("$[0].nameOfExercise").value("Push Ups")).andExpect(jsonPath("$[0].sets").value(3))
+				.andExpect(jsonPath("$[0].reps[0]").value(10)).andExpect(jsonPath("$[1].exerciseId").value(2))
+				.andExpect(jsonPath("$[1].nameOfExercise").value("Squats")).andExpect(jsonPath("$[1].sets").value(4))
+				.andExpect(jsonPath("$[1].reps[1]").value(8));
+
+		verify(exerciseService, times(1)).getExercisesFromCurrentUser();
 	}
 
 	@Test
