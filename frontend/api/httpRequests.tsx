@@ -12,8 +12,8 @@ export class httpRequests {
   static async get(endpoint: string, token: string, data?: Record<string, any>): Promise<any> {
     try {
       const params = httpRequests.jsonToQueryString(data);
-      console.log(params)
-      console.log(`${BASE_URL}${endpoint}${params}`)
+      console.log(params);
+      console.log(`${BASE_URL}${endpoint}${params}`);
       const response = await fetch(`${BASE_URL}${endpoint}${params}`, {
         headers: {
           'Content-Type': 'application/json',
@@ -23,16 +23,15 @@ export class httpRequests {
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
-      const json = await response.json();
-      return json;
+      return await response.json(); // Return parsed JSON
     } catch (error) {
       console.error('GET request failed:', error);
       throw error;
     }
   }
 
-  // Method to handle POST requests and return Response
-  static async post(endpoint: string, token: string, data: Record<string, any>): Promise<Response> {
+  // Method to handle POST requests and return parsed JSON
+  static async post(endpoint: string, token: string, data: Record<string, any>): Promise<any> {
     try {
       const response = await fetch(`${BASE_URL}${endpoint}`, {
         method: 'POST',
@@ -42,43 +41,38 @@ export class httpRequests {
         },
         body: JSON.stringify(data),
       });
-      return response;
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      return await response.json(); // Return parsed JSON
     } catch (error) {
       console.error('POST request failed:', error);
       throw error;
     }
   }
 
-  // Method to handle PUT requests and return Response
-  static async put(endpoint: string, token: string, data: Record<string, any>): Promise<Response> {
+  // Method to handle PUT requests and return parsed JSON
+  static async put(endpoint: string, token: string, data: Record<string, any>): Promise<any> {
     try {
-      let response;
-      if (token != "") {
-      response = await fetch(`${BASE_URL}${endpoint}`, {
+      const response = await fetch(`${BASE_URL}${endpoint}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          ...(token && { 'Authorization': `Bearer ${token}` }),
         },
         body: JSON.stringify(data),
       });
-    } else {
-      response = await fetch(`${BASE_URL}${endpoint}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-    }
-      return response;
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      return await response.json(); // Return parsed JSON
     } catch (error) {
       console.error('PUT request failed:', error);
       throw error;
     }
   }
 
-  // Method to handle DELETE requests and return JSON
+  // Method to handle DELETE requests and return parsed JSON
   static async delete(endpoint: string, token: string, data?: Record<string, any>): Promise<any> {
     try {
       const params = httpRequests.jsonToQueryString(data);
@@ -92,8 +86,7 @@ export class httpRequests {
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
-      const json = await response.json();
-      return json;
+      return await response.json(); // Return parsed JSON
     } catch (error) {
       console.error('DELETE request failed:', error);
       throw error;

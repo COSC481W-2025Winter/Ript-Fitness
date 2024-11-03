@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { Svg, Defs, LinearGradient, Stop } from 'react-native-svg';
 import {
   VictoryChart,
-  VictoryLine,
-  VictoryTheme,
+  VictoryArea,
   VictoryAxis,
   VictoryTooltip,
   VictoryVoronoiContainer,
@@ -14,14 +14,12 @@ interface RepsData {
   averageReps: number;
 }
 
-// Generate random data to populate the chart
 const generateData = (range: 'week' | 'month' | 'year'): RepsData[] => {
   const data: RepsData[] = [];
   const today = new Date();
 
   switch (range) {
     case 'week':
-      // Last 7 days
       for (let i = 6; i >= 0; i--) {
         const date = new Date();
         date.setDate(today.getDate() - i);
@@ -33,7 +31,6 @@ const generateData = (range: 'week' | 'month' | 'year'): RepsData[] => {
       break;
 
     case 'month':
-      // Last 30 days
       for (let i = 29; i >= 0; i--) {
         const date = new Date();
         date.setDate(today.getDate() - i);
@@ -45,7 +42,6 @@ const generateData = (range: 'week' | 'month' | 'year'): RepsData[] => {
       break;
 
     case 'year':
-      // Last 12 months
       for (let i = 11; i >= 0; i--) {
         const date = new Date();
         date.setMonth(today.getMonth() - i);
@@ -54,9 +50,6 @@ const generateData = (range: 'week' | 'month' | 'year'): RepsData[] => {
           averageReps: Math.floor(200 + Math.random() * 300),
         });
       }
-      break;
-
-    default:
       break;
   }
 
@@ -76,36 +69,26 @@ const GraphScreen: React.FC = () => {
     if (range === 'month') {
       const tickIndices = [0, 5, 10, 15, 20, 25, 29];
       return tickIndices.map(index => data[index].date);
-    } else {
-      return data.map((d) => d.date);
     }
+    return data.map((d) => d.date);
   };
 
   const tickFormat = (x: Date) => {
     if (range === 'year') {
       return x.toLocaleString('default', { month: 'short' });
-    } else {
-      return x.toISOString().split('T')[0].slice(5, 10);
     }
-  };
-
-  const getLabelAngle = () => {
-    if (range === 'month') {
-      return 45;
-    } else {
-      return 0;
-    }
-  };
-
-  const getTextAnchor = () => {
-    if (range === 'month') {
-      return 'middle';
-    } else {
-      return 'middle';
-    }
+    return x.toISOString().split('T')[0].slice(5, 10);
   };
 
   const screenWidth = Dimensions.get('window').width;
+
+  const getYDomain = () => {
+    const values = data.map(d => d.averageReps);
+    const max = Math.max(...values);
+    const min = Math.min(...values);
+    const padding = (max - min) * 0.2;
+    return [min - padding, max + padding];
+  };
 
   return (
     <View style={styles.container}>
@@ -114,7 +97,9 @@ const GraphScreen: React.FC = () => {
         <VictoryChart
           width={screenWidth - 40}
           height={300}
+          padding={{ top: 40, bottom: 40, left: 50, right: 20 }}
           scale={{ x: 'time' }}
+          domain={{ y: getYDomain() }}
           containerComponent={
             <VictoryVoronoiContainer
               labels={({ datum }) =>
@@ -129,57 +114,59 @@ const GraphScreen: React.FC = () => {
                     fill: '#ffffff',
                     stroke: '#bdbdbd',
                     strokeWidth: 1,
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.2,
-                    shadowRadius: 2,
                   }}
-                  cornerRadius={4}
-                  pointerLength={8}
                 />
               }
             />
           }
         >
+          <Defs>
+            <LinearGradient id="gradientFill" x1="0%" y1="0%" x2="0%" y2="100%">
+              <Stop offset="0%" stopColor="#60A5FA" stopOpacity={0.2} />
+              <Stop offset="100%" stopColor="#60A5FA" stopOpacity={0.02} />
+            </LinearGradient>
+          </Defs>
+
+          <VictoryArea
+            data={data}
+            x="date"
+            y="averageReps"
+            interpolation="natural"
+            style={{
+              data: {
+                fill: "url(#gradientFill)",
+                stroke: "#60A5FA",
+                strokeWidth: 2,
+              },
+            }}
+          />
+          
           <VictoryAxis
             tickValues={getTickValues()}
             tickFormat={tickFormat}
             style={{
-              axis: { stroke: '#9e9e9e', strokeWidth: 1 },
-              ticks: { size: 5, stroke: '#9e9e9e', strokeWidth: 1 },
+              axis: { stroke: '#E5E5E5', strokeWidth: 1 },
+              ticks: { size: 5, stroke: '#E5E5E5' },
               tickLabels: {
-                fontSize: 12,
+                fontSize: 10,
                 padding: 5,
-                angle: getLabelAngle(),
-                textAnchor: getTextAnchor(),
-                fill: '#616161',
+                fill: '#9CA3AF',
               },
-              grid: {
-                stroke: '#e0e0e0',
-                strokeDasharray: '4, 4',
-              },
+              grid: { stroke: 'transparent' },
             }}
           />
           <VictoryAxis
             dependentAxis
             tickFormat={(y: number) => `${y}`}
             style={{
-              axis: { stroke: '#9e9e9e', strokeWidth: 1 },
-              ticks: { size: 5, stroke: '#9e9e9e', strokeWidth: 1 },
-              tickLabels: { fontSize: 12, padding: 5, fill: '#616161' },
-              grid: {
-                stroke: '#e0e0e0',
-                strokeDasharray: '4, 4',
+              axis: { stroke: '#E5E5E5', strokeWidth: 1 },
+              ticks: { size: 5, stroke: '#E5E5E5' },
+              tickLabels: {
+                fontSize: 10,
+                padding: 5,
+                fill: '#9CA3AF',
               },
-            }}
-          />
-          <VictoryLine
-            data={data}
-            x="date"
-            y="averageReps"
-            interpolation="monotoneX"
-            style={{
-              data: { stroke: '#3f51b5', strokeWidth: 2 },
+              grid: { stroke: 'transparent' },
             }}
           />
         </VictoryChart>
@@ -221,7 +208,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fafafa',
+    backgroundColor: '#ffffff',
   },
   title: {
     fontSize: 20,
@@ -233,11 +220,6 @@ const styles = StyleSheet.create({
   chartContainer: {
     backgroundColor: '#fff',
     borderRadius: 8,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
     padding: 10,
   },
   buttonContainer: {
@@ -246,17 +228,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   button: {
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#f3f4f6',
     paddingVertical: 10,
     paddingHorizontal: 20,
     marginHorizontal: 5,
     borderRadius: 4,
   },
   activeButton: {
-    backgroundColor: '#3f51b5',
+    backgroundColor: '#60A5FA',
   },
   buttonText: {
-    color: '#212121',
+    color: '#4B5563',
     fontSize: 14,
   },
   activeButtonText: {

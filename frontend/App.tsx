@@ -17,6 +17,7 @@ import SplashScreen from '@/app/screens/SplashScreen';
 import WelcomeScreen from '@/app/screens/WelcomeScreen';
 import LoginScreen from '@/app/screens/LoginScreen';
 import SignupScreen from '@/app/screens/SignupScreen';
+import { SocialFeedProvider } from './context/SocialFeedContext';
 
 // Define types for the navigation stack
 export type RootStackParamList = {
@@ -135,12 +136,14 @@ export default function App() {
   return (
     <GlobalProvider>
       <StreakProvider>
+        <SocialFeedProvider>
         <>
           <StatusBar barStyle="default" />
           <NavigationContainer>
             <RootNavigator />
           </NavigationContainer>
         </>
+        </SocialFeedProvider>
       </StreakProvider>
     </GlobalProvider>
   );

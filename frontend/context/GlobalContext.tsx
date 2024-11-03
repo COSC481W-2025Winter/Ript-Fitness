@@ -73,7 +73,6 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
   };
 
-  // Load the token from AsyncStorage when the app starts
   useEffect(() => {
     const loadToken = async () => {
       try {
