@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.ExerciseModel;
@@ -28,6 +29,7 @@ import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.WorkoutsServi
 import com.riptFitness.Ript_Fitness_Backend.web.dto.ExerciseDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.WorkoutsDto;
 
+@ActiveProfiles("test")
 public class WorkoutsServiceTest {
 
     @Mock
