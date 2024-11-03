@@ -11,13 +11,18 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 
+import com.riptFitness.Ript_Fitness_Backend.config.SecurityConfig;
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.UserProfileMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.UserProfileRepository;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.UserProfileService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.UserDto;
 
+@ActiveProfiles("test")
+@Import(SecurityConfig.class)
 public class UserProfileServiceTest {
 
     @Mock
@@ -25,7 +30,7 @@ public class UserProfileServiceTest {
 
     @Mock
     private UserProfileMapper userProfileMapper;
-
+    
     @InjectMocks
     private UserProfileService userProfileService;
 
@@ -36,21 +41,17 @@ public class UserProfileServiceTest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        // Setting up test data
         userDto = new UserDto();
         userDto.firstName = "Tom";
         userDto.lastName = "Van";
-        userDto.username = "tom.van";
         userDto.isDeleted = false;
 
         userProfile = new UserProfile();
         userProfile.setId(1L);
         userProfile.setFirstName("Tom");
         userProfile.setLastName("Van");
-        userProfile.setUsername("tom.van");
         userProfile.setDeleted(false);
         
-        // Mock mapper behavior
         when(userProfileMapper.toUser(any(UserDto.class))).thenReturn(userProfile);
         when(userProfileMapper.toUserDto(any(UserProfile.class))).thenReturn(userDto);
     }
@@ -59,19 +60,18 @@ public class UserProfileServiceTest {
     public void testAddUser() {
         when(userProfileRepository.save(any(UserProfile.class))).thenReturn(userProfile);
 
-        UserDto savedUser = userProfileService.addUser(userDto);
+        UserDto savedUser = userProfileService.addUser(userDto, "tom.van");
 
         assertNotNull(savedUser);
         assertEquals("Tom", savedUser.firstName);
         assertEquals("Van", savedUser.lastName);
-        assertEquals("tom.van", savedUser.username);
     }
 
     @Test
-    public void testGetUser() {
-        when(userProfileRepository.findById(any(Long.class))).thenReturn(Optional.of(userProfile));
+    public void testGetUserByUsername() {
+        when(userProfileRepository.findByUsername(any(String.class))).thenReturn(Optional.of(userProfile));
 
-        UserDto foundUser = userProfileService.getUser(1L);
+        UserDto foundUser = userProfileService.getUserByUsername("tom.van");
 
         assertNotNull(foundUser);
         assertEquals("Tom", foundUser.firstName);
@@ -79,20 +79,20 @@ public class UserProfileServiceTest {
     }
 
     @Test
-    public void testGetUserNotFound() {
-        when(userProfileRepository.findById(any(Long.class))).thenReturn(Optional.empty());
+    public void testGetUserNotFoundByUsername() {
+        when(userProfileRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(RuntimeException.class, () -> userProfileService.getUser(1L));
+        Exception exception = assertThrows(RuntimeException.class, () -> userProfileService.getUserByUsername("tom.van"));
 
-        assertEquals("User not found in database with ID = 1", exception.getMessage());
+        assertEquals("User not found in database with username = tom.van", exception.getMessage());
     }
 
     @Test
-    public void testEditUser() {
-        when(userProfileRepository.findById(any(Long.class))).thenReturn(Optional.of(userProfile));
+    public void testUpdateUserByUsername() {
+        when(userProfileRepository.findByUsername(any(String.class))).thenReturn(Optional.of(userProfile));
         when(userProfileRepository.save(any(UserProfile.class))).thenReturn(userProfile);
 
-        UserDto updatedUser = userProfileService.editUser(1L, userDto);
+        UserDto updatedUser = userProfileService.updateUserByUsername("tom.van", userDto);
 
         assertNotNull(updatedUser);
         assertEquals("Tom", updatedUser.firstName);
@@ -100,31 +100,31 @@ public class UserProfileServiceTest {
     }
 
     @Test
-    public void testEditUserNotFound() {
-        when(userProfileRepository.findById(any(Long.class))).thenReturn(Optional.empty());
+    public void testUpdateUserNotFoundByUsername() {
+        when(userProfileRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(RuntimeException.class, () -> userProfileService.editUser(1L, userDto));
+        Exception exception = assertThrows(RuntimeException.class, () -> userProfileService.updateUserByUsername("tom.van", userDto));
 
-        assertEquals("User not found in database with ID = 1", exception.getMessage());
+        assertEquals("User not found in database with username = tom.van", exception.getMessage());
     }
 
     @Test
-    public void testDeleteUser() {
-        when(userProfileRepository.findById(any(Long.class))).thenReturn(Optional.of(userProfile));
+    public void testSoftDeleteUserByUsername() {
+        when(userProfileRepository.findByUsername(any(String.class))).thenReturn(Optional.of(userProfile));
         when(userProfileRepository.save(any(UserProfile.class))).thenReturn(userProfile);
 
-        UserDto deletedUser = userProfileService.deleteUser(1L);
+        UserDto deletedUser = userProfileService.softDeleteUserByUsername("tom.van");
 
         assertNotNull(deletedUser);
         assertTrue(deletedUser.isDeleted);
     }
 
     @Test
-    public void testDeleteUserNotFound() {
-        when(userProfileRepository.findById(any(Long.class))).thenReturn(Optional.empty());
+    public void testSoftDeleteUserNotFoundByUsername() {
+        when(userProfileRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(RuntimeException.class, () -> userProfileService.deleteUser(1L));
+        Exception exception = assertThrows(RuntimeException.class, () -> userProfileService.softDeleteUserByUsername("tom.van"));
 
-        assertEquals("User not found in database with ID = 1", exception.getMessage());
+        assertEquals("User not found in database with username = tom.van", exception.getMessage());
     }
 }
