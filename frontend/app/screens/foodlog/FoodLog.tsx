@@ -10,18 +10,11 @@ import FoodLogAddPage from "./FoodLogAdd";
 import FoodLogSavedPage from "./FoodLogSaved";
 import FoodLogLoggedPage from "./FoodLogLogged";
 
-// import FoodLogSaved from "@/app/screens/foodlog/FoodLogSaved";
 
 export default function FoodLogScreen() {
     
     const navigation = useNavigation();
     const [selectedPage, setSelectedPage] = useState("Logged"); // Track selected page
-    const [foodName, setFoodName] = useState('');
-    const [foodCalories, setCalories] = useState('');
-    const [foodFat, setFat] = useState('');
-    const [foodCarbs, setCarbs] = useState('');
-    const [foodProtein, setProtein] = useState('');
-    const [foodServings, setServings] = useState('');
     const [totalCalories, setTotalCalories] = useState(0);
     const [totalFat, setTotalFat] = useState(0);
     const [totalCarbs, setTotalCarbs] = useState(0);
@@ -161,7 +154,7 @@ export default function FoodLogScreen() {
                         name={"chevron-back-outline"} 
                         size={24} 
                         style={styles.leftArrow}
-                        onPress={() => navigation.navigate(ApiScreen)}
+                        onPress={() => navigation.navigate('ApiScreen')}
                 />
                     <Ionicons name={"calendar-clear-outline"} size={24}></Ionicons>
                     {/* This will be "today" when it is the current date, if not it will display the date of the data they are viewing*/}
@@ -170,7 +163,7 @@ export default function FoodLogScreen() {
                         name={"chevron-forward-outline"} 
                         size={24} 
                         style={styles.rightArrow}
-                        onPress={() => navigation.navigate(ApiScreen)}
+                        onPress={() => navigation.navigate('ApiScreen')}
                     />
                 </View>
             

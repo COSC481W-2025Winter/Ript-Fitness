@@ -1,10 +1,6 @@
 import { TextInput, StyleSheet, ScrollView, Text, View, FlatList, Alert } from "react-native";
 import React,  { useContext, useEffect, useState } from 'react';
 import { useNavigation } from "@react-navigation/native";
-import MacroButton from "@/components/foodlog/MacroButton";
-import Logged from "./FoodLogLogged";
-import ApiScreen from "../ApiScreen";
-import { Ionicons } from "@expo/vector-icons";
 import { GlobalContext } from "@/context/GlobalContext";
 import { httpRequests } from "@/api/httpRequests";
 import LogFoodButton from "@/components/foodlog/FoodLogButton";
@@ -72,9 +68,9 @@ const FoodLogLoggedPage = ({ dayId }) => {
 
             if (response.status === 200) {
                 const dayData = await response.json();
-                console.log('Fetched day ID: ', dayData.id);
+                // console.log('Fetched day ID: ', dayData.id);
                 const foodIDs = dayData.foodIdsInFoodsEatenInDayList;
-                console.log('Fetched food IDs: ', foodIDs);
+                // console.log('Fetched food IDs: ', foodIDs);
                     
                 // handle fetching and displaying food details for all IDs 
                 const detailsArray = await Promise.all(foodIDs.map((id: number) => fetchingSingleFoodDetail(id)));
@@ -85,10 +81,10 @@ const FoodLogLoggedPage = ({ dayId }) => {
 
             } else {
                 console.log(response.json());
-                console.error('Failed to fetch food details');
+                // console.error('Failed to fetch food details');
             }
         } catch (error) {
-            console.error('Error fetching food details: ', error);
+            console.log('Error fetching food details: ', error);
         }
 }; 
     const fetchingSingleFoodDetail = async (foodID: number) => {
@@ -103,14 +99,14 @@ const FoodLogLoggedPage = ({ dayId }) => {
 
             if (response.status === 200) {
                 const foodData = await response.json();
-                console.log(`Fetched details for food ID ${foodID}: `, foodData);
+                // console.log(`Fetched details for food ID ${foodID}: `, foodData);
                 return foodData; 
             } else {
-                console.error(`Failed to fetch details for food ID: ${foodID}`);
+                // console.error(`Failed to fetch details for food ID: ${foodID}`);
                 return null;
             }
         } catch (error) {
-            console.error(`Error fetching details for food ID ${foodID}:`, error);
+            // console.error(`Error fetching details for food ID ${foodID}:`, error);
             return null;
         }
     };

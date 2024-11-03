@@ -1,16 +1,9 @@
 import { TextInput, StyleSheet, ScrollView, Text, View, FlatList, Alert } from "react-native";
 import React,  { useContext, useEffect, useState } from 'react';
 import { useNavigation } from "@react-navigation/native";
-import MacroButton from "@/components/foodlog/MacroButton";
-import Logged from "./FoodLogLogged";
-import ApiScreen from "../ApiScreen";
-import { Ionicons } from "@expo/vector-icons";
 import { GlobalContext } from "@/context/GlobalContext";
 import { httpRequests } from "@/api/httpRequests";
-import { ThemedText } from "@/components/ThemedText";
-import { Swipeable } from "react-native-gesture-handler";
 import LogFoodButton from "@/components/foodlog/FoodLogButton";
-import AddFoodButton from "@/components/foodlog/AddFoodButton";
 
 
 interface Food {
@@ -51,11 +44,6 @@ const getFoodDetails = async (foodId: any) => {
 
 const FoodLogSavedPage = () => { 
     const [foodDetails, setFoodDetails] = useState<Food[]>([]);
-    const [totalCalories, setTotalCalories] = useState(0);
-    const [totalFat, setTotalFat] = useState(0);
-    const [totalCarbs, setTotalCarbs] = useState(0);
-    const [totalProtein, setTotalProtein] = useState(0);
-    const [totalWater, setTotalWater] = useState(0);
 
     const context = useContext(GlobalContext);
 
@@ -72,7 +60,7 @@ const FoodLogSavedPage = () => {
             if (response.status === 200) {
                 const foodIDs = await response.json();
                 setFoodDetails(foodIDs);
-                console.log('Fetched food IDs: ', foodIDs);
+                // console.log('Fetched food IDs: ', foodIDs);
                 
                 // handle fetching and displaying food details for all IDs 
                 const detailsArray = await Promise.all(foodIDs.map((id: number) => fetchingSingleFoodDetail(id)));
@@ -82,11 +70,11 @@ const FoodLogSavedPage = () => {
                 validDetails.sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically by food name
                 setFoodDetails(validDetails);
             } else {
-                console.error('Failed to fetch food details');
+                // console.error('Failed to fetch food details');
                 return null; 
             }
         } catch (error) {
-            console.error('Error fetching food details: ', error);
+            console.log('Error fetching food details: ', error);
         }
     }; 
     const fetchingSingleFoodDetail = async (foodID: number) => {
@@ -101,14 +89,14 @@ const FoodLogSavedPage = () => {
 
             if (response.status === 200) {
                 const foodData = await response.json();
-                console.log(`Fetched details for food ID ${foodID}: `, foodData);
+                // console.log(`Fetched details for food ID ${foodID}: `, foodData);
                 return foodData; 
             } else {
-                console.error(`Failed to fetch details for food ID: ${foodID}`);
+                // console.error(`Failed to fetch details for food ID: ${foodID}`);
                 return null;
             }
         } catch (error) {
-            console.error(`Error fetching details for food ID ${foodID}:`, error);
+            console.log(`Error fetching details for food ID ${foodID}:`, error);
             return null;
         }
     };

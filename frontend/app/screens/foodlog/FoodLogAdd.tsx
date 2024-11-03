@@ -1,18 +1,10 @@
 
 import { TextInput, StyleSheet, ScrollView, Text, View, KeyboardAvoidingView, Platform, TouchableOpacity, Dimensions, Button, Alert  } from "react-native";
 import React, { useContext, useState } from 'react';
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { ThemedText } from '@/components/ThemedText';
-import { useLayoutEffect } from "react";
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNavigation } from "@react-navigation/native";
-import MacroButton from "@/components/foodlog/MacroButton";
 import AddFoodButton from "@/components/foodlog/AddFoodButton";
-import ApiScreen from "../ApiScreen";
-import FoodLogSaved from "@/app/screens/foodlog/FoodLogSaved";
 import { httpRequests } from "@/api/httpRequests";
 import { GlobalContext } from "@/context/GlobalContext";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 //Need to figure out how to get the day to work on login and then not switch until the next day 
 
@@ -56,6 +48,7 @@ export default function FoodLogAddPage({ dayId }) {
                 // updateMacros(dayData.calories, dayData.totalFat, dayData.totalCarbs, dayData.totalProtein);
             } else {
                 console.log('Failed to get day');
+                return; 
             }
         } catch (error) {
             console.log('Error', 'An error occurred. Please try again.');
@@ -92,8 +85,8 @@ export default function FoodLogAddPage({ dayId }) {
             // Check if any food's name matches the input foodName
             return foods.some(food => food.name && food.name.toLowerCase() === foodName.toLowerCase());
             } else {
-                console.log('Error fetching foods');
-                Alert.alert("Error", 'Failed to fetch foods');
+                // console.log('Error fetching foods');
+                // Alert.alert("Error", 'Failed to fetch foods');
                 return false;
             }
         } catch (error) {
@@ -130,10 +123,10 @@ export default function FoodLogAddPage({ dayId }) {
             }, 
             );
             if (response.status === 201) {
-                console.log('Success', 'Food data saved successfully!');
+                // console.log('Success', 'Food data saved successfully!');
                 Alert.alert("Success", 'Food data saved successfully!');
               } else {
-                console.log('Error', 'Failed to save food data.');
+                // console.log('Error', 'Failed to save food data.');
                 Alert.alert("Error", 'Failed to save food data');
               }
         } catch (error) {
@@ -172,8 +165,8 @@ export default function FoodLogAddPage({ dayId }) {
                 if (foodResponse.status === 201) {
                     const foodData = await foodResponse.json();
                     const foodID = [foodData.id];
-                    console.log("FoodID: ", foodID);
-                    console.log("Day ID: ", dayId)
+                    // console.log("FoodID: ", foodID);
+                    // console.log("Day ID: ", dayId);
                     
                     const addResponse = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/addFoodsToDay/${dayId}`, {
                         method: 'POST', 
@@ -190,10 +183,10 @@ export default function FoodLogAddPage({ dayId }) {
                     } else {
                         console.log('Error', 'Failed to save food data to day.');
                     }
-                    console.log('Success', 'Food data saved successfully!');
+                    // console.log('Success', 'Food data saved successfully!');
                     Alert.alert("Success", 'Food data saved successfully!');
                 } else {    
-                    console.log('Error', 'Failed to save food data.');
+                    // console.log('Error', 'Failed to save food data.');
                     Alert.alert("Error", 'Failed to save food data');
                 }
         } catch {
