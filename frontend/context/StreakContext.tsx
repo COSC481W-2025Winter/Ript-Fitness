@@ -42,7 +42,7 @@ export const StreakProvider: React.FC<StreakProviderProps> = ({ children }) => {
     }
 
     try {
-      const data: StreakData = await httpRequests.get('/streak/getStreak', token);
+      const data: StreakData = await httpRequests.get('/streak/getStreak', token, {});
       console.log('Received streak data:', data);
       setStreak(data.currentSt);
       console.log('Streak updated to:', data.currentSt);

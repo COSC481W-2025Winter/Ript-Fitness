@@ -14,6 +14,8 @@ interface RepsData {
   averageReps: number;
 }
 
+
+// Generate random data for the graph based on the selected range
 const generateData = (range: 'week' | 'month' | 'year'): RepsData[] => {
   const data: RepsData[] = [];
   const today = new Date();

@@ -46,14 +46,13 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       // Get all the post IDs for the current user
-      const postIds: string[] = await httpRequests.get('/socialPost/getPostsFromAccountId', token);
-
+      const postIds: string[] = await httpRequests.get('/socialPost/getPostsFromAccountId', token, {});
       
       if (Array.isArray(postIds)) {
         const postsData: SocialPost[] = await Promise.all(
           postIds.map(async id => {
-          const postData = await httpRequests.get(`/socialPost/getPost/${id}`, token);
-          console.log('Fetched Post Data:', postData);
+            const postData = await httpRequests.get(`/socialPost/getPost/${id}`, token, {});
+            console.log('Fetched Post Data:', postData);
 
             return {
               ...postData,
@@ -84,7 +83,8 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
     if (!token) return;
     
     try {
-      const newPost: SocialPost = await httpRequests.post('/socialPost/addPost', token, { content });
+      const response = await httpRequests.post('/socialPost/addPost', token, { content });
+      const newPost: SocialPost = await response.json();
       newPost.likes = Array.isArray(newPost.likes) ? newPost.likes : [];
       newPost.comments = Array.isArray(newPost.comments) ? newPost.comments : [];
       setPosts(currentPosts => [newPost, ...currentPosts]);
@@ -114,23 +114,27 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
       const isLiked = post?.likes.includes(token);
       
       if (isLiked) {
-        await httpRequests.put(`/socialPost/deleteLike/${postId}`, token, {});
-        setPosts(currentPosts => 
-          currentPosts.map(post => 
-            post.id === postId 
-              ? { ...post, likes: post.likes.filter(id => id !== token) }
-              : post
-          )
-        );
+        const response = await httpRequests.put(`/socialPost/deleteLike/${postId}`, token, {});
+        if (response.ok) {
+          setPosts(currentPosts => 
+            currentPosts.map(post => 
+              post.id === postId 
+                ? { ...post, likes: post.likes.filter(id => id !== token) }
+                : post
+            )
+          );
+        }
       } else {
-        await httpRequests.put(`/socialPost/addLike/${postId}`, token, {});
-        setPosts(currentPosts => 
-          currentPosts.map(post => 
-            post.id === postId 
-              ? { ...post, likes: [...post.likes, token] }
-              : post
-          )
-        );
+        const response = await httpRequests.put(`/socialPost/addLike/${postId}`, token, {});
+        if (response.ok) {
+          setPosts(currentPosts => 
+            currentPosts.map(post => 
+              post.id === postId 
+                ? { ...post, likes: [...post.likes, token] }
+                : post
+            )
+          );
+        }
       }
     } catch (err: any) {
       setError('Failed to toggle like');
@@ -146,20 +150,23 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
         content,
         postId
       });
-      const newComment: SocialPostComment = await response.json();
-      newComment.id = newComment.id || '';
-      newComment.content = newComment.content || '';
-      newComment.postId = newComment.postId || '';
-      newComment.accountId = newComment.accountId || '';
-      newComment.dateTimeCreated = newComment.dateTimeCreated || new Date().toISOString();
-      
-      setPosts(currentPosts => 
-        currentPosts.map(post => 
-          post.id === postId 
-            ? { ...post, comments: [...post.comments, newComment] }
-            : post
-        )
-      );
+
+      if (response.ok) {
+        const newComment: SocialPostComment = await response.json();
+        newComment.id = newComment.id || '';
+        newComment.content = newComment.content || '';
+        newComment.postId = newComment.postId || '';
+        newComment.accountId = newComment.accountId || '';
+        newComment.dateTimeCreated = newComment.dateTimeCreated || new Date().toISOString();
+        
+        setPosts(currentPosts => 
+          currentPosts.map(post => 
+            post.id === postId 
+              ? { ...post, comments: [...post.comments, newComment] }
+              : post
+          )
+        );
+      }
     } catch (err: any) {
       setError('Failed to add comment');
       console.error('Error adding comment:', err);
@@ -170,13 +177,15 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
     if (!token) return;
     
     try {
-      await httpRequests.put(`/socialPost/deleteComment/${commentId}`, token, {});
-      setPosts(currentPosts => 
-        currentPosts.map(post => ({
-          ...post,
-          comments: post.comments.filter(comment => comment.id !== commentId)
-        }))
-      );
+      const response = await httpRequests.put(`/socialPost/deleteComment/${commentId}`, token, {});
+      if (response.ok) {
+        setPosts(currentPosts => 
+          currentPosts.map(post => ({
+            ...post,
+            comments: post.comments.filter(comment => comment.id !== commentId)
+          }))
+        );
+      }
     } catch (err: any) {
       setError('Failed to delete comment');
       console.error('Error deleting comment:', err);
