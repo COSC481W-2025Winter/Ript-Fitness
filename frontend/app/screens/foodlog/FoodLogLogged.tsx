@@ -1,200 +1,169 @@
-import AddFoodButton from "@/components/foodlog/AddFoodButton";
-import { useState } from "react";
-import { TextInput, StyleSheet, ScrollView, Text, View, Alert } from "react-native";
-import Ionicons from '@expo/vector-icons/Ionicons';
-import MacroButton from "@/components/foodlog/MacroButton";
+import { TextInput, StyleSheet, ScrollView, Text, View, FlatList, Alert } from "react-native";
+import React,  { useContext, useEffect, useState } from 'react';
 import { useNavigation } from "@react-navigation/native";
+import MacroButton from "@/components/foodlog/MacroButton";
+import Logged from "./FoodLogLogged";
+import ApiScreen from "../ApiScreen";
+import { Ionicons } from "@expo/vector-icons";
+import { GlobalContext } from "@/context/GlobalContext";
+import { httpRequests } from "@/api/httpRequests";
+import LogFoodButton from "@/components/foodlog/FoodLogButton";
 
-const Logged = () => {
-    const [foodArray, setFoodArray] = useState([]);
-    const [foodName, setFoodName] = useState('');
-    const [foodCalories, setFoodCalories] = useState('');
-    const [foodProtein, setFoodProtein] = useState('');
-    const [foodCarbs, setFoodCarbs] = useState('');
-    const [foodFat, setFoodFat] = useState('');
-    const [day, setDay] = useState('');
 
-    const printFoodLogged = async () => {
-        const foodData = {
-            name: foodName, 
-            calories: foodCalories, 
-            protein: foodProtein,
-            carbs: foodCarbs,  
-            fat: foodFat, 
-            multiplier: 1.0, 
-            isDeleted: false, 
-        };
 
-        const dayData = {
-            foodsEatenInDay: [],
-            foodIdsInFoodsEatenInDayList: []
-        }
+interface Food {
+    id: number;
+    name: string;
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+    multiplier: number;
+    isDelted: boolean;
+}
 
+const FoodItem: React.FC<{ food: Food }> =  ({ food }) => {
+    const navigation = useNavigation();
+    return(
+    <LogFoodButton 
+        id={food.id}
+        name={food.name}
+        calories={food.calories}
+        protein={food.protein}
+        carbs={food.carbs}
+        fat={food.fat}
+        multiplier={food.multiplier}
+        textColor="black"
+        backgroundColor='white'
+        borderWidth={1}
+        fontSize={16}
+        width ='100%'
+        onPress={() => navigation.navigate('ApiScreen')}
+        />
+    );
+    };
+
+const FoodLogLoggedPage = ({ dayId }) => { 
+    const [foodDetails, setFoodDetails] = useState<Food[]>([]);
+    const [days, setDays] = useState([]);
+    const [day, setDay] = useState(0);
+
+    const context = useContext(GlobalContext);
+
+    console.log("Today's Day ID: ", dayId);
+
+    // Function to fetch food details based on the food ID
+    const fetchFoodIDs = async () => {
         try {
-            const response = await fetch(`https://ript-fitness-app.azurewebsites.net/nutritionCalculator/getDay/13`, {
+            // const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getDayIdsOfLoggedInUser`, {
+            //     method: 'GET', 
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         'Authorization': `Bearer ${context?.data.token}`,
+            //     }
+            // });
+            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getDay/${dayId}`, {
                 method: 'PUT', 
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${context?.data.token}`,
                 }, 
             });
-            if (response.status === 201) {
-                const data = await response.json();
-                setFoodArray(data.foodIdsInFoodsEatenInDayList);
-                console.log(foodArray);
-                console.log('Success', 'Food data saved successfully!');
-                Alert.alert("Success", 'Food data saved successfully!');
-              } else {
-                console.log('Error', 'Failed to save food data.');
-                Alert.alert("Error", 'Failed to save food data');
-              }
-        } catch (error) {
-              console.log('Error', 'An error occurred. Please try again.');
-        }
 
+            if (response.status === 200) {
+                const dayData = await response.json();
+                console.log('Fetched day ID: ', dayData.id);
+                const foodIDs = dayData.foodIdsInFoodsEatenInDayList;
+                console.log('Fetched food IDs: ', foodIDs);
+                    
+                // handle fetching and displaying food details for all IDs 
+                const detailsArray = await Promise.all(foodIDs.map((id: number) => fetchingSingleFoodDetail(id)));
+
+                // Filter out any failed requests
+                const validDetails = detailsArray.filter((food) => food !== null);
+                setFoodDetails(validDetails);
+
+            } else {
+                console.log(response.json());
+                console.error('Failed to fetch food details');
+            }
+        } catch (error) {
+            console.error('Error fetching food details: ', error);
+        }
+}; 
+    const fetchingSingleFoodDetail = async (foodID: number) => {
+        try {
+            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFood/${foodID}`, {
+                method: 'GET', 
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': `Bearer ${context?.data.token}`,
+                }
+            });
+
+            if (response.status === 200) {
+                const foodData = await response.json();
+                console.log(`Fetched details for food ID ${foodID}: `, foodData);
+                return foodData; 
+            } else {
+                console.error(`Failed to fetch details for food ID: ${foodID}`);
+                return null;
+            }
+        } catch (error) {
+            console.error(`Error fetching details for food ID ${foodID}:`, error);
+            return null;
+        }
     };
 
-    const navigation = useNavigation();
 
-    return (
+    useEffect(() => {
+        fetchFoodIDs();
+    }, [dayId]);
+
+    const renderItem = ({ item }:{item: Food}) => <FoodItem food={item} />;
+
+
+    return(
 // {/* THIS IS THE NEW STUFF FOR THE ADD PAGE*/}
-<View>
-<View>
-                <View style={styles.calendarNav}>
-                    <Ionicons 
-                        name={"chevron-back-outline"} 
-                        size={24} 
-                        style={styles.leftArrow}
-                        onPress={() => navigation.navigate('ApiScreen')}
-                />
-                    <Ionicons name={"calendar-clear-outline"} size={24}></Ionicons>
-                    {/* This will be "today" when it is the current date, if not it will display the date of the data they are viewing*/}
-                    <Text>Today</Text>
-                    <Ionicons 
-                        name={"chevron-forward-outline"} 
-                        size={24} 
-                        style={styles.rightArrow}
-                        onPress={() => navigation.navigate('ApiScreen')}
+        <View>
+            <ScrollView style={styles.bottomContainer}>
+                    {/* Bottom section displaying list of foods */}
+                    <FlatList<Food>
+                        data={foodDetails}
+                        renderItem={renderItem}
+                        keyExtractor={(item) => item.name}
+                        contentContainerStyle={styles.foodList}
                     />
-                </View>
-            <View style={styles.macroView}> 
-                <View style={styles.macroRow}>
-                    <MacroButton
-                        title="Calories"
-                        textColor="#0E598D"
-                        borderColor="#0E598D"
-                        borderWidth={5}
-                        fontSize={16}
-                        width={100} 
-                    ></MacroButton>
-                    <MacroButton
-                        title="Protein" 
-                        textColor="#F2846C"
-                        borderColor="#F2846C"
-                        borderWidth={5}
-                        fontSize={16}
-                        width={100} 
-                    ></MacroButton>
-                    <MacroButton
-                        title="Carbs" 
-                        textColor="#088C7F"
-                        borderColor="#088C7F"
-                        borderWidth={5}
-                        fontSize={16}
-                        width={100} 
-                    ></MacroButton>
-                </View>
-                <View style={styles.macroRow}>
-                    <MacroButton
-                        title="Fat" 
-                        textColor="#AC2641"
-                        borderColor="#AC2641"
-                        borderWidth={5}
-                        fontSize={16}
-                        width={100} 
-                    ></MacroButton>
-                    <MacroButton
-                        title="Water" 
-                        textColor="black"
-                        borderColor="black"
-                        borderWidth={5}
-                        fontSize={16}
-                        width={100} 
-                    ></MacroButton>
-                </View>
-            </View> 
-            <View style={styles.dataBar}>
-                <Text style={styles.text}
-                    onPress={()  => navigation.navigate('Logged')}>Logged</Text>
-                <Text style={styles.text}
-                    onPress={()  => navigation.navigate('ApiScreen')}>Saved</Text>
-                <Text style={styles.textAdd}
-                    onPress={()  => navigation.navigate('Add')}>Add</Text>
-            </View>
+            </ScrollView>
         </View>
-        <ScrollView>
-            <View >
-                <AddFoodButton   
-                        title="Log Food Today" 
-                        textColor="white"
-                        backgroundColor="#088C7F"
-                        borderWidth={1}
-                        fontSize={16}
-                        width={150}
-                        onPress={printFoodLogged} 
-                />
-            {/* </View> */}
-            </View>
-        </ScrollView>
-</View>
     );
- };
- const styles = StyleSheet.create({
-    calendarNav: {
-        height: 40,
-        width: '100%', 
-        backgroundColor: 'lightgray',
-        flexDirection: 'row',
-        padding: 5,
-        alignItems: 'center',
-        position: 'relative',
-        justifyContent: 'center',
-    },
-    rightArrow: {
-        position: 'absolute',
-        right: 0,
-    }, 
-    leftArrow: {
-        position: 'absolute',
-        left: 0,
-    },
-    macroView: {
-        height: 220,
-        width: '100%',
-        backgroundColor: 'white', 
-    }, 
-    macroRow: {
-        flexDirection: 'row',
-        justifyContent: 'center', 
-    }, 
-    dataBar: {
-        height: 50,
-        width: '100%', 
-        backgroundColor: 'lightgray',
-        flexDirection: 'row',
-        padding: 5,
-        alignItems: 'center',
-        position: 'relative',
-        justifyContent: 'space-between',
-    }, 
-    text: {
-        padding: 10,
-    },
-    textAdd: {
-        padding: 10,
-        textDecorationLine: 'underline',
-        fontWeight: 'bold',
-    }
+};
 
+const styles = StyleSheet.create({
+    foodList :{
+        paddingBottom: 20, 
+    }, 
+    foodItemContainer: {
+        position: 'relative',
+        padding: 15, 
+        backgroundColor: 'white', 
+        borderBottomWidth: 1, 
+        borderColor: 'black',
+        alignItems: 'center',
+        flexDirection: 'row',
+    }, 
+    foodName: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    foodTextRight: {
+        position: 'absolute',
+        fontSize: 16, 
+        right: 5, 
+    },
+    bottomContainer: {
+        height: '100%',
+    }
 })
 
- export default Logged;
+export default FoodLogLoggedPage;

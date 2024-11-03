@@ -1,11 +1,17 @@
 import { TextInput, StyleSheet, ScrollView, Text, View, FlatList, Alert } from "react-native";
-import React,  { useEffect, useState } from 'react';
+import React,  { useContext, useEffect, useState } from 'react';
 import { useNavigation } from "@react-navigation/native";
 import MacroButton from "@/components/foodlog/MacroButton";
 import Logged from "./FoodLogLogged";
 import ApiScreen from "../ApiScreen";
 import { Ionicons } from "@expo/vector-icons";
-import FoodLogAddForm from "./FoodLogAdd";
+import { GlobalContext } from "@/context/GlobalContext";
+import { httpRequests } from "@/api/httpRequests";
+import { ThemedText } from "@/components/ThemedText";
+import { Swipeable } from "react-native-gesture-handler";
+import LogFoodButton from "@/components/foodlog/FoodLogButton";
+import AddFoodButton from "@/components/foodlog/AddFoodButton";
+
 
 interface Food {
     id: number;
@@ -18,221 +24,146 @@ interface Food {
     isDelted: boolean;
 }
 
-const FoodItem: React.FC<{ food: Food }> =  ({ food }) => (
-    <View style = {styles.foodItemContainer}>
-        <Text style={styles.foodText}>{food.name}</Text>
-        <Text style={styles.foodText}>Calories: {food.calories}</Text>
-    </View>
-);
-
-const FoodLogSavedScreen = () => { 
-    const [foodDetails, setFoodDetails] = useState<Food[]>([]);
+const FoodItem: React.FC<{ food: Food }> =  ({ food }) => {
     const navigation = useNavigation();
+    return (
+    <LogFoodButton 
+        id={food.id}
+        name={food.name}
+        calories={food.calories}
+        protein={food.protein}
+        carbs={food.carbs}
+        fat={food.fat}
+        multiplier={food.multiplier}
+        textColor="black"
+        backgroundColor='white'
+        borderWidth={1}
+        fontSize={16}
+        width ='100%'
+        onPress={() => navigation.navigate('ApiScreen')}
+        />
+    )
+};
+
+const getFoodDetails = async (foodId: any) => {
+
+}
+
+const FoodLogSavedPage = () => { 
+    const [foodDetails, setFoodDetails] = useState<Food[]>([]);
+    const [totalCalories, setTotalCalories] = useState(0);
+    const [totalFat, setTotalFat] = useState(0);
+    const [totalCarbs, setTotalCarbs] = useState(0);
+    const [totalProtein, setTotalProtein] = useState(0);
+    const [totalWater, setTotalWater] = useState(0);
+
+    const context = useContext(GlobalContext);
+
     // Function to fetch food details based on the food ID
-    const fetchFoodDetails = async (foodID: any) => {
+    const fetchFoodIDs = async () => {
         try {
-            const response = await fetch(`https://ript-fitness-app.azurewebsites.net/nutritionCalculator/getFood/${foodID}`);
-            if (response.ok) {
-                const foodData = await response.json();
-                setFoodDetails(foodData);
-                return foodData;
+            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFoodIdsOfLoggedInUser`, {
+                method: 'GET', 
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${context?.data.token}`,
+                }
+            });
+            if (response.status === 200) {
+                const foodIDs = await response.json();
+                setFoodDetails(foodIDs);
+                console.log('Fetched food IDs: ', foodIDs);
+                
+                // handle fetching and displaying food details for all IDs 
+                const detailsArray = await Promise.all(foodIDs.map((id: number) => fetchingSingleFoodDetail(id)));
+
+                // Filter out any failed requests
+                const validDetails = detailsArray.filter((food) => food !== null);
+                validDetails.sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically by food name
+                setFoodDetails(validDetails);
             } else {
-                console.error('Failed to fetch food detaisl for ID: ', foodID);
+                console.error('Failed to fetch food details');
                 return null; 
             }
         } catch (error) {
             console.error('Error fetching food details: ', error);
         }
     }; 
-
-    // Function to handle detching and displaying food details for all IDs
-    const displayFoodItems = async () => {
+    const fetchingSingleFoodDetail = async (foodID: number) => {
         try {
-            // Get th arrau of food IDs from the PUT method 
-            const dayID = 13;
-            const putResponse = await fetch(`https://ript-fitness-app.azurewebsites.net/nutritionCalculator/getDay/${dayID}`, {
-                method: 'PUT', 
+            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFood/${foodID}`, {
+                method: 'GET', 
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json', 
+                    'Authorization': `Bearer ${context?.data.token}`,
                 }
             });
 
-            if (putResponse.ok) {
-                const responseData = await putResponse.json();
-                const foodIDs = responseData.foodIdsInFoodsEatenInDayList;
-
-                // Fetch details for each food ID that we want to display 
-                const foodDetailsArray = await Promise.all(foodIDs.map((id: any) => fetchFoodDetails(id)));
-
-                // Filter out any failed fetches and display results 
-                const validFoodDetails = foodDetailsArray.filter(food => food != null);
-
-                validFoodDetails.forEach(food => {
-                    console.log(`Food: ${food.name}, Calories: ${food.calories}`);
-                });
+            if (response.status === 200) {
+                const foodData = await response.json();
+                console.log(`Fetched details for food ID ${foodID}: `, foodData);
+                return foodData; 
             } else {
-                console.error('PUT request failed');
+                console.error(`Failed to fetch details for food ID: ${foodID}`);
+                return null;
             }
         } catch (error) {
-            console.error('Error handling food display:', error);
+            console.error(`Error fetching details for food ID ${foodID}:`, error);
+            return null;
         }
     };
 
+
     useEffect(() => {
-        displayFoodItems();
+        fetchFoodIDs();
     }, []);
+
+    const renderItem = ({ item }:{item: Food}) => <FoodItem food={item} />;
 
 
     return(
-// {/* THIS IS THE NEW STUFF FOR THE ADD PAGE*/}
-<View>
-<View>
-    {/* Top section with navigation and macro buttons */}
-                <View style={styles.calendarNav}>
-                    <Ionicons 
-                        name={"chevron-back-outline"} 
-                        size={24} 
-                        style={styles.leftArrow}
-                        //onPress={() => navigation.navigate(ApiScreen)}
-                />
-                    <Ionicons name={"calendar-clear-outline"} size={24}></Ionicons>
-                    {/* This will be "today" when it is the current date, if not it will display the date of the data they are viewing*/}
-                    <Text>Today</Text>
-                    <Ionicons 
-                        name={"chevron-forward-outline"} 
-                        size={24} 
-                        style={styles.rightArrow}
-                        //onPress={() => navigation.navigate(ApiScreen)}
+        <View>
+            <ScrollView style={styles.bottomContainer}>
+                    {/* Bottom section displaying list of foods */}
+                    <FlatList
+                        data={foodDetails}
+                        renderItem={renderItem}
+                        keyExtractor={(item) => item.name}
+                        contentContainerStyle={styles.foodList}
                     />
-                </View>
-            <View style={styles.macroView}> 
-                <View style={styles.macroRow}>
-                    <MacroButton
-                        title="Calories"
-                        textColor="#0E598D"
-                        borderColor="#0E598D"
-                        borderWidth={5}
-                        fontSize={16}
-                        width={100} 
-                    ></MacroButton>
-                    <MacroButton
-                        title="Protein" 
-                        textColor="#F2846C"
-                        borderColor="#F2846C"
-                        borderWidth={5}
-                        fontSize={16}
-                        width={100} 
-                    ></MacroButton>
-                    <MacroButton
-                        title="Carbs" 
-                        textColor="#088C7F"
-                        borderColor="#088C7F"
-                        borderWidth={5}
-                        fontSize={16}
-                        width={100} 
-                    ></MacroButton>
-                </View>
-                <View style={styles.macroRow}>
-                    <MacroButton
-                        title="Fat" 
-                        textColor="#AC2641"
-                        borderColor="#AC2641"
-                        borderWidth={5}
-                        fontSize={16}
-                        width={100} 
-                    ></MacroButton>
-                    <MacroButton
-                        title="Water" 
-                        textColor="black"
-                        borderColor="black"
-                        borderWidth={5}
-                        fontSize={16}
-                        width={100} 
-                    ></MacroButton>
-                </View>
-            </View> 
-            <View style={styles.dataBar}>
-                <Text style={styles.text}
-                    // onPress={()  => navigation.navigate(Logged)}
-                    >Logged</Text>
-                <Text style={styles.text}
-                    // onPress={()  => navigation.navigate('ApiScreen')}
-                    >Saved</Text>
-                <Text style={styles.textAdd}
-                    // onPress={()  => navigation.navigate(FoodLogAddForm)}
-                    >Add</Text>
-            </View>
-    </View>
-    <View> 
-            {/* Bottom section displaying list of foods */}
-            <FlatList
-                data={foodDetails}
-                renderItem={({item}) => <FoodItem food={item} />}
-                keyExtractor={(item) => item.name.toString()}
-                contentContainerStyle={styles.foodList}
-            />
-    </View>
-
-</View>
-
-            );
-    };
+            </ScrollView>
+        </View>
+    );
+};
 
 const styles = StyleSheet.create({
-    calendarNav: {
-        height: 40,
-        backgroundColor: 'lightgray',
-        flexDirection: 'row',
-        alignItems: 'center',
-        position: 'relative',
-        justifyContent: 'center',
-        padding: 5,
-    },
-    rightArrow: {
-        position: 'absolute',
-        right: 0,
-    }, 
-    leftArrow: {
-        position: 'absolute',
-        left: 0,
-    },
-    macroView: {
-        height: 220,
-        backgroundColor: 'white', 
-    }, 
-    macroRow: {
-        flexDirection: 'row',
-        justifyContent: 'center', 
-    }, 
-    dataBar: {
-        height: 50,
-        backgroundColor: 'lightgray',
-        flexDirection: 'row',
-        padding: 5,
-        alignItems: 'center',
-        position: 'relative',
-        justifyContent: 'space-between',
-    }, 
-    text: {
-        padding: 10,
-    },
-    textAdd: {
-        padding: 10,
-        textDecorationLine: 'underline',
-        fontWeight: 'bold',
-    },
     foodList :{
         paddingBottom: 20, 
     }, 
     foodItemContainer: {
-        padding: 15, 
-        backgroundColor: 'lightgrey', 
+        position: 'relative',
+        padding: 30, 
+        backgroundColor: 'white', 
         borderBottomWidth: 1, 
         borderColor: 'black',
+        alignItems: 'center',
+        flexDirection: 'row',
     }, 
-    foodText: {
-        fontSize: 16, 
+    foodName: {
+        position: 'absolute',
+        fontSize: 16,
+        fontWeight: 'bold',
+        left: 10, 
     },
+    foodTextRight: {
+        position: 'absolute',
+        fontSize: 16, 
+        right: 10, 
+    },
+    bottomContainer: {
+        paddingBottom: 29,
+        height: '100%',
+    }
 })
 
-export default FoodLogSavedScreen;
+export default FoodLogSavedPage;
