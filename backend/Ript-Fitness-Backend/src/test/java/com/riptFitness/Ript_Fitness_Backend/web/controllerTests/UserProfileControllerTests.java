@@ -70,7 +70,7 @@ public class UserProfileControllerTests {
 
     @Test
     public void testGetUserProfile() throws Exception {
-        when(userProfileService.getUserByUsername("tom.van")).thenReturn(userDto);
+        when(userProfileService.getUserByUsername(any(String.class))).thenReturn(userDto);
 
         mockMvc.perform(get("/userProfile/getUserProfile")
                 .header("Authorization", token)
@@ -95,7 +95,7 @@ public class UserProfileControllerTests {
     @Test
     public void testDeleteUserProfile() throws Exception {
         userDto.isDeleted = true;
-        when(userProfileService.softDeleteUserByUsername("tom.van")).thenReturn(userDto);
+        when(userProfileService.softDeleteUserByUsername(any(String.class))).thenReturn(userDto);
 
         mockMvc.perform(delete("/userProfile/deleteUserProfile")
                 .header("Authorization", token)
