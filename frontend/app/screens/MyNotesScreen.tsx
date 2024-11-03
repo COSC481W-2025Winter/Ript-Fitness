@@ -12,7 +12,6 @@ type MyNotesScreenNavigationProp = StackNavigationProp<WorkoutStackParamList, 'M
 
 export default function MyNotesScreen() {
   const { notes } = useNotes();
-  console.log("Current notes:", notes);
   const { width } = Dimensions.get('window');
   const navigation = useNavigation<MyNotesScreenNavigationProp>();
 
@@ -33,11 +32,12 @@ export default function MyNotesScreen() {
           }}
         />
       </View>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{alignItems:"center", width:"100%"}} style={styles.scroll}>
         {notes.length === 0 ? (
           <Text>Notes will be displayed here</Text>
         ) : (
-          notes.map((note: NoteType) => (
+          <View style={styles.notesContainer}>
+          {notes.map((note: NoteType) => (
             <Note 
               key={note.id} 
               title={note.title} 
@@ -45,7 +45,8 @@ export default function MyNotesScreen() {
               text={note.text} 
               onPress={() => navigation.navigate("EditNoteScreen", { note })}
             />
-          ))
+          ))}
+          </View>
         )}
         </ScrollView>
     </View>
@@ -53,7 +54,17 @@ export default function MyNotesScreen() {
 }
 
 const styles = StyleSheet.create({
+  scroll: {
+    width:"100%",
+  },
+  notesContainer:{
+    flex:1,
+    flexDirection:"row",
+    flexWrap:"wrap",
+    justifyContent: "space-evenly", // Space items evenly
+  },
   container: {
+    width:"100%",
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center'

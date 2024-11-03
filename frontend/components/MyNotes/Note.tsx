@@ -85,11 +85,9 @@ const Note: React.FC<NoteProps> = ({ title, date, text, onPress }) => {
 
 const styles = StyleSheet.create({
   container: {
-    // flexDirection: 'row', 
-    // flexWrap: 'wrap',
     // justifyContent: 'flex-start', 
     gap: 20,
-    width: '100%',
+    width: '50%',
     paddingTop: 15,
   },
   button: {
@@ -97,8 +95,7 @@ const styles = StyleSheet.create({
     padding: 5, 
     marginHorizontal: 10,
     borderRadius: 10,
-    width: 150,
-    height: 125, 
+    flex:1,
     borderWidth: 2,
     borderColor: '#DAD19D',
   }, 
