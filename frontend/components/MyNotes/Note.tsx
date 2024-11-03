@@ -1,71 +1,93 @@
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
-import { useNavigation } from '@react-navigation/native';
 
+interface NoteProps {
+  title: string;
+  date: string;
+  text: string;
+  onPress: () => void;
+}
 
-
-const Note = () => {
-  const navigation = useNavigation();
-
-  const notesData = [
-    {
-      title: 'Push',
-      date: '10/22/2024',
-      items: ['Bench Press', 'Shoulder Press', 'Tricep Dip'],
-    },
-    {
-      title: 'Pull',
-      date: '10/19/2024',
-      items: ['Pull-Up', 'Bent Over Row', 'Bicep Curl'],
-    },
-    {
-      title: 'Legs',
-      date: '10/15/2024',
-      items: ['Squats', 'Leg Press', 'Calf Raises'],
-    },
-    {
-      title: 'Glutes',
-      date: '10/11/2024',
-      items: ['RDLs', 'Hip Thrusts', 'Step Ups'],
-    },
-    {
-      title: 'Quads',
-      date: '10/2/2024',
-      items: ['Leg Press', 'Goblet Squats', 'Quad extension'],
-    },
-  ];
+const Note: React.FC<NoteProps> = ({ title, date, text, onPress }) => {
+  // const notesData = [
+  //   {
+  //     title: 'Test',
+  //     date: '10/22/2024',
+  //     text: 'This is a test note.',
+  //   },
+  //   {
+  //     title: 'Title',
+  //     date: '10/19/2024',
+  //     text: 'Note',
+  //   },
+  //   {
+  //     title: 'Title',
+  //     date: '10/15/2024',
+  //     text: 'Note',
+  //   },
+  //   {
+  //     title: 'Title',
+  //     date: '10/11/2024',
+  //     text: 'Note',
+  //   },
+  //   {
+  //     title: 'Title',
+  //     date: '10/2/2024',
+  //     text: 'Note',
+  //   },
+  // ];
 
   return (
+    // <View style={styles.container}>
+    //   {notesData.map((note, index) => (
+    //     <TouchableOpacity 
+    //       key={index}
+    //       activeOpacity={0.7}
+    //       // onPress={() => navigation.navigate('WorkoutApiScreen')}
+    //       style={styles.button}>
+    //       <View style={styles.buttonContent}>
+    //         <Text style={styles.titleText}>
+    //           {note.title}
+    //         </Text>
+    //         <View style={styles.noteTextContainer}>
+    //           <Text style={styles.noteText}>
+    //             {note.text}
+    //           </Text>
+    //           <Text style={styles.dateText}>
+    //             {note.date}
+    //           </Text>
+    //         </View>
+    //       </View>
+    //     </TouchableOpacity>
+    //   ))}
+    // </View>
     <View style={styles.container}>
-      {notesData.map((note, index) => (
-        <TouchableOpacity 
-          key={index}
-          activeOpacity={0.7}
-          // onPress={() => navigation.navigate('WorkoutApiScreen')}
-          style={styles.button}>
-          <View style={styles.buttonContent}>
-            <Text style={styles.titleText}>
-              {note.title}
+      <TouchableOpacity 
+        onPress={onPress} 
+        style={styles.button}
+      >
+        <View style={styles.buttonContent}>
+          <Text style={styles.titleText}>
+            {title}
+          </Text>
+          <View style={styles.noteTextContainer}>
+            <Text style={styles.noteText}>
+              {text}
             </Text>
-            <View style={styles.itemsContainer}>
-              {note.items.map((item, itemIndex) => (
-                <Text key={itemIndex} style={styles.bulletText}>
-                  {`\u2022 ${item}`}  {/* Bullet point */}
-                </Text>
-              ))}
-              <Text style={styles.dateText}>{note.date}</Text>
-            </View>
+            <Text style={styles.dateText}>
+              {date}
+            </Text>
           </View>
-        </TouchableOpacity>
-      ))}
+        </View>
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row', 
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start', 
+    // flexDirection: 'row', 
+    // flexWrap: 'wrap',
+    // justifyContent: 'flex-start', 
     gap: 20,
     width: '100%',
     paddingTop: 15,
@@ -73,37 +95,39 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: '#FFF3AD', 
     padding: 5, 
+    marginHorizontal: 10,
     borderRadius: 10,
     width: 150,
-    height: 160, 
+    height: 125, 
     borderWidth: 2,
     borderColor: '#DAD19D',
-}, 
-buttonContent: {
-    height: '100%',
-    width: '100%',
-}, 
-dateText: {
-    fontSize: 12, 
+  }, 
+  buttonContent: {
+      height: '100%',
+  }, 
+  dateText: {
+      fontSize: 12, 
+      textAlign: 'left',
+      paddingTop: 10,
+      color: '#454343',
+  },
+  noteText: {
+    fontSize: 14, 
     textAlign: 'left',
-    paddingTop: 10,
-    color: '#454343',
-},
-bulletText: {
-  fontSize: 16, 
-  textAlign: 'left',
-  paddingBottom: 5,
-},
-titleText: {
-  textAlign: 'center',
-  color: 'black',
-  fontSize: 24,
-  padding: 10, 
-  fontWeight: 'bold',
-},
-itemsContainer: {
-  paddingHorizontal: 5, 
-},
+    paddingBottom: 5,
+  },
+  titleText: {
+    textAlign: 'center',
+    color: '#1D1B20',
+    fontSize: 20,
+    padding: 10, 
+    fontWeight: 'bold',
+  },
+  noteTextContainer: {
+    justifyContent: 'space-between',
+    flex: 1,
+    paddingHorizontal: 5, 
+  },
 });
 
 export default Note;

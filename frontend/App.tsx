@@ -21,6 +21,7 @@ import ApiScreen from '@/app/screens/ApiScreen';
 import WelcomeScreen from '@/app/screens/WelcomeScreen';
 import LoginScreen from '@/app/screens/LoginScreen';
 import SignupScreen from '@/app/screens/SignupScreen';
+import { NotesProvider } from './components/MyNotes/NotesContext';
 
 
 // Define types for the navigation stack
@@ -83,36 +84,36 @@ export default function App() {
 
   return (
     <GlobalProvider>
+      <NotesProvider>
+        <StatusBar barStyle="default" />
 
-      <StatusBar barStyle="default" />
 
-
-    {/* {false ? */}
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{gestureEnabled: true }} initialRouteName="Welcome">  
-          <Stack.Screen 
-            options={{headerShown: false}}  
-            name="Welcome" component={WelcomeScreen} 
-          />
-          <Stack.Screen 
-            options={{headerShown: false}}  
-            name="Login" component={LoginScreen} 
-          />
-          <Stack.Screen 
-            options={{headerShown: false}}  
-            name="Signup" component={SignupScreen} 
-          />
-          <Stack.Screen 
-            options={{headerShown: false}} 
-            name="Home" 
-            component={MainApp} 
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-    {/* // :
-    // <SplashScreen />
-    <WelcomeScreen /> } */}
-
+      {/* {false ? */}
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={{gestureEnabled: true }} initialRouteName="Welcome">  
+            <Stack.Screen 
+              options={{headerShown: false}}  
+              name="Welcome" component={WelcomeScreen} 
+            />
+            <Stack.Screen 
+              options={{headerShown: false}}  
+              name="Login" component={LoginScreen} 
+            />
+            <Stack.Screen 
+              options={{headerShown: false}}  
+              name="Signup" component={SignupScreen} 
+            />
+            <Stack.Screen 
+              options={{headerShown: false}} 
+              name="Home" 
+              component={MainApp} 
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      {/* // :
+      // <SplashScreen />
+      <WelcomeScreen /> } */}
+      </NotesProvider>
     </GlobalProvider>
   );
 }

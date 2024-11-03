@@ -6,10 +6,11 @@ type CustomTextInputProps = {
   placeholderTextColor?: string;
   width?: number;
   style?: ViewStyle;
+  color?: string;
 } & TextInputProps; 
 
 
-const CustomTextInput: React.FC<CustomTextInputProps> = ({ placeholder, placeholderTextColor, width, style, ...props }) => {
+const CustomTextInput: React.FC<CustomTextInputProps> = ({ placeholder, placeholderTextColor, width, style, color, ...props }) => {
   const containerStyle: ViewStyle = {
     width:  width || '100%',
   };
@@ -17,7 +18,7 @@ const CustomTextInput: React.FC<CustomTextInputProps> = ({ placeholder, placehol
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <TextInput
-        style={[styles.input, containerStyle, style]} 
+        style={[styles.input, containerStyle, style, { color }]} 
         placeholder={placeholder}
         placeholderTextColor={placeholderTextColor}
         {...props} 

@@ -12,7 +12,8 @@ import StartWorkoutScreen from '../screens/StartWorkoutScreen';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation } from '@react-navigation/native';
 import MyNotesScreen from '../screens/MyNotesScreen';
-
+import EditNoteScreen from '@/app/screens/notes/EditNoteScreen';
+import { Note } from '@/components/MyNotes/NotesContext';
 
 
 const Stack = createStackNavigator();
@@ -25,6 +26,7 @@ export type WorkoutStackParamList = {
   AddWorkoutScreen: {};
   MyWorkoutsScreen: {};
   MyNotesScreen: {};
+  EditNoteScreen: { note:Note | null };
 };
 
 export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamList>;
@@ -37,8 +39,37 @@ export default function WorkoutStack(props : any) {
       <Stack.Screen name="WorkoutApiScreen" component={WorkoutApiScreen} options={{ headerShown: true }}/>
       <Stack.Screen name="ApiScreen" component={ApiScreen} />
       <Stack.Screen name="StartWorkoutScreen" component={StartWorkoutScreen} />
-      <Stack.Screen name="MyWorkoutsScreen" component={MyWorkoutsScreen} />
-      {/* <Stack.Screen name="MyNotesScreen" component={MyNotesScreen} options={{ title: 'My Notes' }} /> */}
+      <Stack.Screen name="MyWorkoutsScreen" component={MyWorkoutsScreen} options={{ title: 'My Workouts',
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => { navigation.navigate("WorkoutApiScreen", {}) }}
+            style={[styles.leftButton, styles.button, styles.buttonSize]}>
+            <TabBarIcon style={styles.leftArrow} name='arrow-down' size={30} color='#454343' />
+          </TouchableOpacity>
+        ),
+        headerTitleAlign: 'center',
+        }}
+      />
+
+      <Stack.Screen name="EditNoteScreen" component={EditNoteScreen} options={{ title: '',
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => { navigation.navigate("MyNotesScreen", {}) }}
+            style={[styles.leftButton, styles.button, styles.buttonSize]}>
+            <TabBarIcon style={styles.leftArrow} name='arrow-down' size={30} color='#454343' />
+          </TouchableOpacity>
+        ),
+        headerRight: () => (
+          <TouchableOpacity
+            // onPress={() => { navigation.navigate("WorkoutApiScreen", {}) }}
+            style={[styles.rightButton, styles.button, styles.buttonSize]}
+          >
+            <TabBarIcon name='trash-outline' size={30} color='#454343' />
+          </TouchableOpacity>
+        ),
+        headerTitleAlign: 'center',
+        }}
+      />
 
       <Stack.Screen name="AddWorkoutScreen" component={AddWorkoutScreen} options={{ title: 'Add Workout',
         headerLeft: () => (
@@ -59,7 +90,7 @@ export default function WorkoutStack(props : any) {
             onPress={() => { navigation.navigate("ApiScreen", {}) }}
             style={[styles.rightButton, styles.button, styles.buttonSize]}
           >
-            <TabBarIcon name='add-circle-outline' size={30} color='#454343' />
+            <TabBarIcon name='add-outline' size={30} color='#454343' />
           </TouchableOpacity>
         ),
         headerTitleAlign: 'center',
@@ -73,15 +104,18 @@ export default function WorkoutStack(props : any) {
             <TabBarIcon style={styles.leftArrow} name='arrow-down' size={30} color='#454343' />
           </TouchableOpacity>
         ),
-        // headerTitle: () => (
-        //   <View style={styles.headerTitleView}>
-        //     <ThemedText style={styles.title}>My Notes</ThemedText>
-        //   </View>
-        // ),
-        // <Svg ... /> commented out
         headerRight: () => (
           <TouchableOpacity
-            onPress={() => { navigation.navigate("ApiScreen", {}) }}
+            // onPress={() => { 
+            //   navigation.navigate("EditNoteScreen", { 
+            //     note: {  
+            //       id: Date.now().toString(), 
+            //       title: '', 
+            //       text: '', 
+            //       date: new Date().toLocaleDateString() }
+            //   });
+            // }}
+            onPress={() => navigation.navigate("EditNoteScreen", { note: null })} //has error but is the only thing that works
             style={[styles.rightButton, styles.button, styles.buttonSize]}
           >
             <TabBarIcon name='create-outline' size={30} color='#454343' />
