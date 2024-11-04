@@ -8,6 +8,9 @@ async function getBaseUrl() {
 }
 
 export class httpRequests {
+  static getBaseURL() {
+    return USE_LOCAL === 'true' ? `http://${LOCAL_IP}` : Azure_URL;
+  }
 
   // Method to handle GET requests and return JSON
 static async get(endpoint: string, data? : Record<string, any>): Promise<any> { 
