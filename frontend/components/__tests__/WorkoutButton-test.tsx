@@ -48,6 +48,6 @@ describe('PreCreatedWorkoutButton', () => {
     // Test navigation for one of the buttons
     const firstButton = getByText('Push Day 1');
     fireEvent.press(firstButton);
-    expect(mockNavigate).toHaveBeenCalledWith('Social');
+    expect(mockNavigate).toHaveBeenCalledWith('SocialFeed');
   });
 });

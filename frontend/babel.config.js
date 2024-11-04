@@ -10,6 +10,12 @@ module.exports = function (api) {
           path: ".env",
         },
       ],
+      [
+        "babel-plugin-inline-import",
+        {
+          extensions: [],
+        },
+      ],
     ],
   };
 };

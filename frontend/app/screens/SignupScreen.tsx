@@ -1,7 +1,7 @@
 import CustomButton from '@/components/custom/CustomButton';
 import CustomTextInput from '@/components/custom/CustomTextInput';
 import LogoImage from '@/components/custom/LogoImage';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity, Dimensions } from 'react-native'
 
@@ -9,6 +9,7 @@ import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Tou
 import { RootStackParamList } from '../../App';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { httpRequests } from '@/api/httpRequests';
+import { GlobalContext } from '@/context/GlobalContext';
 
 
 type SignupScreenProps = NativeStackScreenProps<RootStackParamList, 'Signup'>;
@@ -20,7 +21,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
+  const context = useContext(GlobalContext)
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -53,6 +54,8 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
   
       // Success case
       if (response.status === 201) {
+        const text = await response.text()
+        await context?.setToken(text)
         navigateToMainApp(); // Navigate to the main app on successful signup
       } else {
         // Failure case

@@ -17,19 +17,19 @@ describe('GraphScreen', () => {
     const { getByText, getByTestId } = render(<GraphScreen />);
 
     const weekButton = getByText('Week');
-    expect(weekButton.parent?.props.style).toContainEqual({ backgroundColor: '#60A5FA' });
+    expect(weekButton.parent?.props.style).toEqual([{"color": "#4B5563", "fontSize": 14}, {"color": "#fff", "fontWeight": "bold"}]);
 
     const monthButton = getByText('Month');
     fireEvent.press(monthButton);
 
-    expect(monthButton.parent?.props.style).toContainEqual({ backgroundColor: '#60A5FA' });
+    expect(monthButton.parent?.props.style).toEqual( [{"color": "#4B5563", "fontSize": 14}, {"color": "#fff", "fontWeight": "bold"}]);
 
-    expect(weekButton.parent?.props.style).not.toContainEqual({ backgroundColor: '#60A5FA' });
+    expect(weekButton.parent?.props.style).not.toEqual([{"color": "#4B5563", "fontSize": 14}, {"color": "#fff", "fontWeight": "bold"}]);
 
     const yearButton = getByText('Year');
     fireEvent.press(yearButton);
 
-    expect(yearButton.parent?.props.style).toContainEqual({ backgroundColor: '#60A5FA' });
+    expect(yearButton.parent?.props.style).toEqual([{"color": "#4B5563", "fontSize": 14}, {"color": "#fff", "fontWeight": "bold"}]);
 
     expect(monthButton.parent?.props.style).not.toContainEqual({ backgroundColor: '#60A5FA' });
   });
