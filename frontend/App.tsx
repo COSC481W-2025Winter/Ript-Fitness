@@ -73,6 +73,7 @@ function MainApp() {
                   tabBarIcon: ({ focused, size, color }) => (
                     <Ionicons name={focused ? 'person' : 'person-outline'} size={size} color={color} />
                   ),
+                  headerShown:false,
                 }}/>
     </Tab.Navigator>
   );

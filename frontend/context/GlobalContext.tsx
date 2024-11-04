@@ -1,11 +1,11 @@
 // ContactsContext.tsx
-import React, { createContext, useState, ReactNode } from 'react';
+import React, { createContext, useState, ReactNode, useEffect } from 'react';
 
 
 // Put any data that needs to be accessible from multiple tabs here.
 //for example, session_id, as most (if not all) of our api requests should include a session id. (excluding logging in)
 export interface GlobalData {
-    session_id: string;
+    token: string;
     //tabs_loaded : { socialTab: boolean, workoutTab: boolean, bodyTab: boolean, profileTab: boolean}
     // ... other fields
   }
@@ -20,6 +20,7 @@ interface GlobalContextType {
   updateGlobalData: (updatedData: GlobalData) => void;
   isLoaded: boolean;
   loadInitialData: () => void;
+  setToken: (token: string) => void;
 }
 
 //Create and export the context based on our ContextType
@@ -35,11 +36,24 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
   const [isLoaded, setIsLoaded] = useState(false)
   //build the data, I believe this would usually be an API request
   const [data, setData] = useState<GlobalData>(
-     { session_id: "FakeSessionIdHere02u342" } );
+     { token: "FakeSessionIdHere02u342" } );
 
   const updateGlobalData = (updatedData: GlobalData) => {
     setData(updatedData); 
   };
+
+  const setToken = (token1: string) => {
+    console.log("Changing token to: " + token1);
+    setData((prevData) => ({
+      ...prevData,
+      token: token1,
+    }));
+  };
+
+  // Track changes to `data` and log the new value
+  useEffect(() => {
+    console.log("Updated token:", data.token);
+  }, [data]); // Run whenever `data` changes
 
   const loadInitialData = async () => {
     await Promise.all([
@@ -72,7 +86,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
   }
 
   return (
-    <GlobalContext.Provider value={{ data, updateGlobalData, loadInitialData, isLoaded }}>
+    <GlobalContext.Provider value={{ data, updateGlobalData, loadInitialData, isLoaded, setToken }}>
       {children}
     </GlobalContext.Provider>
   );

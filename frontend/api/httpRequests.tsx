@@ -1,13 +1,14 @@
+import { GlobalContext } from '@/context/GlobalContext';
 import { USE_LOCAL, LOCAL_IP } from '@env';
+import { useContext } from 'react';
 
 const Azure_URL = 'https://ript-fitness-app.azurewebsites.net';
 const BASE_URL = USE_LOCAL === 'true' ? `http://${LOCAL_IP}` : Azure_URL;
 
-async function getBaseUrl() {
+export class httpRequests {
+static getBaseURL() {
   return USE_LOCAL === 'true' ? `http://${LOCAL_IP}` : Azure_URL;
 }
-
-export class httpRequests {
 
   // Method to handle GET requests and return JSON
 static async get(endpoint: string, data? : Record<string, any>): Promise<any> { 
@@ -52,18 +53,21 @@ static jsonToQueryString(obj?: Record<string, any>): string {
 
   return `?${queryString}`;
 }
-
 // Method to handle POST requests and return Response
 static async post(endpoint: string, data: Record<string, any>): Promise<Response> {
   try {
+    const context: any = useContext(GlobalContext);
+    console.log(context?.data.token)
+    console.log("1")
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'POST', // Set method to POST
       headers: {
         'Content-Type': 'application/json', // Set content type to JSON
+        "Authorization": `Bearer ${context?.data.token}`,
       },
       body: JSON.stringify(data), // Convert the data to a JSON string
     });
-
+    console.log("2")
     return response; // Return the full response object
   } catch (error) {
     console.error('POST request failed:', error);

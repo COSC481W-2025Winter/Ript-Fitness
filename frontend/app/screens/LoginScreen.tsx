@@ -1,7 +1,7 @@
 import CustomButton from '@/components/custom/CustomButton';
 import CustomTextInput from '@/components/custom/CustomTextInput';
 import LogoImage from '@/components/custom/LogoImage';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Dimensions, TouchableOpacity } from 'react-native'
 
@@ -9,6 +9,7 @@ import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Dim
 import { RootStackParamList } from '../../App';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { httpRequests } from '@/api/httpRequests';
+import { GlobalContext } from '@/context/GlobalContext';
 
 
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
@@ -20,7 +21,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
+  const context = useContext(GlobalContext)
 
   // Hiding password when typing
   const toggleShowPassword = () => {
@@ -45,6 +46,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   
       // Check if the request was successful
       if (response.status === 200) {
+        const text = await response.text()
+        console.log(text)
+        console.log(context)
+        await context?.setToken(text)
         navigateToMainApp(); // Navigate to the main app on success
       } else {
         // Attempt to read the error message from the response body
