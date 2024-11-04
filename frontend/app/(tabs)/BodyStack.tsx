@@ -10,7 +10,6 @@ import ApiScreen from '@/app/screens/ApiScreen';
 import { useContext } from 'react';
 import { GlobalContext } from '@/context/GlobalContext';
 import GraphScreen from '../screens/profile/GraphScreen';
-import foodLog from '@/app/screens/foodlog/FoodLog';
 
 
 
@@ -20,7 +19,7 @@ export default function BodyStack(props : any) {
   return (
     <BodyProvider>
     <Stack.Navigator initialRouteName="MyHomeScreen123" screenOptions={{ headerShown: true }}>
-      <Stack.Screen name="Graph" component={foodLog} />
+      <Stack.Screen name="Graph" component={GraphScreen} />
       {/* Put any additional screens for your tab here. This allows us to use a stack.
         A stack allows us to easily navigate back a page when we're in a secondary screen on a certain tab.
       */}

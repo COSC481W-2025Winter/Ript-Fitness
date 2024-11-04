@@ -26,6 +26,21 @@ public class ExerciseService {
 		this.accountsService = accountsService;
 		this.accountsRepository = accountsRepository;
 	}
+	
+	// Method to get a list of all excersises from logged in user:
+	public List<ExerciseDto> getExercisesFromCurrentUser() {
+		Long currentUserId = accountsService.getLoggedInUserId();
+		
+		List<ExerciseModel> listOfExercises = exerciseRepository.findByAccountIdAndNotDeleted(currentUserId);
+		
+		List<ExerciseDto> listOfExercises2 = new ArrayList<>();
+		for(ExerciseModel exercise : listOfExercises) {
+			ExerciseDto exercise2 = ExerciseMapper.INSTANCE.convertToDto(exercise);
+			listOfExercises2.add(exercise2);
+		}
+		
+		return listOfExercises2;
+	}
 
 	// Method to add a new exercise:
 	public ExerciseDto addExercise(ExerciseDto exerciseDto) {

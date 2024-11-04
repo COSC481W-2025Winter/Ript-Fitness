@@ -7,27 +7,33 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.StreakMapper;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Streak;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.StreakRepository;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.StreakDto;
 
-import java.time.Clock;
 
 @Service
 public class StreakService {
 	
 	private StreakRepository streakRepository;
+	private final AccountsService accountsService;
+	private final AccountsRepository accountsRepository;
 	
-	public StreakService(StreakRepository streakRepository) {
+	public StreakService(StreakRepository streakRepository, AccountsService accountsService, AccountsRepository accountsRepository) {
 		this.streakRepository = streakRepository;
+		this.accountsService = accountsService;
+		this.accountsRepository = accountsRepository;
 	}
 	
 
 	
-	public StreakDto updateStreak(Long id) {
-		Optional<Streak> optionalStr = streakRepository.findById(id);
+	public StreakDto updateStreak() {
+		Long currentUserId = accountsService.getLoggedInUserId();
+		Optional<Streak> optionalStr = streakRepository.findById(currentUserId);
 		if(optionalStr.isEmpty()) {
-			throw new RuntimeException("No streak found with id = " + id);
+			throw new RuntimeException("No streak found with id = " + currentUserId);
 		}
 		Streak streak = optionalStr.get();
 		StreakDto streakDto = StreakMapper.INSTANCE.toStreakDto(streak);
@@ -59,11 +65,12 @@ public class StreakService {
 		return StreakMapper.INSTANCE.toStreakDto(streak);
 	}
 	
-	public StreakDto getStreak(Long id) {
-		Optional<Streak> optionalStr = streakRepository.findById(id);
+	public StreakDto getStreak() {
+		Long currentUserId = accountsService.getLoggedInUserId();
+		Optional<Streak> optionalStr = streakRepository.findById(currentUserId);
 		
 		if(optionalStr.isEmpty()) {
-			throw new RuntimeException("No streak found with id = " + id);
+			throw new RuntimeException("No streak found with id = " + currentUserId);
 		}
 		Streak streak = optionalStr.get();
 		return StreakMapper.INSTANCE.toStreakDto(streak);
