@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import FlameIcon from '@/assets/images/streak_flame.svg';
+import FlameIcon from '../assets/images/streak_flame.svg';
 import { useStreak } from '@/context/StreakContext';
 
 const StreakCounter: React.FC = () => {
