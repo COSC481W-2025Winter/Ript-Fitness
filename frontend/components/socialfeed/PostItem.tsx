@@ -13,7 +13,15 @@ type PostItemType = {
     name: string;
     profilePicture: string;
   };
-  timestamp: string;
+  dateTimeCreated: string;
+  likes: string[];
+  comments: Array<{
+    id: string;
+    content: string;
+    postId: string;
+    accountId: string;
+    dateTimeCreated: string;
+  }>;
 };
 
 type ItemProps = {
@@ -22,15 +30,28 @@ type ItemProps = {
   onLikePress: () => void;
 };
 
-const formatTimestamp = (timestamp: string): string => {
-  const date = new Date(timestamp);
+const formatTimestamp = (dateTimeCreated: string): string => {
+  console.log("Original Timestamp:", dateTimeCreated);
+  
+  const trimmedTimestamp = dateTimeCreated.includes(".")
+    ? dateTimeCreated.split(".")[0] + "." + dateTimeCreated.split(".")[1].slice(0, 3)
+    : dateTimeCreated;
+
+  const date = new Date(trimmedTimestamp);
+  console.log("Date:", date);
+
+  if (isNaN(date.getTime())) {
+    console.warn("Invalid date:", trimmedTimestamp);
+    return "Invalid Date";
+  }
+
   return date.toLocaleString(undefined, {
     year: 'numeric',
     month: 'numeric',
     day: 'numeric',
     hour: 'numeric',
     minute: 'numeric',
-    hour12: true, //converts to 12 hour format
+    hour12: true,
   });
 };
 
@@ -90,12 +111,11 @@ const PostItem = ({ item, liked, onLikePress }: ItemProps) => {
             accessibilityLabel="Open comments"
             accessibilityHint="Opens the comments screen for this post"
             >
-            {/* Figure out sizing for chatbubble... */}
             <Ionicons name="chatbubble" color="#B1B6C0" size={23} />
             </TouchableOpacity>
             <Text style={styles.commentCounter}>9</Text>
           </View>
-          <Text style={styles.timestamp}>{formatTimestamp(item.timestamp)}</Text>
+          <Text style={styles.timestamp}>{formatTimestamp(item.dateTimeCreated)}</Text>
         </View>
         
       </View>

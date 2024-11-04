@@ -1,20 +1,24 @@
 import CustomButton from '@/components/custom/CustomButton';
 import CustomTextInput from '@/components/custom/CustomTextInput';
 import LogoImage from '@/components/custom/LogoImage';
-import React, { useContext, useState } from 'react';
+import React, { createContext, useState, ReactNode, useEffect, useContext} from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Dimensions, TouchableOpacity } from 'react-native'
 
+
 // Navigation imports
-import { RootStackParamList } from '../../App';
+import { RootScreenNavigationProp, RootStackParamList } from '../../App';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { httpRequests } from '@/api/httpRequests';
 import { GlobalContext } from '@/context/GlobalContext';
 
+import { useNavigation } from '@react-navigation/native';
+
+
 
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   const [showPassword, setShowPassword] = useState(false);
   const { width } = Dimensions.get('window');
   // const [email, setEmail] = useState('');
@@ -42,14 +46,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     const credentials = { username, password }; // Assuming these states are set
   
     try {
-      const response = await httpRequests.put("/accounts/login", credentials); // Ensure this matches your API
+      const response = await httpRequests.put("/accounts/login","", credentials); // Ensure this matches your API
   
       // Check if the request was successful
       if (response.status === 200) {
-        const text = await response.text()
-        console.log(text)
-        console.log(context)
-        await context?.setToken(text)
+
+        const text = await response.text();
+        await context?.setToken(text);
+
         navigateToMainApp(); // Navigate to the main app on success
       } else {
         // Attempt to read the error message from the response body
@@ -72,9 +76,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
     // After logging in, the user cannot go back to the previous screens
   const navigateToMainApp = () => {
+    console.log(navigation.getState());
     navigation.reset({
       index: 0,
-      routes: [{ name: 'Home' }],  // Only 'Home' will be in the stack
+      routes: [{ name:"Home"}],  // Only 'Home' will be in the stack
     });
   };
   
@@ -197,4 +202,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen; 
+export default LoginScreen;

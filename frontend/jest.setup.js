@@ -1,4 +1,18 @@
 // jest.setup.js
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// jest.setup.js
+
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+);
+import '@testing-library/jest-native/extend-expect';
+
+// Mock react-native-svg to prevent Jest from failing on SVG imports
+jest.mock('react-native-svg', () => require('react-native-svg-mock'));
+
+
+// jest.setup.js
 jest.mock('expo-modules-core', () => ({
     NativeModule: jest.fn(),
   }));
@@ -10,6 +24,14 @@ jest.mock('expo-modules-core', () => ({
   jest.mock('@expo/vector-icons', () => ({
     Ionicons: 'Ionicons',
   }));
+
+
+  jest.mock('@expo/vector-icons/Ionicons', () => {
+    return {
+      __esModule: true,
+      default: 'Ionicons',
+    };
+  });
 
   
   jest.mock('@react-navigation/native', () => {

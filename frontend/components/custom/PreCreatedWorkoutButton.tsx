@@ -1,9 +1,12 @@
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { SocialScreenNavigationProp } from '@/app/(tabs)/SocialStack';
 
-const PreCreatedWorkoutButton = () => {
-    const navigation = useNavigation();
+
+const PreCreatedWorkoutButton: React.FC = () => {
+    const navigation = useNavigation<SocialScreenNavigationProp >();
 
     const buttonTitles = ['Push Day 1', 'Pull Day 1', 'Back/bis', 'Legs: Glutes/Ham', 'Push (Summer)', 'Pull (Summer)', 'Legs (Summer)', 'Upper Body', 'Push Day 2', 'Pull Day 2'];
     return (
@@ -11,9 +14,9 @@ const PreCreatedWorkoutButton = () => {
             {buttonTitles.map((title, index) => (
                 <TouchableOpacity 
                     key={index}
-                    title={title}
-                    lastCompleted={"10/07/2024"}
-                    onPress={() => navigation.navigate('Social')}
+                    //title={title}
+                    //lastCompleted={"10/07/2024"}
+                    onPress={() => navigation.navigate('SocialFeed')}
                     style={styles.button}>
                     <View style={styles.buttonContent}>
                         <Text
@@ -54,7 +57,7 @@ const styles = StyleSheet.create({
         position: 'relative',
     }, 
     buttonContent: {
-        flexDirection: 'coulmn', 
+        flexDirection: 'column', 
         position: 'relative',
         height: '100%',
         width: '100%',

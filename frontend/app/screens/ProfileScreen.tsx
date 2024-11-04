@@ -8,6 +8,7 @@ import { httpRequests } from '@/api/httpRequests';
 import { GlobalContext } from '@/context/GlobalContext';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { ProfileScreenNavigationProp } from '../(tabs)/ProfileStack';
+import GraphScreen from './profile/GraphScreen';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -249,6 +250,7 @@ function PostsScreen() {
 }
 
 function ProgressScreen() {
+  const navigation = useNavigation<ProfileScreenNavigationProp>();
   let spacerKey = 100
   const renderCalendarDay = (day: number, month: number, year: number, type: number) => { 
     let myStyle;
@@ -348,7 +350,7 @@ function ProgressScreen() {
 
 
     <View style={styles.links}>
-        <TouchableOpacity style={styles.link}>
+        <TouchableOpacity style={styles.link} onPress={() => navigation.navigate(GraphScreen)}>
           <Text style={styles.linkText}>Graphs</Text>
           <Ionicons name="chevron-forward-outline" size={24} style={styles.linkIcon}/>
         </TouchableOpacity>
