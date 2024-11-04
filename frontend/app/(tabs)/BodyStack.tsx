@@ -4,11 +4,12 @@ import { Image, StyleSheet, Platform, ScrollView, View } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, HeaderStyleInterpolators } from '@react-navigation/stack';
 import { BodyProvider } from '@/context/BodyContext';
 import ApiScreen from '@/app/screens/ApiScreen';
 import { useContext } from 'react';
 import { GlobalContext } from '@/context/GlobalContext';
+import GraphScreen from '../screens/profile/GraphScreen';
 
 
 
@@ -17,8 +18,8 @@ const Stack = createStackNavigator();
 export default function BodyStack(props : any) {
   return (
     <BodyProvider>
-    <Stack.Navigator initialRouteName="MyHomeScreen123" screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="MyHomeScreen123" component={ApiScreen} />
+    <Stack.Navigator initialRouteName="MyHomeScreen123" screenOptions={{ headerShown: true }}>
+      <Stack.Screen name="Graph" component={GraphScreen} />
       {/* Put any additional screens for your tab here. This allows us to use a stack.
         A stack allows us to easily navigate back a page when we're in a secondary screen on a certain tab.
       */}

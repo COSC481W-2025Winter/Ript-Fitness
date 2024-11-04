@@ -1,7 +1,7 @@
 import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 
-import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
+import { createStackNavigator, StackNavigationProp, HeaderStyleInterpolators } from '@react-navigation/stack';
 import ApiScreen from '@/app/screens/ApiScreen';
 import MyWorkoutsScreen from '@/app/screens/MyWorkoutsScreen';
 import WorkoutApiScreen from '@/app/screens/WorkoutApiScreen';
@@ -11,6 +11,7 @@ import AddWorkoutScreen from '../screens/workout/AddWorkoutScreen';
 import StartWorkoutScreen from '../screens/StartWorkoutScreen';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation } from '@react-navigation/native';
+import StreakCounter from '@/components/StreakCounter';
 import MyNotesScreen from '../screens/MyNotesScreen';
 import EditNoteScreen from '@/app/screens/notes/EditNoteScreen';
 import { Note } from '@/components/MyNotes/NotesContext';
@@ -35,10 +36,18 @@ export default function WorkoutStack(props : any) {
   const navigation = useNavigation<WorkoutScreenNavigationProp >();
   return (
     <WorkoutProvider>
-    <Stack.Navigator initialRouteName="WorkoutApiScreen" screenOptions={{ headerShown: true }}>
+
+    <Stack.Navigator initialRouteName="WorkoutApiScreen" screenOptions={{ 
+      headerShown: true,
+      headerStyleInterpolator: HeaderStyleInterpolators.forNoAnimation,
+    }}>
       <Stack.Screen name="WorkoutApiScreen" component={WorkoutApiScreen} options={{ headerShown: true }}/>
-      <Stack.Screen name="ApiScreen" component={ApiScreen} />
-      <Stack.Screen name="StartWorkoutScreen" component={StartWorkoutScreen} />
+      <Stack.Screen name="ApiScreen" component={ApiScreen} options={{
+        headerRight: () => <StreakCounter />,
+      }} />
+      <Stack.Screen name="StartWorkoutScreen" component={StartWorkoutScreen} options={{
+        headerRight: () => <StreakCounter />,
+      }} />
       <Stack.Screen name="MyWorkoutsScreen" component={MyWorkoutsScreen} options={{ title: 'My Workouts',
         headerLeft: () => (
           <TouchableOpacity

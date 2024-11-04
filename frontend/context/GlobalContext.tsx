@@ -1,20 +1,14 @@
-// ContactsContext.tsx
-import React, { createContext, useState, ReactNode, useEffect } from 'react';
+
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-// Put any data that needs to be accessible from multiple tabs here.
-//for example, session_id, as most (if not all) of our api requests should include a session id. (excluding logging in)
+// Define the structure of your global data
 export interface GlobalData {
-    token: string;
-    //tabs_loaded : { socialTab: boolean, workoutTab: boolean, bodyTab: boolean, profileTab: boolean}
-    // ... other fields
-  }
-  
+  token: string;
+}
 
 
-  //All objects/functions being passed in this context.
-  //currently only a GlobalData object named "data"
-  //and a function to update the global data.
 interface GlobalContextType {
   data: GlobalData;
   updateGlobalData: (updatedData: GlobalData) => void;
@@ -23,9 +17,15 @@ interface GlobalContextType {
   setToken: (token: string) => void;
 }
 
-//Create and export the context based on our ContextType
-export const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
+const defaultGlobalContext: GlobalContextType = {
+  data: { token: '' },
+  updateGlobalData: () => {},
+  isLoaded: false,
+  loadInitialData: () => {},
+  setToken: () => {},
+};
 
+export const GlobalContext = createContext<GlobalContextType>(defaultGlobalContext);
 
 interface GlobalProviderProps {
   children: ReactNode;
@@ -33,13 +33,22 @@ interface GlobalProviderProps {
 
 export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
 
-  const [isLoaded, setIsLoaded] = useState(false)
-  //build the data, I believe this would usually be an API request
-  const [data, setData] = useState<GlobalData>(
-     { token: "FakeSessionIdHere02u342" } );
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [data, setData] = useState<GlobalData>({ token: '' });
+
 
   const updateGlobalData = (updatedData: GlobalData) => {
-    setData(updatedData); 
+    setData(updatedData);
+  };
+
+  const setToken = async (token: string) => {
+    console.log('Setting token:', token);
+    try {
+      await AsyncStorage.setItem('@token', token);
+      setData((prevData) => ({ ...prevData, token }));
+    } catch (error) {
+      console.error('Failed to save token:', error);
+    }
   };
 
   const setToken = (token1: string) => {
@@ -62,31 +71,59 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
       loadInitialSocialData(),
       loadInitialWorkoutData(),
     ]);
-    setIsLoaded(true)
-  }
+    setIsLoaded(true);
+  };
 
+  // Simulated data loading functions
   const loadInitialBodyData = async () => {
-    // Simulate an async operation like fetching data
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-  }
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  };
 
   const loadInitialProfileData = async () => {
-    // Simulate an async operation like fetching data
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-  }
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  };
 
   const loadInitialSocialData = async () => {
-    // Simulate an async operation like fetching data
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-  }
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  };
 
   const loadInitialWorkoutData = async () => {
-    // Simulate an async operation like fetching data
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-  }
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  };
+
+  useEffect(() => {
+    const loadToken = async () => {
+      try {
+        console.log('Loading token...');
+        const storedToken = await AsyncStorage.getItem('@token');
+        if (storedToken) {
+          console.log('Token loaded:', storedToken);
+          setData((prevData) => ({ ...prevData, token: storedToken }));
+        } else {
+          console.log('No token found');
+        }
+      } catch (error) {
+        console.error('Failed to load token:', error);
+      }
+    };
+
+    loadToken().catch((error) => {
+      console.error('Unhandled error in loadToken:', error);
+    });
+  }, []);
 
   return (
-    <GlobalContext.Provider value={{ data, updateGlobalData, loadInitialData, isLoaded, setToken }}>
+
+    <GlobalContext.Provider
+      value={{
+        data,
+        updateGlobalData,
+        loadInitialData,
+        isLoaded,
+        setToken,
+      }}
+    >
+
       {children}
     </GlobalContext.Provider>
   );

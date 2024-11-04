@@ -1,4 +1,15 @@
 // jest.setup.js
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// jest.setup.js
+
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+);
+
+
+
+// jest.setup.js
 jest.mock('expo-modules-core', () => ({
     NativeModule: jest.fn(),
   }));
@@ -11,12 +22,14 @@ jest.mock('expo-modules-core', () => ({
     Ionicons: 'Ionicons',
   }));
 
+
   jest.mock('@expo/vector-icons/Ionicons', () => {
     return {
       __esModule: true,
       default: 'Ionicons',
     };
   });
+
   
   jest.mock('@react-navigation/native', () => {
     return {

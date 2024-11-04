@@ -3,8 +3,9 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ThemedText } from '@/components/ThemedText';
 import SearchBar from '@/components/custom/CustomSearchBar';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLayoutEffect } from "react";
-import WorkoutButton from "@/components/custom/PreCreatedWorkoutButton";
+import React, { useLayoutEffect } from "react";
+import PreCreatedWorkoutButton from '@/components/custom/PreCreatedWorkoutButton'
+import StreakHeader from '@/components/StreakHeader';
 
 export default function MyWorkoutsScreen() {
   const SearchBarHeader = () => {
@@ -18,11 +19,12 @@ export default function MyWorkoutsScreen() {
 
   return (
     <View style= {styles.container}> 
+    <StreakHeader></StreakHeader>
       <SearchBarHeader></SearchBarHeader>
       <SafeAreaView style= {styles.safeView}>
         <ScrollView
           showsVerticalScrollIndicator={false}>
-          <WorkoutButton></WorkoutButton>
+          <PreCreatedWorkoutButton></PreCreatedWorkoutButton>
         </ScrollView>
       </SafeAreaView>
     </View>
