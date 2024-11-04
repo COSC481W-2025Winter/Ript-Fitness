@@ -1,6 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.web.controllerTests;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -19,10 +20,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.riptFitness.Ript_Fitness_Backend.config.JwtUtil;
+import com.riptFitness.Ript_Fitness_Backend.config.SecurityConfig;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Day;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Food;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.NutritionTrackerService;
@@ -31,6 +37,8 @@ import com.riptFitness.Ript_Fitness_Backend.web.dto.DayDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.FoodDto;
 
 @WebMvcTest(NutritionTrackerController.class)
+@ActiveProfiles("test")
+@Import(SecurityConfig.class)
 public class NutritionTrackerControllerTest {
 	
 	@Autowired
@@ -41,6 +49,13 @@ public class NutritionTrackerControllerTest {
 	
 	@Autowired
 	private ObjectMapper objectMapper;
+	
+	@MockBean
+    private JwtUtil jwtUtil;
+
+    @MockBean
+    private UserDetailsService userDetailsService;
+
 	
 	private FoodDto foodDto;
 	private FoodDto foodDtoTwo;
@@ -85,9 +100,11 @@ public class NutritionTrackerControllerTest {
 				
 		dayDto = new DayDto();
 		dayDto.foodsEatenInDay = List.of(food, foodTwo);
+		dayDto.totalWaterConsumed = 0;
 
 		day = new Day();
 		day.foodsEatenInDay = List.of(food, foodTwo);
+		day.totalWaterConsumed = 0;
 	}
 	
 	@AfterAll
@@ -124,9 +141,9 @@ public class NutritionTrackerControllerTest {
 	}	
 	@Test
 	public void testGetFoodValidRequest() throws Exception{
-		when(nutritionTrackerService.getFoodStats(any(String.class))).thenReturn(foodDto);
+		when(nutritionTrackerService.getFoodStats(any(Long.class))).thenReturn(foodDto);
 		
-		mockMvc.perform(get("/nutritionCalculator/getFood/test")
+		mockMvc.perform(get("/nutritionCalculator/getFood/1")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(""))
 				.andExpect(status().isOk())
@@ -142,7 +159,7 @@ public class NutritionTrackerControllerTest {
 
 	@Test
 	public void testEditFoodValidRequest() throws Exception{
-		when(nutritionTrackerService.editFood(any(String.class), any(FoodDto.class))).thenReturn(foodDto);
+		when(nutritionTrackerService.editFood(any(Long.class), any(FoodDto.class))).thenReturn(foodDto);
 		
 		mockMvc.perform(put("/nutritionCalculator/editFood/1")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -171,7 +188,7 @@ public class NutritionTrackerControllerTest {
 	public void testDeleteFood() throws Exception{
 		foodDto.isDeleted = true;
 		
-		when(nutritionTrackerService.deleteFood(any(String.class))).thenReturn(foodDto);
+		when(nutritionTrackerService.deleteFood(any(Long.class))).thenReturn(foodDto);
 		
 		mockMvc.perform(delete("/nutritionCalculator/deleteFood/1")
 				.contentType(MediaType.APPLICATION_JSON))
@@ -245,4 +262,28 @@ public class NutritionTrackerControllerTest {
 				.andExpect(jsonPath("$.isDeleted").value(true))
 				.andReturn();
 	}
+	
+	@Test
+	public void testAddFoodsToDay() throws Exception {
+		when(nutritionTrackerService.addFoodsToDay(any(Long.class), anyList())).thenReturn(dayDto);
+		
+		mockMvc.perform(post("/nutritionCalculator/addFoodsToDay/1")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("[1]"))
+				.andExpect(status().isCreated())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andReturn();
+	}
+	
+	@Test
+	public void testEditWaterIntake() throws Exception{		
+		when(nutritionTrackerService.editWaterIntake(any(Long.class), any(Integer.class))).thenReturn(dayDto);
+		
+		mockMvc.perform(put("/nutritionCalculator/editWaterIntake/1/5")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andReturn();
+	}
+	
 }
