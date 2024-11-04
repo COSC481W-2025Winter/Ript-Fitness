@@ -25,9 +25,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
-  const context = useContext(GlobalContext);
-
+  const context = useContext(GlobalContext)
 
   // Hiding password when typing
   const toggleShowPassword = () => {

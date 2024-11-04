@@ -51,14 +51,6 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
     }
   };
 
-  const setToken = (token1: string) => {
-    console.log("Changing token to: " + token1);
-    setData((prevData) => ({
-      ...prevData,
-      token: token1,
-    }));
-  };
-
   // Track changes to `data` and log the new value
   useEffect(() => {
     console.log("Updated token:", data.token);
