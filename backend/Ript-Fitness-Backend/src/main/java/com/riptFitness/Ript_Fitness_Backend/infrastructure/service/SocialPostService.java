@@ -25,15 +25,19 @@ public class SocialPostService {
 	private SocialPostCommentRepository socialPostCommentRepository;
 	
 	private AccountsRepository accountsRepository;
+	
+	private AccountsService accountsService;
 
-	public SocialPostService(SocialPostRepository socialPostRepository, SocialPostCommentRepository socialPostCommentRepository, AccountsRepository accountsRepository) {
+	public SocialPostService(SocialPostRepository socialPostRepository, SocialPostCommentRepository socialPostCommentRepository, AccountsRepository accountsRepository, AccountsService accountsService) {
 		this.socialPostRepository = socialPostRepository;
 		this.socialPostCommentRepository = socialPostCommentRepository;
 		this.accountsRepository = accountsRepository;
+		this.accountsService = accountsService;
 	}
 	
 	public SocialPostDto addPost(SocialPostDto socialPostDto) {
 		SocialPost socialPostToBeAdded = SocialPostMapper.INSTANCE.toSocialPost(socialPostDto);
+		socialPostToBeAdded.accountId = accountsService.getLoggedInUserId();
 		socialPostToBeAdded = socialPostRepository.save(socialPostToBeAdded);
 		return SocialPostMapper.INSTANCE.toSocialPostDto(socialPostToBeAdded);
 	}
@@ -49,8 +53,10 @@ public class SocialPostService {
 		return SocialPostMapper.INSTANCE.toSocialPostDto(returnedSocialPostObject);
 	}
 	
-	public ArrayList<Long> getPostsFromAccountId(Long accountId){
-		Optional<ArrayList<Long>> postsFromAccountId = socialPostRepository.getPostsFromAccountId(accountId);
+	public ArrayList<Long> getPostsFromAccountId(){
+		Long currentUsersAccountId = accountsService.getLoggedInUserId();
+		
+		Optional<ArrayList<Long>> postsFromAccountId = socialPostRepository.getPostsFromAccountId(currentUsersAccountId);
 		
 		if(postsFromAccountId.isEmpty())
 			return new ArrayList<Long>();
@@ -88,12 +94,14 @@ public class SocialPostService {
 		return SocialPostMapper.INSTANCE.toSocialPostDto(socialPostToBeDeleted);
 	}
 	
-	public SocialPostDto addLike(Long socialPostId, Long userId) {
+	public SocialPostDto addLike(Long socialPostId) {
 		Optional<SocialPost> optionalSocialPostObject = socialPostRepository.findById(socialPostId);
 		
 		if(optionalSocialPostObject.isEmpty())
 			throw new RuntimeException("SocialPost object not found in database with ID = " + socialPostId);
 
+		Long userId = accountsService.getLoggedInUserId();
+		
 		Optional<AccountsModel> accountsModelObject = accountsRepository.findById(userId);
 		
 		if(accountsModelObject.isEmpty())
@@ -113,12 +121,14 @@ public class SocialPostService {
 		return SocialPostMapper.INSTANCE.toSocialPostDto(socialPostObject);
 	}
 	
-	public SocialPostDto deleteLike(Long socialPostId, Long userId) {
+	public SocialPostDto deleteLike(Long socialPostId) {
 		Optional<SocialPost> optionalSocialPostObject = socialPostRepository.findById(socialPostId);
 		
 		if(optionalSocialPostObject.isEmpty())
 			throw new RuntimeException("SocialPost object not found in database with ID = " + socialPostId);
 
+		Long userId = accountsService.getLoggedInUserId();
+		
 		Optional<AccountsModel> accountsModelObject = accountsRepository.findById(userId);
 		
 		if(accountsModelObject.isEmpty())
@@ -139,6 +149,8 @@ public class SocialPostService {
 	}
 	
 	public SocialPostDto addComment(SocialPostCommentDto socialPostComment) {
+		socialPostComment.accountId = accountsService.getLoggedInUserId();
+		
 		Optional<SocialPost> optionalSocialPostObject = socialPostRepository.findById(socialPostComment.postId);
 		
 		if(optionalSocialPostObject.isEmpty())
@@ -181,5 +193,16 @@ public class SocialPostService {
 		socialPostCommentRepository.save(socialPostCommentObject);
 		
 		return SocialPostMapper.INSTANCE.toSocialPostDto(updatedSocialPost);
+	}
+	
+	public ArrayList<Long> getCommentsFromAccountId(){
+		Long currentUsersAccountId = accountsService.getLoggedInUserId();
+		
+		Optional<ArrayList<Long>> commentsFromAccountId = socialPostCommentRepository.getPostsFromAccountId(currentUsersAccountId);
+		
+		if(commentsFromAccountId.isEmpty())
+			return new ArrayList<Long>();
+		
+		return commentsFromAccountId.get();
 	}
 }

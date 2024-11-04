@@ -6,10 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 );
-import '@testing-library/jest-native/extend-expect';
 
-// Mock react-native-svg to prevent Jest from failing on SVG imports
-jest.mock('react-native-svg', () => require('react-native-svg-mock'));
 
 
 // jest.setup.js

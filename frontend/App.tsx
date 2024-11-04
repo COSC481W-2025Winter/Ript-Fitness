@@ -148,9 +148,8 @@ export default function App() {
             <RootNavigator />
           </NavigationContainer>
         </>
-        </SocialFeedProvider>
           </NotesProvider>
-
+        </SocialFeedProvider>
       </StreakProvider>
     </GlobalProvider>
   );

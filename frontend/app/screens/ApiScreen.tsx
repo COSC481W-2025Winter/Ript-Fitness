@@ -7,7 +7,6 @@ import { httpRequests } from '@/api/httpRequests'
 import { useContext, useEffect, useState } from 'react';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 import { BodyContext } from '@/context/BodyContext';
-import { GlobalContext } from '@/context/GlobalContext';
 
 export default function ApiScreen() {
 
@@ -20,7 +19,7 @@ export default function ApiScreen() {
   const [Deleteid, setDeleteID] = useState(''); //ID for POST initialized as empty string
   const [firstNamePUT, setFirstNamePUT] = useState(''); //firstName initialized as empty string
   const [lastNamePUT, setLastNamePUT] = useState(''); //lastName initialized as empty string
-  const context = useContext(GlobalContext)
+
   // Handle the text input change for First Name
   const handleChangeFirstNamePost = (text: string) => {
     setFirstNamePOST(text);
@@ -56,25 +55,14 @@ export default function ApiScreen() {
 
   const postValues = async () => { //run "Post Names" button is pressed
     const exampleJson = { //create a json object using the variables set in our textboxes
-      sets: 3,
-      reps: [1, 2, 3],
-      nameOfExercise: "pull upsssss"
+      firstName: firstNamePOST,
+      lastName: lastNamePOST,
     };
-    const response = await fetch(`${httpRequests.getBaseURL()}/exercises/addExercise`, {
-      method: 'POST', // Set method to POST
-      headers: {
-        'Content-Type': 'application/json', // Set content type to JSON
-        "Authorization": `Bearer ${context?.data.token}`,
-      },
-      body: JSON.stringify(exampleJson), // Convert the data to a JSON string
-    });
-    const jsonResp = await response.json()
-
-
-    console.log(jsonResp)
+    //make a post request
+    const response = await httpRequests.post("/addTestObject", exampleJson)
     //convert the recieved json response to a string for visualizing
     //alternatively, you could get specific information with response.firstName
-    setResponseText(JSON.stringify(jsonResp))
+    setResponseText(JSON.stringify(response))
    }
 
 
@@ -93,12 +81,12 @@ export default function ApiScreen() {
 
    const putValues = async () => { //run "Push Names" button is pressed
     const exampleJson = { //create a json object using the variables set in our textboxes
-      "sets": 3,
-      "reps": [1, 2, 3],
-      "nameOfExercise": "pull ups"
+      id: Putid,
+      firstName:firstNamePUT,
+      lastName:lastNamePUT
     };
     //make a post request
-    const response = await httpRequests.put("/exercises/addExercise", exampleJson)
+    const response = await httpRequests.put("/editNameTest", exampleJson)
     //convert the recieved json response to a string for visualizing
     //alternatively, you could get specific information with response.firstName
     setResponseText(JSON.stringify(response))
