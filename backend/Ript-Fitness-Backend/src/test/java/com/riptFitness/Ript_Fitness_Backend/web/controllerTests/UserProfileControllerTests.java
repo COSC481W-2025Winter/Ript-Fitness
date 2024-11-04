@@ -7,20 +7,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.riptFitness.Ript_Fitness_Backend.config.JwtUtil;
+import com.riptFitness.Ript_Fitness_Backend.config.SecurityConfig;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.UserProfileService;
 import com.riptFitness.Ript_Fitness_Backend.web.controller.UserProfileController;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.UserDto;
 
 @WebMvcTest(UserProfileController.class)
+@Import(SecurityConfig.class)
+@ActiveProfiles("test")
 public class UserProfileControllerTests {
 
     @Autowired
@@ -32,35 +37,43 @@ public class UserProfileControllerTests {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockBean
+    private JwtUtil jwtUtil;
+
+    @MockBean
+    private UserDetailsService userDetailsService;
+
     private UserDto userDto;
+    private final String token = "Bearer test-token";
 
     @BeforeEach
     public void setUp() {
         userDto = new UserDto();
-        userDto.id = 1L;
         userDto.firstName = "Tom";
         userDto.lastName = "Van";
-        userDto.username = "tom.van";
         userDto.isDeleted = false;
+
+        when(jwtUtil.extractUsername(any(String.class))).thenReturn("tom.van");
     }
 
     @Test
     public void testAddUser() throws Exception {
-        when(userProfileService.addUser(any(UserDto.class))).thenReturn(userDto);
+        when(userProfileService.addUser(any(UserDto.class), any(String.class))).thenReturn(userDto);
 
         mockMvc.perform(post("/userProfile/addUser")
+                .header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userDto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.firstName").value("Tom"))
-                .andExpect(jsonPath("$.username").value("tom.van"));
+                .andExpect(jsonPath("$.firstName").value("Tom"));
     }
 
     @Test
-    public void testGetUser() throws Exception {
-        when(userProfileService.getUser(1L)).thenReturn(userDto);
+    public void testGetUserProfile() throws Exception {
+        when(userProfileService.getUserByUsername(any(String.class))).thenReturn(userDto);
 
-        mockMvc.perform(get("/userProfile/getUser/1")
+        mockMvc.perform(get("/userProfile/getUserProfile")
+                .header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName").value("Tom"))
@@ -68,23 +81,24 @@ public class UserProfileControllerTests {
     }
 
     @Test
-    public void testEditUser() throws Exception {
-        when(userProfileService.editUser(any(Long.class), any(UserDto.class))).thenReturn(userDto);
+    public void testUpdateUserProfile() throws Exception {
+        when(userProfileService.updateUserByUsername(any(String.class), any(UserDto.class))).thenReturn(userDto);
 
-        mockMvc.perform(put("/userProfile/editUser/1")
+        mockMvc.perform(put("/userProfile/updateUserProfile")
+                .header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName").value("Tom"))
-                .andExpect(jsonPath("$.username").value("tom.van"));
+                .andExpect(jsonPath("$.firstName").value("Tom"));
     }
 
     @Test
-    public void testDeleteUser() throws Exception {
+    public void testDeleteUserProfile() throws Exception {
         userDto.isDeleted = true;
-        when(userProfileService.deleteUser(1L)).thenReturn(userDto);
+        when(userProfileService.softDeleteUserByUsername(any(String.class))).thenReturn(userDto);
 
-        mockMvc.perform(delete("/userProfile/deleteUser/1")
+        mockMvc.perform(delete("/userProfile/deleteUserProfile")
+                .header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.isDeleted").value(true));

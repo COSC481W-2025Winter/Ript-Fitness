@@ -1,10 +1,13 @@
+
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 // Define the structure of your global data
 export interface GlobalData {
   token: string;
 }
+
 
 interface GlobalContextType {
   data: GlobalData;
@@ -29,8 +32,10 @@ interface GlobalProviderProps {
 }
 
 export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
+
   const [isLoaded, setIsLoaded] = useState(false);
   const [data, setData] = useState<GlobalData>({ token: '' });
+
 
   const updateGlobalData = (updatedData: GlobalData) => {
     setData(updatedData);
@@ -45,6 +50,19 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
       console.error('Failed to save token:', error);
     }
   };
+
+  const setToken = (token1: string) => {
+    console.log("Changing token to: " + token1);
+    setData((prevData) => ({
+      ...prevData,
+      token: token1,
+    }));
+  };
+
+  // Track changes to `data` and log the new value
+  useEffect(() => {
+    console.log("Updated token:", data.token);
+  }, [data]); // Run whenever `data` changes
 
   const loadInitialData = async () => {
     await Promise.all([
@@ -95,6 +113,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
   }, []);
 
   return (
+
     <GlobalContext.Provider
       value={{
         data,
@@ -104,6 +123,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         setToken,
       }}
     >
+
       {children}
     </GlobalContext.Provider>
   );

@@ -5,7 +5,7 @@ const BASE_URL = USE_LOCAL === 'true' ? `http://${LOCAL_IP}` : Azure_URL;
 
 export class httpRequests {
   static getBaseURL() {
-    return BASE_URL;
+    return USE_LOCAL === 'true' ? `http://${LOCAL_IP}` : Azure_URL;
   }
 
   // Method to handle GET requests and return JSON

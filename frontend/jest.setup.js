@@ -23,6 +23,13 @@ jest.mock('expo-modules-core', () => ({
   }));
 
 
+  jest.mock('@expo/vector-icons/Ionicons', () => {
+    return {
+      __esModule: true,
+      default: 'Ionicons',
+    };
+  });
+
   
   jest.mock('@react-navigation/native', () => {
     return {
