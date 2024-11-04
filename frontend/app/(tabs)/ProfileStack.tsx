@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 
 
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
 import { ProfileProvider } from '@/context/ProfileContext';
 import ApiScreen from '@/app/screens/ApiScreen';
 import foodLog from '@/app/screens/foodlog/FoodLog';
@@ -9,7 +9,11 @@ import foodLogAdd from '@/app/screens/foodlog/FoodLogAdd';
 import foodLogSaved from '@/app/screens/foodlog/FoodLogSaved';
 import foodLogLogged from '@/app/screens/foodlog/FoodLogLogged';
 
+export type ProfileStackParamList = {
+  ApiScreen: undefined;
+};
 
+export type ProfileScreenNavigationProp = StackNavigationProp<ProfileStackParamList>;
 
 const Stack = createStackNavigator();
 

@@ -4,6 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { GlobalContext } from "@/context/GlobalContext";
 import { httpRequests } from "@/api/httpRequests";
 import LogFoodButton from "@/components/foodlog/FoodLogButton";
+import { WorkoutScreenNavigationProp } from "@/app/(tabs)/WorkoutStack";
 
 
 
@@ -19,7 +20,7 @@ interface Food {
 }
 
 const FoodItem: React.FC<{ food: Food }> =  ({ food }) => {
-    const navigation = useNavigation();
+    const navigation = useNavigation<WorkoutScreenNavigationProp>();
     return(
     <LogFoodButton 
         id={food.id}
@@ -34,12 +35,12 @@ const FoodItem: React.FC<{ food: Food }> =  ({ food }) => {
         borderWidth={1}
         fontSize={16}
         width ='100%'
-        onPress={() => navigation.navigate('ApiScreen')}
+        onPress={() => navigation.navigate('ApiScreen', {})}
         />
     );
     };
 
-const FoodLogLoggedPage = ({ dayId }) => { 
+const FoodLogLoggedPage = ({ dayId } : any) => { 
     const [foodDetails, setFoodDetails] = useState<Food[]>([]);
     const [days, setDays] = useState([]);
     const [day, setDay] = useState(0);
@@ -58,6 +59,7 @@ const FoodLogLoggedPage = ({ dayId }) => {
             //         'Authorization': `Bearer ${context?.data.token}`,
             //     }
             // });
+            
             const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getDay/${dayId}`, {
                 method: 'PUT', 
                 headers: {
@@ -70,6 +72,7 @@ const FoodLogLoggedPage = ({ dayId }) => {
                 const dayData = await response.json();
                 // console.log('Fetched day ID: ', dayData.id);
                 const foodIDs = dayData.foodIdsInFoodsEatenInDayList;
+                
                 // console.log('Fetched food IDs: ', foodIDs);
                     
                 // handle fetching and displaying food details for all IDs 
@@ -77,6 +80,7 @@ const FoodLogLoggedPage = ({ dayId }) => {
 
                 // Filter out any failed requests
                 const validDetails = detailsArray.filter((food) => food !== null);
+                
                 setFoodDetails(validDetails);
 
             } else {
@@ -121,16 +125,14 @@ const FoodLogLoggedPage = ({ dayId }) => {
 
     return(
 // {/* THIS IS THE NEW STUFF FOR THE ADD PAGE*/}
-        <View>
-            <ScrollView style={styles.bottomContainer}>
+        <View style={{  }}>
                     {/* Bottom section displaying list of foods */}
                     <FlatList<Food>
                         data={foodDetails}
                         renderItem={renderItem}
-                        keyExtractor={(item) => item.name}
-                        contentContainerStyle={styles.foodList}
+                        keyExtractor={(item, index) => `${item.name}-${index}`}
+                        contentContainerStyle={[ styles.foodList]}
                     />
-            </ScrollView>
         </View>
     );
 };
@@ -158,7 +160,7 @@ const styles = StyleSheet.create({
         right: 5, 
     },
     bottomContainer: {
-        height: '100%',
+        //height: '100%',
     }
 })
 

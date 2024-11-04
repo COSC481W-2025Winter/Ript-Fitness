@@ -4,6 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { GlobalContext } from "@/context/GlobalContext";
 import { httpRequests } from "@/api/httpRequests";
 import LogFoodButton from "@/components/foodlog/FoodLogButton";
+import { WorkoutScreenNavigationProp } from "@/app/(tabs)/WorkoutStack";
 
 
 interface Food {
@@ -18,7 +19,7 @@ interface Food {
 }
 
 const FoodItem: React.FC<{ food: Food }> =  ({ food }) => {
-    const navigation = useNavigation();
+    const navigation = useNavigation<WorkoutScreenNavigationProp>();
     return (
     <LogFoodButton 
         id={food.id}
@@ -33,7 +34,7 @@ const FoodItem: React.FC<{ food: Food }> =  ({ food }) => {
         borderWidth={1}
         fontSize={16}
         width ='100%'
-        onPress={() => navigation.navigate('ApiScreen')}
+        onPress={() => navigation.navigate('ApiScreen', {})}
         />
     )
 };
@@ -111,15 +112,15 @@ const FoodLogSavedPage = () => {
 
     return(
         <View>
-            <ScrollView style={styles.bottomContainer}>
-                    {/* Bottom section displaying list of foods */}
+
+                   
                     <FlatList
                         data={foodDetails}
                         renderItem={renderItem}
-                        keyExtractor={(item) => item.name}
+                        keyExtractor={(item, index) => `${item.name}-${index}`}
                         contentContainerStyle={styles.foodList}
                     />
-            </ScrollView>
+
         </View>
     );
 };

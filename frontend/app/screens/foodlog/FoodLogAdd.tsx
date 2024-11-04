@@ -10,7 +10,7 @@ import { GlobalContext } from "@/context/GlobalContext";
 
 
 
-export default function FoodLogAddPage({ dayId }) {
+export default function FoodLogAddPage({ dayId } : any) {
     const [foodName, setFoodName] = useState('');
     const [foodCalories, setCalories] = useState('');
     const [foodFat, setFat] = useState('');
@@ -237,12 +237,12 @@ export default function FoodLogAddPage({ dayId }) {
 
     return(
         <KeyboardAvoidingView 
-            style={{ flex: 1 }} 
+        style={{}}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0} // Adjust this value based on your header height
-        >
-        <ScrollView style={styles.addFoodContainer}>
-            <View style={styles.addFoodContainer}>
+        > 
+
+        <ScrollView style={styles.addFoodContainer} contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}>
                 <Text style={styles.label}>New Food:</Text>
 
             {/* Input fields */}
@@ -325,7 +325,6 @@ export default function FoodLogAddPage({ dayId }) {
                         width={150}
                         onPress={handleFoodDataSaveAddDay} />
             </View>
-            </View>
         </ScrollView>
         </KeyboardAvoidingView>
     );
@@ -334,6 +333,7 @@ const styles = StyleSheet.create({
     addFoodContainer: { 
         paddingBottom: 29,
         padding: 5,
+        width:"100%",
       },
       label: {
         fontSize: 20,

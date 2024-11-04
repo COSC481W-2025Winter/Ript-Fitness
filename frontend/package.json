@@ -36,7 +36,8 @@
       "./jest.setup.js"
     ],
     "transformIgnorePatterns": [
-      "node_modules/(?!(@expo|expo-font|expo-modules-core|react-native|@react-navigation|react-native-reanimated|@react-native|@testing-library)/)"
+      "node_modules/(?!(@expo|expo-font|expo-modules-core|react-native|@react-navigation|react-native-reanimated|@react-native|@testing-library)/)",
+      "\\.ttf$" 
     ],
     "transform": {
       "^.+\\.[t|j]sx?$": "babel-jest"

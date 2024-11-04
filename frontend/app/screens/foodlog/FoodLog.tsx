@@ -9,11 +9,13 @@ import { GlobalContext } from "@/context/GlobalContext";
 import FoodLogAddPage from "./FoodLogAdd";
 import FoodLogSavedPage from "./FoodLogSaved";
 import FoodLogLoggedPage from "./FoodLogLogged";
+import { WorkoutScreenNavigationProp } from "@/app/(tabs)/WorkoutStack";
+import { ProfileScreenNavigationProp } from "@/app/(tabs)/ProfileStack";
 
 
 export default function FoodLogScreen() {
     
-    const navigation = useNavigation();
+    const navigation = useNavigation<ProfileScreenNavigationProp>();
     const [selectedPage, setSelectedPage] = useState("Logged"); // Track selected page
     const [totalCalories, setTotalCalories] = useState(0);
     const [totalFat, setTotalFat] = useState(0);
@@ -60,6 +62,7 @@ export default function FoodLogScreen() {
 
     const setTotalForDay = async () => {
         try {
+            console.log(day)
             const getDayResponse = await fetch (`${httpRequests.getBaseURL()}/nutritionCalculator/getDay/${day}`, {
                 method: 'PUT', 
                 headers: {
@@ -245,9 +248,9 @@ export default function FoodLogScreen() {
                 </View>
         </View>
          {/* Display Selected Page Content */}
-         <ScrollView style={styles.contentContainer} contentContainerStyle={{ flexGrow: 1 }} nestedScrollEnabled={true}>
+        <View style={{}}>
                 {renderContent()}
-        </ScrollView>
+        </View>
     </View>
     );
 }
