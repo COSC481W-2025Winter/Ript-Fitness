@@ -11,7 +11,6 @@ public class DayDto {
 	public Long id;
 	public List<Food> foodsEatenInDay = new ArrayList<>();	
 	public List<Long> foodIdsInFoodsEatenInDayList = new ArrayList<>();
-	public Long accountId;
 	public double calories;
 	public double totalCarbs;
 	public double totalProtein;

@@ -3,6 +3,7 @@ package com.riptFitness.Ript_Fitness_Backend.domain.model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -31,15 +32,10 @@ public class AccountsModel {
     @JsonManagedReference // Indicates that AccountsModel is the parent in the relationship
     private Streak streak;
     
-    // If you want to define a bi-directional relationship
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Workouts> workouts;
-
     // 10/17/24: Adding One-To-Many relationship with the exercise class:
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL) // "account" is the insatnce variable in the exercise class
+    @OneToMany(mappedBy = "account") // "account" is the insatnce variable in the exercise class
     @JsonIgnoreProperties("account") // Ignore the account field inside exercises when serializing
     private List<ExerciseModel> exercises; // This is a collection (List) that holds exercises
-
 
     // Fields:
     private String username;

@@ -23,15 +23,15 @@ public class StreakController {
 		this.streakService = streakService;
 	}
 
-	@PutMapping("/updateStreak")
-	public ResponseEntity<StreakDto> updateStreak(){
-		StreakDto updatedStreak = streakService.updateStreak();
+	@PutMapping("/updateStreak/{id}")
+	public ResponseEntity<StreakDto> updateStreak(@PathVariable Long id){
+		StreakDto updatedStreak = streakService.updateStreak(id);
 		return ResponseEntity.ok(updatedStreak);
 	}
 	
-	@GetMapping("/getStreak")
-	public ResponseEntity<StreakDto> getStreak(){
-		StreakDto returnedStreak = streakService.getStreak();
+	@GetMapping("/getStreak/{id}")
+	public ResponseEntity<StreakDto> getStreak(@PathVariable Long id){
+		StreakDto returnedStreak = streakService.getStreak(id);
 		return ResponseEntity.ok(returnedStreak);
 	}
 	

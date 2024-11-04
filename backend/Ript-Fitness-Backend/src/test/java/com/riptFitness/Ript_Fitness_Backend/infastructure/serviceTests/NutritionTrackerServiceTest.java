@@ -6,11 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,13 +16,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Day;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Food;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.NutritionTrackerDayRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.NutritionTrackerFoodRepository;
-import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AccountsService;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.NutritionTrackerService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.DayDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.FoodDto;
@@ -37,9 +32,6 @@ public class NutritionTrackerServiceTest {
 	
 	@Mock
 	private NutritionTrackerDayRepository nutritionTrackerDayRepository;
-	
-	@Mock
-	private AccountsService accountsService;
 	
 	@InjectMocks
 	private NutritionTrackerService nutritionTrackerServiceForServiceTests;
@@ -106,8 +98,15 @@ public class NutritionTrackerServiceTest {
 	}
 	
 	@Test
+	void testServiceAddFoodInvalidNullFoodDto() {
+		FoodDto result = nutritionTrackerServiceForServiceTests.addFood(null);
+		
+		assertNull(result);
+	}
+	
+	@Test
 	void testServiceGetFoodStatsValid() {
-		when(nutritionTrackerFoodRepository.findById(anyLong())).thenReturn(Optional.of(food));
+		when(nutritionTrackerFoodRepository.findById(1L)).thenReturn(Optional.of(food));
 		
 		FoodDto result = nutritionTrackerServiceForServiceTests.getFoodStats(1L);
 		
@@ -120,26 +119,6 @@ public class NutritionTrackerServiceTest {
 		when(nutritionTrackerFoodRepository.findById(1L)).thenReturn(Optional.empty());
 		
 		assertThrows(RuntimeException.class, () -> nutritionTrackerServiceForServiceTests.getFoodStats(1L));
-	}
-	
-	@Test
-	void testServiceGetFoodIdsOfLoggedInUserValid() {
-		when(accountsService.getLoggedInUserId()).thenReturn(1L);
-		when(nutritionTrackerFoodRepository.getPostsFromAccountId(anyLong())).thenReturn(Optional.of(new ArrayList<>()));
-		
-		ArrayList<Long> result = nutritionTrackerServiceForServiceTests.getFoodIdsOfLoggedInUser();
-		
-		assertNotNull(result);
-	}
-	
-	@Test
-	void testServiceGetFoodIdsOfLoggedInUserInvalidNoFoodsForUser() {
-		when(accountsService.getLoggedInUserId()).thenReturn(1L);
-		when(nutritionTrackerFoodRepository.getPostsFromAccountId(anyLong())).thenReturn(Optional.empty());
-
-		ArrayList<Long> result = nutritionTrackerServiceForServiceTests.getFoodIdsOfLoggedInUser();
-		
-		assertNotNull(result);
 	}
 	
 	@Test
@@ -187,6 +166,13 @@ public class NutritionTrackerServiceTest {
 	}
 	
 	@Test
+	void testServiceAddDayInvalidNullDayDto() {
+		DayDto result = nutritionTrackerServiceForServiceTests.addDay(null);
+		
+		assertNull(result);
+	}
+	
+	@Test
 	void testServiceGetDayStatsValid() {
 		when(nutritionTrackerDayRepository.findById(1L)).thenReturn(Optional.of(day));
 		when(nutritionTrackerDayRepository.save(any(Day.class))).thenReturn(day);
@@ -201,26 +187,6 @@ public class NutritionTrackerServiceTest {
 		when(nutritionTrackerDayRepository.findById(1L)).thenReturn(Optional.empty());
 		
 		assertThrows(RuntimeException.class, () -> nutritionTrackerServiceForServiceTests.getDayStats(1L));
-	}
-	
-	@Test
-	void testServiceGetDayIdsOfLoggedInUserValid() {
-		when(accountsService.getLoggedInUserId()).thenReturn(1L);
-		when(nutritionTrackerDayRepository.getPostsFromAccountId(anyLong())).thenReturn(Optional.of(new ArrayList<>()));
-		
-		ArrayList<Long> result = nutritionTrackerServiceForServiceTests.getDayIdsOfLoggedInUser();
-		
-		assertNotNull(result);
-	}
-	
-	@Test
-	void testServiceGetDayIdsOfLoggedInUserInvalidNoDaysForUser() {
-		when(accountsService.getLoggedInUserId()).thenReturn(1L);
-		when(nutritionTrackerDayRepository.getPostsFromAccountId(anyLong())).thenReturn(Optional.empty());
-		
-		ArrayList<Long> result = nutritionTrackerServiceForServiceTests.getDayIdsOfLoggedInUser();
-		
-		assertNotNull(result);
 	}
 	
 	@Test
@@ -243,6 +209,7 @@ public class NutritionTrackerServiceTest {
 	@Test
 	void testServiceAddFoodsToDayInvalidFoodNotInDatabase() {
 		when(nutritionTrackerDayRepository.findById(1L)).thenReturn(Optional.of(day));
+		when(nutritionTrackerFoodRepository.findByName("Chicken breast")).thenReturn(Optional.empty());
 		
 		assertThrows(RuntimeException.class, () -> nutritionTrackerServiceForServiceTests.addFoodsToDay(1L, List.of(2L)));
 	}
@@ -257,6 +224,7 @@ public class NutritionTrackerServiceTest {
 	@Test
 	void testServiceDeleteFoodsInDayInvalidFoodNotInDatabase() {
 		when(nutritionTrackerDayRepository.findById(1L)).thenReturn(Optional.of(day));
+		when(nutritionTrackerFoodRepository.findByName("Chicken breast")).thenReturn(Optional.empty());
 		
 		assertThrows(RuntimeException.class, () -> nutritionTrackerServiceForServiceTests.deleteFoodsInDay(1L, List.of(2L)));
 	}
@@ -270,60 +238,11 @@ public class NutritionTrackerServiceTest {
 		assertEquals(40, day.totalCarbs);
 		assertEquals(25, day.totalFat);
 	}
-	
-	@Test
-	void testAddFoodsToDayValid() {
-		when(nutritionTrackerDayRepository.findById(1L)).thenReturn(Optional.of(day));
-		when(nutritionTrackerFoodRepository.findById(any(Long.class))).thenReturn(Optional.of(foodTwo));
-		when(nutritionTrackerDayRepository.save(any(Day.class))).thenReturn(day);
-		
-		DayDto result = nutritionTrackerServiceForServiceTests.addFoodsToDay(1L, List.of());
-		
-		assertNotNull(result);
-	}
 
-	@Test
-	void testDeleteFoodsInDayValid() {
-		when(nutritionTrackerDayRepository.findById(1L)).thenReturn(Optional.of(day));
-		when(nutritionTrackerFoodRepository.findById(any(Long.class))).thenReturn(Optional.of(foodTwo));
-		when(nutritionTrackerDayRepository.save(any(Day.class))).thenReturn(day);
-		
-		DayDto result = nutritionTrackerServiceForServiceTests.deleteFoodsInDay(1L, List.of());
-		
-		assertNotNull(result);
-	}
-	
 	@Test
 	public void testCalculateTotalDayStatsInvalidNullDay() {
 		day = null;
 				
 		assertThrows(IllegalArgumentException.class, () -> nutritionTrackerServiceForServiceTests.calculateTotalDayStats(day));
-	}
-	
-	@Test
-	public void testEditWaterIntakeValid() {
-		when(nutritionTrackerDayRepository.findById(1L)).thenReturn(Optional.of(day));
-		when(nutritionTrackerDayRepository.save(any(Day.class))).thenReturn(day);
-
-		DayDto result = nutritionTrackerServiceForServiceTests.editWaterIntake(1L, 15);
-		
-		assertNotNull(result);
-	}
-	
-	@Test
-	public void testEditWaterIntakeInvalidWaterIntakeUnder0() {
-		when(nutritionTrackerDayRepository.findById(1L)).thenReturn(Optional.of(day));
-		when(nutritionTrackerDayRepository.save(any(Day.class))).thenReturn(day);
-
-		DayDto result = nutritionTrackerServiceForServiceTests.editWaterIntake(1L, -1);
-		
-		assertNotNull(result);
-	}
-	
-	@Test
-	public void testEditWaterIntakeInvalidDayNotInDatabase() {
-		when(nutritionTrackerDayRepository.findById(1L)).thenReturn(Optional.empty());
-		
-		assertThrows(RuntimeException.class, () -> nutritionTrackerServiceForServiceTests.editWaterIntake(1L, 15));
 	}
 }

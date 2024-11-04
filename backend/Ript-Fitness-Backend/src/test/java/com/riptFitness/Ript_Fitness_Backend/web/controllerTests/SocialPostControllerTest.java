@@ -146,6 +146,25 @@ public class SocialPostControllerTest {
 	}
 	
 	@Test
+	public void testGetPostsFromAccountIdValidRequest() throws Exception {
+		ArrayList<Long> arr = new ArrayList<>();
+		arr.add(1L);
+		when(socialPostService.getPostsFromAccountId(any(Long.class))).thenReturn(arr);
+		
+		mockMvc.perform(get("/socialPost/getPostsFromAccountId/1")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.size()").value(1))
+				.andReturn();
+	}
+	
+	@Test
+	public void testGetPostsFromAccountIdInvalidRequestNoPathVariable() throws Exception {
+		mockMvc.perform(get("/socialPost/getPostsFromAccountId"))
+				.andExpect(status().isInternalServerError());			
+	}
+	
+	@Test
 	public void testEditPostContentValidRequest() throws Exception {
 		socialPost.content = "New content";
 		when(socialPostService.editPostContent(any(Long.class), any(String.class))).thenReturn(socialPost);
@@ -199,9 +218,9 @@ public class SocialPostControllerTest {
 	public void testAddLikeValidRequest() throws Exception {
 		socialPost.numberOfLikes++;
 		
-		when(socialPostService.addLike(any(Long.class))).thenReturn(socialPost);
+		when(socialPostService.addLike(any(Long.class), any(Long.class))).thenReturn(socialPost);
 		
-		mockMvc.perform(put("/socialPost/addLike/1")
+		mockMvc.perform(put("/socialPost/addLike/1/1")
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -219,9 +238,9 @@ public class SocialPostControllerTest {
 	public void testDeleteLikeValidRequest() throws Exception {
 		socialPost.numberOfLikes--;
 		
-		when(socialPostService.deleteLike(any(Long.class))).thenReturn(socialPost);
+		when(socialPostService.deleteLike(any(Long.class), any(Long.class))).thenReturn(socialPost);
 		
-		mockMvc.perform(put("/socialPost/deleteLike/1")
+		mockMvc.perform(put("/socialPost/deleteLike/1/1")
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))

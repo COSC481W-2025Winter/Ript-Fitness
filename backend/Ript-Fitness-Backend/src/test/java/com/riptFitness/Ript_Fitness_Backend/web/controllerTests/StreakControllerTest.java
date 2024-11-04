@@ -81,9 +81,9 @@ public class StreakControllerTest {
 	
 	@Test
 	public void testGetStreakValidRequest() throws Exception{
-		when(streakService.getStreak()).thenReturn(streakDto);
+		when(streakService.getStreak(any(Long.class))).thenReturn(streakDto);
 		
-		mockMvc.perform(get("/streak/getStreak")
+		mockMvc.perform(get("/streak/getStreak/100")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(""))
 				.andExpect(status().isOk())
@@ -96,9 +96,9 @@ public class StreakControllerTest {
 	
 	@Test
 	public void testUpdateStreakValidRequest() throws Exception{
-		when(streakService.updateStreak()).thenReturn(streakDto);
+		when(streakService.updateStreak(any(Long.class))).thenReturn(streakDto);
 		
-		mockMvc.perform(put("/streak/updateStreak")
+		mockMvc.perform(put("/streak/updateStreak/100")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(streakDto)))
 				.andExpect(status().isOk())

@@ -1,12 +1,10 @@
 package com.riptFitness.Ript_Fitness_Backend.infastructure.serviceTests;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -24,7 +22,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.riptFitness.Ript_Fitness_Backend.config.JwtRequestFilter;
-import com.riptFitness.Ript_Fitness_Backend.domain.mapper.ExerciseMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.ExerciseModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
@@ -44,7 +41,7 @@ public class ExerciseServiceTest {
 
 	@Mock
 	private AccountsService accountsService;
-
+	
 	@MockBean
 	private JwtRequestFilter jwtRequestFilter;
 
@@ -80,43 +77,6 @@ public class ExerciseServiceTest {
 		// Again, use a mutable ArrayList for reps
 		exerciseModel.setReps(new ArrayList<>(Arrays.asList(10, 10, 10)));
 		exerciseModel.setAccount(accountsModel);
-	}
-
-	@Test
-	public void testGetExercisesFromCurrentUser() {
-	    // Arrange
-	    Long currentUserId = 1L;
-
-	    ExerciseModel exercise1 = new ExerciseModel();
-	    exercise1.setExerciseId(1L);
-	    exercise1.setNameOfExercise("Push Ups");
-	    exercise1.setSets(3);
-	    exercise1.setReps(Arrays.asList(10, 12, 15));
-
-	    ExerciseModel exercise2 = new ExerciseModel();
-	    exercise2.setExerciseId(2L);
-	    exercise2.setNameOfExercise("Squats");
-	    exercise2.setSets(4);
-	    exercise2.setReps(Arrays.asList(8, 8, 10, 12));
-
-	    List<ExerciseModel> exerciseModels = Arrays.asList(exercise1, exercise2);
-
-	    ExerciseDto exerciseDto1 = ExerciseMapper.INSTANCE.convertToDto(exercise1);
-	    ExerciseDto exerciseDto2 = ExerciseMapper.INSTANCE.convertToDto(exercise2);
-
-	    when(accountsService.getLoggedInUserId()).thenReturn(currentUserId);
-	    when(exerciseRepository.findByAccountIdAndNotDeleted(currentUserId)).thenReturn(exerciseModels);
-
-	    // Act
-	    List<ExerciseDto> result = exerciseService.getExercisesFromCurrentUser();
-
-	    // Assert using field-by-field comparison with AssertJ
-	    assertThat(result)
-	        .usingRecursiveFieldByFieldElementComparator()
-	        .containsExactlyInAnyOrder(exerciseDto1, exerciseDto2);
-
-	    verify(accountsService, times(1)).getLoggedInUserId();
-	    verify(exerciseRepository, times(1)).findByAccountIdAndNotDeleted(currentUserId);
 	}
 
 	// Test for addExercise method
@@ -232,29 +192,30 @@ public class ExerciseServiceTest {
 	// Test for findByKeyword method
 	@Test
 	public void testFindByKeyword_Success() {
-		// Mock the logged-in user ID
-		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+	    // Mock the logged-in user ID
+	    when(accountsService.getLoggedInUserId()).thenReturn(1L);
 
-		// Prepare mock ExerciseModel objects
-		ExerciseModel exercise1 = new ExerciseModel();
-		exercise1.setNameOfExercise("Push Ups");
+	    // Prepare mock ExerciseModel objects
+	    ExerciseModel exercise1 = new ExerciseModel();
+	    exercise1.setNameOfExercise("Push Ups");
 
-		ExerciseModel exercise2 = new ExerciseModel();
-		exercise2.setNameOfExercise("Pull Ups");
+	    ExerciseModel exercise2 = new ExerciseModel();
+	    exercise2.setNameOfExercise("Pull Ups");
 
-		List<ExerciseModel> exercises = Arrays.asList(exercise1, exercise2);
+	    List<ExerciseModel> exercises = Arrays.asList(exercise1, exercise2);
 
-		// Mock the exerciseRepository to return the list of exercises for the user
-		when(exerciseRepository.findByAccountIdAndNotDeleted(1L)).thenReturn(exercises);
+	    // Mock the exerciseRepository to return the list of exercises for the user
+	    when(exerciseRepository.findByAccountIdAndNotDeleted(1L)).thenReturn(exercises);
 
-		// Call the findByKeyword method with the matching keyword
-		List<ExerciseDto> result = exerciseService.findByKeyword("ups");
+	    // Call the findByKeyword method with the matching keyword
+	    List<ExerciseDto> result = exerciseService.findByKeyword("ups");
 
-		// Verify the result
-		assertNotNull(result);
-		assertEquals(2, result.size());
-		assertEquals("Push Ups", result.get(0).getNameOfExercise());
-		assertEquals("Pull Ups", result.get(1).getNameOfExercise());
+	    // Verify the result
+	    assertNotNull(result);
+	    assertEquals(2, result.size());
+	    assertEquals("Push Ups", result.get(0).getNameOfExercise());
+	    assertEquals("Pull Ups", result.get(1).getNameOfExercise());
 	}
+	
 
 }

@@ -58,24 +58,17 @@ public class ExercisesController {
 	}
 	
 	// Endpoint for editing an exercises name:
-	@PutMapping("/editExerciseName/{exerciseId}/{newExerciseName}") 
+	@PutMapping("editExerciseName/{exerciseId}/{newExerciseName}") 
 	public ResponseEntity<ExerciseDto> editExerciseName(@PathVariable Long exerciseId, @PathVariable String newExerciseName) {
 		ExerciseDto editiedExercise = exerciseService.editExerciseName(exerciseId, newExerciseName);
 		return new ResponseEntity<>(editiedExercise, HttpStatus.OK);
 	}
 	
 	// Endpoint for finding a workout by keyWord:
-	@GetMapping("/findByKeyword/{keyword}") 
+	@GetMapping("findByKeyword/{keyword}") 
 	public ResponseEntity<List<ExerciseDto>> editExerciseName(@PathVariable String keyword) {
 		List<ExerciseDto> similarExercises = exerciseService.findByKeyword(keyword);
 		return new ResponseEntity<>(similarExercises, HttpStatus.OK);
-	}
-	
-	// Endpoint for getting a List of all exercises associated with account:
-	@GetMapping("/getAllExercises")
-	public ResponseEntity<List<ExerciseDto>> getExercisesFromCurrentUser() {
-		List<ExerciseDto> usersExercises = exerciseService.getExercisesFromCurrentUser();
-		return new ResponseEntity<>(usersExercises, HttpStatus.OK);
 	}
 	
 }

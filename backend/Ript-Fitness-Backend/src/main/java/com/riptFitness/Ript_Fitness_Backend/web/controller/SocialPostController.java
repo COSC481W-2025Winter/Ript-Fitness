@@ -41,16 +41,10 @@ public class SocialPostController {
 		return new ResponseEntity<>(returnedSocialPostObject, HttpStatus.OK);
 	}
 	
-	@GetMapping("/getPostsFromAccountId")
-	public ResponseEntity<ArrayList<Long>> getPostsFromAccountId(){
-		ArrayList<Long> returnedListOfPostIds = socialPostService.getPostsFromAccountId();
+	@GetMapping("/getPostsFromAccountId/{accountId}")
+	public ResponseEntity<ArrayList<Long>> getPostsFromAccountId(@PathVariable Long accountId){
+		ArrayList<Long> returnedListOfPostIds = socialPostService.getPostsFromAccountId(accountId);
 		return new ResponseEntity<>(returnedListOfPostIds, HttpStatus.OK);
-	}
-	
-	@GetMapping("/getCommentsFromAccountId")
-	public ResponseEntity<ArrayList<Long>> getCommentsFromAccountId(){
-		ArrayList<Long> returnedListOfCommentIds = socialPostService.getCommentsFromAccountId();
-		return new ResponseEntity<>(returnedListOfCommentIds, HttpStatus.OK);
 	}
 	
 	@PutMapping("/editPostContent/{socialPostId}")
@@ -65,15 +59,15 @@ public class SocialPostController {
 		return new ResponseEntity<>(deletedSocialPostObject, HttpStatus.OK);
 	}
 	
-	@PutMapping("/addLike/{socialPostId}")
-	public ResponseEntity<SocialPostDto> addLike(@PathVariable Long socialPostId){
-		SocialPostDto socialPostObject = socialPostService.addLike(socialPostId);
+	@PutMapping("/addLike/{socialPostId}/{userId}")
+	public ResponseEntity<SocialPostDto> addLike(@PathVariable Long socialPostId, @PathVariable Long userId){
+		SocialPostDto socialPostObject = socialPostService.addLike(socialPostId, userId);
 		return new ResponseEntity<>(socialPostObject, HttpStatus.OK);
 	}
 	
-	@PutMapping("/deleteLike/{socialPostId}")
-	public ResponseEntity<SocialPostDto> deleteLike(@PathVariable Long socialPostId){
-		SocialPostDto socialPostObject = socialPostService.deleteLike(socialPostId);
+	@PutMapping("/deleteLike/{socialPostId}/{userId}")
+	public ResponseEntity<SocialPostDto> deleteLike(@PathVariable Long socialPostId, @PathVariable Long userId){
+		SocialPostDto socialPostObject = socialPostService.deleteLike(socialPostId, userId);
 		return new ResponseEntity<>(socialPostObject, HttpStatus.OK);
 	}
 	
