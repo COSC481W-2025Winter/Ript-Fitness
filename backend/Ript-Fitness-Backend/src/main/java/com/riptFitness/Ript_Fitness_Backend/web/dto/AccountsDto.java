@@ -3,6 +3,7 @@ package com.riptFitness.Ript_Fitness_Backend.web.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.riptFitness.Ript_Fitness_Backend.domain.model.ExerciseModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.SocialPost;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Streak;
 
@@ -15,7 +16,6 @@ public class AccountsDto {
     public String password;
     public String email;
     public LocalDateTime lastLogin; // New date-time field
-    
     public Streak streak;
     public List<SocialPost> socialPosts;
     

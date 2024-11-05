@@ -59,8 +59,8 @@ public class WorkoutsControllerTest {
         MockitoAnnotations.openMocks(this);
 
         workoutDto = new WorkoutsDto();
-        workoutDto.workoutsId = 1L;
-        workoutDto.name = "Test Workout";
+        workoutDto.setWorkoutsId(1L);
+        workoutDto.setName("Test Workout");
     }
 
     @Test
@@ -115,7 +115,7 @@ public class WorkoutsControllerTest {
 
     @Test
     public void testDeleteWorkout() throws Exception {
-    	workoutDto.isDeleted = true;
+    	workoutDto.setIsDeleted(true);
     	
         when(workoutsService.deleteWorkout(any(Long.class))).thenReturn(workoutDto);
 

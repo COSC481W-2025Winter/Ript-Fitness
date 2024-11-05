@@ -1,15 +1,17 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PostPersist;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity // Creates a database table with the name below and the columns equal to the variable
@@ -24,9 +26,14 @@ public class Workouts {
     @JoinColumn(name = "account_id", nullable = false)
     private AccountsModel account;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    @JoinColumn(name = "workout_id")
-    private List<ExerciseModel> exercises;
+    @ManyToMany
+    @JoinTable(
+        name = "exercise_ids",
+        joinColumns = @JoinColumn(name = "workout_id"),
+        inverseJoinColumns = @JoinColumn(name = "exercise_id")
+    )
+    private List<ExerciseModel> exercises = new ArrayList<>();
+
 	
 	public String name;
 	public boolean isDeleted = false;
@@ -46,7 +53,11 @@ public class Workouts {
 
     public void setExercises(List<ExerciseModel> exercises) {
         this.exercises = exercises;
+        for (ExerciseModel exercise : exercises) {
+            exercise.setWorkout(this);
+        }
     }
+
 	
 
 }
