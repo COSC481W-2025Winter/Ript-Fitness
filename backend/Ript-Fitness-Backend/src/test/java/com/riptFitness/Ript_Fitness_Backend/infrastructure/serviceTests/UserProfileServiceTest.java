@@ -1,4 +1,4 @@
-package com.riptFitness.Ript_Fitness_Backend.infastructure.serviceTests;
+package com.riptFitness.Ript_Fitness_Backend.infrastructure.serviceTests;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -14,7 +14,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.riptFitness.Ript_Fitness_Backend.config.SecurityConfig;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.SecurityConfig;
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.UserProfileMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.UserProfileRepository;

@@ -10,7 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.riptFitness.Ript_Fitness_Backend.config.JwtUtil;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.JwtUtil;
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.AccountsMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Streak;

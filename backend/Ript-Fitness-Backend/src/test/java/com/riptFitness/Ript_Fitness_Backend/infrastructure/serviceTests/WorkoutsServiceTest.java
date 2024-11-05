@@ -1,6 +1,9 @@
-package com.riptFitness.Ript_Fitness_Backend.infastructure.serviceTests;
+package com.riptFitness.Ript_Fitness_Backend.infrastructure.serviceTests;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -23,7 +26,6 @@ import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.ExerciseRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.WorkoutsRepository;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AccountsService;
-import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.ExerciseService;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.WorkoutsService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.ExerciseDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.WorkoutsDto;

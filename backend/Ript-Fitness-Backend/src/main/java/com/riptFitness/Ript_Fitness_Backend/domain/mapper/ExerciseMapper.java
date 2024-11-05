@@ -1,8 +1,5 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.mapper;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

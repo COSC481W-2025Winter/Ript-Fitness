@@ -23,11 +23,10 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.riptFitness.Ript_Fitness_Backend.config.JwtUtil;
-import com.riptFitness.Ript_Fitness_Backend.config.SecurityConfig;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.JwtUtil;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.SecurityConfig;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.WorkoutsService;
 import com.riptFitness.Ript_Fitness_Backend.web.controller.WorkoutsController;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.WorkoutsDto;
