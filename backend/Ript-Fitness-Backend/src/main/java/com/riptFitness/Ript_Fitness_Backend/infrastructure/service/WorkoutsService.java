@@ -3,22 +3,15 @@ package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import com.riptFitness.Ript_Fitness_Backend.domain.mapper.ExerciseMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.WorkoutsMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
-import com.riptFitness.Ript_Fitness_Backend.domain.model.ExerciseModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Workouts;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.ExerciseRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.WorkoutsRepository;
-import com.riptFitness.Ript_Fitness_Backend.web.dto.ExerciseDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.WorkoutsDto;
 
 @Service

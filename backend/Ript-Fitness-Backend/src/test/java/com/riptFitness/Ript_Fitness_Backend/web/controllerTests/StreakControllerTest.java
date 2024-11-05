@@ -1,6 +1,5 @@
 package com.riptFitness.Ript_Fitness_Backend.web.controllerTests;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;

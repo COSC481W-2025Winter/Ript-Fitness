@@ -1,6 +1,5 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.serviceTests;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
