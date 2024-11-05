@@ -1,4 +1,4 @@
-package com.riptFitness.Ript_Fitness_Backend.config;
+package com.riptFitness.Ript_Fitness_Backend.infrastructure.config;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

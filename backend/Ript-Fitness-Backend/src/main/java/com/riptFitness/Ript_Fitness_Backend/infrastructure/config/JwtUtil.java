@@ -1,4 +1,4 @@
-package com.riptFitness.Ript_Fitness_Backend.config;
+package com.riptFitness.Ript_Fitness_Backend.infrastructure.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
