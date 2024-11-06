@@ -1,4 +1,4 @@
-package com.riptFitness.Ript_Fitness_Backend.config;
+package com.riptFitness.Ript_Fitness_Backend.infrastructure.config;
 
 import java.util.Arrays;
 import java.util.List;

@@ -103,7 +103,7 @@ public class ExerciseService {
 		// in:
 		ExerciseModel exerciseToEditReps = exerciseRepository.findById(exerciseId)
 				.orElseThrow(() -> new RuntimeException("Exercise not found"));
-		if (setNumber > exerciseToEditReps.sets) {
+		if (setNumber > exerciseToEditReps.getSets()) {
 			throw new RuntimeException("The set that you are attempting to edit does not exist");
 		}
 		// Edit the reps given the set number: EXAMPLE: Given that we have 3 sets and
@@ -143,6 +143,39 @@ public class ExerciseService {
 		return editedExercise;
 	}
 	
+	// Method to edit weights for an exercise
+	public ExerciseDto editWeight(Long exerciseId, int setNumber, int newWeight) {
+	    // Retrieve the exercise by ID
+	    ExerciseModel exerciseToEditWeight = exerciseRepository.findById(exerciseId)
+	            .orElseThrow(() -> new RuntimeException("Exercise not found"));
+
+	    // Check if the set number is within the current range of sets
+	    if (setNumber > exerciseToEditWeight.getSets()) {
+	        throw new RuntimeException("The set that you are attempting to edit does not exist");
+	    }
+
+	    // Retrieve the current weight list and adjust it
+	    List<Integer> weightCopy = exerciseToEditWeight.getWeight();
+
+	    // Ensure the weight list is the same size as the number of sets
+	    while (weightCopy.size() < exerciseToEditWeight.getSets()) {
+	        weightCopy.add(0); // Initialize missing weights with a default value, such as 0
+	    }
+	    while (weightCopy.size() > exerciseToEditWeight.getSets()) {
+	        weightCopy.remove(weightCopy.size() - 1); // Remove excess weights
+	    }
+
+	    // Update the weight for the specific set
+	    weightCopy.set(setNumber - 1, newWeight);
+	    exerciseToEditWeight.setWeight(weightCopy);
+
+	    // Save the updated exercise to the database
+	    exerciseRepository.save(exerciseToEditWeight);
+
+	    // Convert to DTO and return the updated exercise
+	    return ExerciseMapper.INSTANCE.convertToDto(exerciseToEditWeight);
+	}
+
  
 	public List<ExerciseDto> findByKeyword(String keyword) {
 		// Get the currently logged in user ID:

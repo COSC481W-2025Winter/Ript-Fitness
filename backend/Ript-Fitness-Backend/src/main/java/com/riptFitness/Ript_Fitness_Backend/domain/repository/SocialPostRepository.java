@@ -1,6 +1,5 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.repository;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -9,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.model.SocialPost;
-import com.riptFitness.Ript_Fitness_Backend.domain.model.Streak;
 
 public interface SocialPostRepository extends JpaRepository<SocialPost, Long>{
 	

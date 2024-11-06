@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.riptFitness.Ript_Fitness_Backend.domain.model.Day;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.SocialPostComment;
 
 public interface SocialPostCommentRepository extends JpaRepository <SocialPostComment, Long>{

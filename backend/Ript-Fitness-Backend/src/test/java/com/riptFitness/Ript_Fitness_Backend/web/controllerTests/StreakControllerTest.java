@@ -1,6 +1,5 @@
 package com.riptFitness.Ript_Fitness_Backend.web.controllerTests;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -25,8 +24,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.riptFitness.Ript_Fitness_Backend.config.JwtUtil;
-import com.riptFitness.Ript_Fitness_Backend.config.SecurityConfig;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.JwtUtil;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.SecurityConfig;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Streak;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.StreakService;
 import com.riptFitness.Ript_Fitness_Backend.web.controller.StreakController;

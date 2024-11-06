@@ -17,8 +17,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.riptFitness.Ript_Fitness_Backend.config.JwtUtil;
-import com.riptFitness.Ript_Fitness_Backend.config.SecurityConfig;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.JwtUtil;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.SecurityConfig;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.UserProfileService;
 import com.riptFitness.Ript_Fitness_Backend.web.controller.UserProfileController;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.UserDto;

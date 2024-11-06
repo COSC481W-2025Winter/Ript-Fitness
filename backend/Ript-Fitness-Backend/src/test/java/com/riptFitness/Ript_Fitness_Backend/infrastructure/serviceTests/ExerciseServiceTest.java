@@ -1,4 +1,4 @@
-package com.riptFitness.Ript_Fitness_Backend.infastructure.serviceTests;
+package com.riptFitness.Ript_Fitness_Backend.infrastructure.serviceTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,7 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import com.riptFitness.Ript_Fitness_Backend.config.JwtRequestFilter;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.JwtRequestFilter;
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.ExerciseMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.ExerciseModel;

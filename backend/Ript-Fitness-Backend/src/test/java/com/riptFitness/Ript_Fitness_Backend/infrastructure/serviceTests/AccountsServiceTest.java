@@ -1,4 +1,4 @@
-package com.riptFitness.Ript_Fitness_Backend.infastructure.serviceTests;
+package com.riptFitness.Ript_Fitness_Backend.infrastructure.serviceTests;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -15,7 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.riptFitness.Ript_Fitness_Backend.config.JwtUtil;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.JwtUtil;
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.AccountsMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;

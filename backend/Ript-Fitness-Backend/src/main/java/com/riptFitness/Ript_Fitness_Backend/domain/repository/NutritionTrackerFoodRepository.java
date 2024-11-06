@@ -1,17 +1,13 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.ArrayList;
 import java.util.Optional;
 
-import com.riptFitness.Ript_Fitness_Backend.domain.model.Day;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Food;
-
-import jakarta.transaction.Transactional;
 
 public interface NutritionTrackerFoodRepository extends JpaRepository<Food, Long> {	
 //Queries needed: 

@@ -78,4 +78,12 @@ public class ExercisesController {
 		return new ResponseEntity<>(usersExercises, HttpStatus.OK);
 	}
 	
+	// Endpoint for editing weights for a specific set in an exercise
+	@PutMapping("/editWeight/{exerciseId}/{setNumber}/{newWeight}")
+	public ResponseEntity<ExerciseDto> editWeight(@PathVariable Long exerciseId, @PathVariable int setNumber, @PathVariable int newWeight) {
+	    ExerciseDto editedExercise = exerciseService.editWeight(exerciseId, setNumber, newWeight);
+	    return new ResponseEntity<>(editedExercise, HttpStatus.OK);
+	}
+
+	
 }
