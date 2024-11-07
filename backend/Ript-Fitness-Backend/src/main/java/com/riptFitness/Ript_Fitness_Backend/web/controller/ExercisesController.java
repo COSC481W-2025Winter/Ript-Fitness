@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.ExerciseService;
@@ -72,17 +73,25 @@ public class ExercisesController {
 	}
 	
 	// Endpoint for getting a List of all exercises associated with account:
-	@GetMapping("/getAllExercises")
-	public ResponseEntity<List<ExerciseDto>> getExercisesFromCurrentUser() {
-		List<ExerciseDto> usersExercises = exerciseService.getExercisesFromCurrentUser();
-		return new ResponseEntity<>(usersExercises, HttpStatus.OK);
+	@GetMapping("/getAllExercises/{nMostRecent}")
+	public ResponseEntity<List<ExerciseDto>> getExercisesFromCurrentUser(@PathVariable int nMostRecent) {
+	    List<ExerciseDto> usersExercises = exerciseService.getExercisesFromCurrentUser(nMostRecent);
+	    return new ResponseEntity<>(usersExercises, HttpStatus.OK);
 	}
+
 	
 	// Endpoint for editing weights for a specific set in an exercise
 	@PutMapping("/editWeight/{exerciseId}/{setNumber}/{newWeight}")
 	public ResponseEntity<ExerciseDto> editWeight(@PathVariable Long exerciseId, @PathVariable int setNumber, @PathVariable int newWeight) {
 	    ExerciseDto editedExercise = exerciseService.editWeight(exerciseId, setNumber, newWeight);
 	    return new ResponseEntity<>(editedExercise, HttpStatus.OK);
+	}
+	
+	// Endpoint for updating Exercise with a Body insteead of path variable:
+	@PutMapping("updateExercise")
+	public ResponseEntity<ExerciseDto> updateExercise(@RequestBody ExerciseDto exerciseDto) {
+		ExerciseDto updatedExercise = exerciseService.updateExercise(exerciseDto);
+		return new ResponseEntity<>(updatedExercise, HttpStatus.OK);
 	}
 
 	

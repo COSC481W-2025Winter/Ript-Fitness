@@ -84,39 +84,39 @@ public class ExerciseServiceTest {
 
 	@Test
 	public void testGetExercisesFromCurrentUser() {
-	    // Arrange
-	    Long currentUserId = 1L;
+		// Arrange
+		Long currentUserId = 1L;
+		int nMostRecent = 2; // Specify how many recent exercises you want to test
 
-	    ExerciseModel exercise1 = new ExerciseModel();
-	    exercise1.setExerciseId(1L);
-	    exercise1.setNameOfExercise("Push Ups");
-	    exercise1.setSets(3);
-	    exercise1.setReps(Arrays.asList(10, 12, 15));
+		ExerciseModel exercise1 = new ExerciseModel();
+		exercise1.setExerciseId(1L);
+		exercise1.setNameOfExercise("Push Ups");
+		exercise1.setSets(3);
+		exercise1.setReps(Arrays.asList(10, 12, 15));
 
-	    ExerciseModel exercise2 = new ExerciseModel();
-	    exercise2.setExerciseId(2L);
-	    exercise2.setNameOfExercise("Squats");
-	    exercise2.setSets(4);
-	    exercise2.setReps(Arrays.asList(8, 8, 10, 12));
+		ExerciseModel exercise2 = new ExerciseModel();
+		exercise2.setExerciseId(2L);
+		exercise2.setNameOfExercise("Squats");
+		exercise2.setSets(4);
+		exercise2.setReps(Arrays.asList(8, 8, 10, 12));
 
-	    List<ExerciseModel> exerciseModels = Arrays.asList(exercise1, exercise2);
+		List<ExerciseModel> exerciseModels = Arrays.asList(exercise1, exercise2);
 
-	    ExerciseDto exerciseDto1 = ExerciseMapper.INSTANCE.convertToDto(exercise1);
-	    ExerciseDto exerciseDto2 = ExerciseMapper.INSTANCE.convertToDto(exercise2);
+		ExerciseDto exerciseDto1 = ExerciseMapper.INSTANCE.convertToDto(exercise1);
+		ExerciseDto exerciseDto2 = ExerciseMapper.INSTANCE.convertToDto(exercise2);
 
-	    when(accountsService.getLoggedInUserId()).thenReturn(currentUserId);
-	    when(exerciseRepository.findByAccountIdAndNotDeleted(currentUserId)).thenReturn(exerciseModels);
+		when(accountsService.getLoggedInUserId()).thenReturn(currentUserId);
+		when(exerciseRepository.findByAccountIdAndNotDeleted(currentUserId)).thenReturn(exerciseModels);
 
-	    // Act
-	    List<ExerciseDto> result = exerciseService.getExercisesFromCurrentUser();
+		// Act
+		List<ExerciseDto> result = exerciseService.getExercisesFromCurrentUser(nMostRecent);
 
-	    // Assert using field-by-field comparison with AssertJ
-	    assertThat(result)
-	        .usingRecursiveFieldByFieldElementComparator()
-	        .containsExactlyInAnyOrder(exerciseDto1, exerciseDto2);
+		// Assert using field-by-field comparison with AssertJ
+		assertThat(result).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(exerciseDto1,
+				exerciseDto2);
 
-	    verify(accountsService, times(1)).getLoggedInUserId();
-	    verify(exerciseRepository, times(1)).findByAccountIdAndNotDeleted(currentUserId);
+		verify(accountsService, times(1)).getLoggedInUserId();
+		verify(exerciseRepository, times(1)).findByAccountIdAndNotDeleted(currentUserId);
 	}
 
 	// Test for addExercise method
@@ -255,6 +255,40 @@ public class ExerciseServiceTest {
 		assertEquals(2, result.size());
 		assertEquals("Push Ups", result.get(0).getNameOfExercise());
 		assertEquals("Pull Ups", result.get(1).getNameOfExercise());
+	}
+
+	@Test
+	public void testUpdateExercise() {
+		// Arrange
+		ExerciseDto exerciseDto = new ExerciseDto();
+		exerciseDto.setExerciseId(1L);
+		exerciseDto.setNameOfExercise("Updated Exercise");
+		exerciseDto.setSets(3);
+		exerciseDto.setReps(Arrays.asList(10, 12, 15));
+		exerciseDto.setWeight(Arrays.asList(100, 110, 120));
+
+		ExerciseModel existingExercise = new ExerciseModel();
+		existingExercise.setExerciseId(1L);
+		existingExercise.setNameOfExercise("Old Exercise");
+		existingExercise.setSets(2);
+		existingExercise.setReps(Arrays.asList(8, 10));
+		existingExercise.setWeight(Arrays.asList(90, 100));
+
+		when(exerciseRepository.findById(1L)).thenReturn(Optional.of(existingExercise));
+		when(exerciseRepository.save(any(ExerciseModel.class))).thenReturn(existingExercise);
+
+		// Act
+		ExerciseDto updatedExercise = exerciseService.updateExercise(exerciseDto);
+
+		// Assert
+		assertNotNull(updatedExercise);
+		assertEquals("Updated Exercise", updatedExercise.getNameOfExercise());
+		assertEquals(3, updatedExercise.getSets());
+		assertEquals(Arrays.asList(10, 12, 15), updatedExercise.getReps());
+		assertEquals(Arrays.asList(100, 110, 120), updatedExercise.getWeight());
+
+		verify(exerciseRepository, times(1)).findById(1L);
+		verify(exerciseRepository, times(1)).save(any(ExerciseModel.class));
 	}
 
 }
