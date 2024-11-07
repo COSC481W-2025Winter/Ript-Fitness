@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import WorkoutApiScreen from "@/app/screens/WorkoutApiScreen";
+import WorkoutApiScreen from "@/app/screens/workout/WorkoutApiScreen";
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 

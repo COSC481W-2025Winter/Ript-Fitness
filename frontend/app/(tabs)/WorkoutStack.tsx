@@ -3,16 +3,16 @@ import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { createStackNavigator, StackNavigationProp, HeaderStyleInterpolators } from '@react-navigation/stack';
 import ApiScreen from '@/app/screens/ApiScreen';
-import MyWorkoutsScreen from '@/app/screens/MyWorkoutsScreen';
-import WorkoutApiScreen from '@/app/screens/WorkoutApiScreen';
+import MyWorkoutsScreen from '@/app/screens/workout/MyWorkoutsScreen';
+import WorkoutApiScreen from '@/app/screens/workout/WorkoutApiScreen';
 import { WorkoutProvider } from '@/context/WorkoutContext';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import AddWorkoutScreen from '../screens/workout/AddWorkoutScreen';
-import StartWorkoutScreen from '../screens/StartWorkoutScreen';
+import StartWorkoutScreen from '../screens/workout/StartWorkoutScreen';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation } from '@react-navigation/native';
 import StreakCounter from '@/components/StreakCounter';
-import MyNotesScreen from '../screens/MyNotesScreen';
+import MyNotesScreen from '../screens/notes/MyNotesScreen';
 import EditNoteScreen from '@/app/screens/notes/EditNoteScreen';
 import { Note } from '@/components/MyNotes/NotesContext';
 
