@@ -14,9 +14,9 @@ import ProfileStack from './app/(tabs)/ProfileStack';
 import { GlobalContext, GlobalProvider } from './context/GlobalContext';
 import { StreakProvider } from './context/StreakContext';
 import SplashScreen from '@/app/screens/SplashScreen';
-import WelcomeScreen from '@/app/screens/WelcomeScreen';
-import LoginScreen from '@/app/screens/LoginScreen';
-import SignupScreen from '@/app/screens/SignupScreen';
+import WelcomeScreen from '@/app/screens/welcome/WelcomeScreen';
+import LoginScreen from '@/app/screens/welcome/LoginScreen';
+import SignupScreen from '@/app/screens/welcome/SignupScreen';
 
 import { SocialFeedProvider } from './context/SocialFeedContext';
 

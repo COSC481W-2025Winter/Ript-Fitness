@@ -7,8 +7,8 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { httpRequests } from '@/api/httpRequests';
 import { GlobalContext } from '@/context/GlobalContext';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { ProfileScreenNavigationProp } from '../(tabs)/ProfileStack';
-import GraphScreen from './profile/GraphScreen';
+import { ProfileScreenNavigationProp } from '../../(tabs)/ProfileStack';
+import GraphScreen from './GraphScreen'
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -36,24 +36,24 @@ const ProfileTabs = () => {
 
 function PhotosScreen() {
   const images:any = [
-    { id: '1', img: require('../../assets/images/profile/Profile.png') },
-    { id: '2', img: require('../../assets/images/profile/Profile.png') },
-    { id: '3', img: require('../../assets/images/profile/Profile.png') },
-    { id: '4', img: require('../../assets/images/profile/Profile.png') },
-    { id: '5', img: require('../../assets/images/profile/Profile.png') },
-    { id: '6', img: require('../../assets/images/profile/Profile.png') },
-    { id: '7', img: require('../../assets/images/profile/Profile.png') },
-    { id: '8', img: require('../../assets/images/profile/Profile.png') },
-    { id: '9', img: require('../../assets/images/profile/Profile.png') },
-    { id: '10', img: require('../../assets/images/profile/Profile.png') },
-    { id: '11', img: require('../../assets/images/profile/Profile.png') },
-    { id: '12', img: require('../../assets/images/profile/Profile.png') },
-    { id: '13', img: require('../../assets/images/profile/Profile.png') },
-    { id: '14', img: require('../../assets/images/profile/Profile.png') },
-    { id: '15', img: require('../../assets/images/profile/Profile.png') },
-    { id: '16', img: require('../../assets/images/profile/Profile.png') },
-    { id: '17', img: require('../../assets/images/profile/Profile.png') },
-    { id: '18', img: require('../../assets/images/profile/Profile.png') },
+    { id: '1', img: require('../../../assets/images/profile/Profile.png') },
+    { id: '2', img: require('../../../assets/images/profile/Profile.png') },
+    { id: '3', img: require('../../../assets/images/profile/Profile.png') },
+    { id: '4', img: require('../../../assets/images/profile/Profile.png') },
+    { id: '5', img: require('../../../assets/images/profile/Profile.png') },
+    { id: '6', img: require('../../../assets/images/profile/Profile.png') },
+    { id: '7', img: require('../../../assets/images/profile/Profile.png') },
+    { id: '8', img: require('../../../assets/images/profile/Profile.png') },
+    { id: '9', img: require('../../../assets/images/profile/Profile.png') },
+    { id: '10', img: require('../../../assets/images/profile/Profile.png') },
+    { id: '11', img: require('../../../assets/images/profile/Profile.png') },
+    { id: '12', img: require('../../../assets/images/profile/Profile.png') },
+    { id: '13', img: require('../../../assets/images/profile/Profile.png') },
+    { id: '14', img: require('../../../assets/images/profile/Profile.png') },
+    { id: '15', img: require('../../../assets/images/profile/Profile.png') },
+    { id: '16', img: require('../../../assets/images/profile/Profile.png') },
+    { id: '17', img: require('../../../assets/images/profile/Profile.png') },
+    { id: '18', img: require('../../../assets/images/profile/Profile.png') },
   ];
 
 
@@ -206,7 +206,7 @@ function PostsScreen() {
   const renderPostItem = ({ item: post }: { item: Post }) => (
     <View style={styles.postItem}>
       <Image
-        source={require('../../assets/images/profile/Profile.png')}
+        source={require('../../../assets/images/profile/Profile.png')}
         style={styles.postAvatar}
       />
       <View style={styles.postContent}>
@@ -350,7 +350,7 @@ function ProgressScreen() {
 
 
     <View style={styles.links}>
-        <TouchableOpacity style={styles.link} onPress={() => navigation.navigate(GraphScreen)}>
+        <TouchableOpacity style={styles.link} onPress={() => navigation.navigate("GraphScreen")}>
           <Text style={styles.linkText}>Graphs</Text>
           <Ionicons name="chevron-forward-outline" size={24} style={styles.linkIcon}/>
         </TouchableOpacity>
@@ -393,9 +393,9 @@ function CustomDrawerContent({navigation} : any) {
 
 const MainScreen = () => {
   const friends:any = [
-    { id: '1', avatar: require('../../assets/images/profile/Profile.png') },
-    { id: '2', avatar: require('../../assets/images/profile/Profile.png') },
-    { id: '3', avatar: require('../../assets/images/profile/Profile.png') },
+    { id: '1', avatar: require('../../../assets/images/profile/Profile.png') },
+    { id: '2', avatar: require('../../../assets/images/profile/Profile.png') },
+    { id: '3', avatar: require('../../../assets/images/profile/Profile.png') },
   ];
   return (
     <View style={styles.bg}><View style={styles.container}>
@@ -403,7 +403,7 @@ const MainScreen = () => {
 
         {/* Profile Section */}
         <View style={styles.profileSection}>
-          <Image source={require('../../assets/images/profile/Profile.png')} style={styles.avatar} />
+          <Image source={require('../../../assets/images/profile/Profile.png')} style={styles.avatar} />
           <Text style={styles.name}>Steve</Text>
           <View style={styles.friendsContainer}>
             <View style={styles.friendsSection}>
