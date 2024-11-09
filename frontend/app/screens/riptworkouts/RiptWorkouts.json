@@ -1,6 +1,8 @@
 [
     {
       "name": "Shoulder Showdown",
+      "level": "Intermediate", 
+      "time": 50, 
       "exercises": [
         { "exercise": "Seated Overhead Dumbbell Press", "sets": 4, "reps": 10 },
         { "exercise": "Rear Delt Cable Fly", "sets": 3, "reps": 8 },
@@ -12,6 +14,8 @@
     },
     {
       "name": "Quad Squad Leg Day",
+      "level": "Intermediate", 
+      "time": 60, 
       "exercises": [
         { "exercise": "Walking Lunge", "sets": 4, "reps": "10ea" },
         { "exercise": "Front Squat", "sets": 4, "reps": 12 },
@@ -23,6 +27,8 @@
     },
     {
       "name": "Flex Friday",
+      "level": "Beginner", 
+      "time": 45, 
       "exercises": [
         { "exercise": "Barbell Bicep Curl", "sets": 4, "reps": 10 },
         { "exercise": "Alternating Incline Curl", "sets": 3, "reps": 8 },
@@ -34,6 +40,8 @@
     },
     {
       "name": "Chest Quest",
+      "level": "Advanced", 
+      "time": 50, 
       "exercises": [
         { "exercise": "Bench Press", "sets": 4, "reps": [12, 10, 8, 6] },
         { "exercise": "Lying Pectoral Fly", "sets": 3, "reps": 10 },
@@ -44,6 +52,8 @@
     },
     {
       "name": "BACK in Action",
+      "level": "Intermediate", 
+      "time": 55, 
       "exercises": [
         { "exercise": "Bent Over Row", "sets": 4, "reps": 10 },
         { "exercise": "Lat Pull Down", "sets": 4, "reps": 10 },
@@ -54,6 +64,8 @@
     },
     {
       "name": "Push Powerhouse",
+      "level": "Advanced", 
+      "time": 75, 
       "exercises": [
         { "exercise": "Bench Press", "sets": 4, "reps": 8 },
         { "exercise": "Incline Dumbbell Bench Press", "sets": 4, "reps": 8 },
@@ -69,6 +81,8 @@
     },
     {
       "name": "Pull Day Pump",
+      "level": "Intermediate", 
+      "time": 50, 
       "exercises": [
         { "exercise": "Pullup", "sets": 4, "reps": 8 },
         { "exercise": "Bentover Row", "sets": 4, "reps": 8 },
@@ -81,6 +95,8 @@
     },
     {
       "name": "Glute Gains Leg Day",
+      "level": "Advanced", 
+      "time": 80, 
       "exercises": [
         { "exercise": "Back Squat", "sets": 4, "reps": 8 },
         { "exercise": "Deadlift", "sets": 4, "reps": 8 },
@@ -94,6 +110,8 @@
     },
     {
       "name": "Pec-tacular Push",
+      "level": "Beginner", 
+      "time": 45, 
       "exercises": [
         { "exercise": "Cable Chest Fly", "sets": 4, "reps": 12 },
         { "exercise": "Dumbbell Chest Fly", "sets": 4, "reps": 12 },
@@ -105,6 +123,8 @@
     },
     {
       "name": "Pull Party",
+      "level": "Intermediate", 
+      "time": 55, 
       "exercises": [
         { "exercise": "Chinup", "sets": 4, "reps": 12 },
         { "exercise": "Single Arm Dumbbell Row", "sets": 4, "reps": "12ea" },
@@ -117,6 +137,8 @@
     },
     {
       "name": "Leg Day Legends",
+      "level": "Advanced", 
+      "time": 70, 
       "exercises": [
         { "exercise": "Front Squat", "sets": 4, "reps": 6 },
         { "exercise": "Goblet Squat", "sets": 4, "reps": 15 },
