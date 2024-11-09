@@ -98,9 +98,7 @@ public class AccountsService {
 		Long usernameCount = accountsRepository.existsByUsername(username);
 		// Check to see if the email is already in use:
 		Long emailCount = accountsRepository.existsByEmail(email);
-		// Convert the Long to a boolean:
-		boolean usernameExists, emailExists = false;
-		if (usernameCount > 0 || emailExists > 0) {
+		if (usernameCount > 0 || emailCount > 0) {
 			// If the username or email alrteady exists, we need to throw an error code:
 			throw new RuntimeException("Username is already taken.");
 		}
