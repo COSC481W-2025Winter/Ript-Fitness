@@ -23,6 +23,10 @@ public interface AccountsRepository extends JpaRepository <AccountsModel, Long> 
 	// Query which returns true or false depending on whether the given username is in the accounts_model database table
 	@Query(value = "SELECT CASE WHEN COUNT(*) > 0 THEN true ELSE false END FROM accounts_model WHERE username = :username", nativeQuery = true)
 	Long existsByUsername(@Param("username") String username);
+	
+	// Query which returns true or false depending on whether the given email is in the accounts_model database table
+	@Query(value = "")
+	Long existsByEmail(@Param("email") String email);
     
 	// Query that gets the ID based off of the username that is entered in the login page from the accounts_model table in DB
     @Query(value = "SELECT id FROM accounts_model WHERE username = :username", nativeQuery = true)
