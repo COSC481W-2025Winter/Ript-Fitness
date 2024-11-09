@@ -25,7 +25,7 @@ public interface AccountsRepository extends JpaRepository <AccountsModel, Long> 
 	Long existsByUsername(@Param("username") String username);
 	
 	// Query which returns true or false depending on whether the given email is in the accounts_model database table
-	@Query(value = "")
+	//@Query(value = "", nativeQuery = true)
 	Long existsByEmail(@Param("email") String email);
     
 	// Query that gets the ID based off of the username that is entered in the login page from the accounts_model table in DB

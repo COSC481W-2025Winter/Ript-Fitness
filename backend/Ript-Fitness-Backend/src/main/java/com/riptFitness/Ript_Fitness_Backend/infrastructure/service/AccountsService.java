@@ -59,14 +59,17 @@ public class AccountsService {
 	}
 
 	@Transactional
-	public String updatePassword(String currentPassword, String newPassword) {
+	public String changePassword(String currentPassword, String newPassword) {
 		// Get the associated account:
 		AccountsModel accountsModel = accountsRepository.findById(getLoggedInUserId())
 				.orElseThrow(() -> new RuntimeException("Account not found!"));
 		
-		// Check to see if the current password doesnt match the one in the DB:
+		// Check to see if the current password doesnt match the one in the DB; and the current/new are not the same
 		if(!passwordEncoder.matches(currentPassword, accountsModel.getPassword())) {
 			throw new RuntimeException("Current password does not match");
+		}
+		if (currentPassword.equals(newPassword)) {
+		    throw new RuntimeException("New password cannot be the same as the current password");
 		}
 		
 		// Encode the password:
