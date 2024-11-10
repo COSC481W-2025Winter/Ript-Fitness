@@ -242,7 +242,7 @@ public class NutritionTrackerService {
 		if(!accountIdCheck(dayBeingUpdated.accountId))
 			throw new RuntimeException("The Day object with ID = " + dayBeingUpdated.id + " does not belong to the currently logged in user. AccountId of the Food object = " + dayBeingUpdated.accountId + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
 		
-		dayBeingUpdated.totalWaterConsumed += waterIntake;
+		dayBeingUpdated.totalWaterConsumed = waterIntake;
 		
 		if(dayBeingUpdated.totalWaterConsumed < 0)
 			dayBeingUpdated.totalWaterConsumed = 0;
