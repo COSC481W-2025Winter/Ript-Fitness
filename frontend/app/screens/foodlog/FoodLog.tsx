@@ -11,10 +11,12 @@ import FoodLogSavedPage from "./FoodLogSaved";
 import FoodLogLoggedPage from "./FoodLogLogged";
 import { WorkoutScreenNavigationProp } from "@/app/(tabs)/WorkoutStack";
 import { ProfileScreenNavigationProp } from "@/app/(tabs)/ProfileStack";
+import addFoodButton from '@/components/foodlog/AddFoodButton';
+import AddFoodButton from "@/components/foodlog/AddFoodButton";
 
 
 export default function FoodLogScreen() {
-    
+
     const navigation = useNavigation<ProfileScreenNavigationProp>();
     const [selectedPage, setSelectedPage] = useState("Logged"); // Track selected page
     const [totalCalories, setTotalCalories] = useState(0);
@@ -24,12 +26,15 @@ export default function FoodLogScreen() {
     const [totalWater, setTotalWater] = useState(0);
     const [day, setDay] = useState();
     const context = useContext(GlobalContext);
-    
+
+    //const currentDate = new Date(); 
+    //const formattedDate = `${currentDate.getMonth() +1}/${currentDate.getDate()}/${currentDate.getFullYear()}`;
+
     const dayData = {
         "foodsEatenInDay": [],
         "foodIdsInFoodsEatenInDayList": []
     }
-
+    
     const newDay = async () => {
         try {
             const dayResponse = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/addDay`, {
@@ -40,6 +45,7 @@ export default function FoodLogScreen() {
                 }, 
                 body: JSON.stringify(dayData),
             });
+            console.log(dayResponse.status);
 
             if (dayResponse.status === 201) {
                 const data = await dayResponse.json(); 
@@ -51,6 +57,18 @@ export default function FoodLogScreen() {
             console.log("Failed to create day", error);
         }
     };
+    
+    // const checkDay = async () => {
+    //     console.log("Current Date: ", formattedDate);
+    //     console.log("Current day: ", day);
+        
+    //     if (formattedDate == day) {
+    //         console.log("The date is today");
+    //     } else {
+    //         console.log("We need a new day");
+    //         newDay();
+    //     }
+    // }
 
     const clearMacroFields = () => {
         setTotalCalories(0);
@@ -92,56 +110,50 @@ export default function FoodLogScreen() {
         setTotalFat(totalFat);
         setTotalCarbs(totalCarbs);
         setTotalProtein(totalProtein);
+        setTotalWater(totalWater);
     };
 
     useEffect(() => {
         setTotalForDay();
         updateTotalMacros();
+        // updateWater();
     }, [selectedPage]);
 
-
+ 
     
-    const addWater = async () => {
-        try {
-            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/editWaterIntake/${day}/10`, {
-                method: 'PUT', 
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${context?.data.token}`,
-                }
-            });
+let amount = totalWater;
 
-            if(response.status == 200 || response.status == 201) {
-                const dayData = await response.json();
-                setTotalWater(dayData.totalWaterConsumed);
-            } else {
-                console.log('Failed to edit water');
+const addWater = async () => {
+    amount += 8; 
+    setTotalWater(amount);
+}
+const minusWater = async () => {
+    if (amount!= 0) {
+        amount -= 8; 
+        setTotalWater(amount);
+    }
+}
+
+const updateWater = async () => {
+    try {
+        const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/editWaterIntake/${day}/${amount}`, {
+            method: 'PUT', 
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${context?.data.token}`,
             }
-        } catch (error) {
-            console.log('Error', 'An error occurred. Please try again.');
-        }
-    };
+        });
 
-    const minusWater = async () => {
-        try {
-            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/editWaterIntake/${day}/-10`, {
-                method: 'PUT', 
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${context?.data.token}`,
-                }
-            });
-
-            if(response.status == 200 || response.status == 201) {
-                const dayData = await response.json();
-                setTotalWater(dayData.totalWaterConsumed);
-            } else {
-                console.log('Failed to edit water');
-            }
-        } catch (error) {
-            console.log('Error', 'An error occurred. Please try again.');
+        if(response.status == 200 || response.status == 201) {
+            const dayData = await response.json();
+            setTotalWater(dayData.totalWaterConsumed);
+        } else {
+            console.log('Failed to edit water');
         }
-    };
+    } catch (error) {
+        console.log('Error', 'An error occurred. Please try again.');
+    }
+}
 
     const renderContent = () => {
         if (selectedPage === "Logged") return <FoodLogLoggedPage dayId={day}/>;
@@ -152,28 +164,33 @@ export default function FoodLogScreen() {
     return(
         <View>
             <View>
-                <View style={styles.calendarNav}>
+            <View style={styles.align}>
+                    <Ionicons name="today-outline" size={30} onPress={() => addWater()}></Ionicons>
+                    <Text style={styles.text}>Start new day log</Text>
+            </View>
+                {/* <View style={styles.calendarNav}>
                     <Ionicons 
                         name={"chevron-back-outline"} 
                         size={24} 
                         style={styles.leftArrow}
                         onPress={() => navigation.navigate('ApiScreen')}
                 />
-                    <Ionicons name={"calendar-clear-outline"} size={24}></Ionicons>
-                    {/* This will be "today" when it is the current date, if not it will display the date of the data they are viewing*/}
-                    <Text onPress={() => newDay()}>Today</Text>
+                     <Ionicons name={"calendar-clear-outline"} size={24}></Ionicons>
+                    This will be "today" when it is the current date, if not it will display the date of the data they are viewing
+                    <Text onPress={() => newDay()}>Start new day</Text>
                     <Ionicons 
                         name={"chevron-forward-outline"} 
                         size={24} 
                         style={styles.rightArrow}
                         onPress={() => navigation.navigate('ApiScreen')}
-                    />
-                </View>
+                    /> 
+                </View> */}
             
             <View style={styles.macroView}> 
                 <View style={styles.macroRow}>
                     <MacroButton
                         title="Calories"
+                        label=""
                         total={totalCalories}
                         textColor="#0E598D"
                         borderColor="#0E598D"
@@ -183,6 +200,7 @@ export default function FoodLogScreen() {
                     ></MacroButton>
                     <MacroButton
                         title="Protein" 
+                        label="g"
                         total={totalProtein}
                         textColor="#F2846C"
                         borderColor="#F2846C"
@@ -192,6 +210,7 @@ export default function FoodLogScreen() {
                     ></MacroButton>
                     <MacroButton
                         title="Carbs" 
+                        label="g"
                         total={totalCarbs}
                         textColor="#088C7F"
                         borderColor="#088C7F"
@@ -203,6 +222,7 @@ export default function FoodLogScreen() {
                 <View style={styles.macroRow}>
                     <MacroButton
                         title="Fat" 
+                        label="g"
                         total={totalFat}
                         textColor="#AC2641"
                         borderColor="#AC2641"
@@ -212,6 +232,7 @@ export default function FoodLogScreen() {
                     ></MacroButton>
                     <MacroButton
                         title="Water" 
+                        label="oz"
                         total={totalWater}
                         textColor="black"
                         borderColor="black"
@@ -227,6 +248,10 @@ export default function FoodLogScreen() {
             </View> 
              {/* Navbar for Logged, Saved, Add */}
              <View style={styles.dataBar}>
+                {/* <View style={styles.align}>
+                    <Ionicons name="today-outline" size={30} onPress={() => addWater()}></Ionicons>
+                    <Text style={styles.text}>Start new day log</Text>
+                </View> */}
                     <Text 
                         style={[styles.text, selectedPage === "Logged" && styles.selectedText]} 
                         onPress={() => setSelectedPage("Logged")}
@@ -286,13 +311,18 @@ const styles = StyleSheet.create({
     dataBar: {
         height: 50,
         width: '100%', 
-        backgroundColor: 'lightgray',
+        backgroundColor: 'lightgrey',
         flexDirection: 'row',
         padding: 5,
         alignItems: 'center',
         position: 'relative',
-        justifyContent: 'space-between',
+        justifyContent: 'space-evenly',
     }, 
+    align: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        alignContent: 'center',
+    },
     text: {
         padding: 10,
     },
@@ -311,5 +341,8 @@ const styles = StyleSheet.create({
     contentContainer: {
         flexGrow: 1,
     },
+    startDayButton: {
+        alignContent: 'center',
+    }
 
 })

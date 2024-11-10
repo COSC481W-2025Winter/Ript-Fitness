@@ -1,26 +1,44 @@
-import { Image, StyleSheet, Platform, ScrollView, View } from 'react-native';
+import { Image, StyleSheet, Platform, ScrollView, View, TouchableOpacity } from 'react-native';
 
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { createStackNavigator, HeaderStyleInterpolators } from '@react-navigation/stack';
+import { createStackNavigator, HeaderStyleInterpolators, StackNavigationProp } from '@react-navigation/stack';
 import { BodyProvider } from '@/context/BodyContext';
 import ApiScreen from '@/app/screens/ApiScreen';
 import { useContext } from 'react';
 import { GlobalContext } from '@/context/GlobalContext';
 import GraphScreen from '../screens/profile/GraphScreen';
 import foodLog from '@/app/screens/foodlog/FoodLog';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
 
 
 
 const Stack = createStackNavigator();
 
+export type BodyStackParamList = {
+  ApiScreen: {};
+}
+
+export type BodyScreenNavigationProp = StackNavigationProp<BodyStackParamList>;
+
 export default function BodyStack(props : any) {
+  const navigation = useNavigation<BodyScreenNavigationProp >();
   return (
     <BodyProvider>
     <Stack.Navigator initialRouteName="MyHomeScreen123" screenOptions={{ headerShown: true }}>
-      <Stack.Screen name="Graph" component={foodLog} />
+      <Stack.Screen name="Food Log" component={foodLog} 
+      // options={{
+      //   headerRight:() => (
+      //     <TouchableOpacity
+      //       onPress={() => { navigation.navigate("ApiScreen", {})}}>
+      //         <Ionicons name="add-circle-outline" size={30}></Ionicons>
+      //     </TouchableOpacity>
+      //   )
+      // }}
+      />
       {/* Put any additional screens for your tab here. This allows us to use a stack.
         A stack allows us to easily navigate back a page when we're in a secondary screen on a certain tab.
       */}

@@ -20,9 +20,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderRadius: 10,
-    padding: 8,
+    padding: 10,
     borderColor: 'grey',
-    width: '90%',
+    width: '100%',
   },
   iconStyle: {
     marginRight: 10,

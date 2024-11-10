@@ -1,10 +1,14 @@
 import { TextInput, StyleSheet, ScrollView, Text, View, FlatList, Alert } from "react-native";
-import React,  { useContext, useEffect, useState } from 'react';
-import { useNavigation } from "@react-navigation/native";
+import React,  { useCallback, useContext, useEffect, useState } from 'react';
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { GlobalContext } from "@/context/GlobalContext";
 import { httpRequests } from "@/api/httpRequests";
 import LogFoodButton from "@/components/foodlog/FoodLogButton";
 import { WorkoutScreenNavigationProp } from "@/app/(tabs)/WorkoutStack";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import SplashScreen from "../SplashScreen";
+import { Swipeable } from 'react-native-gesture-handler';
+import CustomSearchBar from '@/components/custom/CustomSearchBar';
 
 
 interface Food {
@@ -39,88 +43,109 @@ const FoodItem: React.FC<{ food: Food }> =  ({ food }) => {
     )
 };
 
-const getFoodDetails = async (foodId: any) => {
-
-}
 
 const FoodLogSavedPage = () => { 
     const [foodDetails, setFoodDetails] = useState<Food[]>([]);
-
+    const [loading, setLoading] = useState(true);
     const context = useContext(GlobalContext);
 
-    // Function to fetch food details based on the food ID
     const fetchFoodIDs = async () => {
         try {
-            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFoodIdsOfLoggedInUser`, {
-                method: 'GET', 
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${context?.data.token}`,
-                }
-            });
-            if (response.status === 200) {
-                const foodIDs = await response.json();
-                setFoodDetails(foodIDs);
-                // console.log('Fetched food IDs: ', foodIDs);
-                
-                // handle fetching and displaying food details for all IDs 
-                const detailsArray = await Promise.all(foodIDs.map((id: number) => fetchingSingleFoodDetail(id)));
+            console.log("Fetching food details...");
+            const cachedFoodDetails = await AsyncStorage.getItem('foodDetails');
+            
+            if (cachedFoodDetails) {
+                console.log("Using cached food details");
+                setFoodDetails(JSON.parse(cachedFoodDetails));
+            } 
+                const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFoodIdsOfLoggedInUser`,
+                {
+                    method: "GET", 
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${context?.data.token}`,
+                    }
+                });
+            
+                if (response.status === 200) {
+                    const foodIDs = await response.json();
+    
+                    const detailsArray = await Promise.all(foodIDs.map((id: number) => fetchingSingleFoodDetail(id)));
+                    
 
-                // Filter out any failed requests
-                const validDetails = detailsArray.filter((food) => food !== null);
-                validDetails.sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically by food name
-                setFoodDetails(validDetails);
-            } else {
-                // console.error('Failed to fetch food details');
-                return null; 
-            }
-        } catch (error) {
-            console.log('Error fetching food details: ', error);
-        }
-    }; 
-    const fetchingSingleFoodDetail = async (foodID: number) => {
-        try {
-            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFood/${foodID}`, {
-                method: 'GET', 
-                headers: {
-                    'Content-Type': 'application/json', 
-                    'Authorization': `Bearer ${context?.data.token}`,
-                }
-            });
+                    const validDetails = detailsArray.filter((food) => food !== null);
+                    validDetails.sort((a,b) => a.name.localeCompare(b.name));
 
-            if (response.status === 200) {
-                const foodData = await response.json();
-                // console.log(`Fetched details for food ID ${foodID}: `, foodData);
-                return foodData; 
-            } else {
-                // console.error(`Failed to fetch details for food ID: ${foodID}`);
-                return null;
-            }
+                    console.log("Fetched and sorted food details:", validDetails);
+                    setFoodDetails(validDetails);
+
+                    await AsyncStorage.setItem('foodDetails', JSON.stringify(validDetails));
+                } else {
+                    console.log("Failed to fetch food IDs. Status:", response.status);
+                }
+            
         } catch (error) {
-            console.log(`Error fetching details for food ID ${foodID}:`, error);
-            return null;
+            console.error("Error fetching food IDs or details:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
+        const fetchingSingleFoodDetail = async (foodID: number) => {
+            try {
+                const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFood/${foodID}`, {
+                    method: 'GET', 
+                    headers: {
+                        'Content-Type': 'application/json', 
+                        'Authorization': `Bearer ${context?.data.token}`,
+                    }
+                });
+    
+                if (response.status === 200) {
+                    return await response.json();
+                } 
+            } catch (error) {
+                console.log(`Error fetching details for food ID ${foodID}:`, error);
+            }
+            return null;
+        };
 
-    useEffect(() => {
-        fetchFoodIDs();
-    }, []);
+        const addNewFood = (newFood: Food) => {
+            setFoodDetails((prev) => [...prev, newFood].sort((a,b) => a.name.localeCompare(b.name)));
+        };
+
+        useFocusEffect(
+            useCallback(() => {
+                fetchFoodIDs();
+            }, [])
+        );
+
 
     const renderItem = ({ item }:{item: Food}) => <FoodItem food={item} />;
 
 
-    return(
+    return loading ? (
+       <View>
+            <CustomSearchBar></CustomSearchBar>
+            <Text style={styles.message}>Loading...</Text>
+       </View>
+    ) : foodDetails.length === 0 ? (
         <View>
-
-                   
-                    <FlatList
-                        data={foodDetails}
-                        renderItem={renderItem}
-                        keyExtractor={(item, index) => `${item.name}-${index}`}
-                        contentContainerStyle={styles.foodList}
-                    />
-
+            <CustomSearchBar></CustomSearchBar>
+            <Text style={styles.message}>No food items found.</Text>
+        </View>
+    ) : (
+        <View>
+            <CustomSearchBar></CustomSearchBar>
+            <ScrollView nestedScrollEnabled={true}>   
+            <FlatList 
+                data={foodDetails}
+                renderItem={renderItem}
+                keyExtractor={(item) => `${item.id}`}
+                contentContainerStyle={styles.foodList}
+                scrollEnabled={false}
+            />
+            </ScrollView>
         </View>
     );
 };
@@ -152,6 +177,12 @@ const styles = StyleSheet.create({
     bottomContainer: {
         paddingBottom: 29,
         height: '100%',
+    }, 
+    message: {
+        textAlign: 'center', 
+        fontWeight: 'bold', 
+        fontSize: 20,
+        padding: 30,
     }
 })
 

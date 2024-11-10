@@ -22,7 +22,7 @@ export default function FoodLogAddPage({ dayId } : any) {
     const [totalCarbs, setTotalCarbs] = useState(0);
     const [totalProtein, setTotalProtein] = useState(0);
     const [totalWater, setTotalWater] = useState(0);
-    // const [day, setDay] = useState(0);
+    //const [day, setDay] = useState(0);
     const context = useContext(GlobalContext);
 
 
@@ -101,7 +101,7 @@ export default function FoodLogAddPage({ dayId } : any) {
         if (foodExists) {
             Alert.alert("Error", "A food with this name already exists. Please use a different name.");
         return;
-    }
+        }
         const foodData = {
             name: foodName, 
             calories: foodCalories, 
@@ -123,7 +123,6 @@ export default function FoodLogAddPage({ dayId } : any) {
             }, 
             );
             if (response.status === 201) {
-                // console.log('Success', 'Food data saved successfully!');
                 Alert.alert("Success", 'Food data saved successfully!');
               } else {
                 // console.log('Error', 'Failed to save food data.');

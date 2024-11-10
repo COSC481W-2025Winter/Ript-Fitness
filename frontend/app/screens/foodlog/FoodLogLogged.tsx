@@ -5,6 +5,7 @@ import { GlobalContext } from "@/context/GlobalContext";
 import { httpRequests } from "@/api/httpRequests";
 import LogFoodButton from "@/components/foodlog/FoodLogButton";
 import { WorkoutScreenNavigationProp } from "@/app/(tabs)/WorkoutStack";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 
@@ -42,6 +43,7 @@ const FoodItem: React.FC<{ food: Food }> =  ({ food }) => {
 
 const FoodLogLoggedPage = ({ dayId } : any) => { 
     const [foodDetails, setFoodDetails] = useState<Food[]>([]);
+    const [loading, setLoading] = useState(true);
     const [days, setDays] = useState([]);
     const [day, setDay] = useState(0);
 
@@ -52,43 +54,44 @@ const FoodLogLoggedPage = ({ dayId } : any) => {
     // Function to fetch food details based on the food ID
     const fetchFoodIDs = async () => {
         try {
-            // const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getDayIdsOfLoggedInUser`, {
-            //     method: 'GET', 
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         'Authorization': `Bearer ${context?.data.token}`,
-            //     }
-            // });
+
+            console.log("Fetching food details...");
+            const cachedFoodTodayDetails = await AsyncStorage.getItem('foodTodayDetails');
             
-            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getDay/${dayId}`, {
-                method: 'PUT', 
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${context?.data.token}`,
-                }, 
-            });
-
-            if (response.status === 200) {
-                const dayData = await response.json();
-                // console.log('Fetched day ID: ', dayData.id);
-                const foodIDs = dayData.foodIdsInFoodsEatenInDayList;
-                
-                // console.log('Fetched food IDs: ', foodIDs);
-                    
-                // handle fetching and displaying food details for all IDs 
-                const detailsArray = await Promise.all(foodIDs.map((id: number) => fetchingSingleFoodDetail(id)));
-
-                // Filter out any failed requests
-                const validDetails = detailsArray.filter((food) => food !== null);
-                
-                setFoodDetails(validDetails);
-
-            } else {
-                console.log(response.json());
-                // console.error('Failed to fetch food details');
+            if (cachedFoodTodayDetails) {
+                console.log("Using cached food details");
+                setFoodDetails(JSON.parse(cachedFoodTodayDetails));
             }
+                const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getDay/${dayId}`, {
+                    method: 'PUT', 
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${context?.data.token}`,
+                    }, 
+                });
+
+                if (response.status === 200) {
+                    const dayData = await response.json();
+                    const foodIDs = dayData.foodIdsInFoodsEatenInDayList;
+                    console.log("Food ids today: ", foodIDs);
+                    
+                    // handle fetching and displaying food details for all IDs 
+                    const detailsArray = await Promise.all(foodIDs.map((id: number) => fetchingSingleFoodDetail(id)));
+
+                    // Filter out any failed requests
+                    const validDetails = detailsArray.filter((food) => food !== null);
+                    
+                    setFoodDetails(validDetails);
+
+                    await AsyncStorage.setItem('foodTodayDetails', JSON.stringify(validDetails));
+                } else {
+                    console.log(response.json());
+                }
+            
         } catch (error) {
             console.log('Error fetching food details: ', error);
+        } finally {
+            setLoading(false);
         }
 }; 
     const fetchingSingleFoodDetail = async (foodID: number) => {
@@ -103,10 +106,8 @@ const FoodLogLoggedPage = ({ dayId } : any) => {
 
             if (response.status === 200) {
                 const foodData = await response.json();
-                // console.log(`Fetched details for food ID ${foodID}: `, foodData);
                 return foodData; 
             } else {
-                // console.error(`Failed to fetch details for food ID: ${foodID}`);
                 return null;
             }
         } catch (error) {
@@ -118,21 +119,29 @@ const FoodLogLoggedPage = ({ dayId } : any) => {
 
     useEffect(() => {
         fetchFoodIDs();
-    }, [dayId]);
+    }, []);
 
     const renderItem = ({ item }:{item: Food}) => <FoodItem food={item} />;
 
 
-    return(
+    return loading ? (
+        <View>
+             <Text style={styles.message}>Loading...</Text>
+        </View>
+     ) : foodDetails.length === 0 ? (
+         <View>
+             <Text style={styles.message}>No food items found.</Text>
+         </View>
+     ) : (
 // {/* THIS IS THE NEW STUFF FOR THE ADD PAGE*/}
-        <View style={{  }}>
-                    {/* Bottom section displaying list of foods */}
-                    <FlatList<Food>
-                        data={foodDetails}
-                        renderItem={renderItem}
-                        keyExtractor={(item, index) => `${item.name}-${index}`}
-                        contentContainerStyle={[ styles.foodList]}
-                    />
+        <View >
+            {/* Bottom section displaying list of foods */}
+            <FlatList<Food>
+                data={foodDetails}
+                renderItem={renderItem}
+                keyExtractor={(item, index) => `${item.name}-${index}`}
+                contentContainerStyle={[ styles.foodList]}
+            />
         </View>
     );
 };
@@ -161,6 +170,12 @@ const styles = StyleSheet.create({
     },
     bottomContainer: {
         //height: '100%',
+    }, 
+    message: {
+        textAlign: 'center', 
+        fontWeight: 'bold', 
+        fontSize: 20,
+        padding: 30,
     }
 })
 
