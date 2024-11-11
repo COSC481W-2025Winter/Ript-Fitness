@@ -11,8 +11,7 @@ import FoodLogSavedPage from "./FoodLogSaved";
 import FoodLogLoggedPage from "./FoodLogLogged";
 import { WorkoutScreenNavigationProp } from "@/app/(tabs)/WorkoutStack";
 import { ProfileScreenNavigationProp } from "@/app/(tabs)/ProfileStack";
-import addFoodButton from '@/components/foodlog/AddFoodButton';
-import AddFoodButton from "@/components/foodlog/AddFoodButton";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 export default function FoodLogScreen() {
@@ -51,9 +50,23 @@ export default function FoodLogScreen() {
 
             if (dayResponse.status === 201) {
                 const data = await dayResponse.json(); 
-                setDay(data.id);
-                console.log("Day ID: ", data.id);
+                const dayID = data.id;
+                setDay(dayID);
+                console.log("Day ID: ", dayID);
                 clearMacroFields();
+
+                const cacheDayID = async (dayID: { toString: () => string; }) => {
+                    try {
+                      await AsyncStorage.setItem('cachedDayID', dayID.toString());
+                      console.log('Day ID cached successfully!');
+                    } catch (error) {
+                      console.error('Error caching Day ID:', error);
+                    }
+                  };
+                
+                // await AsyncStorage.setItem('day', JSON.stringify(data.id));
+                // const dayItem = await AsyncStorage.getItem('day');
+                // console.log("Day item in storage: ", dayItem);
             }
         } catch (error) {
             console.log("Failed to create day", error);
@@ -166,10 +179,6 @@ const updateWater = async () => {
     return(
         <SafeAreaView style={styles.flexContainer}>
             <View>
-            {/* <View style={styles.align}>
-                    <Ionicons name="today-outline" size={30} onPress={() => addWater()}></Ionicons>
-                    <Text style={styles.text}>Start new day log</Text>
-            </View> */}
                 <View style={styles.calendarNav}>
                     <Ionicons 
                         name={"chevron-back-outline"} 
@@ -282,7 +291,7 @@ const updateWater = async () => {
                 </View>
         </View>
          {/* Display Selected Page Content */}
-        <View style={{}}>
+        <View style={styles.pageContainer}>
                 {renderContent()}
         </View>
     </SafeAreaView>
@@ -292,6 +301,10 @@ const updateWater = async () => {
 const styles = StyleSheet.create({
     flexContainer: {
         flexGrow: 1, 
+    },
+    pageContainer: {
+        flex: 1, 
+        // paddingBottom: 62,
     },
     calendarNav: {
         height: 40,
@@ -375,3 +388,7 @@ const styles = StyleSheet.create({
     }
 
 })
+
+function async(id: any) {
+    throw new Error("Function not implemented.");
+}

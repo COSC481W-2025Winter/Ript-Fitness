@@ -54,13 +54,13 @@ const FoodLogLoggedPage = ({ dayId } : any) => {
     // Function to fetch food details based on the food ID
     const fetchFoodIDs = async () => {
         try {
-            console.log("Fetching food details...");
             const cachedFoodTodayDetails = await AsyncStorage.getItem('foodTodayDetails');
-            const cachedDay = await AsyncStorage.getItem('day');
+            // const cachedDay = await AsyncStorage.getItem('day');
             
             if (cachedFoodTodayDetails) {
                 console.log("Using cached food details");
                 setFoodDetails(JSON.parse(cachedFoodTodayDetails));
+                // setDay(JSON.parse(cachedDay));
                 // setDay(JSON.parse(cachedDay));
                 setCached(true);
             }
@@ -86,7 +86,6 @@ const FoodLogLoggedPage = ({ dayId } : any) => {
                     setFoodDetails(validDetails);
 
                     await AsyncStorage.setItem('foodTodayDetails', JSON.stringify(validDetails));
-                    await AsyncStorage.setItem('day', JSON.stringify(dayData.id))
 
                 } else {
                     console.log(response.json());
@@ -128,16 +127,17 @@ const FoodLogLoggedPage = ({ dayId } : any) => {
     const renderItem = ({ item }:{item: Food}) => <FoodItem food={item} />;
 
 
-    return cached ? (
-        <View>
-            <FlatList<Food>
-                data={foodDetails}
-                renderItem={renderItem}
-                keyExtractor={(item, index) => `${item.name}-${index}`}
-                contentContainerStyle={styles.foodList}
-            />
-        </View>
-    ) :  loading ? (
+    // return cached ? (
+    //     <View>
+    //         <FlatList<Food>
+    //             data={foodDetails}
+    //             renderItem={renderItem}
+    //             keyExtractor={(item, index) => `${item.name}-${index}`}
+    //             contentContainerStyle={styles.foodList}
+    //         />
+    //     </View>
+    // ) :  
+    return loading ? (
         <View>
              <Text style={styles.message}>Loading...</Text>
         </View>
@@ -152,7 +152,7 @@ const FoodLogLoggedPage = ({ dayId } : any) => {
 // {/* THIS IS THE NEW STUFF FOR THE ADD PAGE*/}
         <View >
             {/* Bottom section displaying list of foods */}
-            <FlatList<Food>
+            <FlatList
                 data={foodDetails}
                 renderItem={renderItem}
                 keyExtractor={(item, index) => `${item.name}-${index}`}

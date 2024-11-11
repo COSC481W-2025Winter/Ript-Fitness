@@ -123,7 +123,7 @@ const FoodLogSavedPage = () => {
             }, [])
         );
 
-        // Show a confirmation before deleting an exercise
+        // Show a confirmation before deleting a food
   const confirmDeleteFood = (id: number) => {
     Alert.alert(
       "Delete Food",
@@ -135,14 +135,15 @@ const FoodLogSavedPage = () => {
     );
   };
 
-    // Remove an exercise by ID
+    // Remove a food by ID
     const removeFood = (id: number) => {
         setFoodDetails(foodDetails.filter((food) => food.id !== id));   
         removeFromDatabase(id);
       };
 
     const removeFromDatabase = async (id: number) => {
-         const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/nutritionCalculator/deleteFood/${id}`,
+        try {
+         const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/deleteFood/${id}`,
                 {
                     method: "DELETE", 
                     headers: {
@@ -150,6 +151,15 @@ const FoodLogSavedPage = () => {
                         'Authorization': `Bearer ${context?.data.token}`,
                     }
                 });
+                console.log("Response status: ", response.status);
+                if (response.status === 200) {
+                    Alert.alert("Successfully deleted.");
+                } else {
+                    console.log("did not delete");
+                }
+            } catch (error) {
+                console.error(error);
+            }
     }
 
     const renderItem = ({ item }:{item: Food}) => (
@@ -209,7 +219,6 @@ const styles = StyleSheet.create({
         paddingBottom: 20, 
     }, 
     foodItemContainer: {
-        // position: 'relative',
         padding: 30, 
         backgroundColor: 'white', 
         borderBottomWidth: 1, 
