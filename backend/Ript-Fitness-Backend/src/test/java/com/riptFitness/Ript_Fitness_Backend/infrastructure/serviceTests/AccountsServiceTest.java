@@ -1,11 +1,11 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.serviceTests;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,13 +13,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.JwtUtil;
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.AccountsMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.StreakRepository;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.JwtUtil;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AccountsService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.AccountsDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.LoginRequestDto;
@@ -37,26 +41,16 @@ public class AccountsServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private JwtUtil jwtUtil; // Ensure JwtUtil is properly mocked
+    private JwtUtil jwtUtil;
 
     @InjectMocks
     private AccountsService accountsService;
-
-    private AccountsMapper accountsMapper = AccountsMapper.INSTANCE;
 
     private AccountsDto accountsDto;
     private AccountsModel accountsModel;
 
     @BeforeEach
     public void setUp() {
-        // Initialize test data
-        jwtUtil = mock(JwtUtil.class);
-        accountsRepository = mock(AccountsRepository.class);
-        streakRepository = mock(StreakRepository.class);
-        passwordEncoder = mock(PasswordEncoder.class);
-
-        accountsService = new AccountsService(accountsRepository, streakRepository, passwordEncoder, jwtUtil);
-
         // Initialize accountsDto for all tests
         accountsDto = new AccountsDto();
         accountsDto.setUsername("testUser");
@@ -67,7 +61,79 @@ public class AccountsServiceTest {
         // Initialize accountsModel
         accountsModel = AccountsMapper.INSTANCE.convertToModel(accountsDto);
     }
-    
+
+    @Test
+    public void testCreateNewAccount_Success() {
+        // Mocking the encoded values for both the password and email
+        String encodedPassword = "encodedPassword123";
+        String encodedEmail = "encodedEmail123"; // Mocked encoded email
+        String mockedToken = "mocked-jwt-token"; // Mocked JWT token
+
+        // Username does not exist
+        when(accountsRepository.existsByUsername(accountsDto.getUsername())).thenReturn(0L);
+
+        // Mocking accountsRepository.findAllEncodedEmails()
+        List<String> encodedEmails = new ArrayList<>(); // Empty list, no emails in use
+        when(accountsRepository.findAllEncodedEmails()).thenReturn(encodedEmails);
+
+        // Remove the unnecessary stubbing of passwordEncoder.matches(...)
+        // when(passwordEncoder.matches(eq("test@example.com"), anyString())).thenReturn(false);
+
+        // Adjust stubbing to match actual method calls
+        when(passwordEncoder.encode("password123")).thenReturn(encodedPassword);
+        when(passwordEncoder.encode("test@example.com")).thenReturn(encodedEmail);
+
+        // Mock the JWT token generation
+        when(jwtUtil.generateToken(accountsDto.getUsername())).thenReturn(mockedToken);
+
+        // Execute the method under test
+        String token = accountsService.createNewAccount(accountsDto);
+
+        // Verify the result
+        assertNotNull(token);
+        assertEquals(mockedToken, token); // Verify that the correct token is returned
+
+        // Verify that save was called
+        verify(accountsRepository).save(any(AccountsModel.class));
+    }
+
+
+
+    // Test for createNewAccount when username already exists
+    @Test
+    public void testCreateNewAccount_UsernameExists() {
+        when(accountsRepository.existsByUsername(accountsDto.getUsername())).thenReturn(1L);
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            accountsService.createNewAccount(accountsDto);
+        });
+
+        assertEquals("Username is already taken.", exception.getMessage());
+        verify(accountsRepository, never()).save(any(AccountsModel.class));
+    }
+
+    // Test for createNewAccount when email already exists
+    @Test
+    public void testCreateNewAccount_EmailExists() {
+        // Username does not exist
+        when(accountsRepository.existsByUsername(accountsDto.getUsername())).thenReturn(0L);
+
+        // Mocking accountsRepository.findAllEncodedEmails()
+        String encodedEmail = "encodedEmail123"; // Mocked encoded email
+        List<String> encodedEmails = Arrays.asList(encodedEmail); // Contains the encoded email
+        when(accountsRepository.findAllEncodedEmails()).thenReturn(encodedEmails);
+
+        // Mock passwordEncoder.matches to return true when matching the email
+        when(passwordEncoder.matches("test@example.com", encodedEmail)).thenReturn(true);
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            accountsService.createNewAccount(accountsDto);
+        });
+
+        assertEquals("Email is already taken.", exception.getMessage());
+        verify(accountsRepository, never()).save(any(AccountsModel.class));
+    }
+
     @Test
     public void testChangePassword() {
         // Mock input data
@@ -77,74 +143,67 @@ public class AccountsServiceTest {
 
         // Mock the accounts model
         AccountsModel accountsModel = new AccountsModel();
+        accountsModel.setId(1L);
         accountsModel.setUsername("testUser");
         accountsModel.setPassword("encodedPassword123");
 
-        // Mock the behavior of the password encoder
-        when(passwordEncoder.matches(currentPassword, "encodedPassword123")).thenReturn(true); // Password matches
-        when(passwordEncoder.matches(samePassword, "encodedPassword123")).thenReturn(true); // Matches current password
-        when(passwordEncoder.encode(newPassword)).thenReturn("encodedNewPassword123"); // Mock encoding for new password
+        // Set up the SecurityContext with a mock Authentication
+        UserDetails userDetails = mock(UserDetails.class);
+        when(userDetails.getUsername()).thenReturn("testUser");
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, new ArrayList<>());
+        SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // Mock saving the updated account
-        when(accountsRepository.findById(any())).thenReturn(Optional.of(accountsModel));
-        when(accountsRepository.save(any(AccountsModel.class))).thenReturn(accountsModel);
-        when(jwtUtil.generateToken(accountsModel.getUsername())).thenReturn("mocked-jwt-token");
+        try {
+            // Test Case 1: Valid password change
+            // Mock dependencies
+            when(accountsRepository.findByUsername("testUser")).thenReturn(Optional.of(accountsModel));
+            when(accountsRepository.findById(1L)).thenReturn(Optional.of(accountsModel));
+            when(passwordEncoder.matches(currentPassword, "encodedPassword123")).thenReturn(true);
+            when(passwordEncoder.encode(newPassword)).thenReturn("encodedNewPassword123");
+            when(jwtUtil.generateToken(accountsModel.getUsername())).thenReturn("mocked-jwt-token");
 
-        // Test Case 1: Valid password change
-        String token = accountsService.changePassword(currentPassword, newPassword);
-        assertNotNull(token);
-        assertEquals("mocked-jwt-token", token); // The generated token should match the mocked one
-        verify(accountsRepository).save(accountsModel); // Ensure the save method was called
+            String token = accountsService.changePassword(currentPassword, newPassword);
+            assertNotNull(token);
+            assertEquals("mocked-jwt-token", token);
+            verify(accountsRepository).save(accountsModel);
 
-        // Test Case 2: Incorrect current password
-        when(passwordEncoder.matches(currentPassword, "encodedPassword123")).thenReturn(false); // Incorrect password
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            accountsService.changePassword(currentPassword, newPassword);
-        });
-        assertEquals("Current password does not match", exception.getMessage());
+            // Reset interactions and data for the next test case
+            reset(accountsRepository, passwordEncoder, jwtUtil);
+            accountsModel.setPassword("encodedPassword123"); // Reset password
 
-        // Test Case 3: New password same as current password
-        RuntimeException exception2 = assertThrows(RuntimeException.class, () -> {
-            accountsService.changePassword(samePassword, samePassword);
-        });
-        assertEquals("New password cannot be the same as the current password", exception2.getMessage());
+            // Test Case 2: Incorrect current password
+            // Mock dependencies
+            when(accountsRepository.findByUsername("testUser")).thenReturn(Optional.of(accountsModel));
+            when(accountsRepository.findById(1L)).thenReturn(Optional.of(accountsModel));
+            when(passwordEncoder.matches(currentPassword, "encodedPassword123")).thenReturn(false);
+
+            RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+                accountsService.changePassword(currentPassword, newPassword);
+            });
+            assertEquals("Current password does not match", exception.getMessage());
+            verify(accountsRepository, never()).save(any(AccountsModel.class));
+
+            // Reset interactions and data for the next test case
+            reset(accountsRepository, passwordEncoder);
+            accountsModel.setPassword("encodedPassword123"); // Reset password
+
+            // Test Case 3: New password same as current password
+            // Mock dependencies
+            when(accountsRepository.findByUsername("testUser")).thenReturn(Optional.of(accountsModel));
+            when(accountsRepository.findById(1L)).thenReturn(Optional.of(accountsModel));
+            when(passwordEncoder.matches(samePassword, "encodedPassword123")).thenReturn(true);
+
+            RuntimeException exception2 = assertThrows(RuntimeException.class, () -> {
+                accountsService.changePassword(samePassword, samePassword);
+            });
+            assertEquals("New password cannot be the same as the current password", exception2.getMessage());
+            verify(accountsRepository, never()).save(any(AccountsModel.class));
+        } finally {
+            SecurityContextHolder.clearContext();
+        }
     }
 
-
-
-
-    // Test for createNewAccount when username does not exist
-    @Test
-    public void testCreateNewAccount_Success() {
-        // Mocking the encoded values for both the password and email
-        String encodedPassword = "encodedPassword123";
-        String encodedEmail = "encodedEmail123"; // Mocked encoded email
-        String mockedToken = "mocked-jwt-token"; // Mocked JWT token
-
-        // Mock the behavior of passwordEncoder for both the password and email
-        when(passwordEncoder.encode("password123")).thenReturn(encodedPassword);
-        when(passwordEncoder.encode("test@example.com")).thenReturn(encodedEmail);
-
-        // Mocking the save method to return the model with the encoded values
-        AccountsModel accountsModel = new AccountsModel();
-        accountsModel.setUsername("testUser");
-        accountsModel.setPassword(encodedPassword); // Use the mocked encoded password
-        accountsModel.setEmail(encodedEmail);       // Use the mocked encoded email
-        accountsModel.setlastLogin(LocalDateTime.now());
-
-        when(accountsRepository.existsByUsername(accountsDto.getUsername())).thenReturn((long) 0);
-        when(accountsRepository.save(any(AccountsModel.class))).thenReturn(accountsModel);
-
-        // Mock the JWT token generation
-        when(jwtUtil.generateToken(accountsModel.getUsername())).thenReturn(mockedToken);
-
-        // Execute the method under test
-        String token = accountsService.createNewAccount(accountsDto);
-
-        // Verify the result
-        assertNotNull(token);
-        assertEquals(mockedToken, token); // Verify that the correct token is returned
-    }
 
     @Test
     public void testLogIntoAccount_Success() {
@@ -183,19 +242,6 @@ public class AccountsServiceTest {
         verify(passwordEncoder).matches(password, "encodedPassword123");
     }
 
-    // Test for createNewAccount when username already exists
-    @Test
-    public void testCreateNewAccount_UsernameExists() {
-        when(accountsRepository.existsByUsername(accountsDto.getUsername())).thenReturn(1L);
-
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            accountsService.createNewAccount(accountsDto);
-        });
-
-        assertEquals("Username is already taken.", exception.getMessage());
-        verify(accountsRepository, never()).save(any(AccountsModel.class));
-    }
-
     // Test for logIntoAccount with incorrect password
     @Test
     public void testLogIntoAccount_IncorrectPassword() {
@@ -207,11 +253,12 @@ public class AccountsServiceTest {
         AccountsModel existingAccount = new AccountsModel();
         existingAccount.setId(id);
         existingAccount.setUsername(username);
-        existingAccount.setPassword("password123");
+        existingAccount.setPassword("encodedPassword123");
         existingAccount.setEmail("test@example.com");
 
         when(accountsRepository.findIdByUsername(username)).thenReturn(Optional.of(id));
         when(accountsRepository.findById(id)).thenReturn(Optional.of(existingAccount));
+        when(passwordEncoder.matches(password, "encodedPassword123")).thenReturn(false);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             LoginRequestDto loginRequest = new LoginRequestDto();

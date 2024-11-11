@@ -1,6 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,12 +11,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.JwtUtil;
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.AccountsMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Streak;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.StreakRepository;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.JwtUtil;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.AccountsDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.LoginRequestDto;
 
@@ -108,11 +109,18 @@ public class AccountsService {
 			// If the username or email alrteady exists, we need to throw an error code:
 			throw new RuntimeException("Username is already taken.");
 		}
+		
+		// Get a list of all encoded emails:
+		List<String> listOfEncodedEmails = accountsRepository.findAllEncodedEmails();
 
 		// Check to see if the email is already in use:
-		Long emailCount = accountsRepository.existsByEmail(email);
-		System.out.println("Email count for '" + email + "': " + emailCount);
-		if (emailCount > 0) {
+		boolean emailExists = false;
+		for(int i = 0; i < listOfEncodedEmails.size(); i++) {
+			if(emailExists = passwordEncoder.matches(email, listOfEncodedEmails.get(i))) {
+				
+			}
+		}
+		if (emailExists == true) {
 			// If the username or email alrteady exists, we need to throw an error code:
 			throw new RuntimeException("Email is already taken.");
 		}
