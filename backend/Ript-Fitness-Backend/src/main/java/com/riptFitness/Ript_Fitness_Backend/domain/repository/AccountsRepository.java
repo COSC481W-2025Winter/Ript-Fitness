@@ -25,7 +25,7 @@ public interface AccountsRepository extends JpaRepository <AccountsModel, Long> 
 	Long existsByUsername(@Param("username") String username);
 	
 	// Query which returns true or false depending on whether the given email is in the accounts_model database table
-	//@Query(value = "", nativeQuery = true)
+	@Query(value = "SELECT CASE WHEN COUNT(*) > 0 THEN true ELSE false END FROM accounts_model WHERE email = :email", nativeQuery = true)
 	Long existsByEmail(@Param("email") String email);
     
 	// Query that gets the ID based off of the username that is entered in the login page from the accounts_model table in DB
@@ -37,6 +37,7 @@ public interface AccountsRepository extends JpaRepository <AccountsModel, Long> 
     @Transactional // Required for modifying queries
     @Query(value = "UPDATE accounts_model SET last_login = :lastLogin WHERE username = :username", nativeQuery = true)
     void updateLoginDate(@Param("username") String username, @Param("lastLogin") LocalDateTime lastLogin);
+    
     
     Optional<AccountsModel> findByUsername(String username);  // Method to find account by username
     
