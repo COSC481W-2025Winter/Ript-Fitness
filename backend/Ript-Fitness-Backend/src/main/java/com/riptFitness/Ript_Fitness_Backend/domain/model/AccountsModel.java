@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,6 +31,9 @@ public class AccountsModel {
     @OneToOne(mappedBy = "account")
     @JsonManagedReference // Indicates that AccountsModel is the parent in the relationship
     private Streak streak;
+    
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    private UserProfile userProfile;
     
     // If you want to define a bi-directional relationship
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
