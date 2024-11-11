@@ -20,10 +20,11 @@ public class UserProfileService {
 
     public UserDto addUser(UserDto userDto, String username) {
         UserProfile userToBeAdded = UserProfileMapper.INSTANCE.toUser(userDto);
-        userToBeAdded.setUsername(username); // Set the username from context
+        userToBeAdded.setUsername(username);
         userToBeAdded = userRepository.save(userToBeAdded);
         return UserProfileMapper.INSTANCE.toUserDto(userToBeAdded);
     }
+
 
     // Retrieves user profile by username
     public UserDto getUserByUsername(String username) {
