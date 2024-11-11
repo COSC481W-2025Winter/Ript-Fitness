@@ -63,15 +63,16 @@ public class AccountsService {
 		// Get the associated account:
 		AccountsModel accountsModel = accountsRepository.findById(getLoggedInUserId())
 				.orElseThrow(() -> new RuntimeException("Account not found!"));
-		
-		// Check to see if the current password doesnt match the one in the DB; and the current/new are not the same
-		if(!passwordEncoder.matches(currentPassword, accountsModel.getPassword())) {
+
+		// Check to see if the current password doesnt match the one in the DB; and the
+		// current/new are not the same
+		if (!passwordEncoder.matches(currentPassword, accountsModel.getPassword())) {
 			throw new RuntimeException("Current password does not match");
 		}
 		if (currentPassword.equals(newPassword)) {
-		    throw new RuntimeException("New password cannot be the same as the current password");
+			throw new RuntimeException("New password cannot be the same as the current password");
 		}
-		
+
 		// Encode the password:
 		String encodedPassword = passwordEncoder.encode(newPassword);
 
@@ -80,11 +81,11 @@ public class AccountsService {
 
 		// Save the model:
 		accountsRepository.save(accountsModel);
-		
+
 		// Generate a JWT token and return it
 		String token = jwtUtil.generateToken(accountsModel.getUsername());
 		System.out.println("Password change succesfull for: " + accountsModel.getUsername());
-		
+
 		// Return the token:
 		return token;
 	}
@@ -93,38 +94,49 @@ public class AccountsService {
 	public String createNewAccount(AccountsDto accountsDto) {
 		// Convert DTO to model:
 		AccountsModel accountsModel = AccountsMapper.INSTANCE.convertToModel(accountsDto);
-		// Get the username:
+
 		String username = accountsModel.getUsername();
-		// Get the email:
 		String email = accountsModel.getEmail();
+		
+		// TEST:
+		// Print the raw email before any processing
+	    System.out.println("Raw email from input: " + email);
+
 		// Check to see if the username already exists:
 		Long usernameCount = accountsRepository.existsByUsername(username);
-		// Check to see if the email is already in use:
-		Long emailCount = accountsRepository.existsByEmail(email);
-		if (usernameCount > 0 || emailCount > 0) {
+		if (usernameCount > 0) {
 			// If the username or email alrteady exists, we need to throw an error code:
 			throw new RuntimeException("Username is already taken.");
 		}
-		else {
-			// If the username or email does not exist; allow the user to create an account.
-			// Encode and set password:
-			String rawPassword = accountsModel.getPassword();
-			String encodedPassword = passwordEncoder.encode(rawPassword);
-			accountsModel.setPassword(encodedPassword);
-			// Encode and set email.
-			String rawEmail = accountsModel.getEmail();
-			String encodedEmail = passwordEncoder.encode(rawEmail);
-			accountsModel.setEmail(encodedEmail);
-			accountsRepository.save(accountsModel);
 
-			// creating a corresponding streak for the account
-			Streak streak = new Streak();
-			streak.account = accountsModel; // Associate the streak with the account
-			streak.currentSt = 0; // Initialize streak count to 0
-			streak.prevLogin = LocalDateTime.now();
-			streakRepository.save(streak);
-
+		// Check to see if the email is already in use:
+		Long emailCount = accountsRepository.existsByEmail(email);
+		System.out.println("Email count for '" + email + "': " + emailCount);
+		if (emailCount > 0) {
+			// If the username or email alrteady exists, we need to throw an error code:
+			throw new RuntimeException("Email is already taken.");
 		}
+
+		// Encode and set password:
+		String rawPassword = accountsModel.getPassword();
+		String encodedPassword = passwordEncoder.encode(rawPassword);
+		accountsModel.setPassword(encodedPassword);
+		
+		// Encode and set email.
+		String rawEmail = accountsModel.getEmail();
+		String encodedEmail = passwordEncoder.encode(rawEmail);
+		System.out.println("Raw email before encoding: " + rawEmail);
+	    System.out.println("Encoded email: " + encodedEmail);
+		accountsModel.setEmail(encodedEmail);
+		accountsRepository.save(accountsModel);
+
+		// Creating a corresponding streak for the account
+		Streak streak = new Streak();
+		streak.account = accountsModel; // Associate the streak with the account
+		streak.currentSt = 0; // Initialize streak count to 0
+		streak.prevLogin = LocalDateTime.now();
+		streakRepository.save(streak);
+
 		// Generate a JWT token for the newly created account:
 		String token = jwtUtil.generateToken(username);
 
