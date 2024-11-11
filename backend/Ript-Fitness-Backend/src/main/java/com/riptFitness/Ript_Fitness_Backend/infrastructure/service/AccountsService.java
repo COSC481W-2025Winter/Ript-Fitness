@@ -19,6 +19,8 @@ import com.riptFitness.Ript_Fitness_Backend.domain.repository.StreakRepository;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.AccountsDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.LoginRequestDto;
 
+import com.riptFitness.Ript_Fitness_Backend.web.dto.UserDto;
+
 
 @Service
 public class AccountsService {
@@ -27,17 +29,20 @@ public class AccountsService {
 	public AccountsRepository accountsRepository;
 	@Autowired
 	public StreakRepository streakRepository;
+    private final UserProfileService userProfileService;  
 	private final PasswordEncoder passwordEncoder;
 	@Autowired
 	private JwtUtil jwtUtil;
 
 	// Constructor:
 	public AccountsService(AccountsRepository accountsRepository, StreakRepository streakRepository,
-			PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+			PasswordEncoder passwordEncoder, JwtUtil jwtUtil,UserProfileService userProfileService) {
 		this.accountsRepository = accountsRepository;
 		this.streakRepository = streakRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.jwtUtil = jwtUtil;
+	    this.userProfileService = userProfileService;
+
 	}
 
 	// List of methods that we need for the Create an account / Log in page:
@@ -116,9 +121,9 @@ public class AccountsService {
 			 streak.prevLogin = LocalDateTime.now(); 
 			 streakRepository.save(streak);
 			 
-			 //corresponding User Profile
-			 userDto.setUsername(username);
-			 userProfileService.addUser(userDto, username);  // Only set username, leave other fields empty
+			 UserDto userDto = new UserDto(); 
+			 userDto.username = username;      
+			 userProfileService.addUser(userDto, username);
 			 
 		}
 		// Generate a JWT token for the newly created account:
