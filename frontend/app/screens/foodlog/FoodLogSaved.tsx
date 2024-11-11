@@ -1,4 +1,4 @@
-import { TextInput, StyleSheet, ScrollView, Text, View, FlatList, Alert } from "react-native";
+import { TextInput, StyleSheet, ScrollView, Text, View, FlatList, Alert, TouchableOpacityBase, TouchableOpacity } from "react-native";
 import React,  { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { GlobalContext } from "@/context/GlobalContext";
@@ -24,22 +24,23 @@ interface Food {
 
 const FoodItem: React.FC<{ food: Food }> =  ({ food }) => {
     const navigation = useNavigation<WorkoutScreenNavigationProp>();
+   
     return (
-    <LogFoodButton 
-        id={food.id}
-        name={food.name}
-        calories={food.calories}
-        protein={food.protein}
-        carbs={food.carbs}
-        fat={food.fat}
-        multiplier={food.multiplier}
-        textColor="black"
-        backgroundColor='white'
-        borderWidth={1}
-        fontSize={16}
-        width ='100%'
-        onPress={() => navigation.navigate('ApiScreen', {})}
-        />
+        <LogFoodButton 
+            id={food.id}
+            name={food.name}
+            calories={food.calories}
+            protein={food.protein}
+            carbs={food.carbs}
+            fat={food.fat}
+            multiplier={food.multiplier}
+            textColor="black"
+            backgroundColor='white'
+            borderWidth={1}
+            fontSize={16}
+            width ='100%'
+            onPress={() => {}}
+            />
     )
 };
 
@@ -48,6 +49,7 @@ const FoodLogSavedPage = () => {
     const [foodDetails, setFoodDetails] = useState<Food[]>([]);
     const [loading, setLoading] = useState(true);
     const context = useContext(GlobalContext);
+    const [isFoodModalVisable, setFoodModalVisable] = useState(false);
 
     const fetchFoodIDs = async () => {
         try {
@@ -120,8 +122,50 @@ const FoodLogSavedPage = () => {
             }, [])
         );
 
+        // Show a confirmation before deleting an exercise
+  const confirmDeleteFood = (id: number) => {
+    Alert.alert(
+      "Delete Food",
+      "Are you sure you want to delete this food?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", style: "destructive", onPress: () => removeFood(id) }
+      ]
+    );
+  };
 
-    const renderItem = ({ item }:{item: Food}) => <FoodItem food={item} />;
+    // Remove an exercise by ID
+    const removeFood = (id: number) => {
+        setFoodDetails(foodDetails.filter((food) => food.id !== id));   
+        removeFromDatabase(id);
+      };
+
+    const removeFromDatabase = async (id: number) => {
+         const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/nutritionCalculator/deleteFood/${id}`,
+                {
+                    method: "DELETE", 
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${context?.data.token}`,
+                    }
+                });
+    }
+
+    const renderItem = ({ item }:{item: Food}) => (
+        <Swipeable
+            renderLeftActions={() => (
+                <View style={styles.swipeDeleteButton}>
+                    <Text 
+                        style={styles.deleteText}
+                        onPress={() => confirmDeleteFood(item.id)}
+                    >Delete</Text>
+                </View>
+            )}
+        >
+        <FoodItem food={item} />
+        </Swipeable>
+    
+    );
 
 
     return loading ? (
@@ -133,29 +177,36 @@ const FoodLogSavedPage = () => {
         <View>
             <CustomSearchBar></CustomSearchBar>
             <Text style={styles.message}>No food items found.</Text>
+            <TouchableOpacity style={styles.addButton}>
+                <Text style={styles.addButtonText}>Add New Food</Text>
+            </TouchableOpacity>
         </View>
     ) : (
         <View>
             <CustomSearchBar></CustomSearchBar>
-            <ScrollView nestedScrollEnabled={true}>   
+            <TouchableOpacity style={styles.addButton}>
+                <Text style={styles.addButtonText}>Add New Food</Text>
+            </TouchableOpacity>
+
             <FlatList 
                 data={foodDetails}
                 renderItem={renderItem}
                 keyExtractor={(item) => `${item.id}`}
-                contentContainerStyle={styles.foodList}
-                scrollEnabled={false}
             />
-            </ScrollView>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1, 
+        padding: 20,
+    },
     foodList :{
         paddingBottom: 20, 
     }, 
     foodItemContainer: {
-        position: 'relative',
+        // position: 'relative',
         padding: 30, 
         backgroundColor: 'white', 
         borderBottomWidth: 1, 
@@ -183,7 +234,32 @@ const styles = StyleSheet.create({
         fontWeight: 'bold', 
         fontSize: 20,
         padding: 30,
-    }
+    }, 
+    swipeDeleteButton: {
+        backgroundColor: 'red',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 80,
+        height: '100%',
+        borderRadius: 10,
+      },
+      deleteText: {
+        color: 'white',
+        fontWeight: 'bold',
+      },
+      addButton: {
+        backgroundColor: '#302c2c',
+        padding: 10,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 0,
+        width: '90%',
+        alignSelf: 'center',
+      },
+      addButtonText: {
+        color: 'white',
+        fontSize: 18,
+      },
 })
 
 export default FoodLogSavedPage;

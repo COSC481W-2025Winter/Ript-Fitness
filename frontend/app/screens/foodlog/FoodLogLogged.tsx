@@ -1,4 +1,4 @@
-import { TextInput, StyleSheet, ScrollView, Text, View, FlatList, Alert } from "react-native";
+import { TextInput, StyleSheet, ScrollView, Text, View, FlatList, Alert, TouchableOpacity } from "react-native";
 import React,  { useContext, useEffect, useState } from 'react';
 import { useNavigation } from "@react-navigation/native";
 import { GlobalContext } from "@/context/GlobalContext";
@@ -131,6 +131,9 @@ const FoodLogLoggedPage = ({ dayId } : any) => {
      ) : foodDetails.length === 0 ? (
          <View>
              <Text style={styles.message}>No food items found.</Text>
+             <TouchableOpacity style={styles.addButton}>
+                <Text style={styles.addButtonText}>Log New Food</Text>
+            </TouchableOpacity>
          </View>
      ) : (
 // {/* THIS IS THE NEW STUFF FOR THE ADD PAGE*/}
@@ -142,6 +145,9 @@ const FoodLogLoggedPage = ({ dayId } : any) => {
                 keyExtractor={(item, index) => `${item.name}-${index}`}
                 contentContainerStyle={[ styles.foodList]}
             />
+            <TouchableOpacity style={styles.addButton}>
+                <Text style={styles.addButtonText}>Log New Food</Text>
+            </TouchableOpacity>
         </View>
     );
 };
@@ -151,7 +157,7 @@ const styles = StyleSheet.create({
         paddingBottom: 20, 
     }, 
     foodItemContainer: {
-        position: 'relative',
+        // position: 'relative',
         padding: 15, 
         backgroundColor: 'white', 
         borderBottomWidth: 1, 
@@ -176,7 +182,20 @@ const styles = StyleSheet.create({
         fontWeight: 'bold', 
         fontSize: 20,
         padding: 30,
-    }
+    }, 
+    addButton: {
+        backgroundColor: '#302c2c',
+        padding: 10,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 20,
+        width: '90%',
+        alignSelf: 'center',
+      },
+      addButtonText: {
+        color: 'white',
+        fontSize: 18,
+      },
 })
 
 export default FoodLogLoggedPage;
