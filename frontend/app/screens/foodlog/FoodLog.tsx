@@ -1,5 +1,5 @@
 
-import { TextInput, StyleSheet, ScrollView, Text, View } from "react-native";
+import { TextInput, StyleSheet, ScrollView, Text, View, SafeAreaView } from "react-native";
 import React, { useContext, useEffect, useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNavigation } from "@react-navigation/native";
@@ -26,6 +26,8 @@ export default function FoodLogScreen() {
     const [totalWater, setTotalWater] = useState(0);
     const [day, setDay] = useState();
     const context = useContext(GlobalContext);
+
+
 
     //const currentDate = new Date(); 
     //const formattedDate = `${currentDate.getMonth() +1}/${currentDate.getDate()}/${currentDate.getFullYear()}`;
@@ -116,7 +118,7 @@ export default function FoodLogScreen() {
     useEffect(() => {
         setTotalForDay();
         updateTotalMacros();
-        // updateWater();
+        updateWater();
     }, [selectedPage]);
 
  
@@ -162,29 +164,30 @@ const updateWater = async () => {
     };
 
     return(
-        <View>
+        <SafeAreaView style={styles.flexContainer}>
             <View>
-            <View style={styles.align}>
+            {/* <View style={styles.align}>
                     <Ionicons name="today-outline" size={30} onPress={() => addWater()}></Ionicons>
                     <Text style={styles.text}>Start new day log</Text>
-            </View>
-                {/* <View style={styles.calendarNav}>
+            </View> */}
+                <View style={styles.calendarNav}>
                     <Ionicons 
                         name={"chevron-back-outline"} 
+                        color={"white"}
                         size={24} 
                         style={styles.leftArrow}
                         onPress={() => navigation.navigate('ApiScreen')}
                 />
-                     <Ionicons name={"calendar-clear-outline"} size={24}></Ionicons>
-                    This will be "today" when it is the current date, if not it will display the date of the data they are viewing
-                    <Text onPress={() => newDay()}>Start new day</Text>
+                     <Ionicons name={"calendar-clear-outline"} size={24} color={"white"}></Ionicons>
+                    <Text style={styles.whiteText} onPress={() => newDay()}>Today</Text>
                     <Ionicons 
                         name={"chevron-forward-outline"} 
+                        color={"white"}
                         size={24} 
                         style={styles.rightArrow}
                         onPress={() => navigation.navigate('ApiScreen')}
                     /> 
-                </View> */}
+                </View>
             
             <View style={styles.macroView}> 
                 <View style={styles.macroRow}>
@@ -192,8 +195,8 @@ const updateWater = async () => {
                         title="Calories"
                         label=""
                         total={totalCalories}
-                        textColor="#0E598D"
-                        borderColor="#0E598D"
+                        textColor="#F2D06B"
+                        borderColor="#F2D06B"
                         borderWidth={5}
                         fontSize={16}
                         width={100} 
@@ -202,8 +205,8 @@ const updateWater = async () => {
                         title="Protein" 
                         label="g"
                         total={totalProtein}
-                        textColor="#F2846C"
-                        borderColor="#F2846C"
+                        textColor="#2493BF"
+                        borderColor="#2493BF"
                         borderWidth={5}
                         fontSize={16}
                         width={100} 
@@ -212,8 +215,8 @@ const updateWater = async () => {
                         title="Carbs" 
                         label="g"
                         total={totalCarbs}
-                        textColor="#088C7F"
-                        borderColor="#088C7F"
+                        textColor="#56C97B"
+                        borderColor="#56C97B"
                         borderWidth={5}
                         fontSize={16}
                         width={100} 
@@ -224,8 +227,8 @@ const updateWater = async () => {
                         title="Fat" 
                         label="g"
                         total={totalFat}
-                        textColor="#AC2641"
-                        borderColor="#AC2641"
+                        textColor="#F22E2E"
+                        borderColor="#F22E2E"
                         borderWidth={5}
                         fontSize={16}
                         width={100} 
@@ -252,18 +255,23 @@ const updateWater = async () => {
                     <Ionicons name="today-outline" size={30} onPress={() => addWater()}></Ionicons>
                     <Text style={styles.text}>Start new day log</Text>
                 </View> */}
+                <View style={[styles.box, selectedPage === "Logged" && styles.selectedBox]}>
                     <Text 
                         style={[styles.text, selectedPage === "Logged" && styles.selectedText]} 
                         onPress={() => setSelectedPage("Logged")}
                     >
                         Logged
                     </Text>
+                </View>
+                <View style={[styles.box, selectedPage === "Saved" && styles.selectedBox]}>
                     <Text 
                         style={[styles.text, selectedPage === "Saved" && styles.selectedText]} 
                         onPress={() => setSelectedPage("Saved")}
                     >
                         Saved
                     </Text>
+                </View>
+                <View style={[styles.box, selectedPage === "Add" && styles.selectedBox]}>
                     <Text 
                         style={[styles.text, selectedPage === "Add" && styles.selectedText]} 
                         onPress={() => setSelectedPage("Add")}
@@ -271,25 +279,32 @@ const updateWater = async () => {
                         Add
                     </Text>
                 </View>
+                </View>
         </View>
          {/* Display Selected Page Content */}
         <View style={{}}>
                 {renderContent()}
         </View>
-    </View>
+    </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
+    flexContainer: {
+        flexGrow: 1, 
+    },
     calendarNav: {
         height: 40,
         width: '100%', 
-        backgroundColor: 'lightgray',
+        backgroundColor: '#21BFBF',
         flexDirection: 'row',
         padding: 5,
         alignItems: 'center',
         position: 'relative',
         justifyContent: 'center',
+    },
+    whiteText: {
+        color: "white",
     },
     rightArrow: {
         position: 'absolute',
@@ -300,7 +315,7 @@ const styles = StyleSheet.create({
         left: 0,
     },
     macroView: {
-        height: 220,
+        height: 210,
         width: '100%',
         backgroundColor: 'white', 
     }, 
@@ -309,15 +324,27 @@ const styles = StyleSheet.create({
         justifyContent: 'center', 
     }, 
     dataBar: {
-        height: 50,
         width: '100%', 
-        backgroundColor: 'lightgrey',
         flexDirection: 'row',
-        padding: 5,
+        borderColor: '#21BFBF',
+        borderWidth:1,
         alignItems: 'center',
         position: 'relative',
         justifyContent: 'space-evenly',
     }, 
+    selectedBox: {
+        width: '33%',
+        alignItems: 'center',
+        backgroundColor:'#21BFBF',
+        padding: 5, 
+    },
+    box: {
+        width: '33%',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        padding: 5,
+    },
+
     align: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -325,10 +352,12 @@ const styles = StyleSheet.create({
     },
     text: {
         padding: 10,
+        color: '#21BFBF',
     },
     selectedText: {
         fontWeight: 'bold',
-        textDecorationLine: 'underline', // Selected style
+        color: 'white',
+        backgroundColor: '#21BFBF',
     },
     plusMinus: {
       paddingTop: 20,

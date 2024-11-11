@@ -10,7 +10,6 @@ import SplashScreen from "../SplashScreen";
 import { Swipeable } from 'react-native-gesture-handler';
 import CustomSearchBar from '@/components/custom/CustomSearchBar';
 
-
 interface Food {
     id: number;
     name: string;
@@ -48,6 +47,7 @@ const FoodItem: React.FC<{ food: Food }> =  ({ food }) => {
 const FoodLogSavedPage = () => { 
     const [foodDetails, setFoodDetails] = useState<Food[]>([]);
     const [loading, setLoading] = useState(true);
+    const [cached, setCached] = useState(false);
     const context = useContext(GlobalContext);
     const [isFoodModalVisable, setFoodModalVisable] = useState(false);
 
@@ -58,6 +58,7 @@ const FoodLogSavedPage = () => {
             
             if (cachedFoodDetails) {
                 console.log("Using cached food details");
+                setCached(true);
                 setFoodDetails(JSON.parse(cachedFoodDetails));
             } 
                 const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFoodIdsOfLoggedInUser`,
@@ -168,7 +169,16 @@ const FoodLogSavedPage = () => {
     );
 
 
-    return loading ? (
+    return cached ? (
+        <View>
+            <CustomSearchBar></CustomSearchBar>
+            <FlatList 
+                data={foodDetails}
+                renderItem={renderItem}
+                keyExtractor={(item) => `${item.id}`}
+            />
+        </View>
+    ) : loading ? (
        <View>
             <CustomSearchBar></CustomSearchBar>
             <Text style={styles.message}>Loading...</Text>
@@ -176,18 +186,11 @@ const FoodLogSavedPage = () => {
     ) : foodDetails.length === 0 ? (
         <View>
             <CustomSearchBar></CustomSearchBar>
-            <Text style={styles.message}>No food items found.</Text>
-            <TouchableOpacity style={styles.addButton}>
-                <Text style={styles.addButtonText}>Add New Food</Text>
-            </TouchableOpacity>
+            <Text style={styles.message}>No food items logged.</Text>
         </View>
     ) : (
         <View>
             <CustomSearchBar></CustomSearchBar>
-            <TouchableOpacity style={styles.addButton}>
-                <Text style={styles.addButtonText}>Add New Food</Text>
-            </TouchableOpacity>
-
             <FlatList 
                 data={foodDetails}
                 renderItem={renderItem}
@@ -246,19 +249,6 @@ const styles = StyleSheet.create({
       deleteText: {
         color: 'white',
         fontWeight: 'bold',
-      },
-      addButton: {
-        backgroundColor: '#302c2c',
-        padding: 10,
-        borderRadius: 8,
-        alignItems: 'center',
-        marginTop: 0,
-        width: '90%',
-        alignSelf: 'center',
-      },
-      addButtonText: {
-        color: 'white',
-        fontSize: 18,
       },
 })
 

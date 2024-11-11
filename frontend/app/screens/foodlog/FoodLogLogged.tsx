@@ -8,7 +8,6 @@ import { WorkoutScreenNavigationProp } from "@/app/(tabs)/WorkoutStack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
-
 interface Food {
     id: number;
     name: string;
@@ -44,6 +43,7 @@ const FoodItem: React.FC<{ food: Food }> =  ({ food }) => {
 const FoodLogLoggedPage = ({ dayId } : any) => { 
     const [foodDetails, setFoodDetails] = useState<Food[]>([]);
     const [loading, setLoading] = useState(true);
+    const [cached, setCached] = useState(false);
     const [days, setDays] = useState([]);
     const [day, setDay] = useState(0);
 
@@ -54,15 +54,17 @@ const FoodLogLoggedPage = ({ dayId } : any) => {
     // Function to fetch food details based on the food ID
     const fetchFoodIDs = async () => {
         try {
-
             console.log("Fetching food details...");
             const cachedFoodTodayDetails = await AsyncStorage.getItem('foodTodayDetails');
+            const cachedDay = await AsyncStorage.getItem('day');
             
             if (cachedFoodTodayDetails) {
                 console.log("Using cached food details");
                 setFoodDetails(JSON.parse(cachedFoodTodayDetails));
+                // setDay(JSON.parse(cachedDay));
+                setCached(true);
             }
-                const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getDay/${dayId}`, {
+                const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getDay/${day}`, {
                     method: 'PUT', 
                     headers: {
                         'Content-Type': 'application/json',
@@ -84,6 +86,8 @@ const FoodLogLoggedPage = ({ dayId } : any) => {
                     setFoodDetails(validDetails);
 
                     await AsyncStorage.setItem('foodTodayDetails', JSON.stringify(validDetails));
+                    await AsyncStorage.setItem('day', JSON.stringify(dayData.id))
+
                 } else {
                     console.log(response.json());
                 }
@@ -124,16 +128,25 @@ const FoodLogLoggedPage = ({ dayId } : any) => {
     const renderItem = ({ item }:{item: Food}) => <FoodItem food={item} />;
 
 
-    return loading ? (
+    return cached ? (
+        <View>
+            <FlatList<Food>
+                data={foodDetails}
+                renderItem={renderItem}
+                keyExtractor={(item, index) => `${item.name}-${index}`}
+                contentContainerStyle={styles.foodList}
+            />
+        </View>
+    ) :  loading ? (
         <View>
              <Text style={styles.message}>Loading...</Text>
         </View>
      ) : foodDetails.length === 0 ? (
          <View>
              <Text style={styles.message}>No food items found.</Text>
-             <TouchableOpacity style={styles.addButton}>
+             {/* <TouchableOpacity style={styles.addButton}>
                 <Text style={styles.addButtonText}>Log New Food</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
          </View>
      ) : (
 // {/* THIS IS THE NEW STUFF FOR THE ADD PAGE*/}
@@ -143,11 +156,8 @@ const FoodLogLoggedPage = ({ dayId } : any) => {
                 data={foodDetails}
                 renderItem={renderItem}
                 keyExtractor={(item, index) => `${item.name}-${index}`}
-                contentContainerStyle={[ styles.foodList]}
+                contentContainerStyle={styles.foodList}
             />
-            <TouchableOpacity style={styles.addButton}>
-                <Text style={styles.addButtonText}>Log New Food</Text>
-            </TouchableOpacity>
         </View>
     );
 };
@@ -182,20 +192,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold', 
         fontSize: 20,
         padding: 30,
-    }, 
-    addButton: {
-        backgroundColor: '#302c2c',
-        padding: 10,
-        borderRadius: 8,
-        alignItems: 'center',
-        marginTop: 20,
-        width: '90%',
-        alignSelf: 'center',
-      },
-      addButtonText: {
-        color: 'white',
-        fontSize: 18,
-      },
+    },
 })
 
 export default FoodLogLoggedPage;

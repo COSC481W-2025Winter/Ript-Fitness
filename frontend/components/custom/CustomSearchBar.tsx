@@ -22,7 +22,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     borderColor: 'grey',
-    width: '100%',
+    width: '90%',
+    alignSelf: 'center',
+    margin: 10, 
   },
   iconStyle: {
     marginRight: 10,

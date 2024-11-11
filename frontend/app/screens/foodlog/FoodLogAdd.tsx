@@ -242,57 +242,58 @@ export default function FoodLogAddPage({ dayId } : any) {
         > 
 
         <ScrollView style={styles.addFoodContainer} contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}>
-                <Text style={styles.label}>New Food:</Text>
+                <Text style={styles.label}>Nutrition Facts</Text>
+                <Text style={styles.description}>Enter the details from the label</Text>
 
             {/* Input fields */}
-            <View style = {styles.row}>
-            <Text style={styles.inputLabel}>Name:</Text>
+            <View style = {styles.rowStart}>
+            <Text style={styles.inputLabel}>Name</Text>
             <TextInput
                 style={styles.input}
                 value={foodName}
                 onChangeText={setFoodName}
-                placeholder="Food Name"
+                placeholder="Add Name"
                 
             /></View>
 
             <View style = {styles.row}>
-            <Text style={styles.inputLabel}>Calories:</Text>
+            <Text style={styles.inputLabel}>Calories</Text>
             <TextInput
                 style={styles.input}
                 keyboardType="numeric"
                 value={foodCalories}
                 onChangeText={handleCaloriesChange}
-                placeholder="Calories"
+                placeholder="Add Calories"
             /></View>
 
             <View style = {styles.row}>
-            <Text style={styles.inputLabel}>Fat (g):</Text>
+            <Text style={styles.inputLabel}>Fat (g)</Text>
             <TextInput
                 style={styles.input}
                 keyboardType="numeric"
                 value={foodFat}
                 onChangeText={handleFatChange}
-                placeholder="Total Fat"
+                placeholder="Add Grams"
             /></View>
 
             <View style = {styles.row}>
-            <Text style={styles.inputLabel}>Carbs (g):</Text>
+            <Text style={styles.inputLabel}>Carbs (g)</Text>
             <TextInput
                 style={styles.input}
                 keyboardType="numeric"
                 value={foodCarbs}
                 onChangeText={handleCarbsChange}
-                placeholder="Total Carbohydrates"
+                placeholder="Add Grams"
             /></View>
 
             <View style = {styles.row}>
-            <Text style={styles.inputLabel}>Protein (g):</Text>
+            <Text style={styles.inputLabel}>Protein (g)</Text>
             <TextInput
                 style={styles.input}
                 keyboardType="numeric"
                 value={foodProtein}
                 onChangeText={handleProteinChange}
-                placeholder="Total Protein"
+                placeholder="Add Grams"
             /></View>
 
             <View style = {styles.row}>
@@ -302,23 +303,25 @@ export default function FoodLogAddPage({ dayId } : any) {
                 keyboardType="numeric"
                 value={foodServings}
                 onChangeText={handleServingsChange}
-                placeholder="Number of Servings"
+                placeholder="Add Servings"
             /></View>
 
             {/* Save button */}
-            <View style={styles.row}>
+            <View style={styles.buttonRow}>
                 <AddFoodButton   
                         title="Save Food" 
                         textColor="white"
-                        backgroundColor="#F2846C"
+                        backgroundColor="#21BFBF"
+                        borderColor="#21BFBF"
                         borderWidth={1}
                         fontSize={16}
                         width={150}
                         onPress={handleFoodDataSaveOnly} />
                 <AddFoodButton   
                         title="Log Food Today" 
-                        textColor="white"
-                        backgroundColor="#088C7F"
+                        textColor="#21BFBF"
+                        backgroundColor="white"
+                        borderColor="#21BFBF"
                         borderWidth={1}
                         fontSize={16}
                         width={150}
@@ -333,28 +336,61 @@ const styles = StyleSheet.create({
         paddingBottom: 29,
         padding: 5,
         width:"100%",
+        backgroundColor: 'white',
       },
       label: {
         fontSize: 20,
-        marginBottom: 5,
+        fontWeight: 'bold',
+      },
+      description: {
+        fontSize: 15,
       },
       input: {
         flex: 1,
         borderWidth: 1,
-        borderColor: '#ccc',
+        borderColor: 'white',
         padding: 3,
         marginVertical: 2,
         borderRadius: 2,
+        textAlign: 'center',
       },
       inputLabel: {
+        marginLeft: 20,
         fontSize: 16,
         marginRight: 10, // Space between the label and input
-        width: 100, // Adjust width based on your layout needs
+        width: '30%', // Adjust width based on your layout needs
+      },
+      rowStart: {
+        flexDirection: 'row', // Align items in a row
+        alignItems: 'center', // Vertically center the text and input
+        marginTop: 10, 
+        padding: 5,
+        gap: 20,
+        borderTopColor: 'black', 
+        borderBottomColor: 'black',
+        borderRightColor: 'white',
+        borderLeftColor: 'white',
+        borderWidth: 2, 
+        width: '90%',
+        alignSelf: 'center',
       },
       row: {
         flexDirection: 'row', // Align items in a row
         alignItems: 'center', // Vertically center the text and input
+        padding: 5, 
+        gap: 20,
+        borderTopColor: 'white', 
+        borderBottomColor: 'black',
+        borderRightColor: 'white',
+        borderLeftColor: 'white',
+        borderWidth: 2, 
+        width: '90%',
+        alignSelf: 'center',
+      }, 
+      buttonRow: {
+        flexDirection: 'row', // Align items in a row
+        alignItems: 'center', // Vertically center the text and input
         marginBottom: 10,
         gap: 20,
-      }, 
+      }
 })

@@ -28,7 +28,7 @@ export default function BodyStack(props : any) {
   const navigation = useNavigation<BodyScreenNavigationProp >();
   return (
     <BodyProvider>
-    <Stack.Navigator initialRouteName="MyHomeScreen123" screenOptions={{ headerShown: true }}>
+    <Stack.Navigator initialRouteName="MyHomeScreen123" screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Food Log" component={foodLog} 
       // options={{
       //   headerRight:() => (
