@@ -1,9 +1,8 @@
 import CustomButton from '@/components/custom/CustomButton';
 import CustomTextInput from '@/components/custom/CustomTextInput';
-import LogoImage from '@/components/custom/LogoImage';
-import React, { createContext, useState, ReactNode, useEffect, useContext} from 'react';
+import React, { createContext, useState, ReactNode, useEffect, useContext, useRef} from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Dimensions, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Dimensions, TouchableOpacity, TextInput, } from 'react-native'
 
 
 // Navigation imports
@@ -25,6 +24,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isUsernameFocused, setUsernameFocused] = useState(false);
+  const [isPasswordFocused, setPasswordFocused] = useState(false);
   const context = useContext(GlobalContext)
 
   // Hiding password when typing
@@ -39,6 +40,27 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   // Handle the text input change for password
   const handleGetPassword = (text: string) => {
     setPassword(text);
+  };
+
+  //Focus for inputs
+  const handleFocusUsername = () => {
+    console.log('Username input focused');
+    setUsernameFocused(true);
+  };
+  
+  const handleBlurUsername = () => {
+    console.log('Username input blurred');
+    setUsernameFocused(false);
+  };
+  
+  const handleFocusPassword = () => {
+    console.log('Password input focused');
+    setPasswordFocused(true);
+  };
+  
+  const handleBlurPassword = () => {
+    console.log('Password input blurred');
+    setPasswordFocused(false);
   };
 
   // Login handling
@@ -93,26 +115,32 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.container}>
+        <View style={styles.container}>    
           <View>
-              <LogoImage style={styles.logo}/>
-          </View>          
-          <View style={styles.buttonContainer}>
-            <Text style={styles.welcomeText}>Welcome Back</Text>
-            <Text style={styles.descText}>Sign into your Account</Text>
+            <Text style={styles.mainText}>Log in</Text>
+            <Text style={styles.descText}>Sign into your Account</Text> 
+          </View>    
+          <View style={styles.buttonContainer}> 
+            {/* <Text style={styles.labelUsername}>Username</Text> */}
             <CustomTextInput
               placeholder='Username'
-              width={width * 0.65}
+              width={width * 0.75}
               onChangeText={handleGetUsername}
               value={username}
+              onFocus={handleFocusUsername}
+              onBlur={handleBlurUsername}
+              style={isUsernameFocused ? styles.focusInput : styles.defaultInput}
             />
             <View style={styles.inputIconContainer}>
               <CustomTextInput
                 placeholder='Password'
                 secureTextEntry={!showPassword}
-                width={width * 0.65}
+                width={width * 0.75}
                 onChangeText={handleGetPassword}
                 value={password}
+                onFocus={handleFocusPassword}
+                onBlur={handleBlurPassword}
+                style={isPasswordFocused ? styles.focusInput : styles.defaultInput}
               />
               <TouchableOpacity onPress={toggleShowPassword} style={styles.iconContainer}>
                 <Ionicons 
@@ -125,18 +153,21 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
             <CustomButton 
               title="Log in" 
               fontSize={16}
-              width={width * 0.4} 
-              // onPress={()  => navigation.navigate('Home')}
+              width={width * 0.75} 
+              height={45}
+              borderRadius={30}
+              // style={{
+              //   marginTop: 45
+              // }}
               onPress={handleLogin}
             />
             <View style={styles.textButtonContainer}>
-              <Text style={{ fontSize: 12}}>Don't have an account?</Text>
               <CustomButton
-                title='Sign up'
+                title="I don't have an account"
                 backgroundColor='transparent'
-                textColor='#03A696'
+                textColor='#8E8E8E'
                 fontSize={12}
-                underlineOnPress={true}
+                shouldUnderline={true}
                 onPress={() => navigation.navigate('Signup')}
               />
             </View>
@@ -153,24 +184,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     alignItems: 'center'
   },
   scrollContainer: {
     flexGrow: 1, 
-    // justifyContent: 'center',
-    // alignItems: 'center',
   },
-  logo: {
-    margin: 25
-  },
-  welcomeText: {
-    fontSize: 24,
-    // marginTop: 60,
+  mainText: {
+    fontSize: 40,
+    fontWeight: 'bold',
+    color: '#21BFBF',
     textAlign: 'center'
   },
   descText: {
-    fontSize: 15,
+    fontSize: 16,
+    color: '#3F4040',
     marginTop: 10,
     marginBottom: 20,
     textAlign: 'center'
@@ -183,17 +211,30 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     position: 'absolute',
-    paddingRight: 7
+    paddingRight: 20
   },
   buttonContainer: {
     flexDirection: 'column',
     alignItems: 'center',
-    paddingBottom: 20
+    // backgroundColor: '#757575',
+  },
+  labelUsername:{
+    color: '#3F4040',
+    fontSize: 16,
+    alignSelf: 'flex-start',
+    paddingLeft: 24,
   },
   textButtonContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: -10
+    marginTop: -10,
+  },
+  defaultInput: {
+    marginBottom: 10,
+  },
+  focusInput: {
+    borderColor: '#21BFBF',
+    borderWidth: 2,
   },
   errorText: {
     marginTop: 10,

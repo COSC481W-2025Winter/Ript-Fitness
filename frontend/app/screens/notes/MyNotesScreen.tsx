@@ -24,10 +24,9 @@ export default function MyNotesScreen() {
           placeholderTextColor="#999"
           width={width * 0.85}
           style={{
-            borderWidth: 0,
             fontSize: 16,
             paddingLeft: 30,
-            borderRadius: 20,
+            borderRadius: 30,
             backgroundColor: '#EDEDED',
           }}
         />

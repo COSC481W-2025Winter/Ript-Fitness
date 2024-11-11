@@ -1,6 +1,5 @@
 import CustomButton from '@/components/custom/CustomButton';
 import CustomTextInput from '@/components/custom/CustomTextInput';
-import LogoImage from '@/components/custom/LogoImage';
 import React, { useContext, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity, Dimensions } from 'react-native'
@@ -20,6 +19,9 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isEmailFocused, setEmailFocused] = useState(false);
+  const [isUsernameFocused, setUsernameFocused] = useState(false);
+  const [isPasswordFocused, setPasswordFocused] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const context = useContext(GlobalContext)
 
@@ -75,6 +77,31 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
     }
   };
 
+  //Focus for inputs
+  const handleFocusEmail = () => {
+    setEmailFocused(true);
+  };
+  
+  const handleBlurEmail = () => {
+    setEmailFocused(false);
+  };
+
+  const handleFocusUsername = () => {
+    setUsernameFocused(true);
+  };
+  
+  const handleBlurUsername = () => {
+    setUsernameFocused(false);
+  };
+  
+  const handleFocusPassword = () => {
+    setPasswordFocused(true);
+  };
+  
+  const handleBlurPassword = () => {
+    setPasswordFocused(false);
+  };
+
   // After logging in, the user cannot go back to the previous screens
   const navigateToMainApp = () => {
     navigation.reset({
@@ -94,32 +121,40 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
       >
         <View style={styles.container}>
           <View>
-              <LogoImage style={styles.logo}/>
+            <Text style={styles.mainText}>Register</Text>
+            <Text style={styles.descText}>Join the Ript community</Text>
           </View>          
           <View style={styles.buttonContainer}>
-            <Text style={styles.welcomeText}>Register</Text>
-            <Text style={styles.descText}>Create your Account</Text>
             <CustomTextInput
               placeholder='Email'
               textContentType='emailAddress'
-              width={width * 0.65}
+              width={width * 0.75}
               onChangeText={handleEmailPOST}
               value={email}
+              onFocus={handleFocusEmail}
+              onBlur={handleBlurEmail}
+              style={isEmailFocused ? styles.focusInput : styles.defaultInput}
             />
             <CustomTextInput
               placeholder='Username'
               // textContentType='username'
-              width={width * 0.65}
+              width={width * 0.75}
               onChangeText={handleUsernamePOST}
               value={username}
+              onFocus={handleFocusUsername}
+              onBlur={handleBlurUsername}
+              style={isUsernameFocused ? styles.focusInput : styles.defaultInput}
             />
             <View style={styles.inputIconContainer}>
               <CustomTextInput
                 placeholder='Password'
                 secureTextEntry={!showPassword}
-                width={width * 0.65}
+                width={width * 0.75}
                 onChangeText={handlePasswordPOST}
                 value={password}
+                onFocus={handleFocusPassword}
+                onBlur={handleBlurPassword}
+                style={isPasswordFocused ? styles.focusInput : styles.defaultInput}
               />
               <TouchableOpacity onPress={toggleShowPassword} style={styles.iconContainer}>
                 <Ionicons 
@@ -132,18 +167,19 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
             <CustomButton 
               title="Sign up" 
               fontSize={16}
-              width={width * 0.4} 
+              width={width * 0.75} 
+              height={45}
+              borderRadius={30}
               // onPress={()  => navigation.navigate('Home')}
               onPress={handleSignup}
             />
             <View style={styles.textButtonContainer}>
-              <Text style={{ fontSize: 12}}>Don't have an account?</Text>
               <CustomButton
-                title='Log in'
+                title="I'm already registered"
                 backgroundColor='transparent'
-                textColor='#03A696'
+                textColor='#8E8E8E'
                 fontSize={12}
-                underlineOnPress={true}
+                shouldUnderline={true}
                 onPress={() => navigation.navigate('Login')}
               />
             </View>
@@ -160,22 +196,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     alignItems: 'center'
   },
   scrollContainer: {
     flexGrow: 1, 
     alignItems: 'center'
   },
-  logo: {
-    margin: 25
-  },
-  welcomeText: {
-    fontSize: 24,
-    textAlign: 'center'
+  mainText: {
+    fontSize: 40,
+    fontWeight: 'bold',
+    color: '#21BFBF',
+    textAlign: 'center',
+    marginTop: 30,
   },
   descText: {
-    fontSize: 15,
+    fontSize: 16,
+    color: '#3F4040',
     marginTop: 10,
     marginBottom: 20,
     textAlign: 'center'
@@ -188,17 +225,23 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     position: 'absolute',
-    paddingRight: 7
+    paddingRight: 20
   },
   buttonContainer: {
     flexDirection: 'column',
     alignItems: 'center',
-    paddingBottom: 20
   },
   textButtonContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: -10
+  },
+  defaultInput: {
+    marginBottom: 10,
+  },
+  focusInput: {
+    borderColor: '#21BFBF',
+    borderWidth: 2,
   },
   errorText: {
     marginTop: 10,

@@ -29,11 +29,11 @@ const CustomTextInput: React.FC<CustomTextInputProps> = ({ placeholder, placehol
 
 const styles = StyleSheet.create({
   input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 5,
+    height: 50,
+    backgroundColor: '#EDEDED',
+    borderRadius: 25,
     paddingHorizontal: 10,
+    paddingLeft: 20,
     marginVertical: 10,
   },
 });

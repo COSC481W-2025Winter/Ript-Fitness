@@ -7,31 +7,41 @@ type CustomButtonProps = {
   borderColor?: string;
   borderWidth?: number;
   width?: number,
+  height?: number,
   textColor?: string;
   fontSize?: number;
+  borderRadius?: number;
   onPress?: () => void;
-  underlineOnPress?: boolean;
+  shouldUnderline?: boolean;
+  style?: ViewStyle;
+  textStyle?: TextStyle;
 };
 
-const CustomButton: React.FC<CustomButtonProps> = ({ title, backgroundColor, borderColor, borderWidth, width, textColor, fontSize, onPress, underlineOnPress = false }) => {
+const CustomButton: React.FC<CustomButtonProps> = ({ title, backgroundColor, borderColor, borderWidth, width, height, textColor, fontSize, borderRadius, onPress, shouldUnderline = false, style, textStyle, }) => {
   const [isPressed, setIsPressed] = useState(false);
 
   const buttonStyle: ViewStyle = {
-    backgroundColor: backgroundColor || '#03A696',
+    backgroundColor: backgroundColor || '#21BFBF',
     borderColor: borderColor || 'transparent',
     borderWidth: borderWidth !== undefined ? borderWidth : borderColor ? 1 : 0,
-    width: width || 'auto'
+    borderRadius: borderRadius,
+    width: width || 'auto',
+    height: height || 'auto',
   };
 
-  const textStyle: TextStyle = {
+  const textStyleObj: TextStyle = {
     color: textColor || '#fff',
     fontSize: fontSize || 15,
-    textDecorationLine: underlineOnPress && isPressed ? 'underline' : 'none'
+    // textDecorationLine: underlineOnPress && isPressed ? 'underline' : 'none'
+    textDecorationLine: shouldUnderline ? 'underline' : 'none',  
   };
+  const combinedButtonStyle = [styles.button, buttonStyle, style]; 
+  const combinedTextStyle = [textStyleObj, textStyle];
 
   return (
     <TouchableOpacity
-      style={[styles.button, buttonStyle]}
+      // style={[styles.button, buttonStyle]}
+      style={combinedButtonStyle}
       onPressIn={() => setIsPressed(true)} // Set pressed state to true on press in
       onPressOut={() => {
         setIsPressed(false);
@@ -39,7 +49,8 @@ const CustomButton: React.FC<CustomButtonProps> = ({ title, backgroundColor, bor
       }}
       activeOpacity={0.7}
     >
-      <Text style={[textStyle]}>{title}</Text>
+      {/* <Text style={[textStyle]}>{title}</Text> */}
+      <Text style={combinedTextStyle}>{title}</Text>
     </TouchableOpacity>
   );
 };
@@ -48,8 +59,7 @@ const styles = StyleSheet.create({
   button: {
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 8,
-    minHeight: 62,
+    minHeight: 60,
     margin: 5
   }
 });

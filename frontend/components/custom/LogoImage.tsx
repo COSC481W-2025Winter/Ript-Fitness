@@ -9,7 +9,7 @@ const LogoImage: React.FC<LogoImageProps> = ({ style }) => {
   return (
     <Image 
         style={[styles.logo, style]}
-        source={require('@/assets/images/Ript-Main-Logo1.png')}
+        source={require('@/assets/images/Ript_logo_final.png')}
     />
   );
 };

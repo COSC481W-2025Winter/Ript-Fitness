@@ -56,11 +56,9 @@ export default function EditNoteScreen() {
               autoCapitalize='words'
               color="#1D1B20"
               style={{
-                borderColor: '#B9B6B6',
-                borderWidth: 0,
+                backgroundColor: '#FFF3AD',
                 width: '80%',
                 fontSize: 24,          
-                // backgroundColor: '#EDEDED',
                 marginBottom: 0,
               }}
           />
@@ -71,8 +69,7 @@ export default function EditNoteScreen() {
               color="#454343"             
               multiline={true}
               style={{
-                borderColor: '#B9B6B6',
-                borderWidth: 0,
+                backgroundColor: '#FFF3AD',
                 width: '100%',
                 flex: 1,
                 fontSize: 14,
