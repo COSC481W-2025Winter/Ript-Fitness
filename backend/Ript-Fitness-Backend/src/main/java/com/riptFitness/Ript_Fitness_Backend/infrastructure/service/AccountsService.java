@@ -121,6 +121,7 @@ public class AccountsService {
 			 streak.prevLogin = LocalDateTime.now(); 
 			 streakRepository.save(streak);
 			 
+			 //UserProfile logic 
 			 UserDto userDto = new UserDto(); 
 			 userDto.username = username;      
 			 userProfileService.addUser(userDto, username);
