@@ -67,6 +67,49 @@ public class AccountsServiceTest {
         // Initialize accountsModel
         accountsModel = AccountsMapper.INSTANCE.convertToModel(accountsDto);
     }
+    
+    @Test
+    public void testChangePassword() {
+        // Mock input data
+        String currentPassword = "password123";
+        String newPassword = "newPassword123";
+        String samePassword = "password123";  // Same as current password
+
+        // Mock the accounts model
+        AccountsModel accountsModel = new AccountsModel();
+        accountsModel.setUsername("testUser");
+        accountsModel.setPassword("encodedPassword123");
+
+        // Mock the behavior of the password encoder
+        when(passwordEncoder.matches(currentPassword, "encodedPassword123")).thenReturn(true); // Password matches
+        when(passwordEncoder.matches(samePassword, "encodedPassword123")).thenReturn(true); // Matches current password
+        when(passwordEncoder.encode(newPassword)).thenReturn("encodedNewPassword123"); // Mock encoding for new password
+
+        // Mock saving the updated account
+        when(accountsRepository.findById(any())).thenReturn(Optional.of(accountsModel));
+        when(accountsRepository.save(any(AccountsModel.class))).thenReturn(accountsModel);
+        when(jwtUtil.generateToken(accountsModel.getUsername())).thenReturn("mocked-jwt-token");
+
+        // Test Case 1: Valid password change
+        String token = accountsService.changePassword(currentPassword, newPassword);
+        assertNotNull(token);
+        assertEquals("mocked-jwt-token", token); // The generated token should match the mocked one
+        verify(accountsRepository).save(accountsModel); // Ensure the save method was called
+
+        // Test Case 2: Incorrect current password
+        when(passwordEncoder.matches(currentPassword, "encodedPassword123")).thenReturn(false); // Incorrect password
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            accountsService.changePassword(currentPassword, newPassword);
+        });
+        assertEquals("Current password does not match", exception.getMessage());
+
+        // Test Case 3: New password same as current password
+        RuntimeException exception2 = assertThrows(RuntimeException.class, () -> {
+            accountsService.changePassword(samePassword, samePassword);
+        });
+        assertEquals("New password cannot be the same as the current password", exception2.getMessage());
+    }
+
 
 
 
