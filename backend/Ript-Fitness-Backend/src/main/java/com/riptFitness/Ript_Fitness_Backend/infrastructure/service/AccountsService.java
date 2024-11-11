@@ -163,6 +163,13 @@ public class AccountsService {
 	        	// Update the login date:
 	        	accountsRepository.updateLoginDate(username, lastLogin);
 	        	
+	        	if (!userProfileService.existsByUsername(username)) {
+	        	    UserDto userDto = new UserDto();
+	        	    userDto.username = username;  // Initialize with username only
+	        	    userProfileService.addUser(userDto, username);  // Create a new UserProfile if not already made
+	        	}
+
+	        	
 	        	// Generate a JWT token and return it
 	            String token = jwtUtil.generateToken(username);
 	            System.out.println("Login successful for user: " + username);

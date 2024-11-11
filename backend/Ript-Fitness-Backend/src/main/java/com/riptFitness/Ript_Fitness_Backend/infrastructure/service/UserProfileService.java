@@ -25,11 +25,14 @@ public class UserProfileService {
         return UserProfileMapper.INSTANCE.toUserDto(userToBeAdded);
     }
 
+    // Checks if a UserProfile exists by username
+    public boolean existsByUsername(String username) {
+        return userRepository.findByUsername(username).isPresent();
+    }
 
     // Retrieves user profile by username
     public UserDto getUserByUsername(String username) {
         Optional<UserProfile> returnedOptionalUserObject = userRepository.findByUsername(username);
-
         if (returnedOptionalUserObject.isEmpty()) {
             throw new RuntimeException("User not found in database with username = " + username);
         }
