@@ -117,11 +117,8 @@ public class AccountsService {
 			 streakRepository.save(streak);
 			 
 			 //corresponding User Profile
-			 UserDto userDto = new UserDto();
 			 userDto.setUsername(username);
-			 userDto.setFirstName(accountsDto.getFirstName());
-			 userDto.setLastName(accountsDto.getLastName());
-			 userProfileService.addUser(userDto, username);  // Create UserProfile
+			 userProfileService.addUser(userDto, username);  // Only set username, leave other fields empty
 			 
 		}
 		// Generate a JWT token for the newly created account:
