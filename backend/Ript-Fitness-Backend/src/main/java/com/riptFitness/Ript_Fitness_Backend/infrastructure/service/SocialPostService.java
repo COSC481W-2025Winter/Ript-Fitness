@@ -36,7 +36,8 @@ public class SocialPostService {
 	
 	public SocialPostDto addPost(SocialPostDto socialPostDto) {
 		SocialPost socialPostToBeAdded = SocialPostMapper.INSTANCE.toSocialPost(socialPostDto);
-		socialPostToBeAdded.accountId = accountsService.getLoggedInUserId();
+		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
+		socialPostToBeAdded.account = accountsRepository.findById(currentlyLoggedInUserId).get();
 		socialPostToBeAdded = socialPostRepository.save(socialPostToBeAdded);
 		return SocialPostMapper.INSTANCE.toSocialPostDto(socialPostToBeAdded);
 	}
@@ -148,8 +149,6 @@ public class SocialPostService {
 	}
 	
 	public SocialPostDto addComment(SocialPostCommentDto socialPostComment) {
-		socialPostComment.accountId = accountsService.getLoggedInUserId();
-		
 		Optional<SocialPost> optionalSocialPostObject = socialPostRepository.findById(socialPostComment.postId);
 		
 		if(optionalSocialPostObject.isEmpty())
@@ -158,6 +157,10 @@ public class SocialPostService {
 		SocialPost socialPostObject = optionalSocialPostObject.get();
 		
 		SocialPostComment socialPostCommentModel = SocialPostCommentMapper.INSTANCE.toSocialPostComment(socialPostComment);
+		
+		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
+
+		socialPostCommentModel.account = accountsRepository.findById(currentlyLoggedInUserId).get();
 				
 		socialPostObject.socialPostComments.add(socialPostCommentModel);
 		

@@ -58,7 +58,6 @@ public class SocialPostServiceTest {
 		MockitoAnnotations.openMocks(this);
 		
 		socialPost = new SocialPostDto();
-		socialPost.accountId = 1L;
 		socialPost.content = "Just benched 500 pounds, my name is Chris and I'm so strong!!";
 		socialPost.numberOfLikes = 2;
 		socialPost.userIDsOfLikes = new ArrayList<>();
@@ -71,21 +70,22 @@ public class SocialPostServiceTest {
 		socialPost.socialPostComments.add(commentOne);
 		socialPost.socialPostComments.add(commentTwo);
 		
-		commentOne.accountId = 2L;
 		commentOne.content = "Great job Chris, OMG!";
 		commentOne.postId = 1L;
 		
-		commentTwo.accountId = 3L;
 		commentTwo.content = "Wow! So strong!!!";
 		commentTwo.postId = 1L;
 		
-		commentThree.accountId = 4L;
 		commentThree.content = "You can do better.";
 		commentThree.postId = 1L;
 		
 		socialPostModel = SocialPostMapper.INSTANCE.toSocialPost(socialPost);
+		socialPostModel.account = new AccountsModel();
+		socialPostModel.account.setId(1L);
 		
 		commentOneModel = SocialPostCommentMapper.INSTANCE.toSocialPostComment(commentOne);
+		commentOneModel.account = new AccountsModel();
+		commentOneModel.account.setId(3L);
 		
 		account = new AccountsModel();
 		
@@ -95,6 +95,7 @@ public class SocialPostServiceTest {
 	@Test
 	void testServiceAddPostValid() {
 		when(socialPostRepository.save(any(SocialPost.class))).thenReturn(socialPostModel);
+		when(accountsRepository.findById(any(Long.class))).thenReturn(Optional.of(account));
 		when(accountsService.getLoggedInUserId()).thenReturn(1L);
 		
 		SocialPostDto result = socialPostService.addPost(socialPost);
@@ -111,7 +112,6 @@ public class SocialPostServiceTest {
 		SocialPostDto result = socialPostService.getPost(1L);
 		
 		assertNotNull(result);
-		assertEquals(1L, result.accountId);
 		assertEquals(2, result.socialPostComments.size());
 	}
 	
@@ -150,7 +150,6 @@ public class SocialPostServiceTest {
 		SocialPostDto result = socialPostService.deletePost(1L);
 		
 		assertNotNull(result);
-		assertEquals(2L, result.socialPostComments.get(0).accountId);
 		assertEquals("Wow! So strong!!!", result.socialPostComments.get(1).content);
 	}
 	
@@ -219,7 +218,8 @@ public class SocialPostServiceTest {
 	
 	@Test
 	void testServiceAddCommentValid() {
-		when(socialPostRepository.findById(1L)).thenReturn(Optional.of(socialPostModel));
+		when(socialPostRepository.findById(any(Long.class))).thenReturn(Optional.of(socialPostModel));
+		when(accountsRepository.findById(any(Long.class))).thenReturn(Optional.of(account));
 		when(socialPostRepository.save(any(SocialPost.class))).thenReturn(socialPostModel);
 		
 		SocialPostDto result = socialPostService.addComment(commentThree);

@@ -16,6 +16,6 @@ public interface SocialPostRepository extends JpaRepository<SocialPost, Long>{
 		@Query("SELECT s FROM SocialPost s WHERE s.id = :id AND s.isDeleted = false")
 		Optional<SocialPost> findById(@Param("id") Long id);
 
-		@Query("SELECT s.id FROM SocialPost s WHERE s.accountId = :accountId AND s.isDeleted = false")
+		@Query("SELECT s.id FROM SocialPost s WHERE s.account.id = :accountId AND s.isDeleted = false")
 		Optional<ArrayList<Long>> getPostsFromAccountId(@Param("accountId") Long accountId);
 }
