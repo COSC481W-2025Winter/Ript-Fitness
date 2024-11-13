@@ -94,6 +94,8 @@ export default function WorkoutStack(props : any) {
         //   </View>
         // ),
         // <Svg ... /> commented out
+
+        //Add button - add a workout
         headerRight: () => (
           <TouchableOpacity
             onPress={() => { navigation.navigate("ApiScreen", {}) }}

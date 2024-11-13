@@ -17,6 +17,8 @@ import * as Haptics from 'expo-haptics';
 import React from 'react';
 
 export default function AddWorkoutScreen() {
+  //Manage the add exercise modal visibility
+  const [isAddModalVisible, setAddModalVisible] = useState(false);
   const navigation = useNavigation<WorkoutScreenNavigationProp >();
 
    const removeWorkout = (id : any) => {
@@ -24,6 +26,7 @@ export default function AddWorkoutScreen() {
     setWorkouts(updatedWorkouts);
    }
 
+   //make modal appear to edit added workout
    const editWorkout = (id : any) => {
     navigation.navigate("ApiScreen", {})
    }
