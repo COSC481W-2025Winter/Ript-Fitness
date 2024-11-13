@@ -5,12 +5,13 @@ import { useNavigation } from "@react-navigation/native";
 import AddFoodButton from "@/components/foodlog/AddFoodButton";
 import { httpRequests } from "@/api/httpRequests";
 import { GlobalContext } from "@/context/GlobalContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 //Need to figure out how to get the day to work on login and then not switch until the next day 
 
 
-
-export default function FoodLogAddPage({ dayId } : any) {
+const FoodLogAddPage = () => {
+// export default async function FoodLogAddPage() {
     const [foodName, setFoodName] = useState('');
     const [foodCalories, setCalories] = useState('');
     const [foodFat, setFat] = useState('');
@@ -22,14 +23,20 @@ export default function FoodLogAddPage({ dayId } : any) {
     const [totalCarbs, setTotalCarbs] = useState(0);
     const [totalProtein, setTotalProtein] = useState(0);
     const [totalWater, setTotalWater] = useState(0);
-    //const [day, setDay] = useState(0);
+    const [day, setDay] = useState(0);
     const context = useContext(GlobalContext);
 
 
 
     const setTotalForDay = async () => {
+        const cachedDay = await AsyncStorage.getItem('day');
+        if (cachedDay) {
+            setDay(JSON.parse(cachedDay));
+        } else {
+            console.log("there is no cachedDay");
+        }
         try {
-            const getDayResponse = await fetch (`${httpRequests.getBaseURL()}/nutritionCalculator/getDay/${dayId}`, {
+            const getDayResponse = await fetch (`${httpRequests.getBaseURL()}/nutritionCalculator/getDay/${day}`, {
                 method: 'PUT', 
                 headers: {
                     'Content-Type': 'application/json',
@@ -149,6 +156,12 @@ export default function FoodLogAddPage({ dayId } : any) {
             multiplier: foodServings, 
             isDeleted: false, 
         };
+        const cachedDay = await AsyncStorage.getItem('day');
+        if (cachedDay) {
+            setDay(JSON.parse(cachedDay));
+        } else {
+            console.log("there is no cachedDay");
+        }
 
 
         try {
@@ -164,10 +177,8 @@ export default function FoodLogAddPage({ dayId } : any) {
                 if (foodResponse.status === 201) {
                     const foodData = await foodResponse.json();
                     const foodID = [foodData.id];
-                    // console.log("FoodID: ", foodID);
-                    // console.log("Day ID: ", dayId);
                     
-                    const addResponse = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/addFoodsToDay/${dayId}`, {
+                    const addResponse = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/addFoodsToDay/${day}`, {
                         method: 'POST', 
                         headers: {
                             'Content-Type': 'application/json',
@@ -175,6 +186,7 @@ export default function FoodLogAddPage({ dayId } : any) {
                         }, 
                         body:JSON.stringify(foodID),
                     });
+                    console.log("add to day response status", addResponse.status);
                     if (addResponse.status === 201) {
                         console.log('Success', 'Food data added to day successfully!');
                         setTotalForDay();
@@ -191,7 +203,7 @@ export default function FoodLogAddPage({ dayId } : any) {
         } catch {
             console.log('Error', 'An error occurred. Please try again.');
         }
-     };
+    };
         
     // Helper function to clear input fields
     const clearInputFields = () => {
@@ -203,34 +215,115 @@ export default function FoodLogAddPage({ dayId } : any) {
     };
     
     const navigation = useNavigation();
+    const [validCals, setValidCals] = useState(true);
+    const [validFat, setValidFat] = useState(true);
+    const [validCarbs, setValidCarbs] = useState(true);
+    const [validProtein, setValidProtein] = useState(true);
+    const [validServings, setValidServings] = useState(true);
+    const [validName, setValidName] = useState(true);
+
+    const handleFoodNameChange = (text: string) => {
+        setFoodName(text);
+        setValidName(text.trim().length > 0);
+    }
 
     const handleCaloriesChange = (text: string) => {
-        if (text === '' || (/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
             setCalories(text);
+            setValidCals(true);
+        } else {
+            setCalories('');
+            setValidCals(false);
         }
     };
     
     const handleFatChange = (text: string) => {
-        if (text === '' || (/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
             setFat(text);
+            setValidFat(true);
+        } else {
+            setFat('');
+            setValidFat(false);
         }
     };
     
     const handleCarbsChange = (text: string) => {
-        if (text === '' || (/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
             setCarbs(text);
+            setValidCarbs(true);
+        } else {
+            setCarbs('');
+            setValidCarbs(false);
         }
     };
     
     const handleProteinChange = (text: string) => {
-        if (text === '' || (/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
             setProtein(text);
+            setValidProtein(true);
+        } else {
+            setProtein('');
+            setValidProtein(false);
         }
     };
     
     const handleServingsChange = (text: string) => {
-        if (text === '' || (/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0) && text.trim().length > 0) {
             setServings(text);
+            setValidServings(true);
+        } else {
+            setServings('');
+            setValidServings(false);
+        }
+    };
+
+    const validateAllFields = () => {
+        const isNameValid = foodName.trim().length > 0;
+        const isCalsValid = /^\d*\.?\d*$/.test(foodCalories) && parseFloat(foodCalories) >= 0;
+        const isFatValid = /^\d*\.?\d*$/.test(foodFat) && parseFloat(foodFat) >= 0;
+        const isCarbsValid = /^\d*\.?\d*$/.test(foodCarbs) && parseFloat(foodCarbs) >= 0;
+        const isProteinValid = /^\d*\.?\d*$/.test(foodProtein) && parseFloat(foodProtein) >= 0;
+        const isServingsValid = /^\d*\.?\d*$/.test(foodServings) && parseFloat(foodServings) >= 0;
+
+        setValidName(isNameValid);
+        setValidCals(isCalsValid);
+        setValidFat(isFatValid);
+        setValidCarbs(isCarbsValid);
+        setValidProtein(isProteinValid);
+        setValidServings(isServingsValid);
+        
+        return (
+            validName &&
+            validCals &&
+            validFat &&
+            validCarbs &&
+            validProtein &&
+            validServings
+        );
+    };
+
+    const handleBlur = (field: string, value: string) => {
+        switch (field) {
+            case 'foodName':
+                setValidName(value.trim().length > 0);
+                break;
+            case 'calories':
+                setValidCals(/^\d*\.?\d*$/.test(value) && parseFloat(value) >= 0);
+                break;
+            case 'fat':
+                setValidFat(/^\d*\.?\d*$/.test(value) && parseFloat(value) >= 0);
+                break;
+            case 'carbs':
+                setValidCarbs(/^\d*\.?\d*$/.test(value) && parseFloat(value) >= 0);
+                break;
+            case 'protein':
+                setValidProtein(/^\d*\.?\d*$/.test(value) && parseFloat(value) >= 0);
+                break;
+            case 'servings':
+                setValidServings(/^\d*\.?\d*$/.test(value) && parseFloat(value) >= 0);
+                break;
+            default:
+                break;
         }
     };
 
@@ -250,10 +343,11 @@ export default function FoodLogAddPage({ dayId } : any) {
             <Text style={styles.inputLabel}>Name</Text>
             <TextInput
                 style={styles.input}
+                placeholder={!validName ? "Food name required" : "Add name"}
+                placeholderTextColor={!validName ? 'red' : '#999'}
                 value={foodName}
-                onChangeText={setFoodName}
-                placeholder="Add Name"
-                
+                onChangeText={handleFoodNameChange}
+                onBlur={() => handleBlur('foodName', foodName)}
             /></View>
 
             <View style = {styles.row}>
@@ -263,7 +357,9 @@ export default function FoodLogAddPage({ dayId } : any) {
                 keyboardType="numeric"
                 value={foodCalories}
                 onChangeText={handleCaloriesChange}
-                placeholder="Add Calories"
+                placeholder={!validCals ? "Required" : "Add Calories"}
+                placeholderTextColor={!validCals ? 'red' : '#999'}
+                onBlur={() => handleBlur('calories', foodCalories)}
             /></View>
 
             <View style = {styles.row}>
@@ -273,7 +369,9 @@ export default function FoodLogAddPage({ dayId } : any) {
                 keyboardType="numeric"
                 value={foodFat}
                 onChangeText={handleFatChange}
-                placeholder="Add Grams"
+                placeholder={!validFat ? "Required" : "Add Grams"}
+                placeholderTextColor={!validFat ? 'red' : '#999'}
+                onBlur={() => handleBlur('fat', foodFat)}
             /></View>
 
             <View style = {styles.row}>
@@ -283,17 +381,21 @@ export default function FoodLogAddPage({ dayId } : any) {
                 keyboardType="numeric"
                 value={foodCarbs}
                 onChangeText={handleCarbsChange}
-                placeholder="Add Grams"
+                placeholder={!validCarbs ? "Required" : "Add Grams"}
+                placeholderTextColor={!validCarbs ? 'red' : '#999'}
+                onBlur={() => handleBlur('carbs', foodCarbs)}
             /></View>
 
             <View style = {styles.row}>
             <Text style={styles.inputLabel}>Protein (g)</Text>
             <TextInput
-                style={styles.input}
-                keyboardType="numeric"
-                value={foodProtein}
-                onChangeText={handleProteinChange}
-                placeholder="Add Grams"
+               style={styles.input}
+               keyboardType="numeric"
+               value={foodProtein}
+               onChangeText={handleProteinChange}
+               placeholder={!validProtein ? "Required" : "Add Grams"}
+               placeholderTextColor={!validProtein ? 'red' : '#999'}
+               onBlur={() => handleBlur('protein', foodProtein)}
             /></View>
 
             <View style = {styles.row}>
@@ -303,7 +405,9 @@ export default function FoodLogAddPage({ dayId } : any) {
                 keyboardType="numeric"
                 value={foodServings}
                 onChangeText={handleServingsChange}
-                placeholder="Add Servings"
+                placeholder={!validServings ? "Required" : "Add Servings"}
+                placeholderTextColor={!validServings ? 'red' : '#999'}
+                onBlur={() => handleBlur('servings', foodServings)}
             /></View>
 
             {/* Save button */}
@@ -316,7 +420,13 @@ export default function FoodLogAddPage({ dayId } : any) {
                         borderWidth={1}
                         fontSize={16}
                         width={150}
-                        onPress={handleFoodDataSaveOnly} />
+                        onPress={() => {
+                            if (validateAllFields()) {
+                                handleFoodDataSaveOnly();
+                            } else {
+                                alert("Please fill out all fields correctly.");
+                            }
+                        }} />
                 <AddFoodButton   
                         title="Log Food Today" 
                         textColor="#21BFBF"
@@ -325,7 +435,13 @@ export default function FoodLogAddPage({ dayId } : any) {
                         borderWidth={1}
                         fontSize={16}
                         width={150}
-                        onPress={handleFoodDataSaveAddDay} />
+                        onPress={() => {
+                            if (validateAllFields()) {
+                                handleFoodDataSaveAddDay();
+                            } else {
+                                alert("Please fill out all fields correctly.");
+                            }
+                        }} />
             </View>
         </ScrollView>
         </KeyboardAvoidingView>
@@ -354,6 +470,9 @@ const styles = StyleSheet.create({
         borderRadius: 2,
         textAlign: 'center',
       },
+    //   inputInvalid: {
+    //     borderColor: 'red',
+    // },
       inputLabel: {
         marginLeft: 20,
         fontSize: 16,
@@ -394,3 +513,5 @@ const styles = StyleSheet.create({
         gap: 20,
       }
 })
+
+export default FoodLogAddPage;

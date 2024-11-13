@@ -106,16 +106,15 @@ const FoodLogSavedPage = () => {
     
                 if (response.status === 200) {
                     return await response.json();
-                } 
+                } else {
+                    return null;
+                }
             } catch (error) {
                 console.log(`Error fetching details for food ID ${foodID}:`, error);
             }
             return null;
         };
 
-        const addNewFood = (newFood: Food) => {
-            setFoodDetails((prev) => [...prev, newFood].sort((a,b) => a.name.localeCompare(b.name)));
-        };
 
         useFocusEffect(
             useCallback(() => {
@@ -180,7 +179,7 @@ const FoodLogSavedPage = () => {
 
 
     return cached ? (
-        <View>
+        <View style={styles.bottomContainer}>
             <CustomSearchBar></CustomSearchBar>
             <FlatList 
                 data={foodDetails}
@@ -189,17 +188,17 @@ const FoodLogSavedPage = () => {
             />
         </View>
     ) : loading ? (
-       <View>
+        <View style={styles.bottomContainer}>
             <CustomSearchBar></CustomSearchBar>
             <Text style={styles.message}>Loading...</Text>
        </View>
     ) : foodDetails.length === 0 ? (
-        <View>
+        <View style={styles.bottomContainer}>
             <CustomSearchBar></CustomSearchBar>
             <Text style={styles.message}>No food items logged.</Text>
         </View>
     ) : (
-        <View>
+        <View style={styles.bottomContainer}>
             <CustomSearchBar></CustomSearchBar>
             <FlatList 
                 data={foodDetails}
@@ -238,7 +237,6 @@ const styles = StyleSheet.create({
         right: 10, 
     },
     bottomContainer: {
-        paddingBottom: 29,
         height: '100%',
     }, 
     message: {

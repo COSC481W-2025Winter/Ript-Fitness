@@ -28,8 +28,8 @@ export default function FoodLogScreen() {
 
 
 
-    //const currentDate = new Date(); 
-    //const formattedDate = `${currentDate.getMonth() +1}/${currentDate.getDate()}/${currentDate.getFullYear()}`;
+    const currentDate = new Date(); 
+    const formattedDate = `${currentDate.getMonth() +1}/${currentDate.getDate()}/${currentDate.getFullYear()}`;
 
     const dayData = {
         "foodsEatenInDay": [],
@@ -55,35 +55,35 @@ export default function FoodLogScreen() {
                 console.log("Day ID: ", dayID);
                 clearMacroFields();
 
-                const cacheDayID = async (dayID: { toString: () => string; }) => {
-                    try {
-                      await AsyncStorage.setItem('cachedDayID', dayID.toString());
-                      console.log('Day ID cached successfully!');
-                    } catch (error) {
-                      console.error('Error caching Day ID:', error);
-                    }
-                  };
+                // const cacheDayID = async (dayID: { toString: () => string; }) => {
+                //     try {
+                //       await AsyncStorage.setItem('cachedDayID', dayID.toString());
+                //       console.log('Day ID cached successfully!');
+                //     } catch (error) {
+                //       console.error('Error caching Day ID:', error);
+                //     }
+                //   };
                 
-                // await AsyncStorage.setItem('day', JSON.stringify(data.id));
-                // const dayItem = await AsyncStorage.getItem('day');
-                // console.log("Day item in storage: ", dayItem);
+                await AsyncStorage.setItem('day', JSON.stringify(dayID));
+                const dayItem = await AsyncStorage.getItem('day');
+                console.log("Day item in storage: ", dayItem);
             }
         } catch (error) {
             console.log("Failed to create day", error);
         }
     };
     
-    // const checkDay = async () => {
-    //     console.log("Current Date: ", formattedDate);
-    //     console.log("Current day: ", day);
+    const checkDay = async () => {
+        console.log("Current Date: ", formattedDate);
+        console.log("Current day: ", day);
         
-    //     if (formattedDate == day) {
-    //         console.log("The date is today");
-    //     } else {
-    //         console.log("We need a new day");
-    //         newDay();
-    //     }
-    // }
+        if (formattedDate == day) {
+            console.log("The date is today");
+        } else {
+            console.log("We need a new day");
+            newDay();
+        }
+    }
 
     const clearMacroFields = () => {
         setTotalCalories(0);
@@ -171,9 +171,9 @@ const updateWater = async () => {
 }
 
     const renderContent = () => {
-        if (selectedPage === "Logged") return <FoodLogLoggedPage dayId={day}/>;
+        if (selectedPage === "Logged") return <FoodLogLoggedPage />;
         if (selectedPage === "Saved") return <FoodLogSavedPage />;
-        if (selectedPage === "Add") return <FoodLogAddPage dayId={day} />;
+        if (selectedPage === "Add") return <FoodLogAddPage />;
     };
 
     return(
