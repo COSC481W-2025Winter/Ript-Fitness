@@ -6,7 +6,7 @@ import { useNotes } from "@/components/MyNotes/NotesContext";
 import { useNavigation } from "@react-navigation/native";
 import { Note as NoteType } from '@/components/MyNotes/NotesContext';
 import { StackNavigationProp } from "@react-navigation/stack";
-import { WorkoutStackParamList } from "../(tabs)/WorkoutStack";
+import { WorkoutStackParamList } from "../../(tabs)/WorkoutStack";
 
 type MyNotesScreenNavigationProp = StackNavigationProp<WorkoutStackParamList, 'MyNotesScreen'>;
 

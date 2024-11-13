@@ -1,7 +1,7 @@
 // App.tsx
 
 import 'react-native-gesture-handler';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
 import { View, Text, StatusBar, ActivityIndicator } from 'react-native';
@@ -21,6 +21,7 @@ import SignupScreen from '@/app/screens/welcome/SignupScreen';
 import { SocialFeedProvider } from './context/SocialFeedContext';
 
 import { NotesProvider } from './components/MyNotes/NotesContext';
+import { httpRequests } from './api/httpRequests';
 
 
 // Define types for the navigation stack
@@ -88,11 +89,34 @@ function MainApp() {
 
 function RootNavigator() {
   const context = useContext(GlobalContext)
-
   const isLoading = context.isLoaded
-  const user = (context.data.token != '')
-  //console.log('RootNavigator - user:', user);
-  //console.log('RootNavigator - isLoading:', isLoading);
+  const [verifiedToken, setVerifiedToken] = useState(false)
+  const [temp, setTemp] = useState(true)
+  let user = (context.data.token != '')
+
+const validateExistingToken = async () => {
+  try {
+  const response = await fetch(`${httpRequests.getBaseURL()}/api/token/validate`, {
+    method: 'POST', // Set method to POST
+    headers: {
+      'Content-Type': 'application/json', // Set content type to JSON
+    },
+    body: `${context?.data.token}`, // Convert the data to a JSON string
+  }); // Use endpoint or replace with BASE_URL if needed
+  console.log("foooo " + response.ok)
+  if (!response.ok) {
+    context.setToken("");
+    user = (context.data.token != '')
+  }
+  setVerifiedToken(true)
+  const json = await response.text() //.json(); // Parse the response as JSON;
+  return json; // Return the JSON data directly
+} catch (error) {
+
+  console.error('GET request failed:', error);
+  throw error; // Throw the error for further handling if needed
+}
+}
 
   if (isLoading) {
     return (
@@ -102,12 +126,17 @@ function RootNavigator() {
     );
   }
 
+  if (user && !verifiedToken) {
+    console.log("1234")
+    validateExistingToken();
+  }
+
   return (
     <Stack.Navigator
       screenOptions={{ gestureEnabled: true }}
       initialRouteName={user ? 'Home' : 'Welcome'}
     >
-      {user ? (
+      {user && verifiedToken? (
         <Stack.Screen
           name="Home"
           component={MainApp}

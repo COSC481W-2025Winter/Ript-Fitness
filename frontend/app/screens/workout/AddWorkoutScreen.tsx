@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, TouchableOpacity, View, FlatList, ScrollView, Dimensions } from 'react-native';
+import { Image, StyleSheet, Platform, TouchableOpacity, View, FlatList, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -15,9 +15,14 @@ import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flat
 import { isAndroid } from 'react-native-draggable-flatlist/lib/typescript/constants';
 import * as Haptics from 'expo-haptics';
 import React from 'react';
+import CustomTextInput from '@/components/custom/CustomTextInput';
+import { GlobalContext } from '@/context/GlobalContext';
 
 export default function AddWorkoutScreen() {
   const navigation = useNavigation<WorkoutScreenNavigationProp >();
+  const { width } = Dimensions.get('window');
+  const context = useContext(GlobalContext);
+  const [submitting, setSubmitting] = useState(false);
 
    const removeWorkout = (id : any) => {
     const updatedWorkouts = workouts.filter(workout => workout.id !== id);
@@ -29,9 +34,64 @@ export default function AddWorkoutScreen() {
    }
 
   
-   const submitWorkout = () => {
-    
-    
+   const submitWorkout = async () => {
+    try {
+    setSubmitting(true)
+    let WorkoutExercises = [];
+
+    for (let i =0; i<Exercises.length; i++) {
+      const currentExercise = {
+        "sets": Exercises[i].sets,
+        "reps": Exercises[i].reps,
+        "nameOfExercise": Exercises[i].nameOfExercise
+    }
+      try {
+        console.log("A " + JSON.stringify(currentExercise))
+      const response = await fetch(`${httpRequests.getBaseURL()}/exercises/addExercise`, {
+        method: 'POST', // Set method to POST
+        headers: {
+          'Content-Type': 'application/json', // Set content type to JSON
+          "Authorization": `Bearer ${context?.data.token}`,
+        },
+        body: JSON.stringify(currentExercise), // Convert the data to a JSON string
+      }); // Use endpoint or replace with BASE_URL if needed
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      const json = await response.json() //.json(); // Parse the response as JSON
+      WorkoutExercises.push(json.exerciseId);
+  
+      //return json; // Return the JSON data directly
+    } catch (error) {
+      setSubmitting(false)
+      console.error('GET request failed1:', error);
+      throw error; // Throw the error for further handling if needed
+    }
+      
+    }
+    console.log(WorkoutExercises)
+    const pushingWorkout = {name: text, exerciseIds: WorkoutExercises}
+    console.log(JSON.stringify(pushingWorkout))
+      const response = await fetch(`${httpRequests.getBaseURL()}/workouts/addWorkout`, {
+        method: 'POST', // Set method to POST
+        headers: {
+          'Content-Type': 'application/json', // Set content type to JSON
+          "Authorization": `Bearer ${context?.data.token}`,
+        },
+        body: JSON.stringify(pushingWorkout), // Convert the data to a JSON string
+      }); // Use endpoint or replace with BASE_URL if needed
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      const json = await response.json() //.json(); // Parse the response as JSON
+      console.log(JSON.stringify(json))
+      setSubmitting(false)
+      //return json; // Return the JSON data directly
+    } catch (error) {
+      setSubmitting(false)
+      console.error('GET request failed2:', error);
+      throw error; // Throw the error for further handling if needed
+    }
    }
 const viewWorkoutDetails = (id : any) => {
   navigation.navigate("ApiScreen", {})
@@ -65,7 +125,37 @@ const viewWorkoutDetails = (id : any) => {
     { id: '9', name: 'Russian Twists', description: "5 Sets", values: ["20", "18", "20", "19", "18"], valueTypes: "Reps", color: "#03A696" },
     { id: '10', name: 'Jumping Jacks', description: "3 Sets", values: ["25", "30", "28"], valueTypes: "Reps", color: "#03A696" }
   ]);
-  
+
+  const Exercises = [
+    {
+        "exerciseId": 39,
+        "sets": 3,
+        "reps": [
+            1,
+            2,
+            3
+        ],
+        "isDeleted": false,
+        "nameOfExercise": "pull upsv2",
+        "accountReferenceId": 99,
+        "deleted": false,
+        "weight": []
+    },
+    {
+        "exerciseId": 38,
+        "sets": 3,
+        "reps": [
+            10,
+            20,
+            30
+        ],
+        "isDeleted": false,
+        "nameOfExercise": "pull ups",
+        "accountReferenceId": 99,
+        "deleted": false,
+        "weight": []
+    }
+]
 
   const renderLeftActions = (id: string, maxTheWidth: any) => {
     //console.log(maxTheWidth? "true" : "false")
@@ -116,9 +206,9 @@ const viewWorkoutDetails = (id : any) => {
     console.log(JSON.stringify(response))
   }
 */
-  const renderItem = ({ item, drag, isActive }: RenderItemParams<typeof workouts[0]>) => (
+  const renderItem = ({ item, drag, isActive }: RenderItemParams<typeof Exercises[0]>) => (
     <Swipeable 
-    renderLeftActions={() => renderLeftActions(item.id, maxWidth)}
+    renderLeftActions={() => renderLeftActions(item.exerciseId.toString(), maxWidth)}
 
     onSwipeableWillOpen={() => setMaxWidth(true)}     // Swipe started, prevent drag
     onSwipeableWillClose={() => setMaxWidth(false)}
@@ -126,7 +216,7 @@ const viewWorkoutDetails = (id : any) => {
 
 
     onSwipeableClose={() => handleSwipeableClose(drag)}       // Swipe ended, allow drag again
-    onSwipeableOpen={() => removeWorkout(item.id)}
+    onSwipeableOpen={() => removeWorkout(item.exerciseId.toString())}
     containerStyle={styles.test}
     enabled={(!isActive && !isOverlayVisible)}
   >
@@ -139,12 +229,12 @@ const viewWorkoutDetails = (id : any) => {
         </View>
       )}
     <ExerciseButton
-      onLongPress={() => handleLongPress(item.id, drag)}
+      onLongPress={() => handleLongPress(item.exerciseId.toString(), drag)}
       onPressOut={() => handlePressOut(isActive)}
-      id={item.id}
-      leftColor={item.color}
-      title={item.name}
-      desc={item.description}
+      id={item.exerciseId.toString()}
+      leftColor={"red"}
+      title={item.nameOfExercise}
+      desc={item.reps.length.toString()}
       //onLongPress={drag}  // Enable dragging when long-pressed
       isActive={isActive}
       style={styles.myWidth}
@@ -152,17 +242,17 @@ const viewWorkoutDetails = (id : any) => {
     >
 
       
-      {item.values.map((value : any, index : any) => (
+      {item.reps.map((rep : any, index : any) => (
         <View key={index} style={styles.rowItem}>
-          <ThemedText style={styles.floatLeft}>{value}</ThemedText>
-          <ThemedText style={styles.floatRight}>{item.valueTypes}</ThemedText>
+          <ThemedText style={styles.floatLeft}>{rep}</ThemedText>
+          <ThemedText style={styles.floatRight}>{"Reps"}</ThemedText>
         </View>
       ))}
     </ExerciseButton>
     </View>
     </Swipeable>
   );
-
+  const [text, setText] = useState("")
   const [lastDragIndex, setLastDraggedIndex] = useState(null)
 
   const onDragEnd = (data : any) => {
@@ -172,19 +262,39 @@ const viewWorkoutDetails = (id : any) => {
 
   return (
     <View style={styles.totalView}>
+
+
+
+
       <View style={styles.flatListView}>
       
 
       <DraggableFlatList
       style={styles.flatList}
-        data={workouts}
+        data={Exercises}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.exerciseId.toString()}
         onDragEnd={({ data }) => onDragEnd(data)} // Update the order after dragging
+        ListHeaderComponent={      <View style={{marginTop:10, alignSelf:"center"}}>
+        <CustomTextInput
+            onChangeText={setText}
+            placeholder="Workout Name"
+            placeholderTextColor="#999"
+            width={width*0.85}
+            style={{
+              borderWidth: 0,
+              fontSize: 16,
+              paddingLeft: 15,
+              borderRadius: 20,
+              backgroundColor: '#EDEDED',
+            }}
+          />
+        
+        </View>}
         ListFooterComponent={() => <View style={{ height: submitHeight }} />}
       />
       <View style={styles.submitView}>
-        <TouchableOpacity onPress={() => navigation.navigate("ApiScreen", {})} style={styles.button}><View style={styles.submitButtonView}><ThemedText style={styles.buttonText}>Submit </ThemedText><Ionicons name="chevron-up" style={[styles.submitIcon]} size={20} color="white"/></View></TouchableOpacity>
+        <TouchableOpacity onPress={submitWorkout} style={styles.button}><View style={styles.submitButtonView}><ThemedText style={styles.buttonText}>{submitting ? <ActivityIndicator size="small" color="#ffffff" /> : "Submit"}</ThemedText>{submitting ? <></> : <Ionicons name="chevron-up" style={[styles.submitIcon]} size={20} color="white"/>}</View></TouchableOpacity>
       </View>
     </View>
     </View>
