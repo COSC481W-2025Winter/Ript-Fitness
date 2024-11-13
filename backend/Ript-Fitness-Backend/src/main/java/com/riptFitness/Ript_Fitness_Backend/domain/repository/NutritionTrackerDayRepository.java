@@ -15,6 +15,7 @@ public interface NutritionTrackerDayRepository extends JpaRepository<Day, Long>{
 	@Query("SELECT d FROM Day d WHERE d.id = :id AND d.isDeleted = false")
 	Optional<Day> findById(@Param("id")Long id);
 	
-	@Query("SELECT d.id FROM Day d WHERE d.accountId = :accountId AND d.isDeleted = false")
-	Optional<ArrayList<Long>> getPostsFromAccountId(@Param("accountId") Long accountId);
+	@Query("SELECT d.id FROM Day d WHERE d.account.id = :accountId AND d.isDeleted = false")
+	Optional<ArrayList<Long>> getDayIdsFromAccountId(@Param("accountId") Long accountId);
+	
 }

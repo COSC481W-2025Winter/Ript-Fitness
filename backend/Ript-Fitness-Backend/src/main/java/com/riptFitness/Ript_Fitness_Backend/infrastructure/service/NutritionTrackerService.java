@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.DayMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.FoodMapper;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Day;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Food;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.NutritionTrackerDayRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.NutritionTrackerFoodRepository;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.DayDto;
@@ -25,11 +27,14 @@ public class NutritionTrackerService {
 	
 	private AccountsService accountsService;
 	
+	private AccountsRepository accountsRepository;
+	
 	//Will be automatically called by dependency injection, you MUST include this constructor 
-	public NutritionTrackerService(NutritionTrackerFoodRepository nutritionTrackerFoodRepository, NutritionTrackerDayRepository nutritionTrackerDayRepository, AccountsService accountsService) {
+	public NutritionTrackerService(NutritionTrackerFoodRepository nutritionTrackerFoodRepository, NutritionTrackerDayRepository nutritionTrackerDayRepository, AccountsService accountsService, AccountsRepository accountsRepository) {
 		this.nutritionTrackerFoodRepository = nutritionTrackerFoodRepository;
 		this.nutritionTrackerDayRepository = nutritionTrackerDayRepository;
 		this.accountsService= accountsService;
+		this.accountsRepository = accountsRepository;
 	}
 	
 	//Each method is public and will return a Dto of some sort to the Controller class
@@ -105,7 +110,9 @@ public class NutritionTrackerService {
 	
 	public DayDto addDay(DayDto dayDto) {
 		Day dayToBeAdded = DayMapper.INSTANCE.toDay(dayDto);
-		dayToBeAdded.accountId = accountsService.getLoggedInUserId();
+		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
+		AccountsModel currentlyLoggedInUser = accountsRepository.findById(currentlyLoggedInUserId).get();
+		dayToBeAdded.account = currentlyLoggedInUser;
 		dayToBeAdded = nutritionTrackerDayRepository.save(dayToBeAdded);
 		return DayMapper.INSTANCE.toDayDto(dayToBeAdded);
 	}
@@ -118,8 +125,8 @@ public class NutritionTrackerService {
 		
 		Day returnedDayObject = returnedOptionalDayObject.get();
 		
-		if(!accountIdCheck(returnedDayObject.accountId))
-			throw new RuntimeException("The Day object with ID = " + returnedDayObject.id + " does not belong to the currently logged in user. AccountId of the Day object = " + returnedDayObject.accountId + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
+		if(!accountIdCheck(returnedDayObject.account.getId()))
+			throw new RuntimeException("The Day object with ID = " + returnedDayObject.id + " does not belong to the currently logged in user. AccountId of the Day object = " + returnedDayObject.account.getId() + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
 		
 		calculateTotalDayStats(returnedDayObject);
 		
@@ -131,7 +138,7 @@ public class NutritionTrackerService {
 	public ArrayList<Long> getDayIdsOfLoggedInUser(){
 		ArrayList<Long> dayIds;
 		Long currentUsersAccountId = accountsService.getLoggedInUserId();
-		Optional<ArrayList<Long>> optionalDayIdList = nutritionTrackerDayRepository.getPostsFromAccountId(currentUsersAccountId);
+		Optional<ArrayList<Long>> optionalDayIdList = nutritionTrackerDayRepository.getDayIdsFromAccountId(currentUsersAccountId);
 		
 		if(optionalDayIdList.isEmpty())
 			dayIds = new ArrayList<Long>();
@@ -149,8 +156,8 @@ public class NutritionTrackerService {
 		
 		Day dayToBeDeleted = optionalDayToBeDeleted.get();
 		
-		if(!accountIdCheck(dayToBeDeleted.accountId))
-			throw new RuntimeException("The Day object with ID = " + dayToBeDeleted.id + " does not belong to the currently logged in user. AccountId of the Food object = " + dayToBeDeleted.accountId + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
+		if(!accountIdCheck(dayToBeDeleted.account.getId()))
+			throw new RuntimeException("The Day object with ID = " + dayToBeDeleted.id + " does not belong to the currently logged in user. AccountId of the Food object = " + dayToBeDeleted.account.getId() + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
 		
 		dayToBeDeleted.isDeleted = true;
 		nutritionTrackerDayRepository.save(dayToBeDeleted);
@@ -165,8 +172,8 @@ public class NutritionTrackerService {
 		
 		Day dayBeingUpdated = optionalDayBeingUpdated.get();
 		
-		if(!accountIdCheck(dayBeingUpdated.accountId))
-			throw new RuntimeException("The Day object with ID = " + dayBeingUpdated.id + " does not belong to the currently logged in user. AccountId of the Food object = " + dayBeingUpdated.accountId + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
+		if(!accountIdCheck(dayBeingUpdated.account.getId()))
+			throw new RuntimeException("The Day object with ID = " + dayBeingUpdated.id + " does not belong to the currently logged in user. AccountId of the Food object = " + dayBeingUpdated.account.getId() + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
 		
 		List<Food> foodsAddedToDayObject = new ArrayList<>();
 		
@@ -202,8 +209,8 @@ public class NutritionTrackerService {
 		
 		Day dayBeingUpdated = optionalDayBeingUpdated.get();
 		
-		if(!accountIdCheck(dayBeingUpdated.accountId))
-			throw new RuntimeException("The Day object with ID = " + dayBeingUpdated.id + " does not belong to the currently logged in user. AccountId of the Food object = " + dayBeingUpdated.accountId + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
+		if(!accountIdCheck(dayBeingUpdated.account.getId()))
+			throw new RuntimeException("The Day object with ID = " + dayBeingUpdated.id + " does not belong to the currently logged in user. AccountId of the Food object = " + dayBeingUpdated.account.getId() + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
 		
 		List<Food> foodsAddedToDayObject = new ArrayList<>();
 		
@@ -239,8 +246,8 @@ public class NutritionTrackerService {
 		
 		Day dayBeingUpdated = optionalDayBeingUpdated.get();
 		
-		if(!accountIdCheck(dayBeingUpdated.accountId))
-			throw new RuntimeException("The Day object with ID = " + dayBeingUpdated.id + " does not belong to the currently logged in user. AccountId of the Food object = " + dayBeingUpdated.accountId + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
+		if(!accountIdCheck(dayBeingUpdated.account.getId()))
+			throw new RuntimeException("The Day object with ID = " + dayBeingUpdated.id + " does not belong to the currently logged in user. AccountId of the Food object = " + dayBeingUpdated.account.getId() + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
 		
 		dayBeingUpdated.totalWaterConsumed = waterIntake;
 		
