@@ -69,13 +69,21 @@ public class SocialPostService {
 		
 		ArrayList<SocialPost> postsFromAccountId = optionalPostsFromAccountId.get();
 		
-		if(startIndex >= postsFromAccountId.size() || endIndex >= postsFromAccountId.size())
-			throw new RuntimeException("Start index and end index must both be less than or equal to the total number of social posts from the currently logged in user."
-					+ " Start index = " + startIndex + ", end index = " + endIndex + ", total number of posts from logged in user = " + postsFromAccountId.size() + ".");
+		int start = postsFromAccountId.size() - startIndex - 1;
+		int end = postsFromAccountId.size() - endIndex - 1;
+		
+		if(start < 0)
+			throw new RuntimeException("There are not enough posts from the current user to match the path variables provided.");
+		
+		if(start >= postsFromAccountId.size()) 
+			start = postsFromAccountId.size() - 1;
+		
+		if(end < 0)
+			end = 0;
 		
 		ArrayList<SocialPostDto> postDtosFromAccountId = new ArrayList<SocialPostDto>();
 				
-		for(int i = startIndex; i < endIndex + 1; i++) {
+		for(int i = start; i >= end; i--) {
 			postDtosFromAccountId.add(SocialPostMapper.INSTANCE.toSocialPostDto(postsFromAccountId.get(i)));
 		}
 		

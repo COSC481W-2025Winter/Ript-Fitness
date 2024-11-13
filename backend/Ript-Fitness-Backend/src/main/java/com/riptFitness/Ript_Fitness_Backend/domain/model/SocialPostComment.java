@@ -21,6 +21,10 @@ public class SocialPostComment {
     @ManyToOne
     @JoinColumn(name = "account_id", nullable = false)
     public AccountsModel account;
+    
+    @ManyToOne
+    @JoinColumn(name = "user_profile_id", referencedColumnName = "id")
+    public UserProfile userProfile;
 	
 	public String content;
 	
