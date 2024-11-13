@@ -213,7 +213,9 @@ const FoodLogAddPage = () => {
         setCarbs('');
         setProtein('');
     };
-    
+
+
+    //Section for validating inputs 
     const navigation = useNavigation();
     const [validCals, setValidCals] = useState(true);
     const [validFat, setValidFat] = useState(true);
