@@ -13,11 +13,12 @@ type CustomButtonProps = {
   borderRadius?: number;
   onPress?: () => void;
   shouldUnderline?: boolean;
+  disabled?: boolean;
   style?: ViewStyle;
   textStyle?: TextStyle;
 };
 
-const CustomButton: React.FC<CustomButtonProps> = ({ title, backgroundColor, borderColor, borderWidth, width, height, textColor, fontSize, borderRadius, onPress, shouldUnderline = false, style, textStyle, }) => {
+const CustomButton: React.FC<CustomButtonProps> = ({ title, backgroundColor, borderColor, borderWidth, width, height, textColor, fontSize, borderRadius, onPress, shouldUnderline = false, disabled= false, style, textStyle, }) => {
   const [isPressed, setIsPressed] = useState(false);
 
   const buttonStyle: ViewStyle = {
@@ -48,6 +49,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({ title, backgroundColor, bor
         if (onPress) onPress(); // Call onPress when released
       }}
       activeOpacity={0.7}
+      disabled={disabled}
     >
       {/* <Text style={[textStyle]}>{title}</Text> */}
       <Text style={combinedTextStyle}>{title}</Text>
