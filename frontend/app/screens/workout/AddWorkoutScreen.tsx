@@ -28,10 +28,14 @@ export default function AddWorkoutScreen() {
 
    //make modal appear to edit added workout
    const editWorkout = (id : any) => {
-    navigation.navigate("ApiScreen", {})
+    // navigation.navigate("ApiScreen", {})
+    {/* Modal Button */}
+    <TouchableOpacity>
+      
+    </TouchableOpacity>
    }
 
-  
+  //submit button will send users to My Workout page
    const submitWorkout = () => {
     
     
