@@ -41,7 +41,7 @@ export default function WorkoutStack(props : any) {
       headerShown: true,
       headerStyleInterpolator: HeaderStyleInterpolators.forNoAnimation,
     }}>
-      <Stack.Screen name="WorkoutApiScreen" component={WorkoutApiScreen} options={{ title: 'Workout' }}/>
+      <Stack.Screen name="WorkoutApiScreen" component={WorkoutApiScreen} options={{ title: '' }}/>
       <Stack.Screen name="ApiScreen" component={ApiScreen} options={{
         headerRight: () => <StreakCounter />,
       }} />
