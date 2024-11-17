@@ -1,6 +1,8 @@
 // App.tsx
-
 import 'react-native-gesture-handler';
+import 'react-native-reanimated';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { PortalProvider } from '@gorhom/portal';
 import React, { useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
@@ -138,20 +140,23 @@ function RootNavigator() {
 
 export default function App() {
   return (
-    <GlobalProvider>
-      <StreakProvider>
-        <NotesProvider>
-        <SocialFeedProvider>
-        <>
-          <StatusBar barStyle="default" />
-          <NavigationContainer>
-            <RootNavigator />
-          </NavigationContainer>
-        </>
-        </SocialFeedProvider>
-          </NotesProvider>
-
-      </StreakProvider>
-    </GlobalProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer>
+        <PortalProvider>
+          <GlobalProvider>
+            <StreakProvider>
+              <NotesProvider>
+                <SocialFeedProvider>
+                  <>
+                    <StatusBar barStyle="default" />
+                    <RootNavigator />
+                  </>
+                </SocialFeedProvider>
+              </NotesProvider>
+            </StreakProvider>
+          </GlobalProvider>
+        </PortalProvider>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }

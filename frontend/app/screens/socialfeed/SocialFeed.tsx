@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useContext, useLayoutEffect } from 'react';
+import React, { useState, useCallback, useEffect, useContext, useRef } from 'react';
 import {
   SafeAreaView,
   FlatList,
@@ -7,15 +7,21 @@ import {
   StatusBar,
   RefreshControl,
   View,
+  TouchableOpacity,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { PortalProvider } from '@gorhom/portal';
 import PostItem from '@/components/socialfeed/PostItem';
+import CreatePostSheet from './CreatePostSheet';
+import TestBottomSheet from './TestBottomSheet';
 import { useNavigation } from '@react-navigation/native';
 import { useStreak } from '@/context/StreakContext';
-import StreakCounter from '@/components/StreakCounter';
 import StreakHeader from '@/components/StreakHeader';
 import { GlobalContext } from '@/context/GlobalContext';
 import { useSocialFeed } from '@/context/SocialFeedContext';
+import { Ionicons } from '@expo/vector-icons';
+import { CreatePostSheetRef } from './CreatePostSheet'
 
 type ApiPost = {
   id: string;
@@ -33,15 +39,13 @@ type ApiPost = {
 };
 
 export default function SocialFeed() {
-  const { 
-    posts, 
-    loading, 
-    error, 
-    fetchPosts, 
-    toggleLike 
-  } = useSocialFeed();
+  const createPostSheetRef = useRef<CreatePostSheetRef>(null);
+  const { posts, loading, error, fetchPosts, toggleLike } = useSocialFeed();
+  const {
+    data: { token },
+  } = useContext(GlobalContext);
 
-  const { data: { token } } = useContext(GlobalContext);
+  
 
   useEffect(() => {
     fetchPosts();
@@ -51,58 +55,84 @@ export default function SocialFeed() {
     fetchPosts();
   }, [fetchPosts]);
 
-  const handleLike = useCallback((id: string) => {
-    toggleLike(id);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
-  }, [toggleLike]);
+  const handleLike = useCallback(
+    (id: string) => {
+      toggleLike(id);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
+    },
+    [toggleLike]
+  );
 
-  const renderItem = useCallback(({ item }: { item: ApiPost }) => (
-    <PostItem
-      item={{
-        id: item.id,
-        type: 'text', // Assuming all posts are text for now
-        content: item.content,
-        user: {
-          name: item.accountId, // Ideally, map accountId to user name
-          profilePicture: 'https://avatar.iran.liara.run/public/boy?username=Ash', // Replace with actual profile picture in future
-        },
-        dateTimeCreated: item.dateTimeCreated,
-        likes: Array.isArray(item.likes) ? item.likes : [],
-        comments: Array.isArray(item.comments) ? item.comments.map(comment => ({ ...comment, timestamp: comment.dateTimeCreated })) : [],
-      }}
-      liked={Array.isArray(item.likes) && item.likes.includes(token)}
-      onLikePress={() => handleLike(item.id)}
-    />
-  ), [handleLike, token]);
+const handleOpenCreatePost = useCallback(() => {
+  console.log('createPostSheetRef.current:', createPostSheetRef.current);
+  createPostSheetRef.current?.snapToIndex(0);
+  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
+  console.log('Opening create post sheet...');
+}, [createPostSheetRef]);
 
-  if (error) {
-    return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>Error loading posts: {error}</Text>
-      </View>
-    );
-  }
+  const renderItem = useCallback(
+    ({ item }: { item: ApiPost }) => (
+      <PostItem
+        item={{
+          id: item.id,
+          type: 'text',
+          content: item.content,
+          user: {
+            name: item.accountId,
+            profilePicture: 'https://avatar.iran.liara.run/public/boy?username=Ash',
+          },
+          dateTimeCreated: item.dateTimeCreated,
+          likes: Array.isArray(item.likes) ? item.likes : [],
+          comments: Array.isArray(item.comments)
+            ? item.comments.map((comment) => ({ ...comment, timestamp: comment.dateTimeCreated }))
+            : [],
+        }}
+        liked={Array.isArray(item.likes) && item.likes.includes(token)}
+        onLikePress={() => handleLike(item.id)}
+      />
+    ),
+    [handleLike, token]
+  );
+
+  // if (error) {
+  //   return (
+  //     <View style={styles.emptyContainer}>
+  //       <Text style={styles.emptyText}>Error loading posts: {error}</Text>
+  //     </View>
+  //   );
+  // }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StreakHeader />
-      <StatusBar barStyle="default" />
-      <FlatList
-        ListHeaderComponent={() => <View style={{ marginTop: StatusBar.currentHeight || 0 }} />}
-        data={posts}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        refreshControl={
-          <RefreshControl refreshing={loading} onRefresh={onRefresh} />
-        }
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No posts available</Text>
-            <Text style={styles.emptyEmoji}>😭</Text>
-          </View>
-        }
-      />
-    </SafeAreaView>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <PortalProvider>
+        <SafeAreaView style={styles.container}>
+          <StreakHeader />
+          <StatusBar barStyle="default" />
+
+          <FlatList
+            ListHeaderComponent={() => <View style={{ marginTop: StatusBar.currentHeight || 0 }} />}
+            data={posts}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            refreshControl={<RefreshControl refreshing={loading} onRefresh={onRefresh} />}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>No posts available</Text>
+                <Text style={styles.emptyEmoji}>😭</Text>
+              </View>
+            }
+          />
+
+          {/* Create Post Button */}
+          <TouchableOpacity style={styles.createPostButton} onPress={handleOpenCreatePost}>
+            <Ionicons name="add" size={24} color="white" />
+          </TouchableOpacity>
+
+          {/* Create Post Sheet */}
+          <CreatePostSheet ref={createPostSheetRef} />
+        </SafeAreaView>
+      </PortalProvider>
+    </GestureHandlerRootView>
   );
 }
 
@@ -123,5 +153,24 @@ const styles = StyleSheet.create({
     fontSize: 48,
     color: '#999',
     margin: 7,
-  }
+  },
+  createPostButton: {
+    position: 'absolute',
+    right: 20,
+    bottom: 20,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#21BFBF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
 });

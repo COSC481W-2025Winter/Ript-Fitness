@@ -104,7 +104,7 @@ const PostItem = ({ item, liked, onLikePress }: ItemProps) => {
               >
               <Ionicons name="heart" size={24} color={liked ? '#FF3B30' : '#B1B6C0'} />
             </TouchableOpacity>
-            <Text style={styles.likeCounter}>120</Text>
+            <Text style={styles.likeCounter}>0</Text>
             <TouchableOpacity 
             onPress={handleCommentPress} 
             style={styles.commentButton}
@@ -113,7 +113,7 @@ const PostItem = ({ item, liked, onLikePress }: ItemProps) => {
             >
             <Ionicons name="chatbubble" color="#B1B6C0" size={23} />
             </TouchableOpacity>
-            <Text style={styles.commentCounter}>9</Text>
+            <Text style={styles.commentCounter}>0</Text>
           </View>
           <Text style={styles.timestamp}>{formatTimestamp(item.dateTimeCreated)}</Text>
         </View>
