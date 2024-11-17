@@ -7,29 +7,18 @@ import { useNavigation } from "@react-navigation/native";
 import { Note as NoteType } from '@/components/MyNotes/NotesContext';
 import { StackNavigationProp } from "@react-navigation/stack";
 import { WorkoutStackParamList } from "../(tabs)/WorkoutStack";
+import CustomSearchBar from "@/components/custom/CustomSearchBar";
 
 type MyNotesScreenNavigationProp = StackNavigationProp<WorkoutStackParamList, 'MyNotesScreen'>;
 
 export default function MyNotesScreen() {
   const { notes } = useNotes();
-  const { width } = Dimensions.get('window');
   const navigation = useNavigation<MyNotesScreenNavigationProp>();
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <Ionicons name="search-outline" size={20} color="#747474" style={styles.iconContainer} />
-        <CustomTextInput
-          placeholder="Search"
-          placeholderTextColor="#999"
-          width={width * 0.85}
-          style={{
-            fontSize: 16,
-            paddingLeft: 30,
-            borderRadius: 30,
-            backgroundColor: '#EDEDED',
-          }}
-        />
+      <View style={{paddingVertical: 15,}}>
+        <CustomSearchBar />
       </View>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{alignItems:"center", width:"100%"}} style={styles.scroll}>
         {notes.length === 0 ? (
@@ -67,16 +56,5 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center'
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingTop: 15,
-  },
-  iconContainer: {
-    position: 'absolute',
-    paddingTop: 15,
-    paddingLeft: 10,
-    zIndex: 1,
   },
 });

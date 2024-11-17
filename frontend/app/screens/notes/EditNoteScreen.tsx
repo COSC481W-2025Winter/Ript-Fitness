@@ -72,7 +72,7 @@ export default function EditNoteScreen() {
                 backgroundColor: '#FFF3AD',
                 width: '100%',
                 flex: 1,
-                fontSize: 14,
+                fontSize: 18,
                 // backgroundColor: '#EDEDED',
               }}
           />

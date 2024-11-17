@@ -18,16 +18,21 @@ export default function MyWorkoutsScreen() {
     }
 
   return (
-    <View style= {styles.container}> 
-    <StreakHeader></StreakHeader>
-      <SearchBarHeader></SearchBarHeader>
-      <SafeAreaView style= {styles.safeView}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}>
-          <PreCreatedWorkoutButton></PreCreatedWorkoutButton>
-        </ScrollView>
-      </SafeAreaView>
-    </View>
+    <ScrollView style= {styles.safeView}>    
+      <View style= {styles.container}> 
+        <StreakHeader></StreakHeader>
+        <View style={styles.searchContainer}>
+          {/* <Text>My History</Text> */}
+          <SearchBar/>
+        </View>
+        {/* <SafeAreaView style= {styles.safeView}> */}
+          <ScrollView
+            showsVerticalScrollIndicator={false}>
+            <PreCreatedWorkoutButton></PreCreatedWorkoutButton>
+          </ScrollView>
+        {/* </SafeAreaView> */}
+      </View>
+    </ScrollView>
   );
 }
 
@@ -35,16 +40,19 @@ export default function MyWorkoutsScreen() {
 
 const styles = StyleSheet.create({
   searchContainer: {
-    height: 'auto',
-    margin: 10,
-    gap: 8, 
+    // height: 'auto',
+    marginVertical: 15,
+    // gap: 8, 
+    alignItems: 'center',
   },
   safeView: {
-    flex:1
+    flex:1,
+    backgroundColor: '#fff',
+    width:'100%',
+    height: '100%', 
   },
   text: {
     fontSize: 20,
-    fontFamily: 'Courier',
   },
   input: {
     height: 40,
@@ -55,10 +63,11 @@ const styles = StyleSheet.create({
     color:'gray',
   },
   container: {
-    width:'100%',
-    height: '100%', 
-    alignItems: 'center',
-    gap: 8, 
-    paddingBottom: 29,
+    // width:'100%',
+    // height: '100%', 
+    // alignItems: 'center',
+    // gap: 8, 
+    // paddingBottom: 29,
+    // backgroundColor: '#fff',
   },
 });

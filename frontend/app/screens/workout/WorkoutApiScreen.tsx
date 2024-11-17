@@ -21,6 +21,10 @@ export default function WorkoutApiScreen() {
 // makes button clickable 
   return (
     <View style={styles.container}>
+      <View style={styles.welcomeContainer}>
+        <Text style={styles.welcomeText}>Welcome, Steve!</Text>
+      </View>
+      <View style={styles.lineBreak}></View>
       {/* My Workouts */}
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('MyWorkoutsScreen', { })}  > 
         {/* <Ionicons name="heart" size={35} color="#F2505D" /> */}
@@ -76,9 +80,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignContent: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
-
+  welcomeContainer: {
+    width: '90%',
+    // borderBottomColor: 'black',
+    // borderBottomWidth: 5,
+  },
+  welcomeText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    // marginHorizontal: 20,
+    color: '#1D2526',
+  },
+  lineBreak: {
+    backgroundColor: '#21BFBF',
+    width: '90%',
+    height: '1%',
+    borderRadius: 20,
+    marginBottom: 10,
+  },
   // add a button for ript fitness influencer links
   button: {
     width: '45%',
@@ -91,18 +112,15 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginVertical: 5,
     marginHorizontal: 5,
-    borderWidth: 2,
-    borderColor: '#46B5E1',
     //'#000000', this is black border check with team
   },
   startButton: {
     width: '90%',
     height: '7%',
-    backgroundColor: '#5CC4BD',
+    backgroundColor: '#21BFBF',
     alignItems: 'center',
     borderRadius: 10,
     marginTop: 10,
-    // justifyContent: 'center'
   },
   // can add more button colors if needed for each button 
   // overall I like the UI tho
