@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, TouchableOpacity, View, FlatList, ScrollView, Dimensions } from 'react-native';
+import { Image, StyleSheet, Platform, TouchableOpacity, View, FlatList, ScrollView, Dimensions, Modal, Text } from 'react-native';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -15,6 +15,7 @@ import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flat
 import { isAndroid } from 'react-native-draggable-flatlist/lib/typescript/constants';
 import * as Haptics from 'expo-haptics';
 import React from 'react';
+import CustomChip from '@/components/custom/CustomChip';
 
 export default function AddWorkoutScreen() {
   //Manage the add exercise modal visibility
@@ -28,18 +29,71 @@ export default function AddWorkoutScreen() {
 
    //make modal appear to edit added workout
    const editWorkout = (id : any) => {
-    // navigation.navigate("ApiScreen", {})
-    {/* Modal Button */}
-    <TouchableOpacity>
-      
-    </TouchableOpacity>
+    console.log('Opening modal for workout:', id);
+    //Open Modal when pencil icon is pressed
+    setAddModalVisible(true);
    }
 
   //submit button will send users to My Workout page
    const submitWorkout = () => {
     
-    
    }
+
+   //Modal
+   const modalComponent = (
+    <Modal
+        transparent={true}
+        visible={isAddModalVisible}
+        animationType='slide'
+        onRequestClose={() => setAddModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {/* Title and close modal icon */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <TextInput style={{fontSize: 18,}}
+                placeholder='Exercise Name'
+                placeholderTextColor={'#B6B6B6'}
+                maxLength={20}
+                autoFocus={true}
+                autoCapitalize='words'
+              />
+              <TouchableOpacity onPress={() => setAddModalVisible(false)}>
+                <Ionicons name='close-circle-outline' size={30} color={'#747474'} />
+              </TouchableOpacity>
+            </View>
+            {/* Upper, Lower, or Rec type */}
+            <CustomChip />
+            {/* Each set with rep for the exercise */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5, width: '90%', alignSelf: 'center' }}>
+              <Text style={styles.modalLabels}>Set</Text>
+              <Text style={styles.modalLabels}>Reps</Text>
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, width: '90%', alignSelf: 'center' }}>
+              <Text style={{ fontSize: 16, marginLeft: 10 }}>1</Text>
+              <TextInput style={styles.repInput}
+                maxLength={3}
+                keyboardType='numeric'
+              />
+            </View>
+
+
+
+
+            {/* Buttons for add set or save exercise */}
+            <View style={styles.modalButtonsContainer}>
+              <TouchableOpacity style={styles.modalButton1} onPress={() => setAddModalVisible(false)}>
+                <Text style={{ color: '#21BFBF', fontSize: 15 }}>Add Set</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalButton2} onPress={() => setAddModalVisible(false)}>
+                <Text style={{ color: '#fff', fontSize: 15 }}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+
+      </Modal>
+   );
 const viewWorkoutDetails = (id : any) => {
   navigation.navigate("ApiScreen", {})
 }
@@ -59,18 +113,18 @@ const viewWorkoutDetails = (id : any) => {
   //Instead of Sets, display
   //Sets last time, Reps for time, weight last time
   const [workouts, setWorkouts ]= useState([
-    { id: '1', name: 'Push-Ups', description: "5 Sets", values: ["10", "9", "8", "8", "9"], valueTypes: "Reps", color: "#F2846C" },
-    { id: '2', name: 'Squats', description: "4 Sets", values: ["15", "14", "13", "12"], valueTypes: "Reps", color: "#F2846C" },
-    { id: '3', name: 'Lunges', description: "3 Sets", values: ["12", "10", "11"], valueTypes: "Reps", color: "#F2846C" },
+    { id: '1', name: 'Push-Ups', description: "5 Sets", values: ["10", "9", "8", "8", "9"], valueTypes: "Reps", color: "#21BFBF" },
+    { id: '2', name: 'Squats', description: "4 Sets", values: ["15", "14", "13", "12"], valueTypes: "Reps", color: "#2493BF" },
+    { id: '3', name: 'Lunges', description: "3 Sets", values: ["12", "10", "11"], valueTypes: "Reps", color: "#2493BF" },
     
-    { id: '4', name: 'Bicep Curls', description: "5 Sets", values: ["10", "10", "9", "8", "10"], valueTypes: "Reps", color: "#048AC1" },
-    { id: '5', name: 'Plank Hold', description: "3 Sets", values: ["60", "45", "50"], valueTypes: "sec", color: "#048AC1" },
-    { id: '6', name: 'Mountain Climbers', description: "4 Sets", values: ["30", "25", "28", "30"], valueTypes: "Reps", color: "#048AC1" },
+    { id: '4', name: 'Bicep Curls', description: "5 Sets", values: ["10", "10", "9", "8", "10"], valueTypes: "Reps", color: "#21BFBF" },
+    { id: '5', name: 'Plank Hold', description: "3 Sets", values: ["60", "45", "50"], valueTypes: "sec", color: "#ECC275" },
+    { id: '6', name: 'Mountain Climbers', description: "4 Sets", values: ["30", "25", "28", "30"], valueTypes: "Reps", color: "#ECC275" },
     
-    { id: '7', name: 'Burpees', description: "3 Sets", values: ["12", "10", "12"], valueTypes: "Reps", color: "#03A696" },
-    { id: '8', name: 'Tricep Dips', description: "4 Sets", values: ["15", "14", "13", "15"], valueTypes: "Reps", color: "#03A696" },
-    { id: '9', name: 'Russian Twists', description: "5 Sets", values: ["20", "18", "20", "19", "18"], valueTypes: "Reps", color: "#03A696" },
-    { id: '10', name: 'Jumping Jacks', description: "3 Sets", values: ["25", "30", "28"], valueTypes: "Reps", color: "#03A696" }
+    { id: '7', name: 'Burpees', description: "3 Sets", values: ["12", "10", "12"], valueTypes: "Reps", color: "#ECC275" },
+    { id: '8', name: 'Tricep Dips', description: "4 Sets", values: ["15", "14", "13", "15"], valueTypes: "Reps", color: "#21BFBF" },
+    { id: '9', name: 'Russian Twists', description: "5 Sets", values: ["20", "18", "20", "19", "18"], valueTypes: "Reps", color: "#ECC275" },
+    { id: '10', name: 'Jumping Jacks', description: "3 Sets", values: ["25", "30", "28"], valueTypes: "Reps", color: "#ECC275" }
   ]);
   
 
@@ -150,6 +204,7 @@ const viewWorkoutDetails = (id : any) => {
       onPressOut={() => handlePressOut(isActive)}
       id={item.id}
       leftColor={item.color}
+      descColor={item.color}
       title={item.name}
       desc={item.description}
       //onLongPress={drag}  // Enable dragging when long-pressed
@@ -180,20 +235,20 @@ const viewWorkoutDetails = (id : any) => {
   return (
     <View style={styles.totalView}>
       <View style={styles.flatListView}>
-      
-
-      <DraggableFlatList
-      style={styles.flatList}
-        data={workouts}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        onDragEnd={({ data }) => onDragEnd(data)} // Update the order after dragging
-        ListFooterComponent={() => <View style={{ height: submitHeight }} />}
-      />
-      <View style={styles.submitView}>
-        <TouchableOpacity onPress={() => navigation.navigate("ApiScreen", {})} style={styles.button}><View style={styles.submitButtonView}><ThemedText style={styles.buttonText}>Submit </ThemedText><Ionicons name="chevron-up" style={[styles.submitIcon]} size={20} color="white"/></View></TouchableOpacity>
+        <DraggableFlatList
+        style={styles.flatList}
+          data={workouts}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          onDragEnd={({ data }) => onDragEnd(data)} // Update the order after dragging
+          ListFooterComponent={() => <View style={{ height: submitHeight }} />}
+        />
+        <View style={styles.submitView}>
+          <TouchableOpacity onPress={() => navigation.navigate("ApiScreen", {})} style={styles.button}><View style={styles.submitButtonView}><ThemedText style={styles.buttonText}>Submit </ThemedText></View></TouchableOpacity>
+        </View>
       </View>
-    </View>
+    {/* Render Modal */}
+    {modalComponent}
     </View>
   );
 }//
@@ -240,7 +295,7 @@ test: {
   swipeContainer: {
     width:'90%',
     marginTop:15,
-    backgroundColor:'red',
+    backgroundColor:'#F22E2E',  //red color
     borderRadius:15,
     //marginRight:'5%',
     marginLeft:'5%',
@@ -276,6 +331,7 @@ test: {
     alignItems:'center',
     flex:1,
     justifyContent: 'center',
+    backgroundColor: '#fff', // main background e2e2e2 or f6f6f6
   },
   rowItem:{
     borderTopColor:'grey',
@@ -328,7 +384,7 @@ test: {
   button: {
     height:50,
     width:'90%',
-    backgroundColor:'#302c2c',
+    backgroundColor:'#302c2c',  //submit button color
     borderRadius:10,
     textAlign:'center',
     justifyContent:'center',
@@ -341,7 +397,7 @@ test: {
   submitButtonView: {
     flexDirection:'row',
     //width:'30%',
-    //backgroundColor:'red',
+    // backgroundColor:'red',
   },
   input: {
     height: 40,
@@ -353,5 +409,55 @@ test: {
   },
   container: {
     width:'100%',
+  },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalLabels: {
+    fontSize: 16,
+    fontWeight: '500'
+  },
+  repInput: {
+    fontSize: 16,
+    backgroundColor: '#D9D9D9',
+    width: '15%',
+    borderRadius: 5,
+    textAlign: 'center',
+  },
+  modalButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  modalButton1: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#21BFBF',
+    borderRadius: 20,
+    padding: 10,
+    width: '48%',
+    alignItems: 'center',
+  },
+  modalButton2: {
+    backgroundColor: '#21BFBF',
+    borderRadius: 20,
+    padding: 10,
+    width: '48%',
+    alignItems: 'center',
   },
 });
