@@ -40,14 +40,14 @@ public class AccountsService {
 
 	// Constructor:
 	public AccountsService(AccountsRepository accountsRepository, StreakRepository streakRepository,
-			PasswordEncoder passwordEncoder, JwtUtil jwtUtil,UserProfileService userProfileService, UserProfileRepository repo) {
+			PasswordEncoder passwordEncoder, JwtUtil jwtUtil, UserProfileService userProfileService,
+			UserProfileRepository repo) {
 		this.accountsRepository = accountsRepository;
 		this.streakRepository = streakRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.jwtUtil = jwtUtil;
-	    this.userProfileService = userProfileService;
-	    this.repo = repo;
-
+		this.userProfileService = userProfileService;
+		this.repo = repo;
 	}
 
 	// Method to retrieve the logged-in user's ID
