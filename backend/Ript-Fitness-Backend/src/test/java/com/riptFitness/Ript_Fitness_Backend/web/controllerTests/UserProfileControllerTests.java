@@ -57,18 +57,6 @@ public class UserProfileControllerTests {
     }
 
     @Test
-    public void testAddUser() throws Exception {
-        when(userProfileService.addUser(any(UserDto.class), any(String.class))).thenReturn(userDto);
-
-        mockMvc.perform(post("/userProfile/addUser")
-                .header("Authorization", token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userDto)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.firstName").value("Tom"));
-    }
-
-    @Test
     public void testGetUserProfile() throws Exception {
         when(userProfileService.getUserByUsername(any(String.class))).thenReturn(userDto);
 

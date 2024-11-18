@@ -25,6 +25,7 @@ import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.StreakRepository;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.JwtUtil;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AccountsService;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.UserProfileService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.AccountsDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.LoginRequestDto;
 
@@ -41,7 +42,10 @@ public class AccountsServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private JwtUtil jwtUtil;
+    private JwtUtil jwtUtil; // Ensure JwtUtil is properly mocked
+    
+    @Mock
+    private UserProfileService userProfileService;
 
     @InjectMocks
     private AccountsService accountsService;
@@ -51,6 +55,14 @@ public class AccountsServiceTest {
 
     @BeforeEach
     public void setUp() {
+        // Initialize test data
+        jwtUtil = mock(JwtUtil.class);
+        accountsRepository = mock(AccountsRepository.class);
+        streakRepository = mock(StreakRepository.class);
+        passwordEncoder = mock(PasswordEncoder.class);
+
+        accountsService = new AccountsService(accountsRepository, streakRepository, passwordEncoder, jwtUtil, userProfileService);
+
         // Initialize accountsDto for all tests
         accountsDto = new AccountsDto();
         accountsDto.setUsername("testUser");

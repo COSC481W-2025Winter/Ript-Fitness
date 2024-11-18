@@ -11,6 +11,8 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.JoinColumn;
 
 @Entity
 public class UserProfile {
@@ -38,6 +40,10 @@ public class UserProfile {
     //user's email or username
     @Column(unique = true, nullable = false)
     public String username;
+    
+    @OneToOne
+    @JoinColumn(name = "account_id", referencedColumnName = "id")
+    private AccountsModel account;
 
     //delete (soft delete)
     public boolean isDeleted = false;

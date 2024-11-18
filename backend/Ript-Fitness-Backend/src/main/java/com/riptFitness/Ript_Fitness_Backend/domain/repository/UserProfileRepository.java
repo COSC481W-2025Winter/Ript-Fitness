@@ -19,4 +19,7 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
     @Transactional
     @Query("UPDATE UserProfile u SET u.isDeleted = true WHERE u.username = :username")
     void softDeleteByUsername(@Param("username") String username);
+    
+    @Query("SELECT u FROM UserProfile u WHERE u.account.id = :id AND u.isDeleted = false")
+    Optional<UserProfile> findUserProfileByAccountId(@Param("id") Long id);
 }
