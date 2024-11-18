@@ -21,10 +21,8 @@ public class UserProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
     public Long id;
 
-    @Column(nullable = false)
     public String firstName;
 
-    @Column(nullable = false)
     public String lastName;
     
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
