@@ -1,5 +1,88 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
-public class WorkoutDataService {
+import java.util.Optional;
 
+import org.springframework.stereotype.Service;
+
+import com.riptFitness.Ript_Fitness_Backend.domain.mapper.WorkoutDataMapper;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.WorkoutData;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.WorkoutDataRepository;
+import com.riptFitness.Ript_Fitness_Backend.web.dto.WorkoutDataDto;
+
+@Service
+public class WorkoutDataService {
+	
+	private WorkoutDataRepository workoutDataRepository;
+	private final AccountsRepository accountsRepository;
+	private final AccountsService accountsService;
+	
+	public WorkoutDataService(WorkoutDataRepository workoutDataRepository,AccountsRepository accountsRepository, AccountsService accountsService) {
+		this.workoutDataRepository = workoutDataRepository;
+		this.accountsRepository = accountsRepository;
+		this.accountsService = accountsService;
+	}
+	
+	public WorkoutDataDto addWorkoutData(WorkoutDataDto workoutDataDto) {
+		Long currentUserId = accountsService.getLoggedInUserId();
+	    AccountsModel account = accountsRepository.findById(currentUserId)
+	            .orElseThrow(() -> new RuntimeException("Account not found"));
+	    
+		WorkoutData newData = WorkoutDataMapper.INSTANCE.toWorkoutData(workoutDataDto);
+		
+		newData.setAccount(account);
+		
+		workoutDataRepository.save(newData);
+		
+		return WorkoutDataMapper.INSTANCE.toWorkoutDataDto(newData);
+	}
+	
+	public WorkoutDataDto getWorkoutData(Long wDataId) {
+		Optional<WorkoutData> optWData = workoutDataRepository.findById(wDataId);
+		if(optWData.isEmpty()) {
+			throw new RuntimeException("no workout data found with id = " + wDataId);
+		}
+		WorkoutData wData = optWData.get();
+		return WorkoutDataMapper.INSTANCE.toWorkoutDataDto(wData);
+	}
+	
+	public WorkoutDataDto getAllWorkoutData() {
+		
+		return null;
+	}
+
+	public WorkoutDataDto updateWorkoutData(Long wDataId, WorkoutDataDto workoutDataDto) {
+		Optional<WorkoutData> optWData = workoutDataRepository.findById(wDataId);
+		if(optWData.isEmpty()) {
+			throw new RuntimeException("no workout data found with id = " + wDataId);
+		}
+		WorkoutData wDataToBeUpdated = optWData.get();
+		
+		WorkoutDataMapper.INSTANCE.updateWorkoutDataRowFromDto(workoutDataDto, wDataToBeUpdated);
+		wDataToBeUpdated = workoutDataRepository.save(wDataToBeUpdated);
+		
+		return WorkoutDataMapper.INSTANCE.toWorkoutDataDto(wDataToBeUpdated);
+	}
+	
+	public WorkoutDataDto deleteWorkoutData(Long wDataId) {
+		Optional<WorkoutData> optWData = workoutDataRepository.findById(wDataId);
+		if(optWData.isEmpty()) {
+			throw new RuntimeException("no workout found with id = " + wDataId);
+		}
+		WorkoutData wDataToBeDeleted = optWData.get();
+		wDataToBeDeleted.setDeleted(false);
+		workoutDataRepository.save(wDataToBeDeleted);
+		return WorkoutDataMapper.INSTANCE.toWorkoutDataDto(wDataToBeDeleted);
+	}
+	
+	public WorkoutDataDto getTotalReps() {
+		
+		return null;
+	}
+	
+	public WorkoutDataDto getMaxWeight() {
+		
+		return null;
+	}
 }

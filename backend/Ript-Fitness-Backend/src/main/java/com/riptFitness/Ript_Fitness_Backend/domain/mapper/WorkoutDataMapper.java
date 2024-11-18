@@ -12,12 +12,13 @@ import com.riptFitness.Ript_Fitness_Backend.web.dto.WorkoutDataDto;
 @Mapper
 public interface WorkoutDataMapper {
 	
-	WorkoutsMapper INSTANCE = Mappers.getMapper(WorkoutsMapper.class);
+	WorkoutDataMapper INSTANCE = Mappers.getMapper(WorkoutDataMapper.class);
 
     WorkoutDataDto toWorkoutDataDto(WorkoutData workoutData);
-
+    
+    @Mapping(target = "account", ignore = true)
     WorkoutData toWorkoutData(WorkoutDataDto workoutDataDto);
 
     @Mapping(target = "dataId", ignore = true)
-    void updateWorkoutRowFromDto(WorkoutDataDto workoutDataDto, @MappingTarget WorkoutData workoutData);
+    void updateWorkoutDataRowFromDto(WorkoutDataDto workoutDataDto, @MappingTarget WorkoutData workoutData);
 }

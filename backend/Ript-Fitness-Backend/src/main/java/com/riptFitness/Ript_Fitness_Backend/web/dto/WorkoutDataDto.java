@@ -9,7 +9,7 @@ public class WorkoutDataDto {
 	private List<Integer>  reps;
 	private List<Integer> weight;
 	private boolean isDeleted = false;
-	private Long accountId;
+	
 	public Long getDataId() {
 		return dataId;
 	}
@@ -27,12 +27,6 @@ public class WorkoutDataDto {
 	}
 	public void setDeleted(boolean isDeleted) {
 		this.isDeleted = isDeleted;
-	}
-	public Long getAccountId() {
-		return accountId;
-	}
-	public void setAccountId(Long accountId) {
-		this.accountId = accountId;
 	}
 	public List<Integer> getReps() {
 		return reps;
