@@ -5,11 +5,20 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from 'react';
-import { View, TextInput, TouchableOpacity, Text, Platform, StyleSheet, Keyboard, Image } from 'react-native';
+import { 
+  View, 
+  TextInput, 
+  TouchableOpacity, 
+  Text, 
+  Platform, 
+  Keyboard, 
+  Image,
+  StyleSheet,
+  KeyboardAvoidingView,
+} from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useSocialFeed } from '@/context/SocialFeedContext';
-
 import ProfileImage from '../../../assets/images/profile/Profile.png';
 
 export interface CreatePostSheetRef {
@@ -22,15 +31,19 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef>((props, ref) => {
   const { addPost } = useSocialFeed();
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const inputRef = useRef<TextInput>(null);
+  const snapPoints = React.useMemo(() => ['100%'], []);
 
   useImperativeHandle(ref, () => ({
     snapToIndex: (index: number) => {
       setIsOpen(true);
       bottomSheetRef.current?.snapToIndex(index);
       
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 100);
+      if (index === 0) {
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, 100);
+      }
     },
     close: () => {
       Keyboard.dismiss();
@@ -38,9 +51,6 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef>((props, ref) => {
       bottomSheetRef.current?.close();
     },
   }));
-
-  const inputRef = useRef<TextInput>(null);
-  const snapPoints = React.useMemo(() => ['100%'], []);
 
   const handlePost = async () => {
     if (postText.trim()) {
@@ -60,8 +70,16 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef>((props, ref) => {
   };
 
   const handleSheetChange = useCallback((index: number) => {
-    setIsOpen(index === 0);
     if (index === -1) {
+      Keyboard.dismiss();
+      setIsOpen(false);
+    } else {
+      setIsOpen(index === 0);
+    }
+  }, []);
+
+  const handleSheetAnimate = useCallback((_fromIndex: number, toIndex: number) => {
+    if (toIndex === -1) {
       Keyboard.dismiss();
     }
   }, []);
@@ -72,64 +90,79 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef>((props, ref) => {
       index={-1}
       snapPoints={snapPoints}
       enablePanDownToClose={true}
-      android_keyboardInputMode="adjustResize"
-      keyboardBehavior={Platform.OS === 'ios' ? 'extend' : 'interactive'}
-      keyboardBlurBehavior="none"
       onChange={handleSheetChange}
+      onAnimate={handleSheetAnimate}
     >
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.cancelButton}
-          onPress={handleCancel}
-          >
-            <Text style={styles.cancelButtonText}>Cancel</Text>
-          </TouchableOpacity>
-          <Text style={styles.title}>New Post</Text>
-          <TouchableOpacity
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidingView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : -500}
+      >
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={handleCancel}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <Text style={styles.title}>New Post</Text>
+            <TouchableOpacity
               style={[
-              styles.shareButton, 
-              !postText.trim() && styles.shareButtonDisabled
+                styles.shareButton, 
+                !postText.trim() && styles.shareButtonDisabled
               ]}
-            onPress={handlePost}
-            disabled={!postText.trim()}
-          >
-            <Text style={[styles.shareButtonText, !postText.trim() && styles.shareButtonDisabled]}>
-              Share
-            </Text>
-          </TouchableOpacity>
-        </View>
-        
-        <View style={styles.userInfoContainer}>
-          <Image 
-            source={ProfileImage}
-            style={styles.profileImage}
-          />
-          <TextInput
-            ref={inputRef}
-            style={styles.input}
-            multiline
-            placeholder="What's happening?"
-            value={postText}
-            onChangeText={setPostText}
-            autoFocus={true}
-          />
-        </View>
+              onPress={handlePost}
+              disabled={!postText.trim()}
+            >
+              <Text 
+                style={[
+                  styles.shareButtonText, 
+                  !postText.trim() && styles.shareButtonDisabled
+                ]}
+              >
+                Share
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-        <View style={styles.mediaButtonsContainer}>
-          <TouchableOpacity style={styles.mediaButton}>
-            <MaterialIcons name="photo" size={24} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.mediaButton}>
-            <MaterialIcons name="camera-alt" size={24} color="black" />
-          </TouchableOpacity>
+          <View style={styles.mainContent}>
+            <View style={styles.userInfoContainer}>
+              <Image 
+                source={ProfileImage}
+                style={styles.profileImage}
+              />
+              <TextInput
+                ref={inputRef}
+                style={styles.input}
+                multiline
+                placeholder="What's happening?"
+                value={postText}
+                onChangeText={setPostText}
+                autoFocus={false}
+                scrollEnabled={true}
+              />
+            </View>
+          </View>
+
+          <View style={styles.mediaButtonsContainer}>
+            <TouchableOpacity style={styles.mediaButton}>
+              <MaterialIcons name="photo" size={24} color="#21BFBF" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.mediaButton}>
+              <MaterialIcons name="camera-alt" size={24} color="#21BFBF" />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </BottomSheet>
   );
 });
 
 const styles = StyleSheet.create({
+    keyboardAvoidingView: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     backgroundColor: 'white',
@@ -160,7 +193,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     backgroundColor: '#21BFBF',
     justifyContent: 'center',
-    alignItems: 'center', 
+    alignItems: 'center',
   },
   shareButtonText: {
     color: 'white',
@@ -170,57 +203,54 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   shareButtonDisabled: {
-    
     opacity: 0.5,
+  },
+  mainContent: {
+    flexShrink: 1,
   },
   userInfoContainer: {
     flexDirection: 'row',
     padding: 16,
     alignItems: 'flex-start',
   },
-  userAvatar: {
+  profileImage: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FFD700',
-    justifyContent: 'center',
-    alignItems: 'center',
     marginRight: 12,
-  },
-    profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderColor: 'white',
-    marginRight: 12,
-    
-  },
-  userInitial: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#000',
   },
   input: {
     flex: 1,
     fontSize: 16,
     paddingTop: 0,
-    minHeight: 40,
+    minHeight: 230,
+    maxHeight: 230,
   },
   mediaButtonsContainer: {
     flexDirection: 'row',
-    padding: 16,
+    padding: 8,
     borderTopWidth: 1,
     borderTopColor: '#eee',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
     backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 5,
   },
   mediaButton: {
-    marginRight: 16,
-    padding: 8,
+    marginRight: 12,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f5f5f5',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
 export default CreatePostSheet;
+

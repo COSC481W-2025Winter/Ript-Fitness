@@ -1,17 +1,10 @@
+// SocialFeedContext.tsx
 import React, { createContext, useState, useContext, ReactNode, useCallback } from 'react';
 import { httpRequests } from '@/api/httpRequests';
 import { GlobalContext } from './GlobalContext';
 
-interface SocialPost {
-  id: string;
-  content: string;
-  accountId: string;
-  dateTimeCreated: string;
-  likes: string[];
-  comments: SocialPostComment[];  
-}
-
-interface SocialPostComment {
+// Define the structure of a comment on a post
+export interface SocialPostComment {
   id: string;
   content: string;
   postId: string;
@@ -19,11 +12,22 @@ interface SocialPostComment {
   dateTimeCreated: string;
 }
 
+// Define the structure of a social post
+export interface SocialPost {
+  id: string;
+  content: string;
+  accountId: string;
+  dateTimeCreated: string;
+  likes: string[];
+  comments: SocialPostComment[];
+}
+
+// Define the context type
 interface SocialFeedContextType {
   posts: SocialPost[];
   loading: boolean;
   error: string | null;
-  fetchPosts: () => Promise<void>;
+  fetchPosts: (startIndex: number, endIndex: number) => Promise<void>;
   addPost: (content: string) => Promise<void>;
   deletePost: (postId: string) => Promise<void>;
   toggleLike: (postId: string) => Promise<void>;
@@ -31,155 +35,262 @@ interface SocialFeedContextType {
   deleteComment: (commentId: string) => Promise<void>;
 }
 
+// Create the context
 const SocialFeedContext = createContext<SocialFeedContextType | undefined>(undefined);
 
+// Provider component
 export function SocialFeedProvider({ children }: { children: ReactNode }) {
   const [posts, setPosts] = useState<SocialPost[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const { data: { token } } = useContext(GlobalContext);
 
-  const fetchPosts = useCallback(async () => {
-    if (!token) return;
-    
+const fetchPosts = useCallback(async (startIndex: number = 0, endIndex: number = 10) => {
+    if (!token) {
+      console.error('No token available for fetching posts.');
+      setError('Authentication token is missing.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
-      // Get all the post IDs for the current user
-      const postIds: string[] = await httpRequests.get('/socialPost/getPostsFromAccountId', token, {});
-      
-      if (Array.isArray(postIds)) {
-        const postsData: SocialPost[] = await Promise.all(
-          postIds.map(async id => {
-            const postData = await httpRequests.get(`/socialPost/getPost/${id}`, token, {});
-            console.log('Fetched Post Data:', postData);
+      // If we're refreshing (startIndex === 0), we'll get all available posts up to endIndex
+      // If we're paginating, we'll check if we already have all posts
+      if (startIndex > 0 && posts.length < startIndex) {
+        // We've already loaded all available posts
+        setLoading(false);
+        return;
+      }
 
-            return {
-              ...postData,
-              likes: Array.isArray(postData.likes) ? postData.likes : [],
-              comments: Array.isArray(postData.comments) ? postData.comments : [],
-            };
-          })
-        );
-        
-        // Sort posts by dateTimeCreated
-        const sortedPosts = postsData.sort((a, b) => 
-          new Date(b.dateTimeCreated).getTime() - new Date(a.dateTimeCreated).getTime()
-        );
-        
-        setPosts(sortedPosts);
-      } else {
+      const endpoint = `/socialPost/getPostsFromAccountId/${startIndex}/${endIndex}`;
+      const postIdsResponse = await httpRequests.get(endpoint, token, {});
+      
+      // If we get a 500 error or empty response, assume we've reached the end
+      if (!postIdsResponse || !Array.isArray(postIdsResponse)) {
+        if (startIndex === 0) {
+          // If this is a refresh, clear the posts
+          setPosts([]);
+        }
+        setLoading(false);
+        return;
+      }
+
+      // Clear existing posts if this is a refresh (startIndex === 0)
+      if (startIndex === 0) {
         setPosts([]);
       }
+
+      // Process the response to get post IDs
+      const postIds = postIdsResponse.map(post => {
+        if (typeof post === 'object' && post !== null && 'id' in post) {
+          return String(post.id);
+        }
+        return String(post);
+      });
+
+      // Create set of existing post IDs
+      const existingPostIds = new Set(posts.map(p => p.id));
+      
+      // Filter out duplicates
+      const uniqueNewPostIds = postIds.filter(id => !existingPostIds.has(id));
+
+      if (uniqueNewPostIds.length > 0) {
+        const newPostsData = await Promise.all(
+          uniqueNewPostIds.map(async (id) => {
+            try {
+              const postData = await httpRequests.get(`/socialPost/getPost/${id}`, token, {});
+              return {
+                ...postData,
+                id: String(postData.id),
+                likes: Array.isArray(postData.userIDsOfLikes) ? postData.userIDsOfLikes : [],
+                comments: Array.isArray(postData.socialPostComments) ? postData.socialPostComments : [],
+                dateTimeCreated: postData.dateTimeCreated || new Date().toISOString()
+              };
+            } catch (error) {
+              console.error(`Error fetching post ${id}:`, error);
+              return null;
+            }
+          })
+        );
+
+        // Filter out null responses and sort
+        const validNewPosts = newPostsData
+          .filter((post): post is SocialPost => post !== null)
+          .sort((a, b) => new Date(b.dateTimeCreated).getTime() - new Date(a.dateTimeCreated).getTime());
+
+        setPosts(currentPosts => {
+          const allPosts = startIndex === 0 ? validNewPosts : [...currentPosts, ...validNewPosts];
+          return allPosts.sort((a, b) => 
+            new Date(b.dateTimeCreated).getTime() - new Date(a.dateTimeCreated).getTime()
+          );
+        });
+      }
     } catch (err: any) {
-      setError('Failed to fetch posts');
       console.error('Error fetching posts:', err);
+      // Don't set error if it's just because we've reached the end of available posts
+      if (startIndex === 0 || (err.message !== 'Error: Error 500' && !err.message.includes('500'))) {
+        setError('Failed to fetch posts. Please try again later.');
+      }
+      // If this was a refresh attempt that failed, clear posts
+      if (startIndex === 0) {
+        setPosts([]);
+      }
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, posts]);
 
+  /**
+   * Add a new post.
+   */
   const addPost = useCallback(async (content: string) => {
-    if (!token) return;
-    
+    if (!token) {
+      console.error('No token available for adding a post.');
+      setError('Authentication token is missing.');
+      return;
+    }
+
     try {
       const response = await httpRequests.post('/socialPost/addPost', token, { content });
-      const newPost: SocialPost = await response.json();
-      newPost.likes = Array.isArray(newPost.likes) ? newPost.likes : [];
-      newPost.comments = Array.isArray(newPost.comments) ? newPost.comments : [];
-      setPosts(currentPosts => [newPost, ...currentPosts]);
+      if (!response.ok) {
+        throw new Error('Failed to add post');
+      }
+      
+      const newPost = await response.json();
+      const formattedPost: SocialPost = {
+        ...newPost,
+        id: String(newPost.id),
+        likes: Array.isArray(newPost.userIDsOfLikes) ? newPost.userIDsOfLikes : [],
+        comments: Array.isArray(newPost.socialPostComments) ? newPost.socialPostComments : [],
+        dateTimeCreated: newPost.dateTimeCreated || new Date().toISOString()
+      };
+
+      // Prepend the new post to maintain chronological order
+      setPosts(currentPosts => [formattedPost, ...currentPosts]);
     } catch (err: any) {
-      setError('Failed to add post');
       console.error('Error adding post:', err);
+      setError('Failed to add post. Please try again.');
     }
   }, [token]);
 
+  /**
+   * Delete a post by its ID.
+   */
   const deletePost = useCallback(async (postId: string) => {
-    if (!token) return;
-    
+    if (!token) {
+      console.error('No token available for deleting a post.');
+      setError('Authentication token is missing.');
+      return;
+    }
+
     try {
       await httpRequests.delete(`/socialPost/deletePost/${postId}`, token);
       setPosts(currentPosts => currentPosts.filter(post => post.id !== postId));
     } catch (err: any) {
-      setError('Failed to delete post');
-      console.error('Error deleting post:', err);
+      console.error(`Error deleting post with ID ${postId}:`, err);
+      setError('Failed to delete post. Please try again.');
     }
   }, [token]);
 
+  /**
+   * Toggle like status for a post.
+   */
   const toggleLike = useCallback(async (postId: string) => {
-    if (!token) return;
-    
+    if (!token) {
+      console.error('No token available for toggling like.');
+      setError('Authentication token is missing.');
+      return;
+    }
+
     try {
       const post = posts.find(p => p.id === postId);
-      const isLiked = post?.likes.includes(token);
-      
-      if (isLiked) {
-        const response = await httpRequests.put(`/socialPost/deleteLike/${postId}`, token, {});
-        if (response.ok) {
-          setPosts(currentPosts => 
-            currentPosts.map(post => 
-              post.id === postId 
-                ? { ...post, likes: post.likes.filter(id => id !== token) }
-                : post
-            )
-          );
-        }
-      } else {
-        const response = await httpRequests.put(`/socialPost/addLike/${postId}`, token, {});
-        if (response.ok) {
-          setPosts(currentPosts => 
-            currentPosts.map(post => 
-              post.id === postId 
-                ? { ...post, likes: [...post.likes, token] }
-                : post
-            )
-          );
-        }
+      if (!post) {
+        throw new Error('Post not found');
       }
-    } catch (err: any) {
-      setError('Failed to toggle like');
-      console.error('Error toggling like:', err);
-    }
-  }, [token, posts]);
 
-  const addComment = useCallback(async (postId: string, content: string) => {
-    if (!token) return;
-    
-    try {
-      const response = await httpRequests.put('/socialPost/addComment', token, {
-        content,
-        postId
-      });
+      const isLiked = post.likes.includes(token);
+      const endpoint = isLiked ? 
+        `/socialPost/deleteLike/${postId}` : 
+        `/socialPost/addLike/${postId}`;
 
+      const response = await httpRequests.put(endpoint, token, {});
+      
       if (response.ok) {
-        const newComment: SocialPostComment = await response.json();
-        newComment.id = newComment.id || '';
-        newComment.content = newComment.content || '';
-        newComment.postId = newComment.postId || '';
-        newComment.accountId = newComment.accountId || '';
-        newComment.dateTimeCreated = newComment.dateTimeCreated || new Date().toISOString();
-        
         setPosts(currentPosts => 
-          currentPosts.map(post => 
-            post.id === postId 
-              ? { ...post, comments: [...post.comments, newComment] }
-              : post
-          )
+          currentPosts.map(p => {
+            if (p.id === postId) {
+              const updatedLikes = isLiked ?
+                p.likes.filter(id => id !== token) :
+                [...p.likes, token];
+              return { ...p, likes: updatedLikes };
+            }
+            return p;
+          })
         );
       }
     } catch (err: any) {
-      setError('Failed to add comment');
-      console.error('Error adding comment:', err);
+      console.error(`Error toggling like for post ID ${postId}:`, err);
+      setError('Failed to update like status. Please try again.');
+    }
+  }, [token, posts]);
+
+  /**
+   * Add a comment to a post.
+   */
+  const addComment = useCallback(async (postId: string, content: string) => {
+    if (!token) {
+      console.error('No token available for adding a comment.');
+      setError('Authentication token is missing.');
+      return;
+    }
+
+    try {
+      const response = await httpRequests.put('/socialPost/addComment', token, {
+        content,
+        postId,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add comment');
+      }
+
+      const newComment = await response.json();
+      const formattedComment: SocialPostComment = {
+        id: String(newComment.id),
+        content: newComment.content,
+        postId: String(newComment.postId),
+        accountId: newComment.accountId || token,
+        dateTimeCreated: newComment.dateTimeCreated || new Date().toISOString()
+      };
+
+      setPosts(currentPosts =>
+        currentPosts.map(post =>
+          post.id === postId
+            ? { ...post, comments: [...post.comments, formattedComment] }
+            : post
+        )
+      );
+    } catch (err: any) {
+      console.error(`Error adding comment to post ID ${postId}:`, err);
+      setError('Failed to add comment. Please try again.');
     }
   }, [token]);
 
+  /**
+   * Delete a comment by its ID.
+   */
   const deleteComment = useCallback(async (commentId: string) => {
-    if (!token) return;
-    
+    if (!token) {
+      console.error('No token available for deleting a comment.');
+      setError('Authentication token is missing.');
+      return;
+    }
+
     try {
       const response = await httpRequests.put(`/socialPost/deleteComment/${commentId}`, token, {});
       if (response.ok) {
-        setPosts(currentPosts => 
+        setPosts(currentPosts =>
           currentPosts.map(post => ({
             ...post,
             comments: post.comments.filter(comment => comment.id !== commentId)
@@ -187,8 +298,8 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
         );
       }
     } catch (err: any) {
-      setError('Failed to delete comment');
-      console.error('Error deleting comment:', err);
+      console.error(`Error deleting comment with ID ${commentId}:`, err);
+      setError('Failed to delete comment. Please try again.');
     }
   }, [token]);
 
@@ -211,6 +322,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// Custom hook to use the SocialFeedContext
 export function useSocialFeed() {
   const context = useContext(SocialFeedContext);
   if (context === undefined) {

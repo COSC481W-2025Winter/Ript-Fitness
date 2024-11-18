@@ -23,7 +23,6 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "sdkVersion": "51.0.0",
     "plugins": [
       "expo-font"
     ]
