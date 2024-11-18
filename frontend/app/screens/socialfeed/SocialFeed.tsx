@@ -20,7 +20,7 @@ import CommentsSheet, { CommentsSheetRef } from './CommentsSheet';
 import { useSocialFeed, SocialPost } from '@/context/SocialFeedContext';
 import { Ionicons } from '@expo/vector-icons';
 import { CreatePostSheetRef } from './CreatePostSheet';
-
+import ProfileImage from '../../../assets/images/profile/Profile.png';
 import StreakHeader from '@/components/StreakHeader';
 import { GlobalContext } from '@/context/GlobalContext';
 
@@ -60,7 +60,7 @@ export default function SocialFeed() {
       loading || 
       !hasMorePosts || 
       isFetchingRef.current || 
-      posts.length < page * pageSize || // This means we got fewer posts than expected
+      posts.length < page * pageSize || // There are fewer posts than expected
       posts.length === 0 // No posts available
     ) {
       setHasMorePosts(false);
@@ -129,7 +129,7 @@ export default function SocialFeed() {
           content: item.content,
           user: {
             name: item.accountId,
-            profilePicture: 'https://avatar.iran.liara.run/public/boy?username=Ash',
+            profilePicture: ProfileImage,
           },
           dateTimeCreated: item.dateTimeCreated,
           likes: Array.isArray(item.likes) ? item.likes : [],

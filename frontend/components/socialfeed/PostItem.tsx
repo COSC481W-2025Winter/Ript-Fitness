@@ -11,7 +11,7 @@ type PostItemType = {
   caption?: string;
   user: {
     name: string;
-    profilePicture: string;
+    profilePicture: ProfileImage;
   };
   dateTimeCreated: string;
   likes: string[];
@@ -32,7 +32,28 @@ type ItemProps = {
 };
 
 const formatTimestamp = (dateTimeCreated: string): string => {
-  // ... your existing formatTimestamp function ...
+   //console.log("Original Timestamp:", dateTimeCreated);
+
+  const trimmedTimestamp = dateTimeCreated.includes(".")
+    ? dateTimeCreated.split(".")[0] + "." + dateTimeCreated.split(".")[1].slice(0, 3)
+    : dateTimeCreated;
+
+  const date = new Date(trimmedTimestamp);
+  //console.log("Date:", date);
+
+  if (isNaN(date.getTime())) {
+    console.warn("Invalid date:", trimmedTimestamp);
+    return "Invalid Date";
+  }
+
+  return date.toLocaleString(undefined, {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true,
+  });
 };
 
 const PostItem = ({ item, liked, onLikePress, onCommentPress }: ItemProps) => {
@@ -51,7 +72,7 @@ const PostItem = ({ item, liked, onLikePress, onCommentPress }: ItemProps) => {
       {/* Header */}
       <TouchableOpacity onPress={handlePostPress}>
         <View style={styles.header}>
-          <Image style={styles.profile} source={{ uri: item.user.profilePicture }} />
+          <Image style={styles.profile} source={item.user.profilePicture} />
           <Text style={styles.username}>{item.user.name}</Text>
         </View>
       </TouchableOpacity>

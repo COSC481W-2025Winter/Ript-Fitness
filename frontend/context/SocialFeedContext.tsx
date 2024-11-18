@@ -46,6 +46,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
   const { data: { token } } = useContext(GlobalContext);
 
 const fetchPosts = useCallback(async (startIndex: number = 0, endIndex: number = 10) => {
+    console.log('Fetching posts...');
     if (!token) {
       console.error('No token available for fetching posts.');
       setError('Authentication token is missing.');
@@ -192,46 +193,41 @@ const fetchPosts = useCallback(async (startIndex: number = 0, endIndex: number =
   }, [token]);
 
 
-  // Toggle like status for a post by its ID
-  const toggleLike = useCallback(async (postId: string) => {
-    if (!token) {
-      console.error('No token available for toggling like.');
-      setError('Authentication token is missing.');
-      return;
-    }
+// Add this helper function to your context
+const updatePost = useCallback((postId: string, updateFn: (post: SocialPost) => SocialPost) => {
+  setPosts(currentPosts => 
+    currentPosts.map(post => 
+      post.id === postId ? updateFn(post) : post
+    )
+  );
+}, []);
 
-    try {
-      const post = posts.find(p => p.id === postId);
-      if (!post) {
-        throw new Error('Post not found');
-      }
+// Update your toggleLike function
+const toggleLike = useCallback(async (postId: string) => {
+  const post = posts.find(p => p.id === postId);
+  if (!post) return;
 
-      const isLiked = post.likes.includes(token);
-      const endpoint = isLiked ? 
-        `/socialPost/deleteLike/${postId}` : 
-        `/socialPost/addLike/${postId}`;
+  // Optimistic update - update UI immediately
+  const isLiked = post.likes.includes(token);
+  updatePost(postId, post => ({
+    ...post,
+    likes: isLiked
+      ? post.likes.filter(id => id !== token)
+      : [...post.likes, token]
+  }));
 
-      const response = await httpRequests.put(endpoint, token, {});
-      
-      if (response.ok) {
-        setPosts(currentPosts => 
-          currentPosts.map(p => {
-            if (p.id === postId) {
-              const updatedLikes = isLiked ?
-                p.likes.filter(id => id !== token) :
-                [...p.likes, token];
-              return { ...p, likes: updatedLikes };
-            }
-            return p;
-          })
-        );
-      }
-    } catch (err: any) {
-      console.error(`Error toggling like for post ID ${postId}:`, err);
-      setError('Failed to update like status. Please try again.');
-    }
-  }, [token, posts]);
-
+  try {
+    await httpRequests.put(`/api/posts/${postId}/like`, token, {});
+  } catch (err) {
+    // Revert on error
+    updatePost(postId, post => ({
+      ...post,
+      likes: isLiked
+        ? [...post.likes, token]
+        : post.likes.filter(id => id !== token)
+    }));
+  }
+}, [posts, token, updatePost]);
 
   // Add a comment to a post by its ID
   const addComment = useCallback(async (postId: string, content: string) => {
