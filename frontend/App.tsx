@@ -37,6 +37,11 @@ const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 
 function MainApp() {
+  const context = useContext(GlobalContext)
+  if (context?.additionalLoadingRequired) {
+    return (<SplashScreen/>)
+  }
+
   return (
     <Tab.Navigator 
       initialRouteName="Social"
@@ -89,54 +94,24 @@ function MainApp() {
 
 function RootNavigator() {
   const context = useContext(GlobalContext)
-  const isLoading = context.isLoaded
+  const isLoading = context?.isLoaded
   const [verifiedToken, setVerifiedToken] = useState(false)
   const [temp, setTemp] = useState(true)
-  let user = (context.data.token != '')
+  let user = (context?.data.token != '')
 
-const validateExistingToken = async () => {
-  try {
-  const response = await fetch(`${httpRequests.getBaseURL()}/api/token/validate`, {
-    method: 'POST', // Set method to POST
-    headers: {
-      'Content-Type': 'application/json', // Set content type to JSON
-    },
-    body: `${context?.data.token}`, // Convert the data to a JSON string
-  }); // Use endpoint or replace with BASE_URL if needed
-  console.log("foooo " + response.ok)
-  if (!response.ok) {
-    context.setToken("");
-    user = (context.data.token != '')
-  }
-  setVerifiedToken(true)
-  const json = await response.text() //.json(); // Parse the response as JSON;
-  return json; // Return the JSON data directly
-} catch (error) {
-
-  console.error('GET request failed:', error);
-  throw error; // Throw the error for further handling if needed
-}
-}
-
-  if (isLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
+  if (context?.isLoaded != true) {
+    return (<SplashScreen/>)
+  } else {
+    user = (context?.data.token != '')
   }
 
-  if (user && !verifiedToken) {
-    console.log("1234")
-    validateExistingToken();
-  }
 
   return (
     <Stack.Navigator
       screenOptions={{ gestureEnabled: true }}
       initialRouteName={user ? 'Home' : 'Welcome'}
     >
-      {user && verifiedToken? (
+      {user ? (
         <Stack.Screen
           name="Home"
           component={MainApp}

@@ -5,10 +5,12 @@ import { createStackNavigator, StackNavigationProp } from '@react-navigation/sta
 import { ProfileProvider } from '@/context/ProfileContext';
 import ProfileScreen from '@/app/screens/profile/ProfileScreen';
 import GraphScreen from '@/app/screens/profile/GraphScreen';
+import SettingsScreen from '../screens/profile/SettingsScreen';
+import ChangePasswordScreen from '../screens/profile/PasswordScreen';
 
 export type ProfileStackParamList = {
-  ApiScreen: undefined;
   GraphScreen: undefined;
+  SettingsScreen: undefined;
 };
 
 export type ProfileScreenNavigationProp = StackNavigationProp<ProfileStackParamList>;
@@ -21,6 +23,8 @@ export default function ProfileStack(props : any) {
     <Stack.Navigator initialRouteName="ProfileScreen" screenOptions={{ headerShown: false }}>
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} options={{headerShown:false}}/>
       <Stack.Screen name="GraphScreen" component={GraphScreen} options={{headerShown:false}}/>
+      <Stack.Screen name="SettingsScreen" component={SettingsScreen} options={{headerShown:false}}/>
+      <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} options={{headerShown:false}}/>
       {/* Put any additional screens for your tab here. This allows us to use a stack.
         A stack allows us to easily navigate back a page when we're in a secondary screen on a certain tab.
       */}

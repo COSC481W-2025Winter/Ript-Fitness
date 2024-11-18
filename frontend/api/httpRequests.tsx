@@ -55,6 +55,7 @@ export class httpRequests {
   static async put(endpoint: string, token: string, data: Record<string, any>): Promise<Response> {
     try {
       let response;
+      console.log("rthrth" + token)
       if (token != "") {
       response = await fetch(`${BASE_URL}${endpoint}`, {
         method: 'PUT',

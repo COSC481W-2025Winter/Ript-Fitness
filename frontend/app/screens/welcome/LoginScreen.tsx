@@ -7,7 +7,7 @@ import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Dim
 
 
 // Navigation imports
-import { RootScreenNavigationProp, RootStackParamList } from '../../App';
+import { RootScreenNavigationProp, RootStackParamList } from '../../../App';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { httpRequests } from '@/api/httpRequests';
 import { GlobalContext } from '@/context/GlobalContext';
@@ -46,8 +46,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
     const credentials = { username, password }; // Assuming these states are set
   
     try {
+      console.log("Rergergerg")
       const response = await httpRequests.put("/accounts/login","", credentials); // Ensure this matches your API
-  
+      console.log("Rergergerg22")
       // Check if the request was successful
       if (response.status === 200) {
 
@@ -77,10 +78,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
     // After logging in, the user cannot go back to the previous screens
   const navigateToMainApp = () => {
     console.log(navigation.getState());
-    navigation.reset({
+    /*navigation.reset({
       index: 0,
       routes: [{ name:"Home"}],  // Only 'Home' will be in the stack
-    });
+    });*/
   };
   
   

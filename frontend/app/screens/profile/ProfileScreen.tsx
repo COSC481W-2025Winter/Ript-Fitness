@@ -1,5 +1,5 @@
 import React, { ReactNode, useContext, useEffect, useState } from 'react';
-import { View, Text, Image, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, Image, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { ScrollView } from 'react-native-gesture-handler';
 import { DrawerActions, NavigationContainer, useNavigation } from '@react-navigation/native';
@@ -9,6 +9,7 @@ import { GlobalContext } from '@/context/GlobalContext';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { ProfileScreenNavigationProp } from '../../(tabs)/ProfileStack';
 import GraphScreen from './GraphScreen'
+import { ProfileContext } from '@/context/ProfileContext';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -78,10 +79,8 @@ function PhotosScreen() {
 }
 
 function PostsScreen() {
-  const [requested1, setRequested1] = useState(false);
-  const [returned1, setReturned1] = useState(false);
-  const [requested2, setRequested2] = useState(false);
-  const [returned2, setReturned2] = useState(false);
+  const [requested, setRequested] = useState(false);
+  const [returned, setReturned] = useState(false);
 
   const [postIds, setPostIds] = useState<number[]>([]); // Explicitly define type as number[]
   const [posts, setPosts] = useState<Post[]>([]);
@@ -89,6 +88,14 @@ function PostsScreen() {
   const context = useContext(GlobalContext)
 
   const [refreshing, setRefreshing] = React.useState(false);
+  
+  const [loadingMore, setLoadingMore] = useState(false)
+
+  const [postsPerLoad, setPostsPerLoad] = useState(9)
+
+  const [AllPostsLoaded, setAllPostsLoaded] = useState(false)
+
+  let [currentEndIndex, setCurrentEndIndex] = useState(postsPerLoad)
 
 
   interface Post {
@@ -99,47 +106,21 @@ function PostsScreen() {
     // Add other fields as needed
   }
 
-  const onRefresh = React.useCallback(() => {
+  const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
+    setLoadingMore(false);
+    setAllPostsLoaded(false)
+    await setCurrentEndIndex(postsPerLoad);
+    await fetchPostList(0, postsPerLoad);
     setTimeout(() => {
       setRefreshing(false);
-    }, 2000);
+    },  0);
   }, []);
 
-  const fetchPostsList = async () => {
-  try {
-    const response = await fetch(`${httpRequests.getBaseURL()}/socialPost/getPostsFromAccountId`, {
-      method: 'GET', // Set method to POST
-      headers: {
-        'Content-Type': 'application/json', // Set content type to JSON
-        "Authorization": `Bearer ${context?.data.token}`,
-      },
-      body: "", // Convert the data to a JSON string
-    }); // Use endpoint or replace with BASE_URL if needed
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
-    }
-    const json = await response.json() //.json(); // Parse the response as JSON
-    setPostIds(json)
-    setReturned1(true);
-
-    //return json; // Return the JSON data directly
-  } catch (error) {
-    setReturned1(true);
-    // If access denied
-    // Send to login page
-
-    console.error('GET request failed:', error);
-    throw error; // Throw the error for further handling if needed
-  }
-  }
-
-
-
-  const fetchPost = async (id: number) => {
+  const fetchPostList = async (startIndex: number, endIndex: number, clear:boolean = true) => {
     try {
-      console.log(`${httpRequests.getBaseURL()}/socialPost/getPost/${id}`)
-      const response = await fetch(`${httpRequests.getBaseURL()}/socialPost/getPost/${id}`, {
+      console.log(startIndex + " " + endIndex + " " + clear)
+      const response = await fetch(`${httpRequests.getBaseURL()}/socialPost/getPostsFromAccountId/${startIndex}/${endIndex}`, {
         method: 'GET', // Set method to POST
         headers: {
           'Content-Type': 'application/json', // Set content type to JSON
@@ -151,11 +132,17 @@ function PostsScreen() {
         throw new Error(`Error: ${response.status}`);
       }
       const json = await response.json() //.json(); // Parse the response as JSON
-      setPostIds(json)
-      setReturned2(true);
+      if (clear) {
+        setPosts(json)
+      } else {
+        setPosts((prevPosts) => [...prevPosts, ...json]);
+      }
+      setReturned(true);
       return json; // Return the JSON data directly
     } catch (error) {
-      setReturned2(true);
+      setReturned(true);
+      setLoadingMore(false);
+      setAllPostsLoaded(true)
       // If access denied
       // Send to login page
   
@@ -168,21 +155,19 @@ function PostsScreen() {
 
 
 
-  if (!requested1) {
-    fetchPostsList();
-    setRequested1(true);
+  if (!requested) {
+    fetchPostList(0, currentEndIndex);
+    setRequested(true);
   }
 
   // Fetch details for each post based on postIds
-  useEffect(() => {
-    if (returned1 && !requested2) {
-      setRequested2(true);
+  /*useEffect(() => {
+    if (!requested) {
+      setRequested(true);
       const fetchPosts = async () => {
         try {
           // Fetch details for the first 10 post IDs
-          const first10Posts = await Promise.all(
-            postIds.slice(0, 10).map((id) => fetchPost(id))
-          );
+          const first10Posts = await fetchPostList(0, 10);
           setPosts(first10Posts);
         } catch (error) {
           console.error('Error fetching post details:', error);
@@ -190,7 +175,7 @@ function PostsScreen() {
       };
       fetchPosts();
     }
-  }, [returned1, requested2, postIds]);
+  }, [requested, postIds]);*/
 
   const formatTimestamp = (timestamp: string): string => {
     const date = new Date(timestamp);
@@ -221,12 +206,35 @@ function PostsScreen() {
       </View>
     </View>
   );
+
+  const handleLoadMore = async () => {
+    if (!loadingMore && !AllPostsLoaded) {
+    setLoadingMore(true)
+    let start = currentEndIndex+1;
+    console.log(start)
+    await fetchPostList(start, currentEndIndex + postsPerLoad, false);
+    setCurrentEndIndex(currentEndIndex + postsPerLoad);
+    setLoadingMore(false)
+    // Fetch or load more data here
+    }
+  };
   
-  
+  const renderFooter = () => {
+    if (!returned || loadingMore) {
+    return (
+      <View style={{ paddingVertical: 20 }}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  } else {
+    return null
+  }
+  };
+
   //refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
   return (
     <View style={styles.postView}>
-      {returned2? 
+      {true ? 
             <FlatList
             data={posts}
             keyExtractor={(item, index) => index.toString()}
@@ -238,6 +246,12 @@ function PostsScreen() {
               backgroundColor:"#fff",
             }}
             showsVerticalScrollIndicator={true}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={renderFooter}
             //columnWrapperStyle={{ padding: 0, margin: 0 }}
           />
       :
@@ -362,7 +376,6 @@ function ProgressScreen() {
 }
 
 function CustomDrawerContent({navigation} : any) {
-  //const navigation = useNavigation<ProfileScreenNavigationProp>();
   const context = useContext(GlobalContext)
   return (
     <View style={styles.drawerContent}>
@@ -371,7 +384,7 @@ function CustomDrawerContent({navigation} : any) {
         onPress={() => {
           // Navigate to Settings screen or handle accordingly
           navigation.closeDrawer();
-          navigation.navigate('ApiScreen');
+          navigation.navigate('SettingsScreen');
         }}
       >
         <Text style={styles.drawerItemText}>Settings</Text>
@@ -392,6 +405,7 @@ function CustomDrawerContent({navigation} : any) {
 }
 
 const MainScreen = () => {
+  const context = useContext(GlobalContext)
   const friends:any = [
     { id: '1', avatar: require('../../../assets/images/profile/Profile.png') },
     { id: '2', avatar: require('../../../assets/images/profile/Profile.png') },
@@ -404,7 +418,7 @@ const MainScreen = () => {
         {/* Profile Section */}
         <View style={styles.profileSection}>
           <Image source={require('../../../assets/images/profile/Profile.png')} style={styles.avatar} />
-          <Text style={styles.name}>Steve</Text>
+          <Text style={styles.name}>{context?.userProfile.username}</Text>
           <View style={styles.friendsContainer}>
             <View style={styles.friendsSection}>
               <Text style={styles.friendsLabel}>Friends:</Text>
