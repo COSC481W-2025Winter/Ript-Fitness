@@ -3,6 +3,8 @@ package com.riptFitness.Ript_Fitness_Backend.domain.model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -44,8 +46,16 @@ public class AccountsModel {
     @JsonIgnoreProperties("account") // Ignore the account field inside exercises when serializing
     private List<ExerciseModel> exercises; // This is a collection (List) that holds exercises
 
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Day> days;
+    
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SocialPost> socialPostList;
+    
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SocialPostComment> socialPostComments;
 
-    // Fields:
+	// Fields:
     private String username;
     @JsonIgnore // Ignore password field during serialization
     private String password;
@@ -58,11 +68,6 @@ public class AccountsModel {
     protected void onCreate() {
         this.lastLogin = LocalDateTime.now();
     }
-
-    //Represents a List of social posts that the user makes in the social feed
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "account_Id")  // Foreign key column in SocialPost table
-    public List<SocialPost> socialPosts = new ArrayList<>();
 
     // Getters:
     public Long getId() {
@@ -84,6 +89,38 @@ public class AccountsModel {
     public LocalDateTime getlastLogin(){
     	return lastLogin;
     }
+    
+    public List<Workouts> getWorkouts() {
+		return workouts;
+	}
+
+	public void setWorkouts(List<Workouts> workouts) {
+		this.workouts = workouts;
+	}
+
+	public List<Day> getDays() {
+		return days;
+	}
+
+	public void setDays(List<Day> days) {
+		this.days = days;
+	}
+
+	public List<SocialPost> getSocialPostList() {
+		return socialPostList;
+	}
+
+	public void setSocialPostList(List<SocialPost> socialPostList) {
+		this.socialPostList = socialPostList;
+	}
+
+	public List<SocialPostComment> getSocialPostComments() {
+		return socialPostComments;
+	}
+
+	public void setSocialPostComments(List<SocialPostComment> socialPostComments) {
+		this.socialPostComments = socialPostComments;
+	}
 
     // Setters:
     public void setId(Long id) {

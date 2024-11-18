@@ -39,16 +39,10 @@ public class SocialPostController {
 		return new ResponseEntity<>(returnedSocialPostObject, HttpStatus.OK);
 	}
 	
-	@GetMapping("/getPostsFromAccountId")
-	public ResponseEntity<ArrayList<Long>> getPostsFromAccountId(){
-		ArrayList<Long> returnedListOfPostIds = socialPostService.getPostsFromAccountId();
+	@GetMapping("/getPostsFromAccountId/{startIndex}/{endIndex}")
+	public ResponseEntity<ArrayList<SocialPostDto>> getPostsFromAccountId(@PathVariable Integer startIndex, @PathVariable Integer endIndex){
+		ArrayList<SocialPostDto> returnedListOfPostIds = socialPostService.getPostsFromAccountId(startIndex, endIndex);
 		return new ResponseEntity<>(returnedListOfPostIds, HttpStatus.OK);
-	}
-	
-	@GetMapping("/getCommentsFromAccountId")
-	public ResponseEntity<ArrayList<Long>> getCommentsFromAccountId(){
-		ArrayList<Long> returnedListOfCommentIds = socialPostService.getCommentsFromAccountId();
-		return new ResponseEntity<>(returnedListOfCommentIds, HttpStatus.OK);
 	}
 	
 	@PutMapping("/editPostContent/{socialPostId}")
@@ -86,4 +80,13 @@ public class SocialPostController {
 		SocialPostDto socialPostObject = socialPostService.deleteComment(socialPostCommentId);
 		return new ResponseEntity<>(socialPostObject, HttpStatus.OK);
 	}
+	
+	/*
+	*** Getting rid of this endpoint for now, will add back later if necessary ***
+	@GetMapping("/getCommentsFromAccountId")
+	public ResponseEntity<ArrayList<SocialPostCommentDto>> getCommentsFromAccountId(){
+		ArrayList<SocialPostCommentDto> returnedListOfCommentIds = socialPostService.getCommentsFromAccountId();
+		return new ResponseEntity<>(returnedListOfCommentIds, HttpStatus.OK);
+	}
+	*/
 }

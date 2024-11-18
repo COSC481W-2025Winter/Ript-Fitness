@@ -18,8 +18,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Day;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Food;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.NutritionTrackerDayRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.NutritionTrackerFoodRepository;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AccountsService;
@@ -38,6 +40,9 @@ public class NutritionTrackerServiceTest {
 	@Mock
 	private AccountsService accountsService;
 	
+	@Mock
+	private AccountsRepository accountsRepository;
+	
 	@InjectMocks
 	private NutritionTrackerService nutritionTrackerServiceForServiceTests;
 	
@@ -47,6 +52,7 @@ public class NutritionTrackerServiceTest {
 	private Food foodTwo;
 	private DayDto dayDto;
 	private Day day;
+	private AccountsModel account;
 	
 	@BeforeEach
 	public void setUp() {
@@ -89,6 +95,9 @@ public class NutritionTrackerServiceTest {
 
 		day = new Day();
 		day.foodsEatenInDay = List.of(food, foodTwo);
+		
+		account = new AccountsModel();
+		day.account = account;
 	}
 	
 	@Test
@@ -177,6 +186,7 @@ public class NutritionTrackerServiceTest {
 	@Test
 	void testServiceAddDayValid() {
 		when(nutritionTrackerDayRepository.save(any(Day.class))).thenReturn(day);
+		when(accountsRepository.findById(any(Long.class))).thenReturn(Optional.of(account));
 		
 		DayDto result = nutritionTrackerServiceForServiceTests.addDay(dayDto);
 		
@@ -203,7 +213,7 @@ public class NutritionTrackerServiceTest {
 	@Test
 	void testServiceGetDayIdsOfLoggedInUserValid() {
 		when(accountsService.getLoggedInUserId()).thenReturn(1L);
-		when(nutritionTrackerDayRepository.getPostsFromAccountId(anyLong())).thenReturn(Optional.of(new ArrayList<>()));
+		when(nutritionTrackerDayRepository.getDayIdsFromAccountId(anyLong())).thenReturn(Optional.of(new ArrayList<>()));
 		
 		ArrayList<Long> result = nutritionTrackerServiceForServiceTests.getDayIdsOfLoggedInUser();
 		
@@ -213,7 +223,7 @@ public class NutritionTrackerServiceTest {
 	@Test
 	void testServiceGetDayIdsOfLoggedInUserInvalidNoDaysForUser() {
 		when(accountsService.getLoggedInUserId()).thenReturn(1L);
-		when(nutritionTrackerDayRepository.getPostsFromAccountId(anyLong())).thenReturn(Optional.empty());
+		when(nutritionTrackerDayRepository.getDayIdsFromAccountId(anyLong())).thenReturn(Optional.empty());
 		
 		ArrayList<Long> result = nutritionTrackerServiceForServiceTests.getDayIdsOfLoggedInUser();
 		

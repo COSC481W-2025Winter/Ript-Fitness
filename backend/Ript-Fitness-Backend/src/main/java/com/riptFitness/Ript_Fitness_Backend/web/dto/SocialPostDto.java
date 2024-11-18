@@ -3,12 +3,14 @@ package com.riptFitness.Ript_Fitness_Backend.web.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
+
 public class SocialPostDto {
 
 	public Long id;
 	
-	public Long accountId;
-    
+    public UserProfile userProfile;
+	    
     public String content;
     
     public int numberOfLikes;

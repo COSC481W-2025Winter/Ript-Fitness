@@ -36,7 +36,8 @@ public class SocialPostService {
 	
 	public SocialPostDto addPost(SocialPostDto socialPostDto) {
 		SocialPost socialPostToBeAdded = SocialPostMapper.INSTANCE.toSocialPost(socialPostDto);
-		socialPostToBeAdded.accountId = accountsService.getLoggedInUserId();
+		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
+		socialPostToBeAdded.account = accountsRepository.findById(currentlyLoggedInUserId).get();
 		socialPostToBeAdded = socialPostRepository.save(socialPostToBeAdded);
 		return SocialPostMapper.INSTANCE.toSocialPostDto(socialPostToBeAdded);
 	}
@@ -52,15 +53,41 @@ public class SocialPostService {
 		return SocialPostMapper.INSTANCE.toSocialPostDto(returnedSocialPostObject);
 	}
 	
-	public ArrayList<Long> getPostsFromAccountId(){
+	public ArrayList<SocialPostDto> getPostsFromAccountId(Integer startIndex, Integer endIndex){
+		if(startIndex > endIndex)
+			throw new RuntimeException("Start index cannot be greater than end index. Start index = " + startIndex + ", end index = " + endIndex);
+		
+		if(startIndex < 0 || endIndex < 0)
+			throw new RuntimeException("Start index and end index must be greater than 0. Start index = " + startIndex + ", end index = " + endIndex);
+				
 		Long currentUsersAccountId = accountsService.getLoggedInUserId();
 		
-		Optional<ArrayList<Long>> postsFromAccountId = socialPostRepository.getPostsFromAccountId(currentUsersAccountId);
+		Optional<ArrayList<SocialPost>> optionalPostsFromAccountId = socialPostRepository.getPostsFromAccountId(currentUsersAccountId);
 		
-		if(postsFromAccountId.isEmpty())
-			return new ArrayList<Long>();
+		if(optionalPostsFromAccountId.isEmpty())
+			return new ArrayList<SocialPostDto>();
 		
-		return postsFromAccountId.get();
+		ArrayList<SocialPost> postsFromAccountId = optionalPostsFromAccountId.get();
+		
+		int start = postsFromAccountId.size() - startIndex - 1;
+		int end = postsFromAccountId.size() - endIndex - 1;
+		
+		if(start < 0)
+			throw new RuntimeException("There are not enough posts from the current user to match the path variables provided.");
+		
+		if(start >= postsFromAccountId.size()) 
+			start = postsFromAccountId.size() - 1;
+		
+		if(end < 0)
+			end = 0;
+		
+		ArrayList<SocialPostDto> postDtosFromAccountId = new ArrayList<SocialPostDto>();
+				
+		for(int i = start; i >= end; i--) {
+			postDtosFromAccountId.add(SocialPostMapper.INSTANCE.toSocialPostDto(postsFromAccountId.get(i)));
+		}
+		
+		return postDtosFromAccountId;
 	}
 	
 	public SocialPostDto editPostContent(Long socialPostId, String newSocialPostContent) {
@@ -148,8 +175,6 @@ public class SocialPostService {
 	}
 	
 	public SocialPostDto addComment(SocialPostCommentDto socialPostComment) {
-		socialPostComment.accountId = accountsService.getLoggedInUserId();
-		
 		Optional<SocialPost> optionalSocialPostObject = socialPostRepository.findById(socialPostComment.postId);
 		
 		if(optionalSocialPostObject.isEmpty())
@@ -158,6 +183,10 @@ public class SocialPostService {
 		SocialPost socialPostObject = optionalSocialPostObject.get();
 		
 		SocialPostComment socialPostCommentModel = SocialPostCommentMapper.INSTANCE.toSocialPostComment(socialPostComment);
+		
+		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
+
+		socialPostCommentModel.account = accountsRepository.findById(currentlyLoggedInUserId).get();
 				
 		socialPostObject.socialPostComments.add(socialPostCommentModel);
 		
@@ -194,14 +223,25 @@ public class SocialPostService {
 		return SocialPostMapper.INSTANCE.toSocialPostDto(updatedSocialPost);
 	}
 	
-	public ArrayList<Long> getCommentsFromAccountId(){
+	/*
+	*** Getting rid of this endpoint for now as it isn't being used. Will add back if necessary. ***
+	public ArrayList<SocialPostCommentDto> getCommentsFromAccountId(){
 		Long currentUsersAccountId = accountsService.getLoggedInUserId();
 		
-		Optional<ArrayList<Long>> commentsFromAccountId = socialPostCommentRepository.getPostsFromAccountId(currentUsersAccountId);
+		Optional<ArrayList<SocialPostComment>> optionalCommentsFromAccountId = socialPostCommentRepository.getPostsFromAccountId(currentUsersAccountId);
 		
-		if(commentsFromAccountId.isEmpty())
-			return new ArrayList<Long>();
+		if(optionalCommentsFromAccountId.isEmpty())
+			return new ArrayList<SocialPostCommentDto>();
 		
-		return commentsFromAccountId.get();
+		ArrayList<SocialPostComment> commentsFromAccountId = optionalCommentsFromAccountId.get();
+		
+		ArrayList<SocialPostCommentDto> commentDtosFromAccountId = new ArrayList<SocialPostCommentDto>();
+		
+		for(int i = 0; i < commentsFromAccountId.size(); i++) {
+			commentDtosFromAccountId.add(SocialPostCommentMapper.INSTANCE.toSocialPostCommentDto(commentsFromAccountId.get(i)));
+		}
+		
+		return commentDtosFromAccountId;
 	}
+	*/
 }
