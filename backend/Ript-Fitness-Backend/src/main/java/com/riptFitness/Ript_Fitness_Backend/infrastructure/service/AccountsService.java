@@ -33,7 +33,7 @@ public class AccountsService {
 	@Autowired
 	public StreakRepository streakRepository;
     private final UserProfileService userProfileService; 
-    private UserProfileRepository repo;
+    private UserProfileRepository userProfileRepository;
 	private final PasswordEncoder passwordEncoder;
 	@Autowired
 	private JwtUtil jwtUtil;
@@ -41,13 +41,13 @@ public class AccountsService {
 	// Constructor:
 	public AccountsService(AccountsRepository accountsRepository, StreakRepository streakRepository,
 			PasswordEncoder passwordEncoder, JwtUtil jwtUtil, UserProfileService userProfileService,
-			UserProfileRepository repo) {
+			UserProfileRepository userProfileRepository) {
 		this.accountsRepository = accountsRepository;
 		this.streakRepository = streakRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.jwtUtil = jwtUtil;
 		this.userProfileService = userProfileService;
-		this.repo = repo;
+		this.userProfileRepository = userProfileRepository;
 	}
 
 	// Method to retrieve the logged-in user's ID
@@ -160,7 +160,7 @@ public class AccountsService {
 		user.setAccount(accountsModel);
 		user.firstName = "";
 		user.lastName = "";
-		repo.save(user);
+		userProfileRepository.save(user);
 		
 		accountsModel.setUserProfile(user);
 		accountsRepository.save(accountsModel);
