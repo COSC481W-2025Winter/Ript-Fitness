@@ -103,4 +103,14 @@ public class UserProfile {
     public void setDeleted(boolean isDeleted) {
         this.isDeleted = isDeleted;
     }
+
+	public AccountsModel getAccount() {
+		return account;
+	}
+
+	public void setAccount(AccountsModel account) {
+		this.account = account;
+	}
+    
+    
 }
