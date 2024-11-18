@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons, Octicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 
 type PostItemType = {
@@ -28,34 +28,14 @@ type ItemProps = {
   item: PostItemType;
   liked: boolean;
   onLikePress: () => void;
+  onCommentPress: () => void;
 };
 
 const formatTimestamp = (dateTimeCreated: string): string => {
-  console.log("Original Timestamp:", dateTimeCreated);
-  
-  const trimmedTimestamp = dateTimeCreated.includes(".")
-    ? dateTimeCreated.split(".")[0] + "." + dateTimeCreated.split(".")[1].slice(0, 3)
-    : dateTimeCreated;
-
-  const date = new Date(trimmedTimestamp);
-  console.log("Date:", date);
-
-  if (isNaN(date.getTime())) {
-    console.warn("Invalid date:", trimmedTimestamp);
-    return "Invalid Date";
-  }
-
-  return date.toLocaleString(undefined, {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: true,
-  });
+  // ... your existing formatTimestamp function ...
 };
 
-const PostItem = ({ item, liked, onLikePress }: ItemProps) => {
+const PostItem = ({ item, liked, onLikePress, onCommentPress }: ItemProps) => {
   const navigation = useNavigation<NavigationProp<any>>();
 
   const handlePostPress = () => {
@@ -66,60 +46,53 @@ const PostItem = ({ item, liked, onLikePress }: ItemProps) => {
     }
   };
 
-  const handleCommentPress = () => {
-    navigation.navigate('CommentsScreen', { postId: item.id });
-  };
-
-
   return (
-    <TouchableOpacity onPress={handlePostPress}
-    >
-      <View style={styles.item}>
-        {/* Header */}
+    <View style={styles.item}>
+      {/* Header */}
+      <TouchableOpacity onPress={handlePostPress}>
         <View style={styles.header}>
           <Image style={styles.profile} source={{ uri: item.user.profilePicture }} />
           <Text style={styles.username}>{item.user.name}</Text>
         </View>
+      </TouchableOpacity>
 
-        {/* Content */}
-        {item.type === 'text' && item.content && (
-          <Text style={styles.contentText}>{item.content}</Text>
-        )}
-        {item.type === 'image' && item.imageUrl && (
-          <Image style={styles.postImage} source={{ uri: item.imageUrl }} />
-        )}
-        {item.type === 'image' && item.caption && (
-          <Text style={styles.caption}>{item.caption}</Text>
-        )}
+      {/* Content */}
+      {item.type === 'text' && item.content && (
+        <Text style={styles.contentText}>{item.content}</Text>
+      )}
+      {item.type === 'image' && item.imageUrl && (
+        <Image style={styles.postImage} source={{ uri: item.imageUrl }} />
+      )}
+      {item.type === 'image' && item.caption && (
+        <Text style={styles.caption}>{item.caption}</Text>
+      )}
 
-        {/* Footer */}
-        <View style={styles.footer}>
-
-          <View style={styles.likecomment}>
-            <TouchableOpacity 
-              onPress={onLikePress} 
-              style={styles.likeButton}
-              accessibilityLabel="Like comment"
-              accessibilityHint="Toggles the like state for this comment"
-              >
-              <Ionicons name="heart" size={24} color={liked ? '#FF3B30' : '#B1B6C0'} />
-            </TouchableOpacity>
-            <Text style={styles.likeCounter}>0</Text>
-            <TouchableOpacity 
-            onPress={handleCommentPress} 
+      {/* Footer */}
+      <View style={styles.footer}>
+        <View style={styles.likecomment}>
+          <TouchableOpacity 
+            onPress={onLikePress} 
+            style={styles.likeButton}
+            accessibilityLabel="Like post"
+            accessibilityHint="Toggles the like state for this post"
+          >
+            <Ionicons name="heart" size={24} color={liked ? '#FF3B30' : '#B1B6C0'} />
+          </TouchableOpacity>
+          <Text style={styles.likeCounter}>{item.likes.length}</Text>
+          
+          <TouchableOpacity 
+            onPress={onCommentPress}
             style={styles.commentButton}
             accessibilityLabel="Open comments"
-            accessibilityHint="Opens the comments screen for this post"
-            >
+            accessibilityHint="Opens the comments for this post"
+          >
             <Ionicons name="chatbubble" color="#B1B6C0" size={23} />
-            </TouchableOpacity>
-            <Text style={styles.commentCounter}>0</Text>
-          </View>
-          <Text style={styles.timestamp}>{formatTimestamp(item.dateTimeCreated)}</Text>
+          </TouchableOpacity>
+          <Text style={styles.commentCounter}>{item.comments.length}</Text>
         </View>
-        
+        <Text style={styles.timestamp}>{formatTimestamp(item.dateTimeCreated)}</Text>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 
@@ -203,6 +176,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
 
 export default PostItem;

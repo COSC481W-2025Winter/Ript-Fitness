@@ -141,9 +141,8 @@ const fetchPosts = useCallback(async (startIndex: number = 0, endIndex: number =
     }
   }, [token, posts]);
 
-  /**
-   * Add a new post.
-   */
+
+  // Add a new post
   const addPost = useCallback(async (content: string) => {
     if (!token) {
       console.error('No token available for adding a post.');
@@ -174,9 +173,8 @@ const fetchPosts = useCallback(async (startIndex: number = 0, endIndex: number =
     }
   }, [token]);
 
-  /**
-   * Delete a post by its ID.
-   */
+
+  // Delete a post by its ID.
   const deletePost = useCallback(async (postId: string) => {
     if (!token) {
       console.error('No token available for deleting a post.');
@@ -193,9 +191,8 @@ const fetchPosts = useCallback(async (startIndex: number = 0, endIndex: number =
     }
   }, [token]);
 
-  /**
-   * Toggle like status for a post.
-   */
+
+  // Toggle like status for a post by its ID
   const toggleLike = useCallback(async (postId: string) => {
     if (!token) {
       console.error('No token available for toggling like.');
@@ -235,9 +232,8 @@ const fetchPosts = useCallback(async (startIndex: number = 0, endIndex: number =
     }
   }, [token, posts]);
 
-  /**
-   * Add a comment to a post.
-   */
+
+  // Add a comment to a post by its ID
   const addComment = useCallback(async (postId: string, content: string) => {
     if (!token) {
       console.error('No token available for adding a comment.');
@@ -256,11 +252,12 @@ const fetchPosts = useCallback(async (startIndex: number = 0, endIndex: number =
       }
 
       const newComment = await response.json();
+      console.log('Received newComment:', newComment);
       const formattedComment: SocialPostComment = {
         id: String(newComment.id),
         content: newComment.content,
         postId: String(newComment.postId),
-        accountId: newComment.accountId || token,
+        accountId: newComment.accountId,
         dateTimeCreated: newComment.dateTimeCreated || new Date().toISOString()
       };
 
@@ -277,9 +274,8 @@ const fetchPosts = useCallback(async (startIndex: number = 0, endIndex: number =
     }
   }, [token]);
 
-  /**
-   * Delete a comment by its ID.
-   */
+
+  // Delete a comment by its ID.
   const deleteComment = useCallback(async (commentId: string) => {
     if (!token) {
       console.error('No token available for deleting a comment.');

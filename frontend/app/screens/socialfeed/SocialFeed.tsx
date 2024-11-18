@@ -9,36 +9,36 @@ import {
   RefreshControl,
   View,
   TouchableOpacity,
+  ActivityIndicator, 
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PortalProvider } from '@gorhom/portal';
 import PostItem from '@/components/socialfeed/PostItem';
 import CreatePostSheet from './CreatePostSheet';
+import CommentsSheet, { CommentsSheetRef } from './CommentsSheet';
 import { useSocialFeed, SocialPost } from '@/context/SocialFeedContext';
 import { Ionicons } from '@expo/vector-icons';
 import { CreatePostSheetRef } from './CreatePostSheet';
+
 import StreakHeader from '@/components/StreakHeader';
 import { GlobalContext } from '@/context/GlobalContext';
 
 export default function SocialFeed() {
   const createPostSheetRef = useRef<CreatePostSheetRef>(null);
-  const { posts, loading, error, fetchPosts, toggleLike } = useSocialFeed(); // Added toggleLike here
+  const commentsSheetRef = useRef<CommentsSheetRef>(null);
+  const { posts, loading, error, fetchPosts, toggleLike } = useSocialFeed();
   const { data: { token } } = useContext(GlobalContext);
   
-  // Pagination State
   const [page, setPage] = useState(0);
   const pageSize = 10;
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [hasMorePosts, setHasMorePosts] = useState(true);
   
-  // Track if initial load has happened
   const [initialLoadDone, setInitialLoadDone] = useState(false);
   
-  // Reference to track if a fetch is in progress
   const isFetchingRef = useRef(false);
 
-  // Fetch initial posts on component mount
   useEffect(() => {
     if (!initialLoadDone) {
       handleInitialLoad();
@@ -51,12 +51,11 @@ export default function SocialFeed() {
       setInitialLoadDone(true);
     } catch (error) {
       console.error('Error during initial load:', error);
+      setInitialLoadDone(true);
     }
   };
 
-  // Inside your SocialFeed component:
   const handleLoadMore = useCallback(async () => {
-    // Check if we should fetch more posts
     if (
       loading || 
       !hasMorePosts || 
@@ -74,12 +73,10 @@ export default function SocialFeed() {
       const startIndex = nextPage * pageSize;
       const endIndex = startIndex + pageSize;
       
-      // Store current posts length to check if we got new posts
       const currentLength = posts.length;
       
       await fetchPosts(startIndex, endIndex);
       
-      // Check if we got any new posts
       if (posts.length === currentLength) {
         setHasMorePosts(false);
       } else {
@@ -93,7 +90,6 @@ export default function SocialFeed() {
     }
   }, [loading, hasMorePosts, page, posts.length, fetchPosts]);
 
-  // Update onRefresh to handle errors better
   const onRefresh = useCallback(async () => {
     if (isRefreshing) return;
     
@@ -102,6 +98,7 @@ export default function SocialFeed() {
       setPage(0); // Reset pagination
       setHasMorePosts(true);
       await fetchPosts(0, pageSize);
+      setInitialLoadDone(true);
     } catch (error) {
       console.error('Error during refresh:', error);
     } finally {
@@ -142,20 +139,29 @@ export default function SocialFeed() {
         }}
         liked={Array.isArray(item.likes) && item.likes.includes(token)}
         onLikePress={() => handleLike(item.id)}
+             onCommentPress={() => {
+        console.log(`Comment button pressed for post ID: ${item.id}`);
+        commentsSheetRef.current?.showCommentsForPost(item.id);
+      }}
       />
     ),
     [handleLike, token]
   );
 
-  // Render footer component for loading indicator
-  const renderFooter = () => {
-    if (!loading) return null;
+const renderFooter = () => {
+  // Show footer spinner only when loading more posts and not refreshing
+  console.log('Loading:', loading);
+  console.log('Refreshing:', isRefreshing);
+  console.log('Has more posts:', hasMorePosts);
+  if (loading && !isRefreshing) {
     return (
       <View style={styles.footer}>
-        <Text>Loading more posts...</Text>
+        <ActivityIndicator size="large" color="#21BFBF" accessibilityLabel="Loading posts" />
       </View>
     );
-  };
+  }
+  return null;
+};
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -176,10 +182,12 @@ export default function SocialFeed() {
               />
             }
             ListEmptyComponent={
-              <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>No posts available</Text>
-                <Text style={styles.emptyEmoji}>😭</Text>
-              </View>
+              !loading && initialLoadDone ? (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.emptyText}>No posts available</Text>
+                  <Text style={styles.emptyEmoji}>😔</Text>
+                </View>
+              ) : null
             }
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
@@ -191,6 +199,7 @@ export default function SocialFeed() {
           </TouchableOpacity>
 
           <CreatePostSheet ref={createPostSheetRef} />
+          <CommentsSheet ref={commentsSheetRef} />
         </SafeAreaView>
       </PortalProvider>
     </GestureHandlerRootView>
@@ -235,7 +244,11 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
   },
   footer: {
-    padding: 10,
+    flex: 1,
+    padding: 20,
+    height: 600, //Temporary fix for loading spinner not centering
+    flexGrow: 1,
+    justifyContent: 'center',
     alignItems: 'center',
   },
 });
