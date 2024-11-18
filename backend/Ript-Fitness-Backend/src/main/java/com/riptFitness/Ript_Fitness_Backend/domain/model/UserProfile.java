@@ -21,10 +21,8 @@ public class UserProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
     public Long id;
 
-    @Column(nullable = false)
     public String firstName;
 
-    @Column(nullable = false)
     public String lastName;
     
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -105,4 +103,14 @@ public class UserProfile {
     public void setDeleted(boolean isDeleted) {
         this.isDeleted = isDeleted;
     }
+
+	public AccountsModel getAccount() {
+		return account;
+	}
+
+	public void setAccount(AccountsModel account) {
+		this.account = account;
+	}
+    
+    
 }
