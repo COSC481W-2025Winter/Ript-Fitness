@@ -14,6 +14,7 @@ import { ProfileScreenNavigationProp } from "@/app/(tabs)/ProfileStack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
+
 export default function FoodLogScreen() {
 
     const navigation = useNavigation<ProfileScreenNavigationProp>();
@@ -25,6 +26,7 @@ export default function FoodLogScreen() {
     const [totalWater, setTotalWater] = useState(0);
     const [day, setDay] = useState();
     const context = useContext(GlobalContext);
+    const [cached, setCached] = useState(false);
 
 
 
@@ -65,6 +67,7 @@ export default function FoodLogScreen() {
                 //   };
                 
                 await AsyncStorage.setItem('day', JSON.stringify(dayID));
+                await AsyncStorage.removeItem('foodTodayDetails');
                 const dayItem = await AsyncStorage.getItem('day');
                 console.log("Day item in storage: ", dayItem);
             }
@@ -73,17 +76,17 @@ export default function FoodLogScreen() {
         }
     };
     
-    const checkDay = async () => {
-        console.log("Current Date: ", formattedDate);
-        console.log("Current day: ", day);
+    // const checkDay = async () => {
+    //     console.log("Current Date: ", formattedDate);
+    //     console.log("Current day: ", day);
         
-        if (formattedDate == day) {
-            console.log("The date is today");
-        } else {
-            console.log("We need a new day");
-            newDay();
-        }
-    }
+    //     if (formattedDate == day) {
+    //         console.log("The date is today");
+    //     } else {
+    //         console.log("We need a new day");
+    //         newDay();
+    //     }
+    // }
 
     const clearMacroFields = () => {
         setTotalCalories(0);
@@ -109,9 +112,15 @@ export default function FoodLogScreen() {
                 const dayData = await getDayResponse.json(); 
                 console.log(dayData);
                 setTotalCalories(dayData.calories); 
+                await AsyncStorage.setItem('calories', JSON.stringify(dayData.calories));
+                const cachedCals = await AsyncStorage.getItem('calories'); 
                 setTotalCarbs(dayData.totalCarbs);
+                await AsyncStorage.setItem('carbs', JSON.stringify(dayData.totalCarbs));
                 setTotalProtein(dayData.totalProtein);
+                await AsyncStorage.setItem('protein', JSON.stringify(dayData.totalProtein));
                 setTotalFat(dayData.totalFat);
+                await AsyncStorage.setItem('fat', JSON.stringify(dayData.totalFat));
+                setCached(true);
             } else {
                 console.log('Failed to get day');
             }
@@ -119,6 +128,7 @@ export default function FoodLogScreen() {
             console.log('Error', 'An error occurred. Please try again.');
         }
     };
+
 
     const updateTotalMacros = () => {
         setTotalCalories(totalCalories);
@@ -132,7 +142,7 @@ export default function FoodLogScreen() {
         setTotalForDay();
         updateTotalMacros();
         updateWater();
-    }, [selectedPage]);
+    }, [totalCalories, selectedPage]);
 
  
     
@@ -176,7 +186,126 @@ const updateWater = async () => {
         if (selectedPage === "Add") return <FoodLogAddPage />;
     };
 
-    return(
+    return cached ? (
+        <SafeAreaView style={styles.flexContainer}>
+            <View>
+                <View style={styles.calendarNav}>
+                    <Ionicons 
+                        name={"chevron-back-outline"} 
+                        color={"white"}
+                        size={24} 
+                        style={styles.leftArrow}
+                        onPress={() => navigation.navigate('ApiScreen')}
+                />
+                     <Ionicons name={"calendar-clear-outline"} size={24} color={"white"}></Ionicons>
+                    <Text style={styles.whiteText} onPress={() => newDay()}>Today</Text>
+                    <Ionicons 
+                        name={"chevron-forward-outline"} 
+                        color={"white"}
+                        size={24} 
+                        style={styles.rightArrow}
+                        onPress={() => navigation.navigate('ApiScreen')}
+                    /> 
+                </View>
+            
+            <View style={styles.macroView}> 
+                <View style={styles.macroRow}>
+                    <MacroButton
+                        title="Calories"
+                        label=""
+                        total={totalCalories}
+                        textColor="#F2D06B"
+                        borderColor="#F2D06B"
+                        borderWidth={5}
+                        fontSize={16}
+                        width={100} 
+                    ></MacroButton>
+                    <MacroButton
+                        title="Protein" 
+                        label="g"
+                        total={totalProtein}
+                        textColor="#2493BF"
+                        borderColor="#2493BF"
+                        borderWidth={5}
+                        fontSize={16}
+                        width={100} 
+                    ></MacroButton>
+                    <MacroButton
+                        title="Carbs" 
+                        label="g"
+                        total={totalCarbs}
+                        textColor="#56C97B"
+                        borderColor="#56C97B"
+                        borderWidth={5}
+                        fontSize={16}
+                        width={100} 
+                    ></MacroButton>
+                </View>
+                <View style={styles.macroRow}>
+                    <MacroButton
+                        title="Fat" 
+                        label="g"
+                        total={totalFat}
+                        textColor="#F22E2E"
+                        borderColor="#F22E2E"
+                        borderWidth={5}
+                        fontSize={16}
+                        width={100} 
+                    ></MacroButton>
+                    <MacroButton
+                        title="Water" 
+                        label="oz"
+                        total={totalWater}
+                        textColor="black"
+                        borderColor="black"
+                        borderWidth={5}
+                        fontSize={16}
+                        width={100} 
+                    ></MacroButton>
+                    <View style={styles.plusMinus}>
+                        <Ionicons name="add-circle-outline" size={30} style={styles.waterButton} onPress={() => addWater()}></Ionicons>
+                        <Ionicons name="remove-circle-outline"size={30} style={styles.waterButton} onPress={() => minusWater()}></Ionicons>
+                    </View>
+                </View>
+            </View> 
+             {/* Navbar for Logged, Saved, Add */}
+             <View style={styles.dataBar}>
+                {/* <View style={styles.align}>
+                    <Ionicons name="today-outline" size={30} onPress={() => addWater()}></Ionicons>
+                    <Text style={styles.text}>Start new day log</Text>
+                </View> */}
+                <View style={[styles.box, selectedPage === "Logged" && styles.selectedBox]}>
+                    <Text 
+                        style={[styles.text, selectedPage === "Logged" && styles.selectedText]} 
+                        onPress={() => setSelectedPage("Logged")}
+                    >
+                        Logged
+                    </Text>
+                </View>
+                <View style={[styles.box, selectedPage === "Saved" && styles.selectedBox]}>
+                    <Text 
+                        style={[styles.text, selectedPage === "Saved" && styles.selectedText]} 
+                        onPress={() => setSelectedPage("Saved")}
+                    >
+                        Saved
+                    </Text>
+                </View>
+                <View style={[styles.box, selectedPage === "Add" && styles.selectedBox]}>
+                    <Text 
+                        style={[styles.text, selectedPage === "Add" && styles.selectedText]} 
+                        onPress={() => setSelectedPage("Add")}
+                    >
+                        Add
+                    </Text>
+                </View>
+                </View>
+        </View>
+         {/* Display Selected Page Content */}
+        <View style={styles.pageContainer}>
+                {renderContent()}
+        </View>
+    </SafeAreaView>
+    ) : (
         <SafeAreaView style={styles.flexContainer}>
             <View>
                 <View style={styles.calendarNav}>
@@ -296,7 +425,7 @@ const updateWater = async () => {
         </View>
     </SafeAreaView>
     );
-}
+};
 
 const styles = StyleSheet.create({
     flexContainer: {

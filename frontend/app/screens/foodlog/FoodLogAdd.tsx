@@ -6,6 +6,9 @@ import AddFoodButton from "@/components/foodlog/AddFoodButton";
 import { httpRequests } from "@/api/httpRequests";
 import { GlobalContext } from "@/context/GlobalContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import FoodLogLoggedPage from "./FoodLogLogged";
+import FoodLogScreen from "./FoodLog";
+import FoodLogSavedPage from "./FoodLogSaved";
 
 //Need to figure out how to get the day to work on login and then not switch until the next day 
 
@@ -425,6 +428,7 @@ const FoodLogAddPage = () => {
                         onPress={() => {
                             if (validateAllFields()) {
                                 handleFoodDataSaveOnly();
+                                // return <FoodLogSavedPage />
                             } else {
                                 alert("Please fill out all fields correctly.");
                             }

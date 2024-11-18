@@ -46,7 +46,7 @@ const FoodLogLoggedPage = () => {
     const [loading, setLoading] = useState(true);
     const [cached, setCached] = useState(false);
     const [day, setDay] = useState(0);
-    const [lastDay, setLastDay] = useState(0);
+    // const [lastDay, setLastDay] = useState(0);
     const context = useContext(GlobalContext);
 
 
@@ -55,7 +55,7 @@ const FoodLogLoggedPage = () => {
         try {
             const cachedFoodTodayDetails = await AsyncStorage.getItem('foodTodayDetails');
             const cachedDay = await AsyncStorage.getItem('day');
-            const lastCachedDay = await AsyncStorage.getItem('lastDay');
+            // const lastCachedDay = await AsyncStorage.getItem('lastDay');
 
             if(cachedDay) {
                 console.log("There is a cached day: ", JSON.parse(cachedDay));
@@ -66,12 +66,12 @@ const FoodLogLoggedPage = () => {
                 }
             }
 
-            if(lastCachedDay) {
-                setLastDay(JSON.parse(lastCachedDay));
-            }
+            // if(lastCachedDay) {
+            //     setLastDay(JSON.parse(lastCachedDay));
+            // }
             
-            if (cachedFoodTodayDetails && day === lastDay) {
-                console.log("Using cached food details");
+            if (cachedFoodTodayDetails) {
+                console.log("Using cached food details", cachedFoodTodayDetails);
                 setFoodDetails(JSON.parse(cachedFoodTodayDetails));
                 setCached(true);
             } else {
@@ -103,7 +103,7 @@ const FoodLogLoggedPage = () => {
                 setFoodDetails(validDetails);
 
                 await AsyncStorage.setItem('foodTodayDetails', JSON.stringify(validDetails));
-                await AsyncStorage.setItem('lastDay', JSON.stringify(day));
+                // await AsyncStorage.setItem('lastDay', JSON.stringify(day));
 
                 console.log("cached", cached);
                 console.log("loading", loading);

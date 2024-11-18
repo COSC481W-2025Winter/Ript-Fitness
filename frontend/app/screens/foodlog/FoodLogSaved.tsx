@@ -1,4 +1,4 @@
-import { TextInput, StyleSheet, ScrollView, Text, View, FlatList, Alert, TouchableOpacityBase, TouchableOpacity } from "react-native";
+import { TextInput, StyleSheet, ScrollView, Text, View, FlatList, Alert, TouchableOpacity, Modal } from "react-native";
 import React,  { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { GlobalContext } from "@/context/GlobalContext";
@@ -19,9 +19,10 @@ interface Food {
     fat: number;
     multiplier: number;
     isDelted: boolean;
+    onPress: {};
 }
 
-const FoodItem: React.FC<{ food: Food }> =  ({ food }) => {
+const FoodItem: React.FC<{ food: Food, onPress: () => void }> =  ({ food, onPress }) => {
     const navigation = useNavigation<WorkoutScreenNavigationProp>();
    
     return (
@@ -38,7 +39,7 @@ const FoodItem: React.FC<{ food: Food }> =  ({ food }) => {
             borderWidth={1}
             fontSize={16}
             width ='100%'
-            onPress={() => {}}
+            onPress={onPress}
             />
     )
 };
@@ -50,7 +51,9 @@ const FoodLogSavedPage = () => {
     const [cached, setCached] = useState(false);
     const context = useContext(GlobalContext);
     const [isFoodModalVisable, setFoodModalVisable] = useState(false);
-
+    const [foodText, setFoodText] = useState("");
+    const [selectedFood, setSelectedFood] = useState<Food | null>(null);
+    
     const fetchFoodIDs = async () => {
         try {
             console.log("Fetching food details...");
@@ -172,34 +175,68 @@ const FoodLogSavedPage = () => {
                 </View>
             )}
         >
-        <FoodItem food={item} />
+        <FoodItem 
+            food={item} 
+            onPress={() => {
+                setSelectedFood(item);
+                console.log("item: ", item);
+                setFoodModalVisable(true); 
+                }}
+            />
         </Swipeable>
     
     );
 
 
-    return cached ? (
+    // return cached ? (
+    //     <View style={styles.bottomContainer}>
+    //         <CustomSearchBar></CustomSearchBar>
+    //         <FlatList 
+    //             data={foodDetails}
+    //             renderItem={renderItem}
+    //             keyExtractor={(item) => `${item.id}`}
+    //         />
+    //     </View>
+    // ) : loading ? (
+    //     <View style={styles.bottomContainer}>
+    //         <CustomSearchBar></CustomSearchBar>
+    //         <Text style={styles.message}>Loading...</Text>
+    //    </View>
+    // ) : foodDetails.length === 0 ? (
+    //     <View style={styles.bottomContainer}>
+    //         <CustomSearchBar></CustomSearchBar>
+    //         <Text style={styles.message}>No food items logged.</Text>
+    //     </View>
+    // ) : (
+    return (
         <View style={styles.bottomContainer}>
+            {/* Notes modal */}
             <CustomSearchBar></CustomSearchBar>
-            <FlatList 
-                data={foodDetails}
-                renderItem={renderItem}
-                keyExtractor={(item) => `${item.id}`}
-            />
-        </View>
-    ) : loading ? (
-        <View style={styles.bottomContainer}>
-            <CustomSearchBar></CustomSearchBar>
-            <Text style={styles.message}>Loading...</Text>
-       </View>
-    ) : foodDetails.length === 0 ? (
-        <View style={styles.bottomContainer}>
-            <CustomSearchBar></CustomSearchBar>
-            <Text style={styles.message}>No food items logged.</Text>
-        </View>
-    ) : (
-        <View style={styles.bottomContainer}>
-            <CustomSearchBar></CustomSearchBar>
+            <Modal
+                transparent={true}
+                visible={isFoodModalVisable}
+                animationType="slide"
+                onRequestClose={() => setFoodModalVisable(false)}
+            >
+                <View style={styles.modalOverlay}>
+                <View style={styles.modalContent}>
+                    <Text style={styles.modalTitle}>Food Details</Text>
+                    {selectedFood && ( 
+                        <>
+                            <Text>Name: {selectedFood.name}</Text>
+                            <Text>Calories: {selectedFood.calories}</Text>
+                            <Text>Protein: {selectedFood.protein}</Text>
+                            <Text>Carbs: {selectedFood.carbs}</Text>
+                            <Text>Fat: {selectedFood.fat}</Text>
+                        </>
+                    )}
+                    <TouchableOpacity onPress={() => setFoodModalVisable(false)} >
+                        <Text>Save Details</Text>
+                    </TouchableOpacity>
+                </View>
+                </View>
+            </Modal>
+            
             <FlatList 
                 data={foodDetails}
                 renderItem={renderItem}
@@ -256,6 +293,23 @@ const styles = StyleSheet.create({
       deleteText: {
         color: 'white',
         fontWeight: 'bold',
+      },
+      modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      modalContent: {
+        width: '80%',
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+      },
+      modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
       },
 })
 
