@@ -50,6 +50,11 @@ public class AccountsModel {
     
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SocialPostComment> socialPostComments;
+    
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("account") // Prevents infinite recursion during JSON serialization
+    private List<Note> notes = new ArrayList<>();
+
 
 	// Fields:
     private String username;
@@ -156,4 +161,23 @@ public class AccountsModel {
 	public void setExercises(List<ExerciseModel> exercises) {
 		this.exercises = exercises;
 	}
+	
+	public List<Note> getNotes() {
+	    return notes;
+	}
+
+	public void setNotes(List<Note> notes) {
+	    this.notes = notes;
+	}
+
+	public void addNote(Note note) {
+	    notes.add(note);
+	    note.setAccount(this);
+	}
+
+	public void removeNote(Note note) {
+	    notes.remove(note);
+	    note.setAccount(null);
+	}
+
 }
