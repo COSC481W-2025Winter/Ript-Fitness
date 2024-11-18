@@ -197,7 +197,6 @@ public class AccountsService {
 	        	    userProfileService.addUser(userDto, username);  // Create a new UserProfile if not already made
 	        	}
 
-	        	
 	        	// Generate a JWT token and return it
 	            String token = jwtUtil.generateToken(username);
 	            System.out.println("Login successful for user: " + username);
@@ -210,24 +209,6 @@ public class AccountsService {
 	    } else {
 	    	throw new RuntimeException("Username does not exist.");
 	    }
-
-			// Verify the password
-			if (passwordMatches) {
-				// Update the login date:
-				accountsRepository.updateLoginDate(username, lastLogin);
-
-				// Generate a JWT token and return it
-				String token = jwtUtil.generateToken(username);
-				System.out.println("Login successful for user: " + username);
-				return token;
-
-			} else {
-				System.out.println("Incorrect password for user: " + username);
-				throw new RuntimeException("Incorrect password.");
-			}
-		} else {
-			throw new RuntimeException("Username does not exist.");
-		}
 
 	}
 
