@@ -1,16 +1,16 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
-
-import org.springframework.transaction.annotation.Transactional;
 
 
 public interface AccountsRepository extends JpaRepository <AccountsModel, Long> { 
@@ -23,6 +23,9 @@ public interface AccountsRepository extends JpaRepository <AccountsModel, Long> 
 	// Query which returns true or false depending on whether the given username is in the accounts_model database table
 	@Query(value = "SELECT CASE WHEN COUNT(*) > 0 THEN true ELSE false END FROM accounts_model WHERE username = :username", nativeQuery = true)
 	Long existsByUsername(@Param("username") String username);
+	
+	@Query("SELECT a.email FROM AccountsModel a")
+    List<String> findAllEncodedEmails();
     
 	// Query that gets the ID based off of the username that is entered in the login page from the accounts_model table in DB
     @Query(value = "SELECT id FROM accounts_model WHERE username = :username", nativeQuery = true)
@@ -33,6 +36,7 @@ public interface AccountsRepository extends JpaRepository <AccountsModel, Long> 
     @Transactional // Required for modifying queries
     @Query(value = "UPDATE accounts_model SET last_login = :lastLogin WHERE username = :username", nativeQuery = true)
     void updateLoginDate(@Param("username") String username, @Param("lastLogin") LocalDateTime lastLogin);
+    
     
     Optional<AccountsModel> findByUsername(String username);  // Method to find account by username
     

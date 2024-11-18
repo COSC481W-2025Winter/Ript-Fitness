@@ -2,12 +2,14 @@ package com.riptFitness.Ript_Fitness_Backend.web.dto;
 
 import java.time.LocalDateTime;
 
+import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
+
 public class SocialPostCommentDto {
 
 	public Long id;
 	
-	public Long accountId;
-	
+    public UserProfile userProfile;
+		
 	public String content;
 	
     public Long postId;

@@ -1,6 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,14 +11,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.JwtUtil;
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.AccountsMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Streak;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.StreakRepository;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.UserProfileRepository;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.JwtUtil;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.AccountsDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.LoginRequestDto;
+
+import com.riptFitness.Ript_Fitness_Backend.web.dto.UserDto;
 
 
 @Service
@@ -27,101 +32,144 @@ public class AccountsService {
 	public AccountsRepository accountsRepository;
 	@Autowired
 	public StreakRepository streakRepository;
+    private final UserProfileService userProfileService; 
+    private UserProfileRepository userProfileRepository;
 	private final PasswordEncoder passwordEncoder;
 	@Autowired
 	private JwtUtil jwtUtil;
 
 	// Constructor:
 	public AccountsService(AccountsRepository accountsRepository, StreakRepository streakRepository,
-			PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+			PasswordEncoder passwordEncoder, JwtUtil jwtUtil, UserProfileService userProfileService,
+			UserProfileRepository userProfileRepository) {
 		this.accountsRepository = accountsRepository;
 		this.streakRepository = streakRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.jwtUtil = jwtUtil;
+		this.userProfileService = userProfileService;
+		this.userProfileRepository = userProfileRepository;
 	}
 
-	// List of methods that we need for the Create an account / Log in page:
-	// 1. Create a new account
-	// - Check to see if an account with the user name that the user is attempting
-	// to make an account with already exits.
-	// - If the user name is already in use, display a message to either login or
-	// try another name
-	// - If the user name is "free" allow user to create the account
-
-	// 2. Log in page
-	// - Ask for a user name and a password, check if the user name exists.
-	// - If user name exists, check password. If password matches, allow log in.
-	// - If the password does not match, display a error message.
-	// - If user name does not exist, display a message that it does not exist. Ask
-	// if they would like to create an account with that user name
-	
-	
 	// Method to retrieve the logged-in user's ID
-    public Long getLoggedInUserId() {
-        // Get the principal (logged-in user) from the security context
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	public Long getLoggedInUserId() {
+		// Get the principal (logged-in user) from the security context
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (principal instanceof UserDetails) {
-            String username = ((UserDetails) principal).getUsername(); // Get the logged-in user's username
+		if (principal instanceof UserDetails) {
+			String username = ((UserDetails) principal).getUsername(); // Get the logged-in user's username
 
-            // Query the AccountsRepository to get the user based on the username
-            AccountsModel account = accountsRepository.findByUsername(username)
-                    .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+			// Query the AccountsRepository to get the user based on the username
+			AccountsModel account = accountsRepository.findByUsername(username)
+					.orElseThrow(() -> new RuntimeException("User not found with username: " + username));
 
-            // Return the ID of the logged-in user
-            return account.getId();
-        } else {
-            throw new RuntimeException("No authenticated user found.");
-        }
-    }
+			// Return the ID of the logged-in user
+			return account.getId();
+		} else {
+			throw new RuntimeException("No authenticated user found.");
+		}
+	}
+
+	@Transactional
+	public String changePassword(String currentPassword, String newPassword) {
+		// Get the associated account:
+		AccountsModel accountsModel = accountsRepository.findById(getLoggedInUserId())
+				.orElseThrow(() -> new RuntimeException("Account not found!"));
+
+		// Check to see if the current password doesnt match the one in the DB; and the
+		// current/new are not the same
+		if (!passwordEncoder.matches(currentPassword, accountsModel.getPassword())) {
+			throw new RuntimeException("Current password does not match");
+		}
+		if (currentPassword.equals(newPassword)) {
+			throw new RuntimeException("New password cannot be the same as the current password");
+		}
+
+		// Encode the password:
+		String encodedPassword = passwordEncoder.encode(newPassword);
+
+		// Set the password:
+		accountsModel.setPassword(encodedPassword);
+
+		// Save the model:
+		accountsRepository.save(accountsModel);
+
+		// Generate a JWT token and return it
+		String token = jwtUtil.generateToken(accountsModel.getUsername());
+		System.out.println("Password change succesfull for: " + accountsModel.getUsername());
+
+		// Return the token:
+		return token;
+	}
 
 	// Below is the logic for creating an account:
 	public String createNewAccount(AccountsDto accountsDto) {
 		// Convert DTO to model:
 		AccountsModel accountsModel = AccountsMapper.INSTANCE.convertToModel(accountsDto);
-		// Get the username:
+
 		String username = accountsModel.getUsername();
+		String email = accountsModel.getEmail();
+		
+		// TEST:
+		// Print the raw email before any processing
+	    System.out.println("Raw email from input: " + email);
+
 		// Check to see if the username already exists:
-		Long count = accountsRepository.existsByUsername(username);
-		// Convert the Long to a boolean:
-		boolean usernameExists = false;
-		if (count > 0) {
-			usernameExists = true;
-		}
-		if (usernameExists) {
-		    // If the username exists, we need to throw an error code:
+		Long usernameCount = accountsRepository.existsByUsername(username);
+		if (usernameCount > 0) {
+			// If the username or email alrteady exists, we need to throw an error code:
 			throw new RuntimeException("Username is already taken.");
-
-		} else {
-			// If the username does not exist; allow the user to create an account.
-			// Encode and set password:
-			String rawPassword = accountsModel.getPassword();
-			String encodedPassword = passwordEncoder.encode(rawPassword);
-			accountsModel.setPassword(encodedPassword);
-			// Encode and set email.
-			String rawEmail = accountsModel.getEmail();
-			String encodedEmail = passwordEncoder.encode(rawEmail);
-			accountsModel.setEmail(encodedEmail);
-			// accountsRepository.saveAccountModel(accountsModel.getUsername(),
-			// accountsModel.getPassword(), accountsModel.getEmail(),
-			// accountsModel.getlastLogin());
-			accountsRepository.save(accountsModel);
-
-			
-			 //creating a corresponding streak for the account
-			 
-			 Streak streak = new Streak(); 
-			 streak.account = accountsModel; // Associate the streak with the account 
-			 streak.currentSt = 0; // Initialize streak count to 0 
-			 streak.prevLogin = LocalDateTime.now(); 
-			 streakRepository.save(streak);
-			 
 		}
-		// Generate a JWT token for the newly created account:
-	    String token = jwtUtil.generateToken(username);
+		
+		// Get a list of all encoded emails:
+		List<String> listOfEncodedEmails = accountsRepository.findAllEncodedEmails();
 
-	    // Return the token as the response:
-	    return token;
+		// Check to see if the email is already in use:
+		boolean emailExists = false;
+		for(int i = 0; i < listOfEncodedEmails.size(); i++) {
+			if(emailExists = passwordEncoder.matches(email, listOfEncodedEmails.get(i))) {
+				
+			}
+		}
+		if (emailExists == true) {
+			// If the username or email alrteady exists, we need to throw an error code:
+			throw new RuntimeException("Email is already taken.");
+		}
+
+		// Encode and set password:
+		String rawPassword = accountsModel.getPassword();
+		String encodedPassword = passwordEncoder.encode(rawPassword);
+		accountsModel.setPassword(encodedPassword);
+		
+		// Encode and set email.
+		String rawEmail = accountsModel.getEmail();
+		String encodedEmail = passwordEncoder.encode(rawEmail);
+		System.out.println("Raw email before encoding: " + rawEmail);
+	    System.out.println("Encoded email: " + encodedEmail);
+		accountsModel.setEmail(encodedEmail);
+
+		// Creating a corresponding streak for the account
+		Streak streak = new Streak();
+		streak.account = accountsModel; // Associate the streak with the account
+		streak.currentSt = 0; // Initialize streak count to 0
+		streak.prevLogin = LocalDateTime.now();
+		streakRepository.save(streak);
+
+		//UserProfile logic 
+		UserProfile user = new UserProfile(); 
+		user.username = username;
+		user.setAccount(accountsModel);
+		user.firstName = "";
+		user.lastName = "";
+		userProfileRepository.save(user);
+		
+		accountsModel.setUserProfile(user);
+		accountsRepository.save(accountsModel);
+			 
+		// Generate a JWT token for the newly created account:
+		String token = jwtUtil.generateToken(username);
+
+		// Return the token as the response:
+		return token;
 	}
 
 	// Method to get account details:
@@ -131,7 +179,6 @@ public class AccountsService {
 		String username = loginRequest.getUsername();
 		String password = loginRequest.getPassword();
 		LocalDateTime lastLogin = loginRequest.getlastLogin();
-
 
 		// Get the ID via username
 		Optional<Long> optionalId = accountsRepository.findIdByUsername(username);
@@ -153,6 +200,12 @@ public class AccountsService {
 	        	// Update the login date:
 	        	accountsRepository.updateLoginDate(username, lastLogin);
 	        	
+	        	if (!userProfileService.existsByUsername(username)) {
+	        	    UserDto userDto = new UserDto();
+	        	    userDto.username = username;  // Initialize with username only
+	        	    userProfileService.addUser(userDto, username);  // Create a new UserProfile if not already made
+	        	}
+
 	        	// Generate a JWT token and return it
 	            String token = jwtUtil.generateToken(username);
 	            System.out.println("Login successful for user: " + username);
