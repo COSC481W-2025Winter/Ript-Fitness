@@ -13,10 +13,10 @@ public interface NoteRepository extends JpaRepository <Note, Long>{
 
 	// Given a note ID; return a list of Note objects that have a matching ID
 	@Query("")
-	List<Note> findByAccountIdAndNotDeleted(@Param("noteId") Long noteId);
+	List<Note> findByAccountIdAndNotDeleted(@Param("accountId") Long accountId);
 	
 	// Given a noteId and a currentUserId, return a single Note 
 	@Query("")
-	Optional<Note> findByLoggedInIdAndNoteId(@Param("noteId") Long noteId, @Param("currentUserId") Long currentUserId);
+	Optional<Note> findByLoggedInIdAndNoteId(@Param("noteId") Long noteId, @Param("accountId") Long accountId);
 
 }
