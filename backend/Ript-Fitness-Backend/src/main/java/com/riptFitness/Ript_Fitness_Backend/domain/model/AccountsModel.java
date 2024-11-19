@@ -52,7 +52,7 @@ public class AccountsModel {
     private List<SocialPostComment> socialPostComments;
     
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("account") // Prevents infinite recursion during JSON serialization
+    @JsonIgnore
     private List<Note> notes = new ArrayList<>();
 
 

@@ -4,12 +4,14 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.Id;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -24,6 +26,7 @@ public class Note {
 
 	@ManyToOne
 	@JoinColumn(name = "account_id") // Creates a foreign key column in the notes table
+	@JsonIgnore // Prevents serialization of the entire Account object
 	private AccountsModel account; // Reference to the account that owns this exercise
 
 	private String title; // Title of the note (Ex: My Push day 11/14/24)

@@ -49,8 +49,10 @@ public class NoteService {
 		// Get the currently logged in user:
 		Long currentUserId = accountsService.getLoggedInUserId();
 		// Get the Note via note ID and user ID
-		Optional<Note> optionalNote = null; // noteRepository.findByloggedInIdAndNoteId(noteId, currentUserId);
+		Optional<Note> optionalNote = noteRepository.findByLoggedInIdAndNoteId(noteId, currentUserId);
 		// If we find a match, mark the isDeleted field true, then save it.
+		
+		System.out.println(optionalNote.toString());
 		if (optionalNote.isPresent()) {
 			Note deletedNote = optionalNote.get();
 			deletedNote.setDeleted(true);
@@ -66,7 +68,7 @@ public class NoteService {
 		// Get the current logged in user id:
 		Long currentUserId = accountsService.getLoggedInUserId();
 		// Find the Note via currentUserId:
-		Optional<Note> optionalNote = null; // noteRepository.findByloggedInIdAndNoteId(noteId, currentUserId);
+		Optional<Note> optionalNote = noteRepository.findByLoggedInIdAndNoteId(noteId, currentUserId);
 		// Check to see if it exists:
 		if(optionalNote.isPresent()) {
 			Note editedNote = optionalNote.get();
@@ -87,7 +89,7 @@ public class NoteService {
 		// Get logged in user ID:
 		Long currentUserId = accountsService.getLoggedInUserId();
 		// Get a list of all Notes:
-		List<Note> listOfNotes = null; //noteRepository.findByAccountIdAndNotDeleted(currentUserId);
+		List<Note> listOfNotes = noteRepository.findByAccountIdAndNotDeleted(currentUserId);
 		
 		// convert the list to DTO's and return it:
 		List<NoteDto> notes = new ArrayList<>();
@@ -103,7 +105,7 @@ public class NoteService {
 		// Get the logged in user ID:
 		Long currentUserId = accountsService.getLoggedInUserId();
 		// Get a list of all Notes:
-		List<Note> listOfAllNotes = null; //noteRepository.findByAccountIdAndNotDeleted(currentUserId);
+		List<Note> listOfAllNotes = noteRepository.findByAccountIdAndNotDeleted(currentUserId);
 		
 		// Initialize a new list that words with matching keywords can be added in:
 		List<Note> keywordMatches = new ArrayList<>();
