@@ -11,10 +11,13 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PostPersist;
@@ -32,6 +35,9 @@ public class AccountsModel {
     @OneToOne(mappedBy = "account")
     @JsonManagedReference // Indicates that AccountsModel is the parent in the relationship
     private Streak streak;
+    
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    private UserProfile userProfile;
     
     // If you want to define a bi-directional relationship
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -55,6 +61,14 @@ public class AccountsModel {
     @JsonIgnore
     private List<Note> notes = new ArrayList<>();
 
+    @ManyToMany
+    @JoinTable(
+        name = "friends_list", 
+        joinColumns = @JoinColumn(name = "account_id"), //Currently logged in account's ID
+        inverseJoinColumns = @JoinColumn(name = "friend_id") //ID of friend's account to be added
+    )
+    @JsonIgnore 
+    private List<AccountsModel> friends;
 
 	// Fields:
     private String username;
@@ -180,4 +194,22 @@ public class AccountsModel {
 	    note.setAccount(null);
 	}
 
+
+	public UserProfile getUserProfile() {
+		return userProfile;
+	}
+
+	public void setUserProfile(UserProfile userProfile) {
+		this.userProfile = userProfile;
+	}
+
+	public List<AccountsModel> getFriends() {
+		return friends;
+	}
+
+	public void setFriends(List<AccountsModel> friends) {
+		this.friends = friends;
+	}
+	
+	
 }

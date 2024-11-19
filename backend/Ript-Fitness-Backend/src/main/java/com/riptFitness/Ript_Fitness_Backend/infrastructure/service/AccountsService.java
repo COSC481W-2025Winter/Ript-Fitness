@@ -14,11 +14,16 @@ import org.springframework.transaction.annotation.Transactional;
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.AccountsMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Streak;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.StreakRepository;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.UserProfileRepository;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.JwtUtil;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.AccountsDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.LoginRequestDto;
+
+import com.riptFitness.Ript_Fitness_Backend.web.dto.UserDto;
+
 
 @Service
 public class AccountsService {
@@ -27,17 +32,22 @@ public class AccountsService {
 	public AccountsRepository accountsRepository;
 	@Autowired
 	public StreakRepository streakRepository;
+    private final UserProfileService userProfileService; 
+    private UserProfileRepository userProfileRepository;
 	private final PasswordEncoder passwordEncoder;
 	@Autowired
 	private JwtUtil jwtUtil;
 
 	// Constructor:
 	public AccountsService(AccountsRepository accountsRepository, StreakRepository streakRepository,
-			PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+			PasswordEncoder passwordEncoder, JwtUtil jwtUtil, UserProfileService userProfileService,
+			UserProfileRepository userProfileRepository) {
 		this.accountsRepository = accountsRepository;
 		this.streakRepository = streakRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.jwtUtil = jwtUtil;
+		this.userProfileService = userProfileService;
+		this.userProfileRepository = userProfileRepository;
 	}
 
 	// Method to retrieve the logged-in user's ID
@@ -136,7 +146,6 @@ public class AccountsService {
 		System.out.println("Raw email before encoding: " + rawEmail);
 	    System.out.println("Encoded email: " + encodedEmail);
 		accountsModel.setEmail(encodedEmail);
-		accountsRepository.save(accountsModel);
 
 		// Creating a corresponding streak for the account
 		Streak streak = new Streak();
@@ -145,6 +154,17 @@ public class AccountsService {
 		streak.prevLogin = LocalDateTime.now();
 		streakRepository.save(streak);
 
+		//UserProfile logic 
+		UserProfile user = new UserProfile(); 
+		user.username = username;
+		user.setAccount(accountsModel);
+		user.firstName = "";
+		user.lastName = "";
+		userProfileRepository.save(user);
+		
+		accountsModel.setUserProfile(user);
+		accountsRepository.save(accountsModel);
+			 
 		// Generate a JWT token for the newly created account:
 		String token = jwtUtil.generateToken(username);
 
@@ -168,30 +188,36 @@ public class AccountsService {
 			// Store the ID in a variable to be used later
 			Long id = optionalId.get();
 
-			// Retrieve the account using the ID
-			AccountsModel possibleAccount = accountsRepository.findById(id)
-					.orElseThrow(() -> new RuntimeException("Username does not exist."));
-			// Verify the password using Argon2
-			String encodedPassword = possibleAccount.getPassword();
-			boolean passwordMatches = passwordEncoder.matches(password, encodedPassword);
+	        // Retrieve the account using the ID
+	        AccountsModel possibleAccount = accountsRepository.findById(id)
+	            .orElseThrow(() -> new RuntimeException("Username does not exist."));
+	        // Verify the password using Argon2
+	        String encodedPassword = possibleAccount.getPassword();
+	        boolean passwordMatches = passwordEncoder.matches(password, encodedPassword);
+	        
+	        // Verify the password
+	        if (passwordMatches) {
+	        	// Update the login date:
+	        	accountsRepository.updateLoginDate(username, lastLogin);
+	        	
+	        	if (!userProfileService.existsByUsername(username)) {
+	        	    UserDto userDto = new UserDto();
+	        	    userDto.username = username;  // Initialize with username only
+	        	    userProfileService.addUser(userDto, username);  // Create a new UserProfile if not already made
+	        	}
 
-			// Verify the password
-			if (passwordMatches) {
-				// Update the login date:
-				accountsRepository.updateLoginDate(username, lastLogin);
-
-				// Generate a JWT token and return it
-				String token = jwtUtil.generateToken(username);
-				System.out.println("Login successful for user: " + username);
-				return token;
-
-			} else {
-				System.out.println("Incorrect password for user: " + username);
-				throw new RuntimeException("Incorrect password.");
-			}
-		} else {
-			throw new RuntimeException("Username does not exist.");
-		}
+	        	// Generate a JWT token and return it
+	            String token = jwtUtil.generateToken(username);
+	            System.out.println("Login successful for user: " + username);
+	            return token;
+	            
+	        } else {
+	            System.out.println("Incorrect password for user: " + username);
+	            throw new RuntimeException("Incorrect password.");
+	        }
+	    } else {
+	    	throw new RuntimeException("Username does not exist.");
+	    }
 
 	}
 

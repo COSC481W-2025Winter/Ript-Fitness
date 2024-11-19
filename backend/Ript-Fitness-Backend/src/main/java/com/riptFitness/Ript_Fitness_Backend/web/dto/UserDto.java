@@ -10,6 +10,6 @@ public class UserDto {
     public String firstName;         
     public String lastName;          
     public String username;          
-    public List<String> prs = new ArrayList<>(); //this will be for the Prs to store
+    public String bio;
     public boolean isDeleted = false; //sft delete flag 
 }
