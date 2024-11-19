@@ -22,6 +22,6 @@ public interface NutritionTrackerFoodRepository extends JpaRepository<Food, Long
 	@Query("SELECT f FROM Food f WHERE f.id = :id AND f.isDeleted = false")
 	Optional<Food> findById(@Param("id")Long id);
 	
-	@Query("SELECT f.id FROM Food f WHERE f.accountId = :accountId AND f.isDeleted = false")
-	Optional<ArrayList<Long>> getPostsFromAccountId(@Param("accountId") Long accountId);
+	@Query("SELECT f FROM Food f WHERE f.accountId = :accountId AND f.isDeleted = false")
+	Optional<ArrayList<Food>> getFoodsFromAccountId(@Param("accountId") Long accountId);
 }

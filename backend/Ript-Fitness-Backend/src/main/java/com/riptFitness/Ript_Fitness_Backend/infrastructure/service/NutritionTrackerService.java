@@ -62,17 +62,41 @@ public class NutritionTrackerService {
 		return FoodMapper.INSTANCE.toFoodDto(returnedFoodObject);
 	}
 	
-	public ArrayList<Long> getFoodIdsOfLoggedInUser(){
-		ArrayList<Long> foodIds;
+	public ArrayList<FoodDto> getFoodsOfLoggedInUser(Integer startIndex, Integer endIndex){
+		if(startIndex > endIndex)
+			throw new RuntimeException("Start index cannot be greater than end index. Start index = " + startIndex + ", end index = " + endIndex);
+		
+		if(startIndex < 0 || endIndex < 0)
+			throw new RuntimeException("Start index and end index must be greater than 0. Start index = " + startIndex + ", end index = " + endIndex);
+		
 		Long currentUsersAccountId = accountsService.getLoggedInUserId();
-		Optional<ArrayList<Long>> optionalFoodIdList = nutritionTrackerFoodRepository.getPostsFromAccountId(currentUsersAccountId);
 		
-		if(optionalFoodIdList.isEmpty())
-			foodIds = new ArrayList<Long>();
-		else
-			foodIds = optionalFoodIdList.get();
+		Optional<ArrayList<Food>> optionalFoodList = nutritionTrackerFoodRepository.getFoodsFromAccountId(currentUsersAccountId);
 		
-		return foodIds;
+		if(optionalFoodList.isEmpty())
+			return new ArrayList<FoodDto>();
+		
+		ArrayList<Food> foodsFromAccountId = optionalFoodList.get();
+		
+		int start = foodsFromAccountId.size() - startIndex - 1;
+		int end = foodsFromAccountId.size() - endIndex - 1;
+		
+		if(start < 0)
+			throw new RuntimeException("There are not enough foods from the current user to match the path variables provided.");
+		
+		if(start >= foodsFromAccountId.size()) 
+			start = foodsFromAccountId.size() - 1;
+		
+		if(end < 0)
+			end = 0;
+		
+		ArrayList<FoodDto> foodDtosFromAccountId = new ArrayList<FoodDto>();
+		
+		for(int i = start; i >= end; i--) {
+			foodDtosFromAccountId.add(FoodMapper.INSTANCE.toFoodDto(foodsFromAccountId.get(i)));
+		}
+		
+		return foodDtosFromAccountId;
 	}
 	
 	//Edits a specific row's values from the Food table (with id = foodId) to match stats with foodDto and returns the updated object to the controller class
@@ -135,17 +159,25 @@ public class NutritionTrackerService {
 		return DayMapper.INSTANCE.toDayDto(returnedDayObject);
 	}
 	
-	public ArrayList<Long> getDayIdsOfLoggedInUser(){
-		ArrayList<Long> dayIds;
+	public DayDto getDayOfLoggedInUser(Integer startIndex){		
+		if(startIndex < 0)
+			throw new RuntimeException("Start index must be greater than 0. Start index = " + startIndex);
+		
 		Long currentUsersAccountId = accountsService.getLoggedInUserId();
-		Optional<ArrayList<Long>> optionalDayIdList = nutritionTrackerDayRepository.getDayIdsFromAccountId(currentUsersAccountId);
 		
-		if(optionalDayIdList.isEmpty())
-			dayIds = new ArrayList<Long>();
-		else
-			dayIds = optionalDayIdList.get();
+		Optional<ArrayList<Day>> optionalDayList = nutritionTrackerDayRepository.getDaysFromAccountId(currentUsersAccountId);
 		
-		return dayIds;
+		if(optionalDayList.isEmpty())
+			throw new RuntimeException("The currently logged in user does not have any Day objects saved in the database.");
+
+		ArrayList<Day> daysFromAccountId = optionalDayList.get();
+		
+		int indexReturned = daysFromAccountId.size() - startIndex - 1;
+		
+		if(indexReturned < 0)
+			throw new RuntimeException("There are not enough days from the current user to match the path variable provided. Number of Day objects in database for current user = " + daysFromAccountId.size() + ", the path variable provided = " + startIndex);
+		
+		return DayMapper.INSTANCE.toDayDto(daysFromAccountId.get(indexReturned));
 	}
 	
 	public DayDto deleteDay(Long dayId) {
