@@ -79,7 +79,7 @@ public class NutritionTrackerController {
 	}
 	
 	@GetMapping("/getDayOfLoggedInUser/{startIndex}")
-	public ResponseEntity<DayDto> getDayOfLoggedInUser(Integer startIndex){
+	public ResponseEntity<DayDto> getDayOfLoggedInUser(@PathVariable Integer startIndex){
 		DayDto dayReturned = nutritionTrackerService.getDayOfLoggedInUser(startIndex);
 		return ResponseEntity.ok(dayReturned);
 	}
