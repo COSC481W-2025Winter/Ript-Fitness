@@ -44,10 +44,10 @@ public class NutritionTrackerController {
 		return ResponseEntity.ok(returnedFoodObject);
 	}
 	
-	@GetMapping("/getFoodIdsOfLoggedInUser")
-	public ResponseEntity<ArrayList<Long>> getFoodIdsOfLoggedInUser(){
-		ArrayList<Long> listOfFoodIds = nutritionTrackerService.getFoodIdsOfLoggedInUser();
-		return ResponseEntity.ok(listOfFoodIds);
+	@GetMapping("/getFoodsOfLoggedInUser/{startIndex}/{endIndex}")
+	public ResponseEntity<ArrayList<FoodDto>> getFoodsOfLoggedInUser(@PathVariable Integer startIndex, @PathVariable Integer endIndex){
+		ArrayList<FoodDto> listOfFoods = nutritionTrackerService.getFoodsOfLoggedInUser(startIndex, endIndex);
+		return ResponseEntity.ok(listOfFoods);
 	}
 	
 	//localhost:8080/nutritionCalculator/editFood/{INSERT FOOD ID NUMBER HERE}, body is empty in this request
@@ -78,10 +78,10 @@ public class NutritionTrackerController {
 		return ResponseEntity.ok(returnedDayObject);
 	}
 	
-	@GetMapping("/getDayIdsOfLoggedInUser")
-	public ResponseEntity<ArrayList<Long>> getDayIdsOfLoggedInUser(){
-		ArrayList<Long> listOfDayIds = nutritionTrackerService.getDayIdsOfLoggedInUser();
-		return ResponseEntity.ok(listOfDayIds);
+	@GetMapping("/getDayOfLoggedInUser/{startIndex}")
+	public ResponseEntity<DayDto> getDayOfLoggedInUser(Integer startIndex){
+		DayDto dayReturned = nutritionTrackerService.getDayOfLoggedInUser(startIndex);
+		return ResponseEntity.ok(dayReturned);
 	}
 	
 	//localhost:8080/nutritionCalculator/deleteDay/{INSERT DAY ID NUMBER HERE}
