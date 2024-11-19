@@ -11,12 +11,12 @@ import com.riptFitness.Ript_Fitness_Backend.domain.model.Note;
 
 public interface NoteRepository extends JpaRepository <Note, Long>{
 
-	// Given a note ID; return a list of Note objects that have a matching ID
-	@Query("")
+	//  Given an account ID, return all note(s) that are associated with that user ID.
+	@Query("SELECT n FROM Note n WHERE n.noteId = :noteId AND n.isDeleted = false")
 	List<Note> findByAccountIdAndNotDeleted(@Param("accountId") Long accountId);
 	
 	// Given a noteId and a currentUserId, return a single Note 
-	@Query("")
+	@Query("SELECT n FROM Note n WHERE n.noteId = :noteId AND n.accountId = :accountId")
 	Optional<Note> findByLoggedInIdAndNoteId(@Param("noteId") Long noteId, @Param("accountId") Long accountId);
 
 }
