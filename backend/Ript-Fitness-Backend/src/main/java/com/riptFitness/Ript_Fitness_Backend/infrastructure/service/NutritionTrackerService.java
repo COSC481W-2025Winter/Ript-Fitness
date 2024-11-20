@@ -42,7 +42,9 @@ public class NutritionTrackerService {
 	//Adds a Food object to the database
 	public FoodDto addFood(FoodDto foodDto) {
 		Food foodToBeAdded = FoodMapper.INSTANCE.toFood(foodDto);
-		foodToBeAdded.accountId = accountsService.getLoggedInUserId();
+		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
+		AccountsModel currentlyLoggedInAccount = accountsRepository.findById(currentlyLoggedInUserId).get();
+		foodToBeAdded.account = currentlyLoggedInAccount;
 		foodToBeAdded = nutritionTrackerFoodRepository.save(foodToBeAdded);
 		return FoodMapper.INSTANCE.toFoodDto(foodToBeAdded);
 	}
@@ -55,9 +57,6 @@ public class NutritionTrackerService {
 			throw new RuntimeException("Food object not found in database with ID = " + foodId);
 				
 		Food returnedFoodObject = returnedOptionalFoodObject.get();
-		
-		if(!accountIdCheck(returnedFoodObject.accountId))
-			throw new RuntimeException("The Food object with ID = " + returnedFoodObject.id + " does not belong to the currently logged in user. AccountId of the Food object = " + returnedFoodObject.accountId + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
 		
 		return FoodMapper.INSTANCE.toFoodDto(returnedFoodObject);
 	}
@@ -108,10 +107,12 @@ public class NutritionTrackerService {
 		
 		Food foodToBeEdited = optionalFoodToBeEdited.get();
 		
-		if(!accountIdCheck(foodToBeEdited.accountId))
-			throw new RuntimeException("The Food object with ID = " + foodToBeEdited.id + " does not belong to the currently logged in user. AccountId of the Food object = " + foodToBeEdited.accountId + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
-		
 		FoodMapper.INSTANCE.updateFoodRowFromDto(foodDto, foodToBeEdited);
+		
+		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
+		AccountsModel currentlyLoggedInUser = accountsRepository.findById(currentlyLoggedInUserId).get();
+		foodToBeEdited.account = currentlyLoggedInUser;
+		
 		foodToBeEdited = nutritionTrackerFoodRepository.save(foodToBeEdited);
 		return FoodMapper.INSTANCE.toFoodDto(foodToBeEdited);
 	}
@@ -123,9 +124,6 @@ public class NutritionTrackerService {
 			throw new RuntimeException("Food object not found in database with name = " + foodId);
 		
 		Food foodToBeDeleted = optionalFoodToBeDeleted.get();
-		
-		if(!accountIdCheck(foodToBeDeleted.accountId))
-			throw new RuntimeException("The Food object with ID = " + foodToBeDeleted.id + " does not belong to the currently logged in user. AccountId of the Food object = " + foodToBeDeleted.accountId + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
 		
 		foodToBeDeleted.isDeleted = true;
 		nutritionTrackerFoodRepository.save(foodToBeDeleted);
@@ -148,9 +146,6 @@ public class NutritionTrackerService {
 			throw new RuntimeException("Day object not found in database with ID = " + dayId);
 		
 		Day returnedDayObject = returnedOptionalDayObject.get();
-		
-		if(!accountIdCheck(returnedDayObject.account.getId()))
-			throw new RuntimeException("The Day object with ID = " + returnedDayObject.id + " does not belong to the currently logged in user. AccountId of the Day object = " + returnedDayObject.account.getId() + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
 		
 		calculateTotalDayStats(returnedDayObject);
 		
@@ -188,9 +183,6 @@ public class NutritionTrackerService {
 		
 		Day dayToBeDeleted = optionalDayToBeDeleted.get();
 		
-		if(!accountIdCheck(dayToBeDeleted.account.getId()))
-			throw new RuntimeException("The Day object with ID = " + dayToBeDeleted.id + " does not belong to the currently logged in user. AccountId of the Food object = " + dayToBeDeleted.account.getId() + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
-		
 		dayToBeDeleted.isDeleted = true;
 		nutritionTrackerDayRepository.save(dayToBeDeleted);
 		return DayMapper.INSTANCE.toDayDto(dayToBeDeleted);
@@ -204,9 +196,6 @@ public class NutritionTrackerService {
 		
 		Day dayBeingUpdated = optionalDayBeingUpdated.get();
 		
-		if(!accountIdCheck(dayBeingUpdated.account.getId()))
-			throw new RuntimeException("The Day object with ID = " + dayBeingUpdated.id + " does not belong to the currently logged in user. AccountId of the Food object = " + dayBeingUpdated.account.getId() + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
-		
 		List<Food> foodsAddedToDayObject = new ArrayList<>();
 		
 		for(Long foodId : foodIds) {
@@ -216,9 +205,6 @@ public class NutritionTrackerService {
 				throw new RuntimeException("Food object not found in database with ID = " + foodId + " when trying to add Food object to Day object. No Foods were added to the Day object.");
 				
 			Food nextFoodObjectAdded = nextOptionalFoodObjectAdded.get();
-			
-			if(!accountIdCheck(nextFoodObjectAdded.accountId))
-				throw new RuntimeException("The Food object with ID = " + nextFoodObjectAdded + " does not belong to the currenlty logged in user. AccountId of the Food object = " + nextFoodObjectAdded.accountId + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
 			
 			foodsAddedToDayObject.add(nextFoodObjectAdded);
 		}
@@ -241,9 +227,6 @@ public class NutritionTrackerService {
 		
 		Day dayBeingUpdated = optionalDayBeingUpdated.get();
 		
-		if(!accountIdCheck(dayBeingUpdated.account.getId()))
-			throw new RuntimeException("The Day object with ID = " + dayBeingUpdated.id + " does not belong to the currently logged in user. AccountId of the Food object = " + dayBeingUpdated.account.getId() + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
-		
 		List<Food> foodsAddedToDayObject = new ArrayList<>();
 		
 		for(Long foodId : foodIds) {
@@ -253,9 +236,6 @@ public class NutritionTrackerService {
 				throw new RuntimeException("Food object not found in database with ID = " + foodId + " when trying to delete Food object to Day object. No Foods were deleted from the Day object.");
 				
 			Food nextFoodObjectAdded = nextOptionalFoodObjectAdded.get();
-			
-			if(!accountIdCheck(nextFoodObjectAdded.accountId))
-				throw new RuntimeException("The Food object with ID = " + nextFoodObjectAdded + " does not belong to the currenlty logged in user. AccountId of the Food object = " + nextFoodObjectAdded.accountId + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
 			
 			foodsAddedToDayObject.add(nextFoodObjectAdded);
 		}
@@ -277,9 +257,6 @@ public class NutritionTrackerService {
 			throw new RuntimeException("Day object not found in database with ID = " + dayId);
 		
 		Day dayBeingUpdated = optionalDayBeingUpdated.get();
-		
-		if(!accountIdCheck(dayBeingUpdated.account.getId()))
-			throw new RuntimeException("The Day object with ID = " + dayBeingUpdated.id + " does not belong to the currently logged in user. AccountId of the Food object = " + dayBeingUpdated.account.getId() + ", ID of the currently logged in user = " + accountsService.getLoggedInUserId());
 		
 		dayBeingUpdated.totalWaterConsumed = waterIntake;
 		
@@ -310,15 +287,5 @@ public class NutritionTrackerService {
 		day.totalProtein = totalProtein;
 		day.totalCarbs = totalCarbs;
 		day.totalFat = totalFat;
-	}
-	
-	public boolean accountIdCheck(Long objectAccountId) {
-		if(objectAccountId == null)	//objectAccountId will only be null during unit tests, return true
-			return true;
-		
-		if(!(objectAccountId == accountsService.getLoggedInUserId()))
-			return false;
-		
-		return true;
 	}
 }
