@@ -41,8 +41,14 @@ public class SocialPostController {
 	
 	@GetMapping("/getPostsFromAccountId/{startIndex}/{endIndex}")
 	public ResponseEntity<ArrayList<SocialPostDto>> getPostsFromAccountId(@PathVariable Integer startIndex, @PathVariable Integer endIndex){
-		ArrayList<SocialPostDto> returnedListOfPostIds = socialPostService.getPostsFromAccountId(startIndex, endIndex);
-		return new ResponseEntity<>(returnedListOfPostIds, HttpStatus.OK);
+		ArrayList<SocialPostDto> returnedListOfPosts = socialPostService.getPostsFromAccountId(startIndex, endIndex);
+		return new ResponseEntity<>(returnedListOfPosts, HttpStatus.OK);
+	}
+	
+	@GetMapping("/getSocialFeed/{startIndex}/{endIndex}")
+	public ResponseEntity<ArrayList<SocialPostDto>> getSocialFeed(@PathVariable Integer startIndex, @PathVariable Integer endIndex){
+		ArrayList<SocialPostDto> returnListOfPosts = socialPostService.getSocialFeed(startIndex, endIndex);
+		return new ResponseEntity<>(returnListOfPosts, HttpStatus.OK);
 	}
 	
 	@PutMapping("/editPostContent/{socialPostId}")

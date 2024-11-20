@@ -135,6 +135,50 @@ public class SocialPostControllerTest {
 	}
 	
 	@Test
+	public void testGetPostsFromAccountIdValid() throws Exception {
+		ArrayList<SocialPostDto> returnedArrayList = new ArrayList<>();
+		returnedArrayList.add(socialPost);
+		when(socialPostService.getPostsFromAccountId(0, 0)).thenReturn(returnedArrayList);
+		
+		mockMvc.perform(get("/socialPost/getPostsFromAccountId/0/0")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(""))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$[0].content").value("Just benched 500 pounds, my name is Chris and I'm so strong!!"))
+				.andReturn();
+	}
+	
+	@Test
+	public void testGetPostsFromAccountIdInvalidNoPathVariables() throws Exception {
+		mockMvc.perform(get("/socialPost/getPostsFromAccountId"))
+				.andExpect(status().isInternalServerError());
+			
+	}
+	
+	@Test
+	public void testGetSocialFeedValid() throws Exception {
+		ArrayList<SocialPostDto> returnedArrayList = new ArrayList<>();
+		returnedArrayList.add(socialPost);
+		when(socialPostService.getSocialFeed(0, 0)).thenReturn(returnedArrayList);
+		
+		mockMvc.perform(get("/socialPost/getSocialFeed/0/0")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(""))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$[0].content").value("Just benched 500 pounds, my name is Chris and I'm so strong!!"))
+				.andReturn();
+	}
+	
+	@Test
+	public void testGetSocialFeedInvalidNoPathVariables() throws Exception {
+		mockMvc.perform(get("/socialPost/getSocialFeed"))
+				.andExpect(status().isInternalServerError());
+			
+	}	
+	
+	@Test
 	public void testEditPostContentValidRequest() throws Exception {
 		socialPost.content = "New content";
 		when(socialPostService.editPostContent(any(Long.class), any(String.class))).thenReturn(socialPost);
