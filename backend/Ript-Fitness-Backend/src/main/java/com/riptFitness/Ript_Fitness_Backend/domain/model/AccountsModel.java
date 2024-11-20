@@ -52,11 +52,18 @@ public class AccountsModel {
     private List<Day> days;
     
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Food> foods;
+    
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SocialPost> socialPostList;
     
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SocialPostComment> socialPostComments;
     
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Note> notes = new ArrayList<>();
+
     @ManyToMany
     @JoinTable(
         name = "friends_list", 
@@ -171,6 +178,25 @@ public class AccountsModel {
 	public void setExercises(List<ExerciseModel> exercises) {
 		this.exercises = exercises;
 	}
+	
+	public List<Note> getNotes() {
+	    return notes;
+	}
+
+	public void setNotes(List<Note> notes) {
+	    this.notes = notes;
+	}
+
+	public void addNote(Note note) {
+	    notes.add(note);
+	    note.setAccount(this);
+	}
+
+	public void removeNote(Note note) {
+	    notes.remove(note);
+	    note.setAccount(null);
+	}
+
 
 	public UserProfile getUserProfile() {
 		return userProfile;
@@ -186,6 +212,14 @@ public class AccountsModel {
 
 	public void setFriends(List<AccountsModel> friends) {
 		this.friends = friends;
+	}
+
+	public List<Food> getFoods() {
+		return foods;
+	}
+
+	public void setFoods(List<Food> foods) {
+		this.foods = foods;
 	}
 	
 	

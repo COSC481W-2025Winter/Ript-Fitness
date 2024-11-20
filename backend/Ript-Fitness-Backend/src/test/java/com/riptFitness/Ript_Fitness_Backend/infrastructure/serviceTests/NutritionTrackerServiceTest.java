@@ -6,12 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -73,6 +75,7 @@ public class NutritionTrackerServiceTest {
 		food.carbs = 40;
 		food.fat = 21;
 		food.multiplier = 1.0;
+		food.account = account;
 		
 		foodDtoTwo = new FoodDto();
 		foodDtoTwo.name = "Chicken breast";
@@ -97,12 +100,15 @@ public class NutritionTrackerServiceTest {
 		day.foodsEatenInDay = List.of(food, foodTwo);
 		
 		account = new AccountsModel();
+		account.setId(1L);
 		day.account = account;
 	}
 	
 	@Test
 	void testServiceAddFoodValid() {
 		when(nutritionTrackerFoodRepository.save(any(Food.class))).thenReturn(food);
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+		when(accountsRepository.findById(1L)).thenReturn(Optional.of(account));
 		
 		FoodDto result = nutritionTrackerServiceForServiceTests.addFood(foodDto);
 		
@@ -114,6 +120,7 @@ public class NutritionTrackerServiceTest {
 	@Test
 	void testServiceGetFoodStatsValid() {
 		when(nutritionTrackerFoodRepository.findById(anyLong())).thenReturn(Optional.of(food));
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
 		
 		FoodDto result = nutritionTrackerServiceForServiceTests.getFoodStats(1L);
 		
@@ -129,21 +136,39 @@ public class NutritionTrackerServiceTest {
 	}
 	
 	@Test
-	void testServiceGetFoodIdsOfLoggedInUserValid() {
-		when(accountsService.getLoggedInUserId()).thenReturn(1L);
-		when(nutritionTrackerFoodRepository.getPostsFromAccountId(anyLong())).thenReturn(Optional.of(new ArrayList<>()));
+	void testServiceGetFoodsOfLoggedInUserValid() {
+		List<Food> foods = List.of(food, foodTwo, food, foodTwo);
+		ArrayList<Food> returnedArrayListFromDatabase = new ArrayList<>(foods);
 		
-		ArrayList<Long> result = nutritionTrackerServiceForServiceTests.getFoodIdsOfLoggedInUser();
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+		when(nutritionTrackerFoodRepository.getFoodsFromAccountId(anyLong())).thenReturn(Optional.of(returnedArrayListFromDatabase));
+		
+		ArrayList<FoodDto> result = nutritionTrackerServiceForServiceTests.getFoodsOfLoggedInUser(0, 2);
 		
 		assertNotNull(result);
+		assertEquals(3, result.size());
 	}
 	
 	@Test
-	void testServiceGetFoodIdsOfLoggedInUserInvalidNoFoodsForUser() {
+	void testServiceGetFoodsOfLoggedInUserValidIndexesGreaterThanNumberOfObjectsInDatabase() {
+		List<Food> foods = List.of(food, foodTwo, food, foodTwo);
+		ArrayList<Food> returnedArrayListFromDatabase = new ArrayList<>(foods);
+		
 		when(accountsService.getLoggedInUserId()).thenReturn(1L);
-		when(nutritionTrackerFoodRepository.getPostsFromAccountId(anyLong())).thenReturn(Optional.empty());
+		when(nutritionTrackerFoodRepository.getFoodsFromAccountId(anyLong())).thenReturn(Optional.of(returnedArrayListFromDatabase));
+		
+		ArrayList<FoodDto> result = nutritionTrackerServiceForServiceTests.getFoodsOfLoggedInUser(0, 7);
+		
+		assertNotNull(result);
+		assertEquals(4, result.size());
+	}
+	
+	@Test
+	void testServiceGetFoodsOfLoggedInUserInvalidNoFoodsForUser() {
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+		when(nutritionTrackerFoodRepository.getFoodsFromAccountId(anyLong())).thenReturn(Optional.empty());
 
-		ArrayList<Long> result = nutritionTrackerServiceForServiceTests.getFoodIdsOfLoggedInUser();
+		ArrayList<FoodDto> result = nutritionTrackerServiceForServiceTests.getFoodsOfLoggedInUser(0, 2);
 		
 		assertNotNull(result);
 	}
@@ -152,6 +177,8 @@ public class NutritionTrackerServiceTest {
 	void testServiceEditFoodValid() {
 		when(nutritionTrackerFoodRepository.findById(1L)).thenReturn(Optional.of(food));
 		when(nutritionTrackerFoodRepository.save(any(Food.class))).thenReturn(food);
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+		when(accountsRepository.findById(1L)).thenReturn(Optional.of(account));
 		
 		FoodDto result = nutritionTrackerServiceForServiceTests.editFood(1L, foodDto);
 		
@@ -211,23 +238,26 @@ public class NutritionTrackerServiceTest {
 	}
 	
 	@Test
-	void testServiceGetDayIdsOfLoggedInUserValid() {
-		when(accountsService.getLoggedInUserId()).thenReturn(1L);
-		when(nutritionTrackerDayRepository.getDayIdsFromAccountId(anyLong())).thenReturn(Optional.of(new ArrayList<>()));
+	void testServiceGetDaysOfLoggedInUserValid() {
+		List<Day> days = List.of(day, day, day);
+		ArrayList<Day> daysReturnedFromDatabase = new ArrayList<>(days);
 		
-		ArrayList<Long> result = nutritionTrackerServiceForServiceTests.getDayIdsOfLoggedInUser();
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+		when(nutritionTrackerDayRepository.getDaysFromAccountId(anyLong())).thenReturn(Optional.of(daysReturnedFromDatabase));
+		
+		DayDto result = nutritionTrackerServiceForServiceTests.getDayOfLoggedInUser(0);
 		
 		assertNotNull(result);
 	}
 	
 	@Test
-	void testServiceGetDayIdsOfLoggedInUserInvalidNoDaysForUser() {
+	void testServiceGetDaysOfLoggedInUserInvalidNoDaysForUser() {
 		when(accountsService.getLoggedInUserId()).thenReturn(1L);
-		when(nutritionTrackerDayRepository.getDayIdsFromAccountId(anyLong())).thenReturn(Optional.empty());
-		
-		ArrayList<Long> result = nutritionTrackerServiceForServiceTests.getDayIdsOfLoggedInUser();
-		
-		assertNotNull(result);
+		when(nutritionTrackerDayRepository.getDaysFromAccountId(anyLong())).thenReturn(Optional.empty());
+				
+		assertThrows(RuntimeException.class, () -> {
+			nutritionTrackerServiceForServiceTests.getDayOfLoggedInUser(0);
+        });
 	}
 	
 	@Test

@@ -1,6 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -88,6 +89,57 @@ public class SocialPostService {
 		}
 		
 		return postDtosFromAccountId;
+	}
+	
+	public ArrayList<SocialPostDto> getSocialFeed(Integer startIndex, Integer endIndex){
+		if(startIndex > endIndex)
+			throw new RuntimeException("Start index cannot be greater than end index. Start index = " + startIndex + ", end index = " + endIndex);
+		
+		if(startIndex < 0 || endIndex < 0)
+			throw new RuntimeException("Start index and end index must be greater than 0. Start index = " + startIndex + ", end index = " + endIndex);
+		
+		Long currentUsersAccountId = accountsService.getLoggedInUserId();
+		
+		AccountsModel currentlyLoggedInAccount = accountsRepository.findById(currentUsersAccountId).get();
+		
+		List<AccountsModel> currentUsersFriendsList = currentlyLoggedInAccount.getFriends();
+		
+		ArrayList<Long> currentUsersFriendsIds = new ArrayList<>();
+		
+		for(AccountsModel account : currentUsersFriendsList) {
+			currentUsersFriendsIds.add(account.getId());
+		}
+		
+		currentUsersFriendsIds.add(currentUsersAccountId);	//getSocialFeed should also include Social Posts from the currently logged in user
+			
+		Optional<List<SocialPost>> optionalSocialFeedList = accountsRepository.getSocialFeed(currentUsersFriendsIds);
+		
+		if(optionalSocialFeedList.isEmpty())
+			return new ArrayList<SocialPostDto>();
+			
+		List<SocialPost> socialFeedList = optionalSocialFeedList.get();
+		
+		ArrayList<SocialPost> socialFeed = new ArrayList<>(socialFeedList);
+		
+		int start = socialFeed.size() - startIndex - 1;
+		int end = socialFeed.size() - endIndex - 1;
+		
+		if(start < 0)
+			throw new RuntimeException("There are not enough posts from the current user's social feed to match the path variables provided.");
+		
+		if(start >= socialFeed.size()) 
+			start = socialFeed.size() - 1;
+		
+		if(end < 0)
+			end = 0;
+			
+		ArrayList<SocialPostDto> returnedSocialFeedList = new ArrayList<>();
+		
+		for(int i = start; i >= end; i--){
+			returnedSocialFeedList.add(SocialPostMapper.INSTANCE.toSocialPostDto(socialFeed.get(i)));
+		}
+		
+		return returnedSocialFeedList;
 	}
 	
 	public SocialPostDto editPostContent(Long socialPostId, String newSocialPostContent) {

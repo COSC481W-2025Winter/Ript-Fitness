@@ -8,7 +8,7 @@ import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
 public class SocialPostDto {
 
 	public Long id;
-	
+		
     public UserProfile userProfile;
 	    
     public String content;
