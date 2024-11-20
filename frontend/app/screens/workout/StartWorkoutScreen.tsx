@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Swipeable } from 'react-native-gesture-handler';
 import { GlobalContext } from "@/context/GlobalContext"; // Context for token
 import { useNavigation } from "@react-navigation/native"; // Navigation
+import { WorkoutScreenNavigationProp } from '@/app/(tabs)/WorkoutStack';
 
 // structure of a set detail with reps and weight
 
@@ -28,8 +29,8 @@ export default function StartWorkoutScreen() {
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(null);
   const [temporaryName, setTemporaryName] = useState<string>("");
   const context = useContext(GlobalContext); // Access token
-  const navigation = useNavigation(); // Navigation hook
-  const [workoutName, setWorkoutName] = useState(""); // State for workout name
+  const navigation = useNavigation<WorkoutScreenNavigationProp >();
+    const [workoutName, setWorkoutName] = useState(""); // State for workout name
   const [submitting, setSubmitting] = useState(false);
   const httpRequests = {
     getBaseURL: () => "http://ript-fitness-app.azurewebsites.net",
@@ -124,119 +125,145 @@ export default function StartWorkoutScreen() {
     }
   };
   
-  
-
-  // Add a new exercise 
+  // add a new exercise
   const addExercise = () => {
     if (newExerciseName) {
       const newExercise: Exercise = {
         nameOfExercise: newExerciseName,
         sets: 0,
-		    reps: [], // Default to 0 for reps and weight
-		    weight: [],
+        reps: [], // Initialize reps as an empty array
+        weight: [], // Initialize weight as an empty array
       };
       setExercises([...exercises, newExercise]);
       setNewExerciseName("");
     }
   };
   
-
-  // Add a new set to an existing exercise
-  const addSetToExercise = (exerciseId: string) => {
-    setExercises(exercises.map((exercise) =>
-      exercise.id === exerciseId
-        ? { ...exercise, sets: sets+1, reps: reps + [0], weight: weight + [0] } // Use numbers for `reps` and `weight`
-        : exercise
-    ));
-  };
   
 
-  // Show a confirmation before deleting an exercise
-  const confirmDeleteExercise = (id: string) => {
-    Alert.alert(
-      "Delete Exercise",
-      "Are you sure you want to delete this exercise?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "Delete", style: "destructive", onPress: () => removeExercise(id) }
-      ]
+  // Add a new set to an existing exercise
+  const addSetToExercise = (index: number) => {
+    setExercises(
+      exercises.map((exercise, i) =>
+        i === index
+          ? {
+              ...exercise,
+              sets: exercise.sets + 1, // Increment the set count
+              reps: [...exercise.reps, 0], // Add a default value for reps
+              weight: [...exercise.weight, 0], // Add a default value for weight
+            }
+          : exercise
+      )
     );
   };
+  
+  
+  
+  
+
+ // Show a confirmation before deleting an exercise
+const confirmDeleteExercise = (exerciseIndex: number) => {
+  Alert.alert(
+    "Delete Exercise",
+    "Are you sure you want to delete this exercise?",
+    [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => removeExercise(exerciseIndex),
+      },
+    ]
+  );
+};
 
   // Remove an exercise by ID
-  const removeExercise = (id: string) => {
-    setExercises(exercises.filter(exercise => exercise.exerciseId !== id));
+  const removeExercise = (index: number) => {
+    setExercises(exercises.filter((_, i) => i !== index));
   };
-
+  
   // Show a confirmation  before deleting a set within an exercise
-  const confirmDeleteSet = (exerciseId: string, setIndex: number) => {
+  const confirmDeleteSet = (exerciseIndex: number, setIndex: number) => {
     Alert.alert(
       "Delete Set",
       "Are you sure you want to delete this set?",
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Delete", style: "destructive", onPress: () => removeSetFromExercise(exerciseId, setIndex) }
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => removeSetFromExercise(exerciseIndex, setIndex),
+        },
       ]
     );
   };
+  
 
   // Remove a set from an exercise based on index
-  const removeSetFromExercise = (exerciseId: string, setIndex: number) => {
-    setExercises(exercises.map(exercise =>
-      exercise.id === exerciseId
-        ? { ...exercise, sets: exercise.sets.filter((_, i) => i !== setIndex) }
-        : exercise
-    ));
+  const removeSetFromExercise = (exerciseIndex: number, setIndex: number) => {
+    setExercises(
+      exercises.map((exercise, i) =>
+        i === exerciseIndex
+          ? {
+              ...exercise,
+              sets: exercise.sets - 1, // Decrement the set count
+              reps: exercise.reps.filter((_, index) => index !== setIndex),
+              weight: exercise.weight.filter((_, index) => index !== setIndex),
+            }
+          : exercise
+      )
+    );
   };
+  
 
   //  editing an exercise name
-  const handleEditName = (exercise: Exercise) => {
-    setEditingExerciseId(exercise.id);
-    setTemporaryName(exercise.nameOfExercise);
+  const handleEditName = (exerciseIndex: number) => {
+    const selectedExercise = exercises[exerciseIndex]; // Get the exercise using the index
+    setEditingExerciseId(exerciseIndex.toString()); // Use the index as a temporary identifier
+    setTemporaryName(selectedExercise.nameOfExercise); // Set the current name to be edited
   };
-
+  
   // Save the edited exercise name and reset editing state
-  const saveNameEdit = (exerciseId: string) => {
-    setExercises(exercises.map(exercise =>
-      exercise.id === exerciseId
-        ? { ...exercise, name: temporaryName }
+  const saveNameEdit = (exerciseIndex: number) => {
+    setExercises(exercises.map((exercise, index) =>
+      index === exerciseIndex
+        ? { ...exercise, nameOfExercise: temporaryName } // Update the nameOfExercise field
         : exercise
     ));
-    setEditingExerciseId(null);
+    setEditingExerciseId(null); // Clear editing state
   };
-
-  const renderExercise = ({ item }: { item: Exercise }) => (
+  const renderExercise = ({ item, index }: { item: Exercise; index: number }) => (
     <Swipeable
       renderLeftActions={() => (
         <View style={styles.swipeDeleteButton}>
           <Text style={styles.deleteText}>Delete</Text>
         </View>
       )}
-      onSwipeableOpen={() => confirmDeleteExercise(item.id)}
+      onSwipeableOpen={() => confirmDeleteExercise(index)} // Pass the index to delete the exercise
     >
       <View style={styles.exerciseItem}>
         {/* Render exercise name and edit input if in edit mode */}
         <View style={styles.exerciseTitleContainer}>
-          {editingExerciseId === item.id ? (
+          {editingExerciseId === index.toString() ? ( // Use the index for comparison
             <TextInput
               style={styles.exerciseTitleText}
               value={temporaryName}
               onChangeText={setTemporaryName}
-              onBlur={() => saveNameEdit(item.id)}
-              onSubmitEditing={() => saveNameEdit(item.id)}
+              onBlur={() => saveNameEdit(index)} // Pass the index to save changes
+              onSubmitEditing={() => saveNameEdit(index)} // Pass the index to save changes
               autoFocus
             />
           ) : (
-            <TouchableOpacity onPress={() => handleEditName(item)}>
+            <TouchableOpacity onPress={() => handleEditName(index)}> 
               <Text style={styles.exerciseTitleText}>{item.nameOfExercise}</Text>
             </TouchableOpacity>
           )}
         </View>
   
         {/* Render each set for the exercise */}
-        {item.sets.map((set, index) => (
-          <View key={index} style={styles.setContainer}>
-            <Text style={styles.setLabel}>Set {index + 1}</Text>
+        {Array.from({ length: item.sets }).map((_, setIndex) => (
+          <View key={setIndex} style={styles.setContainer}>
+            <Text style={styles.setLabel}>Set {setIndex + 1}</Text>
             <View style={styles.inputRow}>
               {/* Input for weight */}
               <View style={styles.setInputContainer}>
@@ -244,16 +271,19 @@ export default function StartWorkoutScreen() {
                 <TextInput
                   style={styles.input}
                   placeholder="lbs"
-                  value={set.weight.toString()} // Convert number to string for display
+                  value={item.weight[setIndex]?.toString() || ""}
                   onChangeText={(text) => {
-                    const updatedSets = item.sets.map((s, i) =>
-                      i === index ? { ...s, weight: parseFloat(text) || 0 } : s // Safely parse `text` as a number
+                    const updatedWeight = [...item.weight];
+                    updatedWeight[setIndex] = parseFloat(text) || 0;
+                    setExercises(
+                      exercises.map((exercise, i) =>
+                        i === index
+                          ? { ...exercise, weight: updatedWeight }
+                          : exercise
+                      )
                     );
-                    setExercises(exercises.map((ex) =>
-                      ex.id === item.id ? { ...ex, sets: updatedSets } : ex
-                    ));
                   }}
-                  keyboardType="numeric" // Restrict input to numeric values
+                  keyboardType="numeric"
                 />
               </View>
   
@@ -263,22 +293,25 @@ export default function StartWorkoutScreen() {
                 <TextInput
                   style={styles.input}
                   placeholder="reps"
-                  value={set.reps.toString()} // Convert number to string for display
+                  value={item.reps[setIndex]?.toString() || ""}
                   onChangeText={(text) => {
-                    const updatedSets = item.sets.map((s, i) =>
-                      i === index ? { ...s, reps: parseInt(text) || 0 } : s // Safely parse `text` as an integer
+                    const updatedReps = [...item.reps];
+                    updatedReps[setIndex] = parseInt(text) || 0;
+                    setExercises(
+                      exercises.map((exercise, i) =>
+                        i === index
+                          ? { ...exercise, reps: updatedReps }
+                          : exercise
+                      )
                     );
-                    setExercises(exercises.map((ex) =>
-                      ex.id === item.id ? { ...ex, sets: updatedSets } : ex
-                    ));
                   }}
-                  keyboardType="numeric" // Restrict input to numeric values
+                  keyboardType="numeric"
                 />
               </View>
   
               {/* Delete set button */}
               <TouchableOpacity
-                onPress={() => confirmDeleteSet(item.id, index)}
+                onPress={() => confirmDeleteSet(index, setIndex)} // Pass both exercise index and set index
                 style={styles.deleteSetButton}
               >
                 <Ionicons name="trash-outline" size={20} color="red" />
@@ -289,7 +322,7 @@ export default function StartWorkoutScreen() {
   
         {/* Add set button */}
         <TouchableOpacity
-          onPress={() => addSetToExercise(item)}
+          onPress={() => addSetToExercise(index)} // Pass the index to add a set
           style={styles.addSetButton}
         >
           <Ionicons name="add-circle-outline" size={20} color="black" />
@@ -298,76 +331,7 @@ export default function StartWorkoutScreen() {
       </View>
     </Swipeable>
   );
-  
-
-  return (
-    <View style={styles.container}>
-      {/* Notes button */}
-      <TouchableOpacity style={styles.notesButton} onPress={() => setNoteModalVisible(true)}>
-        <Text style={styles.notesButtonText}>
-          Notes: {noteText ? noteText.slice(0, 20) + "..." : "Add notes here"}
-        </Text>
-      </TouchableOpacity>
-      
-      <TextInput
-        style={styles.workoutNameInput}
-          placeholder="Enter Workout Name"
-        value={workoutName}
-          onChangeText={setWorkoutName} 
-              />
-
-      {/* Notes modal */}
-      <Modal
-        transparent={true}
-        visible={isNoteModalVisible}
-        animationType="slide"
-        onRequestClose={() => setNoteModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Workout Notes</Text>
-            <TextInput
-              style={styles.notesInput}
-              placeholder="Type your notes here"
-              value={noteText}
-              onChangeText={setNoteText}
-              multiline
-            />
-            <TouchableOpacity onPress={() => setNoteModalVisible(false)} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>Save Notes</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Input for new exercise name */}
-      <TextInput
-        style={styles.exerciseNameInput}
-        placeholder="Enter Exercise Name"
-        value={newExerciseName}
-        onChangeText={setNewExerciseName}
-      />
-      {/* Add exercise button */}
-      <TouchableOpacity style={styles.addButton} onPress={addExercise}>
-        <Text style={styles.addButtonText}>Add Exercise</Text>
-        <Ionicons name="add-circle-outline" size={20} color="white" />
-      </TouchableOpacity>
-
-      {/* Exercise list */}
-      <FlatList
-        data={exercises}
-        keyExtractor={(item) => item.id}
-        renderItem={renderExercise}
-      />
-
-      {/* Submit button */}
-      <TouchableOpacity style={styles.submitButton} onPress={submitWorkout}>
-        <Text style={styles.submitButtonText}>Submit</Text>
-      </TouchableOpacity>
-
-    </View>
-  );
-}
+ 
 
 const styles = StyleSheet.create({
   // the entire screen
@@ -540,3 +504,70 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+ 
+return (
+  <View style={styles.container}>
+    {/* Notes button */}
+    <TouchableOpacity style={styles.notesButton} onPress={() => setNoteModalVisible(true)}>
+      <Text style={styles.notesButtonText}>
+        Notes: {noteText ? noteText.slice(0, 20) + "..." : "Add notes here"}
+      </Text>
+    </TouchableOpacity>
+    
+    <TextInput
+      style={styles.workoutNameInput}
+      placeholder="Enter Workout Name"
+      value={workoutName}
+      onChangeText={setWorkoutName} 
+    />
+
+    {/* Notes modal */}
+    <Modal
+      transparent={true}
+      visible={isNoteModalVisible}
+      animationType="slide"
+      onRequestClose={() => setNoteModalVisible(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Workout Notes</Text>
+          <TextInput
+            style={styles.notesInput}
+            placeholder="Type your notes here"
+            value={noteText}
+            onChangeText={setNoteText}
+            multiline
+          />
+          <TouchableOpacity onPress={() => setNoteModalVisible(false)} style={styles.closeButton}>
+            <Text style={styles.closeButtonText}>Save Notes</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+
+    {/* Input for new exercise name */}
+    <TextInput
+      style={styles.exerciseNameInput}
+      placeholder="Enter Exercise Name"
+      value={newExerciseName}
+      onChangeText={setNewExerciseName}
+    />
+    {/* Add exercise button */}
+    <TouchableOpacity style={styles.addButton} onPress={addExercise}>
+      <Text style={styles.addButtonText}>Add Exercise</Text>
+      <Ionicons name="add-circle-outline" size={20} color="white" />
+    </TouchableOpacity>
+
+    {/* Exercise list */}
+    <FlatList
+      data={exercises}
+      keyExtractor={(_, index) => index.toString()} // Use the index as the unique key
+      renderItem={renderExercise} // Use the updated renderExercise function
+    />
+
+    {/* Submit button */}
+    <TouchableOpacity style={styles.submitButton} onPress={submitWorkout}>
+      <Text style={styles.submitButtonText}>Submit</Text>
+    </TouchableOpacity>
+  </View>
+)};

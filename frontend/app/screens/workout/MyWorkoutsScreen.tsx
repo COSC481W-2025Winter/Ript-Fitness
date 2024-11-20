@@ -12,15 +12,21 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import StreakHeader from "@/components/StreakHeader";
 import { useNavigation } from "@react-navigation/native";
 import { GlobalContext } from "@/context/GlobalContext";
+import { WorkoutScreenNavigationProp } from '@/app/(tabs)/WorkoutStack';
 
 // Workout data structure
 interface Workout {
-  id: string;
+  id?: number; // Optional ID
   name: string;
-  exercises: {
-    name: string;
-    sets: { reps: string; weight: string }[];
-  }[];
+  exerciseIds: number[];
+  exercises?: Exercise[]; // Optional array of exercise details
+}
+interface Exercise {
+  nameOfExercise: string;
+  sets: number;
+  weight: number[]; // Changed from string to number for better type handling
+  reps: number[];
+
 }
 
 export default function MyWorkoutsScreen() {
@@ -28,7 +34,7 @@ export default function MyWorkoutsScreen() {
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
   const [isModalVisible, setModalVisible] = useState(false);
   const context = useContext(GlobalContext);
-  const navigation = useNavigation();
+  const navigation = useNavigation<WorkoutScreenNavigationProp >();
 
   // Fetch workouts from the backend
 const fetchWorkouts = async () => {
@@ -52,22 +58,20 @@ const fetchWorkouts = async () => {
 
     const transformedWorkouts: Workout[] = await Promise.all(
       data.map(async (workout) => {
-        if (workout.exerciseIds && workout.exerciseIds.length > 0) {
-          const exercises = await fetchExercisesDetails(workout.exerciseIds);
-          return {
-            id: workout.workoutsId,
-            name: workout.name || "Untitled Workout",
-            exercises,
-          };
-        }
+        const exercises =
+          workout.exerciseIds && workout.exerciseIds.length > 0
+            ? await fetchExercisesDetails(workout.exerciseIds)
+            : [];
+    
         return {
-          id: workout.workoutsId,
+          id: workout.workoutsId, // Ensure 'id' is assigned correctly
           name: workout.name || "Untitled Workout",
-          exercises: [],
+          exerciseIds: workout.exerciseIds || [], // Default to an empty array if missing
+          exercises, // Ensure this is always present
         };
       })
     );
-
+    
     console.log("Transformed workouts:", transformedWorkouts);
     setWorkouts(transformedWorkouts);
   } catch (error) {
@@ -101,10 +105,13 @@ const fetchWorkouts = async () => {
       return null;
     }
   };
-  const updateWorkoutName = async (workoutId: number, newName: string) => {
+  const updateWorkoutName = async (workoutId: number | undefined, newName: string) => {
+    if (!workoutId) {
+      console.error("Workout ID is required to update the name.");
+      return;
+    }
     try {
       const payload = { name: newName };
-  
       const response = await fetch(
         `http://ript-fitness-app.azurewebsites.net/workouts/updateWorkout/${workoutId}`,
         {
@@ -123,14 +130,17 @@ const fetchWorkouts = async () => {
   
       const data = await response.json();
       console.log("Workout updated successfully:", data);
-  
-      // Refresh workouts after update
-      fetchWorkouts();
+      fetchWorkouts(); // Refresh the list after update
     } catch (error) {
       console.error("Error updating workout:", error);
     }
   };
-  const deleteWorkout = async (workoutId: number) => {
+  
+  const deleteWorkout = async (workoutId: number | undefined) => {
+    if (!workoutId) {
+      console.error("Workout ID is required to delete.");
+      return;
+    }
     try {
       const response = await fetch(
         `http://ript-fitness-app.azurewebsites.net/workouts/deleteWorkout/${workoutId}`,
@@ -147,14 +157,12 @@ const fetchWorkouts = async () => {
       }
   
       console.log("Workout deleted successfully");
-  
-      // Refresh workouts after deletion
-      fetchWorkouts();
+      fetchWorkouts(); // Refresh the list after deletion
     } catch (error) {
       console.error("Error deleting workout:", error);
     }
   };
-
+  
   const fetchExercisesDetails = async (exerciseIds: number[]) => {
     try {
       const responses = await Promise.all(
@@ -175,16 +183,14 @@ const fetchWorkouts = async () => {
           }
           const data = await response.json();
           return {
-            name: data.name,
-            sets: data.sets.map((set: any) => ({
-              reps: set.reps || "0",
-              weight: set.weight || "0",
-            })),
-          };
+            nameOfExercise: data.nameOfExercise,
+            sets: data.sets,
+            reps: data.reps,
+            weight: data.weight,
+          }; // Match the format used in Start Workouts
         })
       );
   
-      console.log("Mapped exercises payload:", exercises);
       return exercises;
     } catch (error) {
       console.error("Error fetching exercise details:", error);
@@ -200,10 +206,16 @@ const fetchWorkouts = async () => {
   }, []);
 
   // Open modal with selected workout details
-  const openWorkoutModal = (workout: Workout) => {
-    setSelectedWorkout(workout);
-    setModalVisible(true);
+  const openWorkoutModal = async (workout: Workout) => {
+    try {
+      const exercises = await fetchExercisesDetails(workout.exerciseIds);
+      setSelectedWorkout({ ...workout, exercises }); // Add exercises to the workout object
+      setModalVisible(true);
+    } catch (error) {
+      console.error("Error fetching exercises for workout:", error);
+    }
   };
+  
 
   // Close the modal
   const closeWorkoutModal = () => {
@@ -213,7 +225,7 @@ const fetchWorkouts = async () => {
 
   // Navigate to AddWorkoutScreen when the plus button is clicked
   const navigateToAddWorkout = () => {
-    navigation.navigate("AddWorkoutScreen");
+    navigation.navigate("AddWorkoutScreen",{  });
   };
 
   const SearchBarHeader = () => {
@@ -234,26 +246,23 @@ const fetchWorkouts = async () => {
 
   const renderWorkout = ({ item }: { item: Workout }) => (
     <View style={styles.workoutBox}>
-      {/* Workout Name */}
       <Text style={styles.workoutTitle}>{item.name}</Text>
-  
-      {/* Update Workout Name Button */}
-      <TouchableOpacity
-        style={styles.updateButton}
-        onPress={() => updateWorkoutName(parseInt(item.id), "New Workout Name")}
-      >
-        <Text style={styles.updateButtonText}>Update Name</Text>
-      </TouchableOpacity>
-  
-      {/* Delete Workout Button */}
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => deleteWorkout(parseInt(item.id))}
-      >
-        <Text style={styles.deleteButtonText}>Delete</Text>
-      </TouchableOpacity>
-  
-      {/* View Details Button */}
+      {item.id && (
+        <>
+          <TouchableOpacity
+            style={styles.updateButton}
+            onPress={() => updateWorkoutName(item.id, "New Workout Name")}
+          >
+            <Text style={styles.updateButtonText}>Update Name</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => deleteWorkout(item.id)}
+          >
+            <Text style={styles.deleteButtonText}>Delete</Text>
+          </TouchableOpacity>
+        </>
+      )}
       <TouchableOpacity
         style={styles.detailsButton}
         onPress={() => openWorkoutModal(item)}
@@ -270,7 +279,7 @@ const fetchWorkouts = async () => {
       <SearchBarHeader />
       <FlatList
         data={workouts}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => (item.id ? item.id.toString() : `${item.name}-${index}`)}
         renderItem={renderWorkout}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
@@ -289,19 +298,19 @@ const fetchWorkouts = async () => {
               <>
                 <Text style={styles.modalTitle}>{selectedWorkout.name}</Text>
                 <FlatList
-                  data={selectedWorkout.exercises}
-                  keyExtractor={(item, index) => `${item.name}-${index}`}
-                  renderItem={({ item }) => (
-                    <View style={styles.exerciseItem}>
-                      <Text style={styles.exerciseName}>{item.name}</Text>
-                      {item.sets.map((set, index) => (
-                        <Text key={index} style={styles.setDetails}>
-                          Set {index + 1}: {set.reps} reps, {set.weight} lbs
-                        </Text>
-                      ))}
-                    </View>
-                  )}
-                />
+                          data={selectedWorkout?.exercises || []} // Use fetched exercises
+                          keyExtractor={(item, index) => `${item.nameOfExercise}-${index}`}
+                          renderItem={({ item }) => (
+                            <View style={styles.exerciseItem}>
+                              <Text style={styles.exerciseName}>{item.nameOfExercise}</Text>
+                              {Array.from({ length: item.sets }).map((_, index) => (
+                                <Text key={index} style={styles.setDetails}>
+                                  Set {index + 1}: {item.reps[index] || 0} reps, {item.weight[index] || 0} lbs
+                                </Text>
+                              ))}
+                            </View>
+                          )}
+                        />
                 <TouchableOpacity
                   style={styles.closeButton}
                   onPress={closeWorkoutModal}
