@@ -15,7 +15,12 @@ type SignupScreenProps = NativeStackScreenProps<RootStackParamList, 'Signup'>;
 const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
   const { height, width } = Dimensions.get('window');
+  //Error Messages use states
   const [errorMessage, setErrorMessage] = useState('');
+  const [emailErrorMessage, setemailErrorMessage] = useState('');
+  const [usernameErrorMessage, setusernameErrorMessage] = useState('');
+  const [passwordErrorMessage, setpasswordErrorMessage] = useState('');
+
   const [submitted, setSubmitted] = useState(false); 
 
   //States for inputs
@@ -41,7 +46,8 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
 
   //Regex for email, username, and password validation
   const emailRegex = /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/;
-  const usernameRegex = /^[a-zA-Z0-9]([.-](?![._-])|[a-zA-Z0-9]){3,18}[a-zA-Z0-9]$/;
+  // const usernameRegex = /^[a-zA-Z0-9]([.-](?![._-])|[a-zA-Z0-9]){3,18}[a-zA-Z0-9]$/;
+  const usernameRegex = /^(?![0-9]+$)(?!.*\.\.)(?!\.)[a-zA-Z0-9_.]+(?<!\.)$/; //Can't be only numbers, can't have multiple periods in a row, can't start or end with a period.
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
   //Handle text input change for email
@@ -53,7 +59,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
   //Handle text input change for username
   const handleUsernamePOST = (text: string) => {
     setUsername(text);
-    setIsUsernameValid(usernameRegex.test(text));
+    // setIsUsernameValid(usernameRegex.test(text));
   };
 
   //Handle text input change for password
@@ -66,28 +72,59 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
   const handleSignup = async () => {
     setSubmitted(true); // Mark form as submitted
 
-    // Check if any field is empty and show a general error message
-    if (!isEmailValid && !isUsernameValid && !isPasswordValid) {
-      setErrorMessage('Please enter valid information.');
-      return;
+    // Validate inputs
+    let isValid = true;
+  
+    //Email validation
+    if (!emailRegex.test(email)) {
+      setIsEmailValid(false);
+      isValid = false;
+      setemailErrorMessage("Enter a valid email address.");
+    } else {
+      setemailErrorMessage("");
+      setIsEmailValid(true);
     }
-
-    // Reset error messages
-    setErrorMessage('');
-
-    // Validate email, username, and password, and show specific error messages
-    if (!isEmailValid) {
-      setErrorMessage('Please enter a valid email address.');
-      return;
+  
+    if (!usernameRegex.test(username)) {
+      setIsUsernameValid(false);
+      isValid = false;
+  
+      //Set error message for username based on specific condition
+      if (/^\d+$/.test(username)) {
+        setusernameErrorMessage("Username cannot contain only numbers.");
+      } else if (/\.\./.test(username)) {
+        setusernameErrorMessage("Username cannot have more than one period in a row.");
+      } else if (/^\./.test(username)) {
+        setusernameErrorMessage("Username cannot start with a period.");
+      } else if (/\.$/.test(username)) {
+        setusernameErrorMessage("Username cannot end with a period.");
+      } else if (!/^[a-zA-Z0-9_.]+$/.test(username)) {
+        setusernameErrorMessage("Username can only contain letters, numbers, underscores, and periods.");
+      } else {
+        setusernameErrorMessage("Invalid username.");
+      }
+    } else {
+      setIsUsernameValid(true);
+      setusernameErrorMessage("");
     }
-
-    if (!isUsernameValid) {
-      setErrorMessage('does not meet requirements.');
-      return;
+  
+    if (!passwordRegex.test(password)) {
+      setIsPasswordValid(false);
+      isValid = false;
+      setpasswordErrorMessage(`Password must have:
+        • At least 8 characters
+        • At least 1 uppercase letter
+        • At least 1 lowercase letter
+        • At least 1 special character
+        • At least 1 number`
+      );
+    } else {
+      setIsPasswordValid(true);
+      setpasswordErrorMessage("");
     }
-
-    if (!isPasswordValid) {
-      setErrorMessage('Password does not meet requirements.');
+  
+    // If any field is invalid, stop the signup process
+    if (!isValid) {
       return;
     }
 
@@ -104,12 +141,15 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
       } else {
         const text = await response.text();
 
-        let errorMessage = 'Signup failed. Please check your inputs.';
+        let errorMessage = "";
         if (text.includes('Message:')) {
           const startIndex = text.indexOf('Message:') + 'Message:'.length;
+          setIsUsernameValid(false);
           errorMessage = text.substring(startIndex).trim();
+          setusernameErrorMessage(errorMessage);
+        } else {
+          setErrorMessage("Signup failed. Please check your inputs.");
         }
-        setErrorMessage(errorMessage);
       }
     } catch (error) {
       setErrorMessage('An error occurred. Please try again later.');
@@ -118,12 +158,31 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
 
   //Focus handling
   const handleFocusEmail = () => setEmailFocused(true);
-  const handleBlurEmail = () => setEmailFocused(false);
-  const handleFocusUsername = () => setUsernameFocused(true);
-  const handleBlurUsername = () => setUsernameFocused(false);
+  const handleBlurEmail = () => {
+    setEmailFocused(false);
+    if (emailRegex.test(email)) {
+      setIsEmailValid(true);
+      setemailErrorMessage("");
+    }
+  };
+  const handleFocusUsername = () => {
+    setUsernameFocused(true);
+  };
+  const handleBlurUsername = () => {
+    setUsernameFocused(false);
+    if (usernameRegex.test(username)) {
+      setIsUsernameValid(true);
+      setusernameErrorMessage("");
+    }
+  }
   const handleFocusPassword = () => setPasswordFocused(true);
-  const handleBlurPassword = () => setPasswordFocused(false);
-
+  const handleBlurPassword = () => {
+    setPasswordFocused(false);
+    if (passwordRegex.test(password)) {
+      setIsPasswordValid(true);
+      setpasswordErrorMessage("");
+    }
+  };
   //Navigate to Home screen after successful signup
   const navigateToMainApp = () => {
     navigation.reset({
@@ -168,6 +227,13 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                     : styles.defaultInput
                 }
               />
+              {/* Email Error message */}
+              {submitted && emailErrorMessage ? (
+                <View style={{ marginTop: height * -0.01, flexWrap: 'wrap', width: width * 0.75, flexDirection: 'row'  }}>
+                  {/* <Ionicons name="alert-circle" size={24} color={'#F2505D'} /> */}
+                  <Text style={styles.secondaryErrorText}>{emailErrorMessage}</Text>
+                </View>
+              ) : null}
               {/* Username input */}
               <CustomTextInput
                 placeholder='Username'
@@ -177,6 +243,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                 autoCapitalize='none'
                 onFocus={handleFocusUsername}
                 onBlur={handleBlurUsername}
+                maxLength={30}
                 style={
                   isUsernameFocused
                     ? styles.focusInput
@@ -185,6 +252,13 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                     : styles.defaultInput
                 }
               />
+              {/* Username Error message */}
+              {submitted && usernameErrorMessage ? (
+                <View style={{ marginTop: height * -0.01, flexWrap: 'wrap', width: width * 0.75, flexDirection: 'row'  }}>
+                  {/* <Ionicons name="alert-circle" size={24} color={'#F2505D'} /> */}
+                  <Text style={styles.secondaryErrorText}>{usernameErrorMessage}</Text>
+                </View>
+              ) : null}
               {/* Password input */}
               <View style={styles.inputIconContainer}>
                 <CustomTextInput
@@ -209,6 +283,13 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                   <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} color={'#A69B8F'} size={24} />
                 </TouchableOpacity>
               </View>
+              {/* Password Error message */}
+              {submitted && passwordErrorMessage ? (
+              <View style={{ marginTop: height * -0.01, flexWrap: 'wrap', width: width * 0.75, flexDirection: 'row'  }}>
+                {/* <Ionicons name="alert-circle" size={24} color={'#F2505D'} /> */}
+                <Text style={styles.secondaryErrorText}>{passwordErrorMessage}</Text>
+              </View>
+              ) : null}
               {/* Signup button */}
               <CustomButton
                 title="Sign up"
@@ -287,6 +368,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'column',
     alignItems: 'center',
+    // backgroundColor: 'blue',
+    // width: '100%',
   },
   textButtonContainer: {
     flexDirection: 'row',
@@ -322,6 +405,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
+  secondaryErrorText: {
+    marginLeft: 20,
+    color: '#F2505D',
+    fontSize: 14,
+    textAlign: 'left',
+    flexWrap: 'wrap',
+  }
 });
 
 export default SignupScreen;
