@@ -53,19 +53,16 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
   //Handle text input change for email
   const handleEmailPOST = (text: string) => {
     setEmail(text);
-    setIsEmailValid(emailRegex.test(text));
   };
 
   //Handle text input change for username
   const handleUsernamePOST = (text: string) => {
     setUsername(text);
-    // setIsUsernameValid(usernameRegex.test(text));
   };
 
   //Handle text input change for password
   const handlePasswordPOST = (text: string) => {
     setPassword(text);
-    setIsPasswordValid(passwordRegex.test(text));
   };
 
   //Handle form submission
