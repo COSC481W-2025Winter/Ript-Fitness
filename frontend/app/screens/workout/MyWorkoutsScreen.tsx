@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   TextInput,
   StyleSheet,
@@ -10,9 +10,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import StreakHeader from "@/components/StreakHeader";
-import { useNavigation } from "@react-navigation/native"; // Import useNavigation for navigation
+import { useNavigation } from "@react-navigation/native";
+import { GlobalContext } from "@/context/GlobalContext";
 
-//  workout data structure
+// Workout data structure
 interface Workout {
   id: string;
   name: string;
@@ -22,31 +23,181 @@ interface Workout {
   }[];
 }
 
-const sampleWorkouts: Workout[] = [
-  {
-    id: "1",
-    name: "Full Body Workout",
-    exercises: [
-      { name: "Push Ups", sets: [{ reps: "10", weight: "-" }] },
-      { name: "Squats", sets: [{ reps: "15", weight: "-" }] },
-    ],
-  },
-  {
-    id: "2",
-    name: "Leg Day",
-    exercises: [
-      { name: "Lunges", sets: [{ reps: "12", weight: "20lbs" }] },
-      { name: "Deadlift", sets: [{ reps: "8", weight: "100lbs" }] },
-    ],
-  },
-];
-
 export default function MyWorkoutsScreen() {
-  const navigation = useNavigation(); // Hook for navigation
-
-  const [workouts, setWorkouts] = useState<Workout[]>(sampleWorkouts);
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
   const [isModalVisible, setModalVisible] = useState(false);
+  const context = useContext(GlobalContext);
+  const navigation = useNavigation();
+
+  // Fetch workouts from the backend
+const fetchWorkouts = async () => {
+  try {
+    const response = await fetch(
+      `http://ript-fitness-app.azurewebsites.net/workouts/getUsersWorkouts`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${context?.data.token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch workouts: ${response.statusText}`);
+    }
+
+    const data: any[] = await response.json();
+    console.log("Fetched workouts data:", JSON.stringify(data, null, 2));
+
+    const transformedWorkouts: Workout[] = await Promise.all(
+      data.map(async (workout) => {
+        if (workout.exerciseIds && workout.exerciseIds.length > 0) {
+          const exercises = await fetchExercisesDetails(workout.exerciseIds);
+          return {
+            id: workout.workoutsId,
+            name: workout.name || "Untitled Workout",
+            exercises,
+          };
+        }
+        return {
+          id: workout.workoutsId,
+          name: workout.name || "Untitled Workout",
+          exercises: [],
+        };
+      })
+    );
+
+    console.log("Transformed workouts:", transformedWorkouts);
+    setWorkouts(transformedWorkouts);
+  } catch (error) {
+    console.error("Error fetching workouts:", error);
+  }
+};
+
+  
+  const fetchWorkoutDetails = async (workoutId: number) => {
+    try {
+      const response = await fetch(
+        `http://ript-fitness-app.azurewebsites.net/workouts/${workoutId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${context?.data.token}`,
+          },
+        }
+      );
+  
+      if (!response.ok) {
+        throw new Error(`Failed to fetch workout: ${response.statusText}`);
+      }
+  
+      const workout = await response.json();
+      console.log("Fetched workout details:", workout);
+  
+      return workout;
+    } catch (error) {
+      console.error("Error fetching workout details:", error);
+      return null;
+    }
+  };
+  const updateWorkoutName = async (workoutId: number, newName: string) => {
+    try {
+      const payload = { name: newName };
+  
+      const response = await fetch(
+        `http://ript-fitness-app.azurewebsites.net/workouts/updateWorkout/${workoutId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${context?.data.token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+  
+      if (!response.ok) {
+        throw new Error(`Failed to update workout: ${response.statusText}`);
+      }
+  
+      const data = await response.json();
+      console.log("Workout updated successfully:", data);
+  
+      // Refresh workouts after update
+      fetchWorkouts();
+    } catch (error) {
+      console.error("Error updating workout:", error);
+    }
+  };
+  const deleteWorkout = async (workoutId: number) => {
+    try {
+      const response = await fetch(
+        `http://ript-fitness-app.azurewebsites.net/workouts/deleteWorkout/${workoutId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${context?.data.token}`,
+          },
+        }
+      );
+  
+      if (!response.ok) {
+        throw new Error(`Failed to delete workout: ${response.statusText}`);
+      }
+  
+      console.log("Workout deleted successfully");
+  
+      // Refresh workouts after deletion
+      fetchWorkouts();
+    } catch (error) {
+      console.error("Error deleting workout:", error);
+    }
+  };
+
+  const fetchExercisesDetails = async (exerciseIds: number[]) => {
+    try {
+      const responses = await Promise.all(
+        exerciseIds.map((id) =>
+          fetch(`http://ript-fitness-app.azurewebsites.net/exercises/${id}`, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${context?.data.token}`,
+            },
+          })
+        )
+      );
+  
+      const exercises = await Promise.all(
+        responses.map(async (response) => {
+          if (!response.ok) {
+            throw new Error(`Failed to fetch exercise: ${response.statusText}`);
+          }
+          const data = await response.json();
+          return {
+            name: data.name,
+            sets: data.sets.map((set: any) => ({
+              reps: set.reps || "0",
+              weight: set.weight || "0",
+            })),
+          };
+        })
+      );
+  
+      console.log("Mapped exercises payload:", exercises);
+      return exercises;
+    } catch (error) {
+      console.error("Error fetching exercise details:", error);
+      return [];
+    }
+  };
+  
+  
+
+  // Fetch workouts when the screen is loaded
+  useEffect(() => {
+    fetchWorkouts();
+  }, []);
 
   // Open modal with selected workout details
   const openWorkoutModal = (workout: Workout) => {
@@ -62,20 +213,18 @@ export default function MyWorkoutsScreen() {
 
   // Navigate to AddWorkoutScreen when the plus button is clicked
   const navigateToAddWorkout = () => {
-    navigation.navigate("AddWorkoutScreen"); 
+    navigation.navigate("AddWorkoutScreen");
   };
 
   const SearchBarHeader = () => {
     return (
       <View style={styles.searchContainer}>
         <Text style={styles.text}>My History</Text>
-        {/* Placeholder SearchBar component */}
         <TextInput
           style={styles.input}
           placeholder="Search workouts..."
           placeholderTextColor="gray"
         />
-        {/* Green Plus Button */}
         <TouchableOpacity style={styles.plusButton} onPress={navigateToAddWorkout}>
           <Text style={styles.plusButtonText}>+</Text>
         </TouchableOpacity>
@@ -84,13 +233,36 @@ export default function MyWorkoutsScreen() {
   };
 
   const renderWorkout = ({ item }: { item: Workout }) => (
-    <TouchableOpacity
-      style={styles.workoutBox}
-      onPress={() => openWorkoutModal(item)}
-    >
+    <View style={styles.workoutBox}>
+      {/* Workout Name */}
       <Text style={styles.workoutTitle}>{item.name}</Text>
-    </TouchableOpacity>
+  
+      {/* Update Workout Name Button */}
+      <TouchableOpacity
+        style={styles.updateButton}
+        onPress={() => updateWorkoutName(parseInt(item.id), "New Workout Name")}
+      >
+        <Text style={styles.updateButtonText}>Update Name</Text>
+      </TouchableOpacity>
+  
+      {/* Delete Workout Button */}
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => deleteWorkout(parseInt(item.id))}
+      >
+        <Text style={styles.deleteButtonText}>Delete</Text>
+      </TouchableOpacity>
+  
+      {/* View Details Button */}
+      <TouchableOpacity
+        style={styles.detailsButton}
+        onPress={() => openWorkoutModal(item)}
+      >
+        <Text style={styles.detailsButtonText}>View Details</Text>
+      </TouchableOpacity>
+    </View>
   );
+  
 
   return (
     <SafeAreaView style={styles.container}>
@@ -124,7 +296,7 @@ export default function MyWorkoutsScreen() {
                       <Text style={styles.exerciseName}>{item.name}</Text>
                       {item.sets.map((set, index) => (
                         <Text key={index} style={styles.setDetails}>
-                          Set {index + 1}: {set.reps} reps, {set.weight}
+                          Set {index + 1}: {set.reps} reps, {set.weight} lbs
                         </Text>
                       ))}
                     </View>
@@ -157,7 +329,7 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    width: "80%", // Shortened width to make the search bar horizontally shorter
+    width: "80%",
     borderColor: "gray",
     borderWidth: 1,
     paddingHorizontal: 10,
@@ -165,7 +337,7 @@ const styles = StyleSheet.create({
     color: "gray",
   },
   plusButton: {
-    backgroundColor: "green", // Green button
+    backgroundColor: "green",
     borderRadius: 50,
     padding: 10,
     position: "absolute",
@@ -236,6 +408,42 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 20,
   },
+  updateButton: {
+    backgroundColor: "#4CAF50",
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 5,
+    alignItems: "center",
+  },
+  updateButtonText: {
+    color: "white",
+    fontSize: 14,
+  },
+  
+  deleteButton: {
+    backgroundColor: "#FF6347",
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 5,
+    alignItems: "center",
+  },
+  deleteButtonText: {
+    color: "white",
+    fontSize: 14,
+  },
+  
+  detailsButton: {
+    backgroundColor: "#2196F3",
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 5,
+    alignItems: "center",
+  },
+  detailsButtonText: {
+    color: "white",
+    fontSize: 14,
+  },
+  
   closeButtonText: {
     color: "white",
     fontSize: 16,

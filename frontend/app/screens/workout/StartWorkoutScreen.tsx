@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useContext  } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, TextInput, Modal, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Swipeable } from 'react-native-gesture-handler';
+import { GlobalContext } from "@/context/GlobalContext"; // Context for token
+import { useNavigation } from "@react-navigation/native"; // Navigation
 
 // structure of a set detail with reps and weight
-interface SetDetail {
-  reps: string;
-  weight: string;
-}
 
 // structure of an exercise with a name and list of sets
 interface Exercise {
-  id: string;
-  name: string;
-  sets: SetDetail[];
+  nameOfExercise: string;
+  sets: number;
+  weight: number[]; // Changed from string to number for better type handling
+  reps: number[];
+
 }
 
 export default function StartWorkoutScreen() {
@@ -27,28 +27,129 @@ export default function StartWorkoutScreen() {
   //  managing exercise name editing
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(null);
   const [temporaryName, setTemporaryName] = useState<string>("");
+  const context = useContext(GlobalContext); // Access token
+  const navigation = useNavigation(); // Navigation hook
+  const [workoutName, setWorkoutName] = useState(""); // State for workout name
+  const [submitting, setSubmitting] = useState(false);
+  const httpRequests = {
+    getBaseURL: () => "http://ript-fitness-app.azurewebsites.net",
+  };
+  
+  console.log(
+    "Mapped exercises payload:",
+    exercises.map((exercise) => ({
+      nameOfExercise: exercise.nameOfExercise,
+	  sets: exercise.sets,
+      weight: exercise.weight,
+    }))
+  );
+  
+  
+  const submitWorkout = async () => {
+    try {
+      setSubmitting(true); // Indicate submission is in progress
+      const WorkoutExercises: number[] = []; // Array to hold exercise IDs
+      // Loop through each exercise and submit it to the backend
+      for (let i =0; i<exercises.length; i++) {
+        const currentExercise = {
+          "sets": exercises[i].sets,
+          "reps": exercises[i].reps,
+          "nameOfExercise": exercises[i].nameOfExercise,
+		  "weight": exercises[i].weight
+      }
+
+
+  
+        try {
+          console.log("Submitting exercise:", JSON.stringify(currentExercise));
+          const response = await fetch(
+            `${httpRequests.getBaseURL()}/exercises/addExercise`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${context?.data.token}`,
+              },
+              body: JSON.stringify(currentExercise),
+            }
+          );
+  
+          if (!response.ok) {
+            throw new Error(`Error adding exercise: ${response.status}`);
+          }
+  
+          const json = await response.json(); // Parse the response JSON
+          WorkoutExercises.push(json.exerciseId); // Collect the exercise ID
+        } catch (error) {
+          console.error("Failed to add exercise:", error);
+          // Continue processing other exercises even if one fails
+        }
+      }
+  
+      // Once all exercises are added, submit the workout with collected exercise IDs
+      const workoutPayload = {
+        name: workoutName || "Untitled Workout",
+        exerciseIds: WorkoutExercises, // Pass the array of exercise IDs
+        isDeleted: false,
+      };
+  
+      console.log("Submitting workout:", JSON.stringify(workoutPayload));
+  
+      const workoutResponse = await fetch(
+        `${httpRequests.getBaseURL()}/workouts/addWorkout`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${context?.data.token}`,
+          },
+          body: JSON.stringify(workoutPayload),
+        }
+      );
+  
+      if (!workoutResponse.ok) {
+        throw new Error(`Error adding workout: ${workoutResponse.status}`);
+      }
+  
+      const workoutJson = await workoutResponse.json(); // Parse workout response
+      console.log("Workout added successfully:", workoutJson);
+  
+  
+      // Navigate to MyWorkoutsScreen, passing the new workout as needed
+      navigation.navigate("MyWorkoutsScreen", { workoutJson });
+    } catch (error) {
+      console.error("Error submitting workout:", error);
+    } finally {
+      setSubmitting(false); // Reset submission state
+    }
+  };
+  
+  
 
   // Add a new exercise 
   const addExercise = () => {
     if (newExerciseName) {
       const newExercise: Exercise = {
-        id: Math.random().toString(),
-        name: newExerciseName,
-        sets: [{ reps: "", weight: "" }],
+        nameOfExercise: newExerciseName,
+        sets: 0,
+		    reps: [], // Default to 0 for reps and weight
+		    weight: [],
       };
       setExercises([...exercises, newExercise]);
       setNewExerciseName("");
     }
   };
+  
 
   // Add a new set to an existing exercise
   const addSetToExercise = (exerciseId: string) => {
-    setExercises(exercises.map(exercise =>
+    setExercises(exercises.map((exercise) =>
       exercise.id === exerciseId
-        ? { ...exercise, sets: [...exercise.sets, { reps: "", weight: "" }] }
+        ? { ...exercise, sets: sets+1, reps: reps + [0], weight: weight + [0] } // Use numbers for `reps` and `weight`
         : exercise
     ));
   };
+  
 
   // Show a confirmation before deleting an exercise
   const confirmDeleteExercise = (id: string) => {
@@ -64,7 +165,7 @@ export default function StartWorkoutScreen() {
 
   // Remove an exercise by ID
   const removeExercise = (id: string) => {
-    setExercises(exercises.filter(exercise => exercise.id !== id));
+    setExercises(exercises.filter(exercise => exercise.exerciseId !== id));
   };
 
   // Show a confirmation  before deleting a set within an exercise
@@ -91,7 +192,7 @@ export default function StartWorkoutScreen() {
   //  editing an exercise name
   const handleEditName = (exercise: Exercise) => {
     setEditingExerciseId(exercise.id);
-    setTemporaryName(exercise.name);
+    setTemporaryName(exercise.nameOfExercise);
   };
 
   // Save the edited exercise name and reset editing state
@@ -127,65 +228,77 @@ export default function StartWorkoutScreen() {
             />
           ) : (
             <TouchableOpacity onPress={() => handleEditName(item)}>
-              <Text style={styles.exerciseTitleText}>{item.name}</Text>
+              <Text style={styles.exerciseTitleText}>{item.nameOfExercise}</Text>
             </TouchableOpacity>
           )}
         </View>
-
+  
         {/* Render each set for the exercise */}
         {item.sets.map((set, index) => (
           <View key={index} style={styles.setContainer}>
             <Text style={styles.setLabel}>Set {index + 1}</Text>
             <View style={styles.inputRow}>
+              {/* Input for weight */}
               <View style={styles.setInputContainer}>
                 <Text style={styles.inputLabel}>Weight</Text>
                 <TextInput
                   style={styles.input}
                   placeholder="lbs"
-                  value={set.weight}
+                  value={set.weight.toString()} // Convert number to string for display
                   onChangeText={(text) => {
                     const updatedSets = item.sets.map((s, i) =>
-                      i === index ? { ...s, weight: text } : s
+                      i === index ? { ...s, weight: parseFloat(text) || 0 } : s // Safely parse `text` as a number
                     );
-                    setExercises(exercises.map(ex =>
+                    setExercises(exercises.map((ex) =>
                       ex.id === item.id ? { ...ex, sets: updatedSets } : ex
                     ));
                   }}
-                  keyboardType="numeric"
+                  keyboardType="numeric" // Restrict input to numeric values
                 />
               </View>
+  
+              {/* Input for reps */}
               <View style={styles.setInputContainer}>
                 <Text style={styles.inputLabel}>Reps</Text>
                 <TextInput
                   style={styles.input}
                   placeholder="reps"
-                  value={set.reps}
+                  value={set.reps.toString()} // Convert number to string for display
                   onChangeText={(text) => {
                     const updatedSets = item.sets.map((s, i) =>
-                      i === index ? { ...s, reps: text } : s
+                      i === index ? { ...s, reps: parseInt(text) || 0 } : s // Safely parse `text` as an integer
                     );
-                    setExercises(exercises.map(ex =>
+                    setExercises(exercises.map((ex) =>
                       ex.id === item.id ? { ...ex, sets: updatedSets } : ex
                     ));
                   }}
-                  keyboardType="numeric"
+                  keyboardType="numeric" // Restrict input to numeric values
                 />
               </View>
+  
               {/* Delete set button */}
-              <TouchableOpacity onPress={() => confirmDeleteSet(item.id, index)} style={styles.deleteSetButton}>
+              <TouchableOpacity
+                onPress={() => confirmDeleteSet(item.id, index)}
+                style={styles.deleteSetButton}
+              >
                 <Ionicons name="trash-outline" size={20} color="red" />
               </TouchableOpacity>
             </View>
           </View>
         ))}
+  
         {/* Add set button */}
-        <TouchableOpacity onPress={() => addSetToExercise(item.id)} style={styles.addSetButton}>
+        <TouchableOpacity
+          onPress={() => addSetToExercise(item)}
+          style={styles.addSetButton}
+        >
           <Ionicons name="add-circle-outline" size={20} color="black" />
           <Text style={styles.addSetButtonText}>Add Set</Text>
         </TouchableOpacity>
       </View>
     </Swipeable>
   );
+  
 
   return (
     <View style={styles.container}>
@@ -195,6 +308,13 @@ export default function StartWorkoutScreen() {
           Notes: {noteText ? noteText.slice(0, 20) + "..." : "Add notes here"}
         </Text>
       </TouchableOpacity>
+      
+      <TextInput
+        style={styles.workoutNameInput}
+          placeholder="Enter Workout Name"
+        value={workoutName}
+          onChangeText={setWorkoutName} 
+              />
 
       {/* Notes modal */}
       <Modal
@@ -241,9 +361,10 @@ export default function StartWorkoutScreen() {
       />
 
       {/* Submit button */}
-      <TouchableOpacity style={styles.submitButton}>
+      <TouchableOpacity style={styles.submitButton} onPress={submitWorkout}>
         <Text style={styles.submitButtonText}>Submit</Text>
       </TouchableOpacity>
+
     </View>
   );
 }
@@ -399,6 +520,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlignVertical: 'top',
   },
+  workoutNameInput: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    marginBottom: 20,
+    borderRadius: 8,
+  },
+  
   closeButton: {
     backgroundColor: '#FF6347',
     padding: 10,
