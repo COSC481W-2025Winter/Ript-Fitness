@@ -111,14 +111,15 @@ public class SocialPostService {
 		}
 		
 		currentUsersFriendsIds.add(currentUsersAccountId);	//getSocialFeed should also include Social Posts from the currently logged in user
-		
-		/*
-		Optional<ArrayList<SocialPost>> optionalSocialFeed = acountsRepository.getSocialFeed(currentUsersFriendsIds);
-		
-		if(optionalSocialFeed.isEmpty())
-			return new ArrayList<SocialPost>();
 			
-		ArrayList<SocialPost> socialFeed = optionalSocialFeed.get();
+		Optional<List<SocialPost>> optionalSocialFeedList = accountsRepository.getSocialFeed(currentUsersFriendsIds);
+		
+		if(optionalSocialFeedList.isEmpty())
+			return new ArrayList<SocialPostDto>();
+			
+		List<SocialPost> socialFeedList = optionalSocialFeedList.get();
+		
+		ArrayList<SocialPost> socialFeed = new ArrayList<>(socialFeedList);
 		
 		int start = socialFeed.size() - startIndex - 1;
 		int end = socialFeed.size() - endIndex - 1;
@@ -139,9 +140,6 @@ public class SocialPostService {
 		}
 		
 		return returnedSocialFeedList;
-		*/
-		
-		return new ArrayList<SocialPostDto>();	//Placeholder while query is being created
 	}
 	
 	public SocialPostDto editPostContent(Long socialPostId, String newSocialPostContent) {
