@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -74,6 +75,7 @@ public class NutritionTrackerServiceTest {
 		food.carbs = 40;
 		food.fat = 21;
 		food.multiplier = 1.0;
+		food.account = account;
 		
 		foodDtoTwo = new FoodDto();
 		foodDtoTwo.name = "Chicken breast";
@@ -98,12 +100,15 @@ public class NutritionTrackerServiceTest {
 		day.foodsEatenInDay = List.of(food, foodTwo);
 		
 		account = new AccountsModel();
+		account.setId(1L);
 		day.account = account;
 	}
 	
 	@Test
 	void testServiceAddFoodValid() {
 		when(nutritionTrackerFoodRepository.save(any(Food.class))).thenReturn(food);
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+		when(accountsRepository.findById(1L)).thenReturn(Optional.of(account));
 		
 		FoodDto result = nutritionTrackerServiceForServiceTests.addFood(foodDto);
 		
@@ -115,6 +120,7 @@ public class NutritionTrackerServiceTest {
 	@Test
 	void testServiceGetFoodStatsValid() {
 		when(nutritionTrackerFoodRepository.findById(anyLong())).thenReturn(Optional.of(food));
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
 		
 		FoodDto result = nutritionTrackerServiceForServiceTests.getFoodStats(1L);
 		
@@ -171,6 +177,8 @@ public class NutritionTrackerServiceTest {
 	void testServiceEditFoodValid() {
 		when(nutritionTrackerFoodRepository.findById(1L)).thenReturn(Optional.of(food));
 		when(nutritionTrackerFoodRepository.save(any(Food.class))).thenReturn(food);
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+		when(accountsRepository.findById(1L)).thenReturn(Optional.of(account));
 		
 		FoodDto result = nutritionTrackerServiceForServiceTests.editFood(1L, foodDto);
 		

@@ -52,6 +52,9 @@ public class AccountsModel {
     private List<Day> days;
     
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Food> foods;
+    
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SocialPost> socialPostList;
     
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -209,6 +212,14 @@ public class AccountsModel {
 
 	public void setFriends(List<AccountsModel> friends) {
 		this.friends = friends;
+	}
+
+	public List<Food> getFoods() {
+		return foods;
+	}
+
+	public void setFoods(List<Food> foods) {
+		this.foods = foods;
 	}
 	
 	
