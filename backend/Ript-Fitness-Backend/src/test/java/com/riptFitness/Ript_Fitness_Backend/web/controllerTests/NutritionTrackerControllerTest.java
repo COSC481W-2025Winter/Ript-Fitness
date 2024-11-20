@@ -185,7 +185,7 @@ public class NutritionTrackerControllerTest {
 	}
 	
 	@Test
-	public void testDeleteFood() throws Exception{
+	public void testDeleteFoodValidRequest() throws Exception{
 		foodDto.isDeleted = true;
 		
 		when(nutritionTrackerService.deleteFood(any(Long.class))).thenReturn(foodDto);
@@ -232,6 +232,39 @@ public class NutritionTrackerControllerTest {
 	}
 	
 	@Test
+	public void testGetDayOfLoggedInUserValidRequest() throws Exception {
+		when(nutritionTrackerService.getDayOfLoggedInUser(0)).thenReturn(dayDto);
+		
+		mockMvc.perform(get("/nutritionCalculator/getDayOfLoggedInUser/0")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(""))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("foodsEatenInDay.size()").value(2))
+				.andReturn();
+	}
+	
+	@Test
+	public void testGetDayOfLoggedInUserInvalidRequestNoPathVariable() throws Exception {
+		mockMvc.perform(get("/nutritionCalculator/getDayOfLoggedInUser"))
+				.andExpect(status().isInternalServerError());
+	}
+	
+	@Test
+	public void testDeleteDayValidRequest() throws Exception{
+		dayDto.isDeleted = true;
+		
+		when(nutritionTrackerService.deleteDay(any(Long.class))).thenReturn(dayDto);
+		
+		mockMvc.perform(delete("/nutritionCalculator/deleteDay/1")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$.isDeleted").value(true))
+				.andReturn();
+	}
+	
+	@Test
 	public void testAddFoodsToDayInvalidRequestEmptyBody() throws Exception{
 		mockMvc.perform(post("/nutritionCalculator/addFoodsToDay/1")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -250,21 +283,7 @@ public class NutritionTrackerControllerTest {
 	}
 	
 	@Test
-	public void testDeleteDay() throws Exception{
-		dayDto.isDeleted = true;
-		
-		when(nutritionTrackerService.deleteDay(any(Long.class))).thenReturn(dayDto);
-		
-		mockMvc.perform(delete("/nutritionCalculator/deleteDay/1")
-				.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(jsonPath("$.isDeleted").value(true))
-				.andReturn();
-	}
-	
-	@Test
-	public void testAddFoodsToDay() throws Exception {
+	public void testAddFoodsToDayValidRequest() throws Exception {
 		when(nutritionTrackerService.addFoodsToDay(any(Long.class), anyList())).thenReturn(dayDto);
 		
 		mockMvc.perform(post("/nutritionCalculator/addFoodsToDay/1")
@@ -272,6 +291,20 @@ public class NutritionTrackerControllerTest {
 				.content("[1]"))
 				.andExpect(status().isCreated())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$.foodsEatenInDay.size()").value(2))
+				.andReturn();
+	}
+	
+	@Test
+	public void testDeleteFoodsInDayValidRequest() throws Exception {
+		when(nutritionTrackerService.deleteFoodsInDay(any(Long.class), anyList())).thenReturn(dayDto);
+		
+		mockMvc.perform(post("/nutritionCalculator/deleteFoodsInDay/0")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("[1]"))
+				.andExpect(status().isCreated())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$.totalWaterConsumed").value(0))
 				.andReturn();
 	}
 	
