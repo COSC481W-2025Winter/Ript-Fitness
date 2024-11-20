@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
@@ -155,6 +156,28 @@ public class NutritionTrackerControllerTest {
 				.andExpect(jsonPath("$.fat").value(21))
 				.andExpect(jsonPath("$.multiplier").value(1.0))
 				.andReturn();	
+	}
+	
+	@Test
+	public void testGetFoodsOfLoggedInUserValidRequest() throws Exception {
+		ArrayList<FoodDto> returnedArrayList = new ArrayList<>();
+		returnedArrayList.add(foodDto);
+		
+		when(nutritionTrackerService.getFoodsOfLoggedInUser(any(Integer.class), any(Integer.class))).thenReturn(returnedArrayList);
+		
+		mockMvc.perform(get("/nutritionCalculator/getFoodsOfLoggedInUser/0/0")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(""))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$[0].name").value("Protein bar"))
+				.andReturn();
+	}
+	
+	@Test
+	public void testGetFoodsOfLoggedInUserInvalidRequestNoPathVariables() throws Exception {
+		mockMvc.perform(get("/nutritionCalculator/getFoodsOfLoggedInUser"))
+				.andExpect(status().isInternalServerError());			
 	}
 
 	@Test
