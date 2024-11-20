@@ -4,9 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -120,6 +122,35 @@ public class SocialPostServiceTest {
 		when(socialPostRepository.findById(1L)).thenReturn(Optional.empty());
 		
 		assertThrows(RuntimeException.class, () -> socialPostService.getPost(1L));
+	}
+	
+	@Test
+	void testServiceGetPostsFromAccountIdValid() {
+		ArrayList<SocialPost> socialPosts = new ArrayList<>(List.of(socialPostModel));
+		
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+		when(socialPostRepository.getPostsFromAccountId(1L)).thenReturn(Optional.of(socialPosts));
+		
+		ArrayList<SocialPostDto> result = socialPostService.getPostsFromAccountId(0, 1);
+		
+		assertNotNull(result);
+		assertEquals(result.size(), 1);
+		assertEquals(result.get(0).content, "Just benched 500 pounds, my name is Chris and I'm so strong!!");
+	}
+	
+	@Test
+	void testServiceGetSocialFeedValid() {
+		account.setFriends(new ArrayList<AccountsModel>());
+		
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+		when(accountsRepository.findById(1L)).thenReturn(Optional.of(account));
+		when(accountsRepository.getSocialFeed(anyList())).thenReturn(Optional.of(List.of(socialPostModel)));
+		
+		ArrayList<SocialPostDto> result = socialPostService.getSocialFeed(0, 1);
+		
+		assertNotNull(result);
+		assertEquals(result.size(), 1);
+		assertEquals(result.get(0).numberOfLikes, 2);
 	}
 	
 	@Test
