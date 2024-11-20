@@ -12,7 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity // Creates a database table with the name below and the columns equal to the variable
-@Table(name = "workouts")
+@Table(name = "workoutData")
 public class WorkoutData {
 
 	@Id //Declares this variable the primary key in the table

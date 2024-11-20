@@ -1,5 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -47,9 +49,28 @@ public class WorkoutDataService {
 		return WorkoutDataMapper.INSTANCE.toWorkoutDataDto(wData);
 	}
 	
-	public WorkoutDataDto getAllWorkoutData() {
+	public List<WorkoutDataDto> getAllWorkoutData(Integer startIndex, Integer endIndex, String exerciseName) {
+		if(startIndex > endIndex)
+			throw new RuntimeException("Start index cannot be greater than end index. Start index = " + startIndex + ", end index = " + endIndex);
 		
-		return null;
+		if(startIndex < 0 || endIndex < 0)
+			throw new RuntimeException("Start index and end index must be greater than 0. Start index = " + startIndex + ", end index = " + endIndex);
+		Long currentUserId = accountsService.getLoggedInUserId();
+		AccountsModel account = accountsRepository.findById(currentUserId)
+				.orElseThrow(() -> new RuntimeException("Account not found"));
+		
+		List<WorkoutData> wDataL = workoutDataRepository.findByAccountId(currentUserId);
+		List<WorkoutDataDto> dataList = new ArrayList<>();
+		
+		for(WorkoutData wData : wDataL) {
+			if(wData.getExerciseName().toLowerCase().equals(exerciseName)) {
+				WorkoutDataDto workoutDataDto = WorkoutDataMapper.INSTANCE.toWorkoutDataDto(wData);
+				dataList.add(workoutDataDto);
+			}
+		}
+		
+		
+		return dataList;
 	}
 
 	public WorkoutDataDto updateWorkoutData(Long wDataId, WorkoutDataDto workoutDataDto) {
@@ -76,12 +97,12 @@ public class WorkoutDataService {
 		return WorkoutDataMapper.INSTANCE.toWorkoutDataDto(wDataToBeDeleted);
 	}
 	
-	public WorkoutDataDto getTotalReps() {
+	public Integer getMaxReps() {
 		
 		return null;
 	}
 	
-	public WorkoutDataDto getMaxWeight() {
+	public Integer getMaxWeight() {
 		
 		return null;
 	}
