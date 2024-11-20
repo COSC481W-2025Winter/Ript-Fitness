@@ -28,12 +28,15 @@ public class FriendsService {
 		Optional<AccountsModel> optionalUserToBeAddedToFriendsList = accountsRepository.findById(id);
 
 		if(optionalUserToBeAddedToFriendsList.isEmpty())
-			throw new RuntimeException("An account with the ID of the parameter in the path variable," + id + ", does not exist in the Account database.");
+			throw new RuntimeException("An account with the ID of the parameter in the path variable, " + id + ", does not exist in the Account database.");
 
 		AccountsModel userToBeAddedToFriendsList = optionalUserToBeAddedToFriendsList.get();
+		
+		if(currentlyLoggedInUser.getFriends().contains(userToBeAddedToFriendsList) && userToBeAddedToFriendsList.getFriends().contains(currentlyLoggedInUser))
+			throw new RuntimeException("The currently logged in user is already friends with the user with id = " + id);
 
-//		currentlyLoggedInUser.getFriends().add(userToBeAddedToFriendsList);
-//		userToBeAddedToFriendsList.getFriends().add(currentlyLoggedInUser);
+		currentlyLoggedInUser.getFriends().add(userToBeAddedToFriendsList);
+		userToBeAddedToFriendsList.getFriends().add(currentlyLoggedInUser);
 
 		accountsRepository.save(currentlyLoggedInUser);
 		accountsRepository.save(userToBeAddedToFriendsList);
@@ -47,9 +50,9 @@ public class FriendsService {
 		
 		ArrayList<String> listOfUsernamesInCurrentlyLoggedInUsersFriendsList = new ArrayList<String>();
 		
-//		for(AccountsModel accountOfFriend: currentlyLoggedInAccount.getFriends()) {
-	//		listOfUsernamesInCurrentlyLoggedInUsersFriendsList.add(accountOfFriend.getUserProfile().username);
-		//}
+		for(AccountsModel accountOfFriend: currentlyLoggedInAccount.getFriends()) {
+			listOfUsernamesInCurrentlyLoggedInUsersFriendsList.add(accountOfFriend.getUserProfile().username);
+		}
 		
 		return listOfUsernamesInCurrentlyLoggedInUsersFriendsList;
 	}
@@ -61,21 +64,21 @@ public class FriendsService {
 		Optional<AccountsModel> optionalUserToBeDeletedFromFriendsList = accountsRepository.findById(id);
 
 		if(optionalUserToBeDeletedFromFriendsList.isEmpty())
-			throw new RuntimeException("An account with the ID of the parameter in the path variable," + id + ", does not exist in the Account database.");
+			throw new RuntimeException("An account with the ID of the parameter in the path variable, " + id + ", does not exist in the Account database.");
 
 		AccountsModel userToBeDeletedFromFriendsList = optionalUserToBeDeletedFromFriendsList.get();
 
-		//boolean removedSuccessfullyFromCurrentlyLoggedInUser = currentlyLoggedInUser.getFriends().remove(userToBeDeletedFromFriendsList);
-		//boolean removedSuccessfullyFromUserWithIdInParameter = userToBeDeletedFromFriendsList.getFriends().remove(currentlyLoggedInUser);
-		/*
+		boolean removedSuccessfullyFromCurrentlyLoggedInUser = currentlyLoggedInUser.getFriends().remove(userToBeDeletedFromFriendsList);
+		boolean removedSuccessfullyFromUserWithIdInParameter = userToBeDeletedFromFriendsList.getFriends().remove(currentlyLoggedInUser);
+		
 		if(removedSuccessfullyFromCurrentlyLoggedInUser || removedSuccessfullyFromUserWithIdInParameter) {
 			accountsRepository.save(currentlyLoggedInUser);
 			accountsRepository.save(userToBeDeletedFromFriendsList);
 		}
 		else {
-			throw new RuntimeException("The currently logged in user with ID = " + currentlyLoggedInUserId + " is not friends with the user with ID = " + id + " . No changes were made to the database with this HTTP request.");
+			throw new RuntimeException("The currently logged in user is not friends with the user with ID = " + id + ". No changes were made to the database with this HTTP request.");
 		}
-*/
+		
 		return "The currently logged in user with ID = " + currentlyLoggedInUserId + " has successfully deleted the user with ID = " + id + " from their friend's list.";
 	}
 }
