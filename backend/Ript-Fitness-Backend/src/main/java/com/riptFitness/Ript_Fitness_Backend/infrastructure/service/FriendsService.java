@@ -6,16 +6,21 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.FriendRequest;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.FriendRequestRepository;
 
 @Service
 public class FriendsService {
+	
+	private FriendRequestRepository friendRequestRepository;
 
 	private AccountsRepository accountsRepository;
 
 	private AccountsService accountsService;
 
-	public FriendsService(AccountsRepository accountsRepository, AccountsService accountsService) {
+	public FriendsService(FriendRequestRepository friendRequestRepository, AccountsRepository accountsRepository, AccountsService accountsService) {
+		this.friendRequestRepository = friendRequestRepository;
 		this.accountsRepository = accountsRepository;
 		this.accountsService = accountsService;
 	}
@@ -23,6 +28,10 @@ public class FriendsService {
 	//Parameter "id" refers to the ID of the friend to be added by the currently logged in user
 	public String addFriend(Long id) {
 		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
+		
+		if(currentlyLoggedInUserId == id)
+			throw new RuntimeException("The ID in the path can't be the same as the currently logged in user.");
+		
 		AccountsModel currentlyLoggedInUser = accountsRepository.findById(currentlyLoggedInUserId).get();
 
 		Optional<AccountsModel> optionalUserToBeAddedToFriendsList = accountsRepository.findById(id);
@@ -59,6 +68,10 @@ public class FriendsService {
 	
 	public String deleteFriend(Long id) {
 		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
+		
+		if(currentlyLoggedInUserId == id) 
+			throw new RuntimeException("The ID in the path can't be the same as the currently logged in user.");
+		
 		AccountsModel currentlyLoggedInUser = accountsRepository.findById(currentlyLoggedInUserId).get();
 
 		Optional<AccountsModel> optionalUserToBeDeletedFromFriendsList = accountsRepository.findById(id);
@@ -71,7 +84,14 @@ public class FriendsService {
 		boolean removedSuccessfullyFromCurrentlyLoggedInUser = currentlyLoggedInUser.getFriends().remove(userToBeDeletedFromFriendsList);
 		boolean removedSuccessfullyFromUserWithIdInParameter = userToBeDeletedFromFriendsList.getFriends().remove(currentlyLoggedInUser);
 		
+		//Both users are friends with each other, delete their relationship in the FriendRequest database table, and take each of them out of the other's friend's list in the AccountsModel database table
 		if(removedSuccessfullyFromCurrentlyLoggedInUser || removedSuccessfullyFromUserWithIdInParameter) {
+			FriendRequest fromRequest = friendRequestRepository.findByAccountIdOfFromAccountAndAccountIdOfToAccount(currentlyLoggedInUserId, id).get();
+			FriendRequest toRequest = friendRequestRepository.findByAccountIdOfFromAccountAndAccountIdOfToAccount(id, currentlyLoggedInUserId).get();
+			
+			friendRequestRepository.delete(fromRequest);
+			friendRequestRepository.delete(toRequest);
+			
 			accountsRepository.save(currentlyLoggedInUser);
 			accountsRepository.save(userToBeDeletedFromFriendsList);
 		}

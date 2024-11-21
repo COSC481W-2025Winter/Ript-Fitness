@@ -25,12 +25,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.riptFitness.Ript_Fitness_Backend.domain.mapper.FriendRequestMapper;
-import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
-import com.riptFitness.Ript_Fitness_Backend.domain.model.FriendRequest;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.RequestStatus;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.JwtUtil;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.SecurityConfig;
@@ -112,6 +107,25 @@ public class FriendRequestControllerTest {
 		mockMvc.perform(get("/friendRequest/getStatus")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(""))
+				.andExpect(status().isInternalServerError())
+				.andReturn();
+	}
+	
+	@Test
+	public void testGetAllAccountsWithSpecificStatusValidRequest() throws Exception {
+		when(friendRequestService.getAllAccountsWithSpecificStatus(any(RequestStatus.class))).thenReturn(new ArrayList<String>(List.of("cpichle1", "nHalash")));
+		
+		mockMvc.perform(get("/friendRequest/getAllAccountsWithSpecifcStatus/PENDING")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(""))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[0]").value("cpichle1"))
+				.andReturn();
+	}
+	
+	@Test
+	public void testGetAllAccountsWithSpecificStatusInvalidRequestNoPathVariable() throws Exception {
+		mockMvc.perform(get("/friendRequest/getAllAccountsWithSpecifcStatus"))
 				.andExpect(status().isInternalServerError())
 				.andReturn();
 	}

@@ -14,6 +14,7 @@ import com.riptFitness.Ript_Fitness_Backend.domain.model.SocialPostComment;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.SocialPostCommentRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.SocialPostRepository;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.UserProfileRepository;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.SocialPostCommentDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.SocialPostDto;
 
@@ -27,18 +28,22 @@ public class SocialPostService {
 	private AccountsRepository accountsRepository;
 	
 	private AccountsService accountsService;
+	
+	private UserProfileRepository userProfileRepository;
 
-	public SocialPostService(SocialPostRepository socialPostRepository, SocialPostCommentRepository socialPostCommentRepository, AccountsRepository accountsRepository, AccountsService accountsService) {
+	public SocialPostService(SocialPostRepository socialPostRepository, SocialPostCommentRepository socialPostCommentRepository, AccountsRepository accountsRepository, AccountsService accountsService, UserProfileRepository userProfileRepository) {
 		this.socialPostRepository = socialPostRepository;
 		this.socialPostCommentRepository = socialPostCommentRepository;
 		this.accountsRepository = accountsRepository;
 		this.accountsService = accountsService;
+		this.userProfileRepository = userProfileRepository;
 	}
 	
 	public SocialPostDto addPost(SocialPostDto socialPostDto) {
 		SocialPost socialPostToBeAdded = SocialPostMapper.INSTANCE.toSocialPost(socialPostDto);
 		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
 		socialPostToBeAdded.account = accountsRepository.findById(currentlyLoggedInUserId).get();
+		socialPostToBeAdded.userProfile = userProfileRepository.findUserProfileByAccountId(currentlyLoggedInUserId).get();
 		socialPostToBeAdded = socialPostRepository.save(socialPostToBeAdded);
 		return SocialPostMapper.INSTANCE.toSocialPostDto(socialPostToBeAdded);
 	}
@@ -239,6 +244,7 @@ public class SocialPostService {
 		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
 
 		socialPostCommentModel.account = accountsRepository.findById(currentlyLoggedInUserId).get();
+		socialPostCommentModel.userProfile = userProfileRepository.findUserProfileByAccountId(currentlyLoggedInUserId).get();
 				
 		socialPostObject.socialPostComments.add(socialPostCommentModel);
 		

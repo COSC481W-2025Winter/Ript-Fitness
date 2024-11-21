@@ -3,10 +3,12 @@ package com.riptFitness.Ript_Fitness_Backend.infrastructure.serviceTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -136,6 +138,32 @@ public class FriendRequestServiceTest {
 		
 		assertNotNull(result);
 		assertEquals(result, "NO RELATIONSHIP");
+	}
+	
+	@Test
+	void testGetAllAccountsWithSpecificStatusValid() {
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+		when(friendRequestRepository.getToAccountFromFromAccountAndStatus(1L, RequestStatus.PENDING)).thenReturn(new ArrayList<Long>(List.of(2L, 3L)));
+		when(accountsRepository.findById(any(Long.class))).thenReturn(Optional.of(toAccount));
+		
+		ArrayList<String> result = friendRequestService.getAllAccountsWithSpecificStatus(RequestStatus.PENDING);
+		
+		assertNotNull(result);
+		assertEquals(result.get(0), "nHalash");
+	}
+	
+	@Test
+	void testGetAllAccountsWithSpecificStatusInvalidAccountNotValidInFriendRequestTable() {
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+		when(friendRequestRepository.getToAccountFromFromAccountAndStatus(1L, RequestStatus.PENDING)).thenReturn(new ArrayList<Long>(List.of(2L, 3L)));
+		when(accountsRepository.findById(any(Long.class))).thenReturn(Optional.empty());
+		
+		RuntimeException exceptionThrown = assertThrows(RuntimeException.class, () -> {
+			friendRequestService.getAllAccountsWithSpecificStatus(RequestStatus.PENDING);
+		});
+		
+		assertEquals(exceptionThrown.getMessage(), "The getToAccountFromFromAccountAndStatus query in Friend Request Repository returned a Long that does not belong to any row with that id in the AccountsModel database table.");
+
 	}
 	
 	//The only way for a "SENT" request to be sent to the sendRequest endpoint is if fromAccount previously declined toAccount's friend request, and now wants to send a friend request to toAccount

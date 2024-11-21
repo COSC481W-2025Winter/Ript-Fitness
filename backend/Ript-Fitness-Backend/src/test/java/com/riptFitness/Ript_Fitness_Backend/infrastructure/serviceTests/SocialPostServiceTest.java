@@ -22,9 +22,11 @@ import com.riptFitness.Ript_Fitness_Backend.domain.mapper.SocialPostMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.SocialPost;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.SocialPostComment;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.SocialPostCommentRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.SocialPostRepository;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.UserProfileRepository;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AccountsService;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.SocialPostService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.SocialPostCommentDto;
@@ -43,6 +45,9 @@ public class SocialPostServiceTest {
 	
 	@Mock
 	private AccountsService accountsService;
+	
+	@Mock
+	private UserProfileRepository userProfileRepository;
 	
 	@InjectMocks
 	private SocialPostService socialPostService;
@@ -98,6 +103,7 @@ public class SocialPostServiceTest {
 	void testServiceAddPostValid() {
 		when(socialPostRepository.save(any(SocialPost.class))).thenReturn(socialPostModel);
 		when(accountsRepository.findById(any(Long.class))).thenReturn(Optional.of(account));
+		when(userProfileRepository.findUserProfileByAccountId(any(Long.class))).thenReturn(Optional.of(new UserProfile()));
 		when(accountsService.getLoggedInUserId()).thenReturn(1L);
 		
 		SocialPostDto result = socialPostService.addPost(socialPost);
@@ -251,6 +257,7 @@ public class SocialPostServiceTest {
 	void testServiceAddCommentValid() {
 		when(socialPostRepository.findById(any(Long.class))).thenReturn(Optional.of(socialPostModel));
 		when(accountsRepository.findById(any(Long.class))).thenReturn(Optional.of(account));
+		when(userProfileRepository.findUserProfileByAccountId(any(Long.class))).thenReturn(Optional.of(new UserProfile()));
 		when(socialPostRepository.save(any(SocialPost.class))).thenReturn(socialPostModel);
 		
 		SocialPostDto result = socialPostService.addComment(commentThree);
