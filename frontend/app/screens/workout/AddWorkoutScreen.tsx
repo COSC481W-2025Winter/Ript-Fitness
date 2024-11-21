@@ -16,6 +16,7 @@ import { isAndroid } from 'react-native-draggable-flatlist/lib/typescript/consta
 import * as Haptics from 'expo-haptics';
 import React from 'react';
 import CustomChip from '@/components/custom/CustomChip';
+import { WorkoutContext } from '@/context/WorkoutContext';
 
 type Exercise = {
   sets: number;
@@ -27,9 +28,10 @@ type Exercise = {
 
 export function AddWorkoutScreen() {
   //Manage the add exercise modal visibility
-  const [isAddModalVisible, setAddModalVisible] = useState(false);
-  const navigation = useNavigation<WorkoutScreenNavigationProp >();
 
+  const context = useContext(WorkoutContext)
+
+  const navigation = useNavigation<WorkoutScreenNavigationProp >();
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [exerciseName, setExerciseName] = useState('');
   const [typeOfExercise, setTypeOfExercise] = useState<number | null>(null);
@@ -59,7 +61,8 @@ export function AddWorkoutScreen() {
   const editWorkout = (id : any) => {
   console.log('Opening modal for workout:', id);
   //Open Modal when pencil icon is pressed
-  setAddModalVisible(true);
+  //setAddModalVisible(true);
+  context?.setVisible(true);
   }
 
   //submit button will send users to My Workout page
@@ -71,9 +74,9 @@ export function AddWorkoutScreen() {
   const modalComponent = (
     <Modal
       transparent={true}
-      visible={isAddModalVisible}
+      visible={context?.modalObject.isVisible}
       animationType='slide'
-      onRequestClose={() => setAddModalVisible(false)}
+      onRequestClose={() => context?.setVisible(false)/*setAddModalVisible(false)*/}
     >
       <View style={styles.modalOverlay}>
 
@@ -97,7 +100,8 @@ export function AddWorkoutScreen() {
               {/* Close/ x button */}
               <TouchableOpacity 
                 onPress={() => {
-                  setAddModalVisible(false);
+                  context?.setVisible(false)
+                  //setAddModalVisible(false);
                   setSets([{ setNumber: 1, reps: '' }]);
                   setExerciseName('');
                   setTypeOfExercise(null);
@@ -174,7 +178,8 @@ export function AddWorkoutScreen() {
 
                   //reset fields
                   setExercises((prev) => [...prev, newExercise]);
-                  setAddModalVisible(false);
+                  context?.setVisible(false)
+                  //setAddModalVisible(false);
                   setExerciseName('');
                   setSets([{ setNumber: 1, reps: '' }]);
                   setTypeOfExercise(null);
