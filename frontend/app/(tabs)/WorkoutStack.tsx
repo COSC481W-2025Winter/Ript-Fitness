@@ -7,7 +7,7 @@ import MyWorkoutsScreen from '@/app/screens/workout/MyWorkoutsScreen';
 import WorkoutApiScreen from '@/app/screens/workout/WorkoutApiScreen';
 import { WorkoutProvider } from '@/context/WorkoutContext';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import AddWorkoutScreen from '../screens/workout/AddWorkoutScreen';
+import {AddWorkoutScreen} from '../screens/workout/AddWorkoutScreen';
 import StartWorkoutScreen from '../screens/workout/StartWorkoutScreen';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation } from '@react-navigation/native';

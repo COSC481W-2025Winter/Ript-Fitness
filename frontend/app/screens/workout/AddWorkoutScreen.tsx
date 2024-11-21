@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, TouchableOpacity, View, FlatList, ScrollView, Dimensions, Modal, Text } from 'react-native';
+import { Image, StyleSheet, Platform, TouchableOpacity, View, FlatList, ScrollView, Dimensions, Modal, Text, KeyboardAvoidingView } from 'react-native';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -17,88 +17,182 @@ import * as Haptics from 'expo-haptics';
 import React from 'react';
 import CustomChip from '@/components/custom/CustomChip';
 
-export default function AddWorkoutScreen() {
+type Exercise = {
+  sets: number;
+  reps: number[];
+  nameOfExercise: string;
+  weight: number[]; // Assuming weight is a number array
+  typeOfExercise: number;
+};
+
+export function AddWorkoutScreen() {
   //Manage the add exercise modal visibility
   const [isAddModalVisible, setAddModalVisible] = useState(false);
   const navigation = useNavigation<WorkoutScreenNavigationProp >();
 
-   const removeWorkout = (id : any) => {
-    const updatedWorkouts = workouts.filter(workout => workout.id !== id);
-    setWorkouts(updatedWorkouts);
-   }
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [exerciseName, setExerciseName] = useState('');
+  const [typeOfExercise, setTypeOfExercise] = useState<number | null>(null);
+  const [sets, setSets] = useState<{ setNumber: number; reps: string}[]>([{ setNumber: 1, reps: ''}]);
 
-   //make modal appear to edit added workout
-   const editWorkout = (id : any) => {
-    console.log('Opening modal for workout:', id);
-    //Open Modal when pencil icon is pressed
-    setAddModalVisible(true);
-   }
+
+  const handleAddSet = () => {
+    setSets((prevSets) => [
+      ...prevSets,
+      {setNumber: prevSets.length + 1, reps: ''},
+    ]);
+  };
+  const handleRepChange = (index: number, value: string) => {
+    setSets((prevSets) =>
+      prevSets.map((set, i) =>
+        i ===index ? {...set, reps: value} : set
+      )
+    );
+  };
+
+  const removeWorkout = (id : any) => {
+  const updatedWorkouts = workouts.filter(workout => workout.id !== id);
+  setWorkouts(updatedWorkouts);
+  }
+
+  //make modal appear to edit added workout
+  const editWorkout = (id : any) => {
+  console.log('Opening modal for workout:', id);
+  //Open Modal when pencil icon is pressed
+  setAddModalVisible(true);
+  }
 
   //submit button will send users to My Workout page
-   const submitWorkout = () => {
-    
-   }
+  const submitWorkout = () => {
+  
+  }
 
-   //Modal
-   const modalComponent = (
+  //Modal
+  const modalComponent = (
     <Modal
-        transparent={true}
-        visible={isAddModalVisible}
-        animationType='slide'
-        onRequestClose={() => setAddModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
+      transparent={true}
+      visible={isAddModalVisible}
+      animationType='slide'
+      onRequestClose={() => setAddModalVisible(false)}
+    >
+      <View style={styles.modalOverlay}>
+
+        <KeyboardAvoidingView
+          style={styles.modalContentContainer}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}  
+        >
+
           <View style={styles.modalContent}>
             {/* Title and close modal icon */}
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <TextInput style={{fontSize: 18,}}
+              <TextInput style={{fontSize: 18, fontWeight: '500', }}
                 placeholder='Exercise Name'
                 placeholderTextColor={'#B6B6B6'}
                 maxLength={20}
                 autoFocus={true}
                 autoCapitalize='words'
+                onChangeText={setExerciseName}
               />
-              <TouchableOpacity onPress={() => setAddModalVisible(false)}>
+              {/* Close/ x button */}
+              <TouchableOpacity 
+                onPress={() => {
+                  setAddModalVisible(false);
+                  setSets([{ setNumber: 1, reps: '' }]);
+                  setExerciseName('');
+                  setTypeOfExercise(null);
+                  }}
+                >
                 <Ionicons name='close-circle-outline' size={30} color={'#747474'} />
               </TouchableOpacity>
             </View>
-            {/* Upper, Lower, or Rec type */}
-            <CustomChip />
+            {/* Upper, Lower, or Rec type - 1, 2, 3 */}
+            <CustomChip 
+              onTypeSelect={(type) => setTypeOfExercise(type)}
+            />
             {/* Each set with rep for the exercise */}
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5, width: '90%', alignSelf: 'center' }}>
-              <Text style={styles.modalLabels}>Set</Text>
-              <Text style={styles.modalLabels}>Reps</Text>
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, width: '90%', alignSelf: 'center' }}>
-              <Text style={{ fontSize: 16, marginLeft: 10 }}>1</Text>
-              <TextInput style={styles.repInput}
-                maxLength={3}
-                keyboardType='numeric'
-              />
-            </View>
-
-
-
-
+            <ScrollView style={{ maxHeight: 125 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5, width: '90%', alignSelf: 'center' }}>
+                <Text style={styles.modalLabels}>Set</Text>
+                <Text style={styles.modalLabels}>Reps</Text>
+              </View>
+              {sets.map((set, index) => (
+                <View 
+                  key={index} 
+                  style={{ 
+                    flexDirection: 'row', 
+                    justifyContent: 'space-between', 
+                    marginBottom: 10, 
+                    width: '90%', 
+                    alignSelf: 'center' 
+                  }}
+                >
+                  <Text style={{ fontSize: 16, marginLeft: 10 }}>{set.setNumber}</Text>
+                  <TextInput 
+                    style={styles.repInput}
+                    maxLength={3}
+                    keyboardType='numeric'
+                    value={set.reps}
+                    onChangeText={(value) => handleRepChange(index, value)}
+                  />
+                </View>
+              ))}
+            </ScrollView>
+            
             {/* Buttons for add set or save exercise */}
             <View style={styles.modalButtonsContainer}>
-              <TouchableOpacity style={styles.modalButton1} onPress={() => setAddModalVisible(false)}>
+              <TouchableOpacity style={styles.modalButton1} onPress={handleAddSet}>
                 <Text style={{ color: '#21BFBF', fontSize: 15 }}>Add Set</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.modalButton2} onPress={() => setAddModalVisible(false)}>
+
+              {/* Save Button */}
+              <TouchableOpacity 
+                style={styles.modalButton2} 
+                onPress={() => {
+                  // User has to enter exercise name and choose the type
+                  if (!exerciseName || typeOfExercise === null) {
+                    alert("Exercise name and exercise type are required fields.");
+                    return;
+                  }        
+                  const repNumbers = sets.map((set) => Number(set.reps));
+
+                  const newExercise = {
+                    sets: sets.length,
+                    reps: repNumbers,
+                    nameOfExercise: exerciseName,
+                    weight: [],
+                    typeOfExercise: typeOfExercise!, // Pass the integer value
+                  };
+                  console.log('New Exercise:', newExercise);
+
+                  // Update the exercises state with the new exercise
+                  setExercises((prev) => {
+                    const updatedExercises = [...prev, newExercise];
+                    console.log('Updated Exercises:', updatedExercises);  // Log updated exercises array
+                    return updatedExercises;
+                  });
+
+                  //reset fields
+                  setExercises((prev) => [...prev, newExercise]);
+                  setAddModalVisible(false);
+                  setExerciseName('');
+                  setSets([{ setNumber: 1, reps: '' }]);
+                  setTypeOfExercise(null);
+                }}
+              >
                 <Text style={{ color: '#fff', fontSize: 15 }}>Save</Text>
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
+      </View>
+    </Modal>
+  );
+  const viewWorkoutDetails = (id : any) => {
+    navigation.navigate("ApiScreen", {})
+  }
 
-      </Modal>
-   );
-const viewWorkoutDetails = (id : any) => {
-  navigation.navigate("ApiScreen", {})
-}
-
-   const data = [
+  const data = [
     { id: '1', name: 'Item 1' },
     { id: '2', name: 'Item 2' },
     { id: '3', name: 'Item 3' },
@@ -244,7 +338,7 @@ const viewWorkoutDetails = (id : any) => {
           ListFooterComponent={() => <View style={{ height: submitHeight }} />}
         />
         <View style={styles.submitView}>
-          <TouchableOpacity onPress={() => navigation.navigate("ApiScreen", {})} style={styles.button}><View style={styles.submitButtonView}><ThemedText style={styles.buttonText}>Submit </ThemedText></View></TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("ApiScreen", {})} activeOpacity={0.9} style={styles.button}><View style={styles.submitButtonView}><ThemedText style={styles.buttonText}>Submit </ThemedText></View></TouchableOpacity>
         </View>
       </View>
     {/* Render Modal */}
@@ -417,6 +511,10 @@ test: {
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
+  },
+  modalContentContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   modalContent: {
     width: '80%',

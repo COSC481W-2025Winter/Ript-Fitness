@@ -3,31 +3,39 @@ import { TouchableOpacity, View, StyleSheet, Text } from "react-native";
 
 interface ChipProps {
   label: string;
-  value: string;
+  value: number;
   selected: boolean;
-  onPress: (value: string) => void;
+  onPress: (value: number) => void;
 }
 
 const Chip: React.FC<ChipProps> = ({ label, value, selected, onPress }) => {
   return (
-    <TouchableOpacity style={[styles.chip, selected && styles.selectedChip]} onPress={() => onPress(value)}>
+    <TouchableOpacity 
+      style={[styles.chip, selected && styles.selectedChip]} 
+      onPress={() => onPress(value)}
+    >
       <Text style={[styles.chipText, selected && styles.selectedChipText]}>{label}</Text>
     </TouchableOpacity>
   );
 };
 
-const CustomChip: React.FC = () => {
-  const [selectedChip, setSelectedChip] = useState<string | null>(null);
-  
-  const handleChipPress = (value: string) => {
+interface CustomChipProps {
+  onTypeSelect: (type: number) => void;
+}
+
+const CustomChip: React.FC<CustomChipProps> = ({ onTypeSelect }) => {
+  const [selectedChip, setSelectedChip] = useState<number | null>(null);
+  console.log(selectedChip);
+  const handleChipPress = (value: number) => {
     setSelectedChip(value);
+    onTypeSelect(value);
   };
 
   return (
     <View style={styles.container}>
-      <Chip label="Upper" value="upper" selected={selectedChip === 'upper'} onPress={handleChipPress} />
-      <Chip label="Lower" value="lower" selected={selectedChip === 'lower'} onPress={handleChipPress} />
-      <Chip label="Rec" value="rec" selected={selectedChip === 'rec'} onPress={handleChipPress} />
+      <Chip label="Upper" value={1} selected={selectedChip === 1} onPress={handleChipPress} />
+      <Chip label="Lower" value={2} selected={selectedChip === 2} onPress={handleChipPress} />
+      <Chip label="Rec" value={3} selected={selectedChip === 3} onPress={handleChipPress} />
     </View>
   );
 };
