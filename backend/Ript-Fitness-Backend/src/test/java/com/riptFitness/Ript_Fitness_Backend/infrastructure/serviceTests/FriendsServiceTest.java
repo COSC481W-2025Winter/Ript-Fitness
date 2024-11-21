@@ -56,7 +56,7 @@ public class FriendsServiceTest {
 		String result = friendsService.addFriend(2L);
 		
 		assertNotNull(result);
-		assertEquals(result, "The currently logged in user with ID = 1 has successfully added the user with ID = 2 to their friend's list.");
+		assertEquals(result, "The currently logged in user has successfully added the user with ID = 2 to their friend's list.");
 	}
 	
 	@Test
@@ -117,7 +117,7 @@ public class FriendsServiceTest {
 		String result = friendsService.deleteFriend(2L);
 		
 		assertNotNull(result);
-		assertEquals(result, "The currently logged in user with ID = 1 has successfully deleted the user with ID = 2 from their friend's list.");
+		assertEquals(result, "The currently logged in user has successfully deleted the user with ID = 2 from their friend's list.");
 	}
 	
 	@Test

@@ -2,6 +2,8 @@ package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -20,11 +22,17 @@ public class FriendRequest {
 	
 	@ManyToOne
 	@JoinColumn(name = "from_account_id", nullable = false)
+	@JsonIgnore
 	public AccountsModel fromAccount;
 	
 	@ManyToOne
 	@JoinColumn(name = "to_account_id", nullable = false)
+	@JsonIgnore
 	public AccountsModel toAccount;
+	
+	public Long accountIdOfFromAccount;
+		
+	public Long accountIdOfToAccount;
 	
 	@Enumerated(EnumType.STRING)
 	public RequestStatus status;
@@ -34,4 +42,17 @@ public class FriendRequest {
 	public String toUsername;	//Username of toAccount's userProfile
 	
 	public LocalDateTime dateTimeOfMostRecentChangeToStatus;
+
+	public FriendRequest(AccountsModel fromAccount, AccountsModel toAccount, Long accountIdOfFromAccount, Long accountIdOfToAccount, RequestStatus status, String fromUsername,
+			String toUsername, LocalDateTime dateTimeOfMostRecentChangeToStatus) {
+		super();
+		this.fromAccount = fromAccount;
+		this.toAccount = toAccount;
+		this.accountIdOfFromAccount = accountIdOfFromAccount;
+		this.accountIdOfToAccount = accountIdOfToAccount;
+		this.status = status;
+		this.fromUsername = fromUsername;
+		this.toUsername = toUsername;
+		this.dateTimeOfMostRecentChangeToStatus = dateTimeOfMostRecentChangeToStatus;
+	}
 }

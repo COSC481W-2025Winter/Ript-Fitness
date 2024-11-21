@@ -1,5 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.web.controller;
 
+import java.util.ArrayList;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,9 +25,9 @@ public class FriendRequestController {
 		this.friendRequestService = friendRequestService;
 	}
 	
-	@PostMapping("/send")
-	public ResponseEntity<FriendRequestDto> sendRequest(@RequestBody FriendRequestDto friendRequestDto){
-		FriendRequestDto savedFriendRequestDto = friendRequestService.sendRequest(friendRequestDto);
+	@PostMapping("/sendNewRequest")
+	public ResponseEntity<ArrayList<FriendRequestDto>> sendNewRequest(@RequestBody FriendRequestDto friendRequestDto){
+		ArrayList<FriendRequestDto> savedFriendRequestDto = friendRequestService.sendNewRequest(friendRequestDto);
 		return new ResponseEntity<>(savedFriendRequestDto, HttpStatus.CREATED);
 	}
 	
@@ -35,9 +37,9 @@ public class FriendRequestController {
 		return new ResponseEntity<>(returnedStatusString, HttpStatus.OK);
 	}
 	
-	@PutMapping("/respond")
-	public ResponseEntity<FriendRequestDto> respondToRequest(@RequestBody FriendRequestDto friendRequestDto){
-		FriendRequestDto savedFriendRequestDto = friendRequestService.respondToRequest(friendRequestDto);
+	@PutMapping("/sendRequest")
+	public ResponseEntity<ArrayList<FriendRequestDto>> sendRequest(@RequestBody FriendRequestDto friendRequestDto){
+		ArrayList<FriendRequestDto> savedFriendRequestDto = friendRequestService.sendRequest(friendRequestDto);
 		return new ResponseEntity<>(savedFriendRequestDto, HttpStatus.OK);
 	}
 }
