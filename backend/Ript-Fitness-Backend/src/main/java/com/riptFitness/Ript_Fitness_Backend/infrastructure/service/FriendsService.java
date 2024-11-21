@@ -41,7 +41,7 @@ public class FriendsService {
 		accountsRepository.save(currentlyLoggedInUser);
 		accountsRepository.save(userToBeAddedToFriendsList);
 
-		return "The currently logged in user with ID = " + currentlyLoggedInUserId + " has successfully added the user with ID = " + id + " to their friend's list.";
+		return "The currently logged in user has successfully added the user with ID = " + id + " to their friend's list.";
 	}
 
 	public ArrayList<String> getFriendsListOfCurrentlyLoggedInUser(){
@@ -79,6 +79,6 @@ public class FriendsService {
 			throw new RuntimeException("The currently logged in user is not friends with the user with ID = " + id + ". No changes were made to the database with this HTTP request.");
 		}
 		
-		return "The currently logged in user with ID = " + currentlyLoggedInUserId + " has successfully deleted the user with ID = " + id + " from their friend's list.";
+		return "The currently logged in user has successfully deleted the user with ID = " + id + " from their friend's list.";
 	}
 }
