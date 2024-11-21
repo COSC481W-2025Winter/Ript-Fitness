@@ -1,5 +1,6 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,6 +15,8 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, Lo
 	// Takes in fromAccountId and toAccountId and returns the Status row if a relationship exists between the 2
 	@Query(value = "SELECT f.status FROM FriendRequest f WHERE f.fromAccountId = :fromAccountID AND f.toAccountId = :toAccountId")
 	Optional<String> getStatus(@Param("fromAccountId") Long fromAccountId, @Param("toAccountId") Long toAccountID);
-	
+
+	@Query(value = "SELECT f.toAccountId FROM FriendRequest f WHERE f.fromAccountId = :fromAccountId AND f.status = :status ")
+	List<Long> getToAccountFromFromAccountAndStatus(@Param("fromAccountId") Long fromAccountId, @Param("status") String status);
 
 }
