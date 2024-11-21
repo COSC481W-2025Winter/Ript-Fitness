@@ -25,7 +25,7 @@ public class FriendRequestService {
 	private AccountsRepository accountsRepository;
 	
 	private AccountsService accountsService;
-	
+		
 	public FriendRequestService(FriendRequestRepository friendRequestRepository, FriendsService friendsService, AccountsRepository accountsRepository, AccountsService accountsService) {
 		this.friendRequestRepository = friendRequestRepository;
 		this.friendsService = friendsService;
@@ -36,6 +36,10 @@ public class FriendRequestService {
 	//Endpoint only hit if fromAccount and toAccount don't have a current relationship in the FriendRequest database table
 	public ArrayList<FriendRequestDto> sendNewRequest(FriendRequestDto friendRequestDto) {
 		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
+		
+		if(currentlyLoggedInUserId == friendRequestDto.accountIdOfToAccount)
+			throw new RuntimeException("The ID in the DTO body object can't be the same as the currently logged in user.");
+		
 		AccountsModel currentlyLoggedInUser = accountsRepository.findById(currentlyLoggedInUserId).get();
 		
 		Long toAccountId = friendRequestDto.accountIdOfToAccount;
@@ -70,6 +74,9 @@ public class FriendRequestService {
 	public String getStatus(Long toAccountId) {
 		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
 		
+		if(currentlyLoggedInUserId == toAccountId)
+			throw new RuntimeException("The ID in the path can't be the same as the currently logged in user.");
+		
 		Optional<AccountsModel> optionalToAccountUser = accountsRepository.findById(toAccountId);
 		
 		if(optionalToAccountUser.isEmpty())
@@ -83,8 +90,32 @@ public class FriendRequestService {
 		return optionalStatus.get().toString();
 	}
 	
+	public ArrayList<String> getAllAccountsWithSpecificStatus(RequestStatus status){
+		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
+		
+		ArrayList<Long> idsOfAllAccountsWithSpecificStatus = friendRequestRepository.getToAccountFromFromAccountAndStatus(currentlyLoggedInUserId, status);
+		
+		ArrayList<String> listOfUsernamesReturnedByMethod = new ArrayList<>();
+		
+		for(Long accountId : idsOfAllAccountsWithSpecificStatus) {
+			Optional<AccountsModel> optionalAccount = accountsRepository.findById(accountId);
+			
+			if(optionalAccount.isEmpty())
+				throw new RuntimeException("The getToAccountFromFromAccountAndStatus query in Friend Request Repository returned a Long that does not belong to any row with that id in the AccountsModel database table.");
+			
+			AccountsModel account = optionalAccount.get();
+			
+			listOfUsernamesReturnedByMethod.add(account.getUsername());
+		}
+		
+		return listOfUsernamesReturnedByMethod;
+	}
+	
 	public ArrayList<FriendRequestDto> sendRequest(FriendRequestDto friendRequestDto) {
 		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
+		
+		if(currentlyLoggedInUserId == friendRequestDto.accountIdOfToAccount)
+			throw new RuntimeException("The ID in the DTO body object can't be the same as the currently logged in user.");
 		
 		Long toAccountId = friendRequestDto.accountIdOfToAccount;
 		
