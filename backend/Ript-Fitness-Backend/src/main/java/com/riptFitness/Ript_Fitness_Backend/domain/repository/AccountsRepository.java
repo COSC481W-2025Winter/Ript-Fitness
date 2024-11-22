@@ -44,4 +44,9 @@ public interface AccountsRepository extends JpaRepository <AccountsModel, Long> 
     // Search the SocialPost table and returns all SocialPosts with accountId = any accountIds in the input parameter ArrayList
     @Query("SELECT s from SocialPost s WHERE s.account.id IN :accountIds")
     Optional<List<SocialPost>> getSocialFeed(@Param("accountIds") List<Long> accountIds);
+    
+    // Given the logged in users ID; fetch the email:
+    @Query("SELECT a.email FROM AccountsModel a WHERE a.id = :currentUserId")
+    String findEmailById(@Param("currentUserId") Long currentUserId);
+
 }
