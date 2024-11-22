@@ -21,7 +21,8 @@ public class UserProfile {
     public String firstName;
 
     public String lastName;
-
+    
+    public String displayname;
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<SocialPost> socialPosts;
 
@@ -35,6 +36,8 @@ public class UserProfile {
     // User's email or username
     @Column(unique = true, nullable = false)
     public String username;
+    
+
     
     @OneToOne
     @JoinColumn(name = "account_id", referencedColumnName = "id")
@@ -93,6 +96,14 @@ public class UserProfile {
         this.username = username;
     }
 
+    public String getDisplayname(String displayname) {
+    	return displayname;
+    }
+    
+    public void setDisplayname(String displayname) {
+    	this.displayname = displayname;
+    }
+    
     public boolean isDeleted() {
         return isDeleted;
     }

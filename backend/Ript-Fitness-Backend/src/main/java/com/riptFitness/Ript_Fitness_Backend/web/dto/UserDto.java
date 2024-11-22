@@ -9,7 +9,8 @@ public class UserDto {
     public Long id;                 
     public String firstName;         
     public String lastName;          
-    public String username;          
+    public String username; 
+    public String displayname;
     public String bio;
     public boolean isDeleted = false; //sft delete flag 
 }
