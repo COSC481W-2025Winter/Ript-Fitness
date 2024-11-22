@@ -15,7 +15,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   const [showPassword, setShowPassword] = useState(false);
   const { height, width } = Dimensions.get('window');
   const context = useContext(GlobalContext);
+
   const [errorMessage, setErrorMessage] = useState('');
+  const [usernameErrorMessage, setusernameErrorMessage] = useState('');
+  const [passwordErrorMessage, setpasswordErrorMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
   //Use states for username and password
@@ -34,12 +37,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
     const handleUsernameChange = (text: string) => {
       setUsername(text);
       if (!isUsernameValid) setIsUsernameValid(true);
+      if (usernameErrorMessage) setusernameErrorMessage('');
     };
 
     //Handle text input change for password
     const handlePasswordChange = (text: string) => {
       setPassword(text);
       if (!isPasswordValid) setIsPasswordValid(true);
+      if (passwordErrorMessage) setpasswordErrorMessage('');
     };
 
   const handleLogin = async () => {
@@ -61,18 +66,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
           const startIndex = text.indexOf('Message:') + 'Message:'.length;
           errorMessage = text.substring(startIndex).trim();
           setIsUsernameValid(false);
+          setusernameErrorMessage(errorMessage);
         } else if (text.includes('Incorrect')) {
           const startIndex = text.indexOf('Message:') + 'Message:'.length;
           errorMessage = text.substring(startIndex).trim();
           setIsPasswordValid(false);
+          setpasswordErrorMessage(errorMessage);
         }
         setErrorMessage(errorMessage);
-        // if (text.includes('Message:')) {
-        //   const startIndex = text.indexOf('Message:') + 'Message:'.length;
-        //   setIsUsernameValid(false);
-        //   errorMessage = text.substring(startIndex).trim();
-        // }
-        // setErrorMessage(errorMessage);
       }
     } catch (error) {
       setErrorMessage('An error occurred. Please try again later.');
@@ -98,13 +99,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
               <Text style={styles.mainText}>Log in</Text>
               <Text style={styles.descText}>Sign into your Account</Text>
             </View>
-            {/* Error Message Popup */}
-            {errorMessage ? (
-            <View style={[styles.errorContainer, { marginTop: height * -0.01, marginBottom: height * 0.01 }]}>
-              <Ionicons name="alert-circle" size={24} color={'#F2505D'} />
-              <Text style={styles.errorText}>{errorMessage}</Text>
-            </View>
-            ) : null}
             {/* Username input */}
             <View style={styles.buttonContainer}>
               <CustomTextInput
@@ -123,6 +117,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                     : styles.defaultInput
                 }
               />
+              {/* Username Error Message Popup */}
+              {errorMessage ? (
+              <View style={{ marginTop: height * -0.01, flexWrap: 'wrap', width: width * 0.75, flexDirection: 'row'  }}>
+                <Text style={styles.secondaryErrorText}>{usernameErrorMessage}</Text>
+              </View>
+              ) : null}
               {/* Password input */}
               <View style={styles.inputIconContainer}>
                 <CustomTextInput
@@ -151,6 +151,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                   />
                 </TouchableOpacity>
               </View>
+              {/* Username Error Message Popup */}
+              {errorMessage ? (
+                <View style={{ marginTop: height * -0.01, flexWrap: 'wrap', width: width * 0.75, flexDirection: 'row'  }}>
+                  <Text style={styles.secondaryErrorText}>{passwordErrorMessage}</Text>
+                </View>
+              ) : null}
               {/* Login button */}
               <CustomButton
                 title="Log in"
@@ -240,6 +246,13 @@ const styles = StyleSheet.create({
     color: '#F2505D',
     fontSize: 14,
     textAlign: 'center',
+  },
+  secondaryErrorText: {
+    marginLeft: 20,
+    color: '#F2505D',
+    fontSize: 14,
+    textAlign: 'left',
+    flexWrap: 'wrap',
   },
   disabledButton: {
     opacity: 0.5,

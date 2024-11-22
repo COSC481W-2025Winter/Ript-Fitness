@@ -227,7 +227,6 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
               {/* Email Error message */}
               {submitted && emailErrorMessage ? (
                 <View style={{ marginTop: height * -0.01, flexWrap: 'wrap', width: width * 0.75, flexDirection: 'row'  }}>
-                  {/* <Ionicons name="alert-circle" size={24} color={'#F2505D'} /> */}
                   <Text style={styles.secondaryErrorText}>{emailErrorMessage}</Text>
                 </View>
               ) : null}
