@@ -1,7 +1,6 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
 import java.time.LocalDate;
-
 import jakarta.persistence.*;
 
 @Entity
@@ -19,21 +18,17 @@ public class Calendar {
     @Column(name = "date", nullable = false)
     private LocalDate date;
 
-    @Column(name = "activity_type", nullable = false)
-    private int activityType; // 0 = Missed, 1 = Workout, 2 = Rest
-
-    @Column(name = "color_code", nullable = false)
-    private int colorCode; // 0 = Red, 1 = Green, 2 = Yellow
+    @Column(name = "type", nullable = false)
+    private int type; // 1 = Workout, 2 = Rest, 3 = Missed, etc.
 
     // Default Constructor for JPA
     public Calendar() {}
 
-    // Constructor
-    public Calendar(AccountsModel account, LocalDate date, int activityType, int colorCode) {
+    // Constructor with Arguments
+    public Calendar(AccountsModel account, LocalDate date, int type) {
         this.account = account;
         this.date = date;
-        this.activityType = activityType;
-        this.colorCode = colorCode;
+        this.type = type;
     }
 
     // Getters and Setters
@@ -61,19 +56,11 @@ public class Calendar {
         this.date = date;
     }
 
-    public int getActivityType() {
-        return activityType;
+    public int getType() {
+        return type;
     }
 
-    public void setActivityType(int activityType) {
-        this.activityType = activityType;
-    }
-
-    public int getColorCode() {
-        return colorCode;
-    }
-
-    public void setColorCode(int colorCode) {
-        this.colorCode = colorCode;
+    public void setType(int type) {
+        this.type = type;
     }
 }
