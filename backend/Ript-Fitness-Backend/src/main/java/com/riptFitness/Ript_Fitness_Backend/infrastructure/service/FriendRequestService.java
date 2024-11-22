@@ -60,7 +60,7 @@ public class FriendRequestService {
 		
 		//FriendRequest constructor order: fromAccount, toAccount, accountIdOfFromAccount, accountIdOfToAccount, RequestStatus, fromUsername, toUsername, LocalDateTime
 		FriendRequest fromRequest = new FriendRequest(currentlyLoggedInUser, toAccountUser, currentlyLoggedInUser.getId(), toAccountUser.getId(), RequestStatus.SENT, fromUsername, toUsername, LocalDateTime.now());
-		FriendRequest toRequest = new FriendRequest(toAccountUser, currentlyLoggedInUser, toAccountUser.getId(), currentlyLoggedInUser.getId(), RequestStatus.PENDING, fromUsername, toUsername, LocalDateTime.now());
+		FriendRequest toRequest = new FriendRequest(toAccountUser, currentlyLoggedInUser, toAccountUser.getId(), currentlyLoggedInUser.getId(), RequestStatus.PENDING, toUsername, fromUsername, LocalDateTime.now());
 		
 		friendRequestRepository.save(fromRequest);
 		friendRequestRepository.save(toRequest);
