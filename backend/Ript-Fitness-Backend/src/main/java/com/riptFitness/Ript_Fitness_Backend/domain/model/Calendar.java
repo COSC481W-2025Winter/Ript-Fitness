@@ -1,7 +1,8 @@
-package com.example.models;
+package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
-import javax.persistence.*;
 import java.time.LocalDate;
+
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "calendar_entries")
@@ -11,23 +12,27 @@ public class Calendar {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id", nullable = false)
+    private AccountsModel account;
 
     @Column(name = "date", nullable = false)
     private LocalDate date;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "activity_type", nullable = false)
-    private String activityType; // e.g., "workout", "rest", "missed"
+    private ActivityType activityType; // WORKOUT, REST, MISSED
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "color_code", nullable = false)
-    private String colorCode; // e.g., "green", "yellow", "red"
+    private ColorCode colorCode; // GREEN, YELLOW, RED
 
-    // Constructors
+    // Default Constructor for JPA
     public Calendar() {}
 
-    public Calendar(Long userId, LocalDate date, String activityType, String colorCode) {
-        this.userId = userId;
+    // All-Args Constructor
+    public Calendar(AccountsModel account, LocalDate date, ActivityType activityType, ColorCode colorCode) {
+        this.account = account;
         this.date = date;
         this.activityType = activityType;
         this.colorCode = colorCode;
@@ -42,12 +47,12 @@ public class Calendar {
         this.id = id;
     }
 
-    public Long getUserId() {
-        return userId;
+    public AccountsModel getAccount() {
+        return account;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setAccount(AccountsModel account) {
+        this.account = account;
     }
 
     public LocalDate getDate() {
@@ -58,19 +63,19 @@ public class Calendar {
         this.date = date;
     }
 
-    public String getActivityType() {
+    public ActivityType getActivityType() {
         return activityType;
     }
 
-    public void setActivityType(String activityType) {
+    public void setActivityType(ActivityType activityType) {
         this.activityType = activityType;
     }
 
-    public String getColorCode() {
+    public ColorCode getColorCode() {
         return colorCode;
     }
 
-    public void setColorCode(String colorCode) {
+    public void setColorCode(ColorCode colorCode) {
         this.colorCode = colorCode;
     }
 }
