@@ -92,7 +92,7 @@ public class WorkoutDataService {
 			throw new RuntimeException("no workout found with id = " + wDataId);
 		}
 		WorkoutData wDataToBeDeleted = optWData.get();
-		wDataToBeDeleted.setDeleted(false);
+		wDataToBeDeleted.setDeleted(true);
 		workoutDataRepository.save(wDataToBeDeleted);
 		return WorkoutDataMapper.INSTANCE.toWorkoutDataDto(wDataToBeDeleted);
 	}
