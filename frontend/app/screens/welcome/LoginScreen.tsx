@@ -96,7 +96,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
         <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
           <View style={styles.innerContainer}>
             <View>
-              <Text style={styles.mainText}>Log in</Text>
+              <Text style={styles.mainText} testID='login-header'>Log in</Text>
               <Text style={styles.descText}>Sign into your Account</Text>
             </View>
             {/* Username input */}

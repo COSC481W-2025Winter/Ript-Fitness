@@ -4,8 +4,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { createStackNavigator } from '@react-navigation/stack';
-import SignupScreen from '@/app/screens/SignupScreen';
-import LoginScreen from '@/app/screens/LoginScreen';
+import SignupScreen from '@/app/screens/welcome/SignupScreen';
+import LoginScreen from '@/app/screens/welcome/LoginScreen';
 
 
 export type RootStackParamList = {
@@ -56,7 +56,7 @@ describe('SignupScreen', () => {
     );
 
     expect(getByText('Register')).toBeTruthy();
-    expect(getByText('Create your Account')).toBeTruthy();
+    expect(getByText('Join the Ript community')).toBeTruthy();
     expect(getByPlaceholderText('Email')).toBeTruthy();
     expect(getByPlaceholderText('Username')).toBeTruthy();
     expect(getByPlaceholderText('Password')).toBeTruthy();
@@ -94,7 +94,7 @@ describe('SignupScreen', () => {
       </NavigationContainer>
     );
 
-    const loginButton = getByText('Log in');
+    const loginButton = getByText("I'm already registered");
 
     await act(async () => {
       fireEvent.press(loginButton);
