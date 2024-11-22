@@ -2,15 +2,7 @@ package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
 import java.time.LocalDate;
 import java.util.List;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.JoinColumn;
+import jakarta.persistence.*;
 
 @Entity
 public class UserProfile {
@@ -32,7 +24,7 @@ public class UserProfile {
     private List<SocialPostComment> comments;
 
     @Column
-    private String bio; 
+    private String bio;
 
     @Column(unique = true, nullable = false)
     private String username;
@@ -43,15 +35,14 @@ public class UserProfile {
 
     private boolean isDeleted = false;
 
-    // Add the fields needed for rest days
     @Column(name = "rest_days_left")
-    private int restDaysLeft; // Number of remaining rest days
+    private int restDaysLeft;
 
     @Column(name = "rest_reset_date")
-    private LocalDate restResetDate; // The date when rest days reset
+    private LocalDate restResetDate;
 
     @Column(name = "rest_reset_day_of_week")
-    private int restResetDayOfWeek; // The day of the week (e.g., 1 = Monday, 7 = Sunday)
+    private int restResetDayOfWeek;
 
     // Default Constructor
     public UserProfile() {}

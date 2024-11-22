@@ -7,6 +7,7 @@ import com.riptFitness.Ript_Fitness_Backend.domain.model.Calendar;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.CalendarService;
 
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 @RestController

@@ -2,6 +2,7 @@ package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,8 @@ public class CalendarService {
         AccountsModel account = accountsRepository.findById(accountId)
             .orElseThrow(() -> new IllegalStateException("Account not found with ID: " + accountId));
 
-        if (calendarRepository.findByAccountIdAndDate(accountId, date).isPresent()) {
+        Optional<Calendar> existingEntry = calendarRepository.findByAccountIdAndDate(accountId, date);
+        if (existingEntry.isPresent()) {
             throw new IllegalStateException("Workout already logged for this date.");
         }
 
@@ -43,7 +45,8 @@ public class CalendarService {
         AccountsModel account = accountsRepository.findById(accountId)
             .orElseThrow(() -> new IllegalStateException("Account not found with ID: " + accountId));
 
-        if (calendarRepository.findByAccountIdAndDate(accountId, date).isPresent()) {
+        Optional<Calendar> existingEntry = calendarRepository.findByAccountIdAndDate(accountId, date);
+        if (existingEntry.isPresent()) {
             throw new IllegalStateException("Rest day already logged for this date.");
         }
 

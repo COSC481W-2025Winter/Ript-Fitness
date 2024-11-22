@@ -156,10 +156,10 @@ public class AccountsService {
 
 		//UserProfile logic 
 		UserProfile user = new UserProfile(); 
-		user.username = username;
+		user.setUsername(username);
 		user.setAccount(accountsModel);
-		user.firstName = "";
-		user.lastName = "";
+		user.setFirstName("");
+		user.setLastName("");
 		userProfileRepository.save(user);
 		
 		accountsModel.setUserProfile(user);
