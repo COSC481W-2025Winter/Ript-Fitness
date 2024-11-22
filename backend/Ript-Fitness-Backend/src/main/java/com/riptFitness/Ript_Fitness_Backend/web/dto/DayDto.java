@@ -10,8 +10,7 @@ import com.riptFitness.Ript_Fitness_Backend.domain.model.Food;
 public class DayDto {
 
 	public Long id;
-	public List<Food> foodsEatenInDay = new ArrayList<>();	
-	public List<Long> foodIdsInFoodsEatenInDayList = new ArrayList<>();
+	public List<FoodDto> foodsEatenInDay = new ArrayList<>();	
 	public double calories;
 	public double totalCarbs;
 	public double totalProtein;

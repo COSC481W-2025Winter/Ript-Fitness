@@ -34,9 +34,7 @@ public class Day {
 			inverseJoinColumns = @JoinColumn(name = "food_id")
 	)
 	public List<Food> foodsEatenInDay = new ArrayList<>();
-	
-	public List<Long> foodIdsInFoodsEatenInDayList = new ArrayList<>();
-	
+		
     @ManyToOne
     @JoinColumn(name = "account_id", nullable = false)
     public AccountsModel account;
