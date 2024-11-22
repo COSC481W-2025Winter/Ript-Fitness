@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -17,8 +18,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.FriendRequest;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.RequestStatus;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.FriendRequestRepository;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AccountsService;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.FriendsService;
 
@@ -30,11 +34,16 @@ public class FriendsServiceTest {
 	@Mock
 	private AccountsService accountsService;
 	
+	@Mock
+	private FriendRequestRepository friendRequestRepository;
+	
 	@InjectMocks
 	private FriendsService friendsService;
 	
 	private AccountsModel currentlyLoggedInUser;
 	private AccountsModel friendOfCurrentlyLoggedInUser;
+	private FriendRequest fromRequest;
+	private FriendRequest toRequest;
 	
 	@BeforeEach
 	public void setUp() {
@@ -56,7 +65,7 @@ public class FriendsServiceTest {
 		String result = friendsService.addFriend(2L);
 		
 		assertNotNull(result);
-		assertEquals(result, "The currently logged in user with ID = 1 has successfully added the user with ID = 2 to their friend's list.");
+		assertEquals(result, "The currently logged in user has successfully added the user with ID = 2 to their friend's list.");
 	}
 	
 	@Test
@@ -110,14 +119,20 @@ public class FriendsServiceTest {
 		currentlyLoggedInUser.setFriends(currentlyLoggedInUsersFriends);
 		friendOfCurrentlyLoggedInUser.setFriends(friendsOfTheOtherUser);
 		
+		fromRequest = new FriendRequest(currentlyLoggedInUser, friendOfCurrentlyLoggedInUser, 1L, 2L, RequestStatus.ACCEPTED, "cpichle1", "nHalash", LocalDateTime.now());
+		toRequest = new FriendRequest(friendOfCurrentlyLoggedInUser, currentlyLoggedInUser, 2L, 1L, RequestStatus.ACCEPTED, "nHalash", "cpichle1", LocalDateTime.now());
+		
 		when(accountsService.getLoggedInUserId()).thenReturn(1L);
 		when(accountsRepository.findById(1L)).thenReturn(Optional.of(currentlyLoggedInUser));
 		when(accountsRepository.findById(2L)).thenReturn(Optional.of(friendOfCurrentlyLoggedInUser));
+		when(friendRequestRepository.findByAccountIdOfFromAccountAndAccountIdOfToAccount(1L, 2L)).thenReturn(Optional.of(fromRequest));
+		when(friendRequestRepository.findByAccountIdOfFromAccountAndAccountIdOfToAccount(2L, 1L)).thenReturn(Optional.of(toRequest));
+
 		
 		String result = friendsService.deleteFriend(2L);
 		
 		assertNotNull(result);
-		assertEquals(result, "The currently logged in user with ID = 1 has successfully deleted the user with ID = 2 from their friend's list.");
+		assertEquals(result, "The currently logged in user has successfully deleted the user with ID = 2 from their friend's list.");
 	}
 	
 	@Test
