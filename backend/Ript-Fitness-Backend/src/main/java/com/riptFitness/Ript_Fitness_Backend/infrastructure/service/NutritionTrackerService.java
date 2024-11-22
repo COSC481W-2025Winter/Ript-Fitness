@@ -211,7 +211,6 @@ public class NutritionTrackerService {
 		
 		for(Food foodInList : foodsAddedToDayObject) {
 			dayBeingUpdated.foodsEatenInDay.add(foodInList);
-			dayBeingUpdated.foodIdsInFoodsEatenInDayList.add(foodInList.id);
 		}
 		
 		calculateTotalDayStats(dayBeingUpdated);	
@@ -242,7 +241,6 @@ public class NutritionTrackerService {
 		
 		for(Food foodInList : foodsAddedToDayObject) {
 			dayBeingUpdated.foodsEatenInDay.remove(foodInList);
-			dayBeingUpdated.foodIdsInFoodsEatenInDayList.remove(foodInList.id);
 		}
 		
 		calculateTotalDayStats(dayBeingUpdated);	
