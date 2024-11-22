@@ -136,7 +136,7 @@ public class FriendRequestService {
 		FriendRequest fromRequest = friendRequestRepository.findByAccountIdOfFromAccountAndAccountIdOfToAccount(currentlyLoggedInUserId, toAccountId).get();
 		FriendRequest toRequest = friendRequestRepository.findByAccountIdOfFromAccountAndAccountIdOfToAccount(toAccountId, currentlyLoggedInUserId).get();
 		
-		fromRequest = FriendRequestMapper.INSTANCE.toFriendRequest(friendRequestDto);
+		fromRequest.status = friendRequestDto.status;
 		changeToRequestBasedOnStatus(toRequest, friendRequestDto.status);
 		
 		fromRequest.dateTimeOfMostRecentChangeToStatus = LocalDateTime.now();
