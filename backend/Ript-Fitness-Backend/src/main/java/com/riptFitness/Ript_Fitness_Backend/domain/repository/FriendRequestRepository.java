@@ -23,5 +23,5 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, Lo
 
 	//Takes in a fromAccountId and a status String, and returns the toAccountId column of all rows with the Account associated with fromAccountId AND the status equal to the parameter String
 	@Query(value = "SELECT f.accountIdOfToAccount FROM FriendRequest f WHERE f.accountIdOfFromAccount = :fromAccountId AND f.status = :status")
-	ArrayList<Long> getToAccountFromFromAccountAndStatus(@Param("fromAccountId") Long fromAccountId, @Param("status") RequestStatus status);
+	Optional<ArrayList<Long>> getToAccountFromFromAccountAndStatus(@Param("fromAccountId") Long fromAccountId, @Param("status") RequestStatus status);
 }
