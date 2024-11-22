@@ -25,6 +25,8 @@ public class UserProfile {
 
     public String lastName;
 
+    public String displayName;
+    
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<SocialPost> socialPosts;
 
@@ -54,6 +56,7 @@ public class UserProfile {
         this.lastName = lastName;
         this.username = username;
         this.bio = bio;
+        this.displayName = username;
     }
 
     // Getters and Setters
@@ -97,6 +100,14 @@ public class UserProfile {
         this.username = username;
     }
 
+    public String getDisplayName() {
+    	return displayName;
+    }
+    
+    public void setDisplayName(String displayName) {
+    	this.displayName = displayName;
+    }
+    
     public boolean isDeleted() {
         return isDeleted;
     }
