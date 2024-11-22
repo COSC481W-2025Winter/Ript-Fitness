@@ -19,19 +19,17 @@ public class Calendar {
     @Column(name = "date", nullable = false)
     private LocalDate date;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "activity_type", nullable = false)
-    private ActivityType activityType; // WORKOUT, REST, MISSED
+    private int activityType; // 0 = Missed, 1 = Workout, 2 = Rest
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "color_code", nullable = false)
-    private ColorCode colorCode; // GREEN, YELLOW, RED
+    private int colorCode; // 0 = Red, 1 = Green, 2 = Yellow
 
     // Default Constructor for JPA
     public Calendar() {}
 
-    // All-Args Constructor
-    public Calendar(AccountsModel account, LocalDate date, ActivityType activityType, ColorCode colorCode) {
+    // Constructor
+    public Calendar(AccountsModel account, LocalDate date, int activityType, int colorCode) {
         this.account = account;
         this.date = date;
         this.activityType = activityType;
@@ -63,19 +61,19 @@ public class Calendar {
         this.date = date;
     }
 
-    public ActivityType getActivityType() {
+    public int getActivityType() {
         return activityType;
     }
 
-    public void setActivityType(ActivityType activityType) {
+    public void setActivityType(int activityType) {
         this.activityType = activityType;
     }
 
-    public ColorCode getColorCode() {
+    public int getColorCode() {
         return colorCode;
     }
 
-    public void setColorCode(ColorCode colorCode) {
+    public void setColorCode(int colorCode) {
         this.colorCode = colorCode;
     }
 }

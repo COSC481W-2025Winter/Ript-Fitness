@@ -1,5 +1,6 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
+import java.time.LocalDate;
 import java.util.List;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,38 +17,46 @@ public class UserProfile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+    private Long id;
 
-    public String firstName;
+    private String firstName;
 
-    public String lastName;
-    
-    public String displayname;
-    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
-    public List<SocialPost> socialPosts;
+    private String lastName;
+
+    private String displayname;
 
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
-    public List<SocialPostComment> comments;
+    private List<SocialPost> socialPosts;
 
-    // New bio field
+    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SocialPostComment> comments;
+
     @Column
-    public String bio; 
+    private String bio; 
 
-    // User's email or username
     @Column(unique = true, nullable = false)
-    public String username;
-    
+    private String username;
 
-    
     @OneToOne
     @JoinColumn(name = "account_id", referencedColumnName = "id")
     private AccountsModel account;
 
-    // Soft delete flag
-    public boolean isDeleted = false;
+    private boolean isDeleted = false;
 
+    // Add the fields needed for rest days
+    @Column(name = "rest_days_left")
+    private int restDaysLeft; // Number of remaining rest days
+
+    @Column(name = "rest_reset_date")
+    private LocalDate restResetDate; // The date when rest days reset
+
+    @Column(name = "rest_reset_day_of_week")
+    private int restResetDayOfWeek; // The day of the week (e.g., 1 = Monday, 7 = Sunday)
+
+    // Default Constructor
     public UserProfile() {}
 
+    // Parameterized Constructor
     public UserProfile(String firstName, String lastName, String username, String bio) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -80,6 +89,30 @@ public class UserProfile {
         this.lastName = lastName;
     }
 
+    public String getDisplayname() {
+        return displayname;
+    }
+
+    public void setDisplayname(String displayname) {
+        this.displayname = displayname;
+    }
+
+    public List<SocialPost> getSocialPosts() {
+        return socialPosts;
+    }
+
+    public void setSocialPosts(List<SocialPost> socialPosts) {
+        this.socialPosts = socialPosts;
+    }
+
+    public List<SocialPostComment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<SocialPostComment> comments) {
+        this.comments = comments;
+    }
+
     public String getBio() {
         return bio;
     }
@@ -96,14 +129,14 @@ public class UserProfile {
         this.username = username;
     }
 
-    public String getDisplayname(String displayname) {
-    	return displayname;
+    public AccountsModel getAccount() {
+        return account;
     }
-    
-    public void setDisplayname(String displayname) {
-    	this.displayname = displayname;
+
+    public void setAccount(AccountsModel account) {
+        this.account = account;
     }
-    
+
     public boolean isDeleted() {
         return isDeleted;
     }
@@ -112,13 +145,27 @@ public class UserProfile {
         this.isDeleted = isDeleted;
     }
 
-	public AccountsModel getAccount() {
-		return account;
-	}
+    public int getRestDaysLeft() {
+        return restDaysLeft;
+    }
 
-	public void setAccount(AccountsModel account) {
-		this.account = account;
-	}
-    
-    
+    public void setRestDaysLeft(int restDaysLeft) {
+        this.restDaysLeft = restDaysLeft;
+    }
+
+    public LocalDate getRestResetDate() {
+        return restResetDate;
+    }
+
+    public void setRestResetDate(LocalDate restResetDate) {
+        this.restResetDate = restResetDate;
+    }
+
+    public int getRestResetDayOfWeek() {
+        return restResetDayOfWeek;
+    }
+
+    public void setRestResetDayOfWeek(int restResetDayOfWeek) {
+        this.restResetDayOfWeek = restResetDayOfWeek;
+    }
 }

@@ -1,19 +1,24 @@
-package com.example.repositories;
-
-import com.example.models.CalendarModel;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+package com.riptFitness.Ript_Fitness_Backend.domain.repository;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.Calendar;
 
-@Repository
 public interface CalendarRepository extends JpaRepository<Calendar, Long> {
 
-    // Find all calendar entries for a user
-    List<Calendar> findByUserId(Long userId);
+    @Query("SELECT c FROM Calendar c WHERE c.account.id = :accountId AND c.date BETWEEN :startDate AND :endDate")
+    List<Calendar> findByAccountIdAndDateBetween(
+        @Param("accountId") Long accountId,
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate
+    );
 
-    // Find a specific entry by user and date
-    Optional<Calendar> findByUserIdAndDate(Long userId, LocalDate date);
+    @Query("SELECT c FROM Calendar c WHERE c.account.id = :accountId AND c.date = :date")
+    Calendar findByAccountIdAndDate(
+        @Param("accountId") Long accountId,
+        @Param("date") LocalDate date
+    );
 }
