@@ -1,6 +1,9 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,6 +25,8 @@ public class UserProfile {
 
     public String lastName;
 
+    public String displayName;
+    
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<SocialPost> socialPosts;
 
@@ -38,6 +43,7 @@ public class UserProfile {
     
     @OneToOne
     @JoinColumn(name = "account_id", referencedColumnName = "id")
+    @JsonBackReference
     private AccountsModel account;
 
     // Soft delete flag
@@ -50,6 +56,7 @@ public class UserProfile {
         this.lastName = lastName;
         this.username = username;
         this.bio = bio;
+        this.displayName = username;
     }
 
     // Getters and Setters
@@ -93,6 +100,14 @@ public class UserProfile {
         this.username = username;
     }
 
+    public String getDisplayName() {
+    	return displayName;
+    }
+    
+    public void setDisplayName(String displayName) {
+    	this.displayName = displayName;
+    }
+    
     public boolean isDeleted() {
         return isDeleted;
     }

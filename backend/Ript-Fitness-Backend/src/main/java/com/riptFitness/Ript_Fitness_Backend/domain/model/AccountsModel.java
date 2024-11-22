@@ -37,6 +37,7 @@ public class AccountsModel {
     private Streak streak;
     
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    @JsonManagedReference
     private UserProfile userProfile;
     
     // If you want to define a bi-directional relationship

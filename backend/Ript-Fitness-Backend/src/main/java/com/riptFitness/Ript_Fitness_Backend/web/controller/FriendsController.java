@@ -36,6 +36,12 @@ public class FriendsController {
 		return new ResponseEntity<>(returnedListOfUsernames, HttpStatus.OK);
 	}
 	
+	@GetMapping("/getFriendsList/{accountId}")
+	public ResponseEntity<ArrayList<String>> getFreindsList(@PathVariable Long accountId){
+		ArrayList<String> returnedListOfUsernames = friendsService.getFriendsList(accountId);
+		return new ResponseEntity<>(returnedListOfUsernames, HttpStatus.OK);
+	}
+	
 	@DeleteMapping("/deleteFriend/{id}")
 	public ResponseEntity<String> deleteFriend(@PathVariable Long id){
 		String returnedString = friendsService.deleteFriend(id);

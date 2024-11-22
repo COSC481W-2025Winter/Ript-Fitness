@@ -60,7 +60,7 @@ public class FriendRequestService {
 		
 		//FriendRequest constructor order: fromAccount, toAccount, accountIdOfFromAccount, accountIdOfToAccount, RequestStatus, fromUsername, toUsername, LocalDateTime
 		FriendRequest fromRequest = new FriendRequest(currentlyLoggedInUser, toAccountUser, currentlyLoggedInUser.getId(), toAccountUser.getId(), RequestStatus.SENT, fromUsername, toUsername, LocalDateTime.now());
-		FriendRequest toRequest = new FriendRequest(toAccountUser, currentlyLoggedInUser, toAccountUser.getId(), currentlyLoggedInUser.getId(), RequestStatus.PENDING, fromUsername, toUsername, LocalDateTime.now());
+		FriendRequest toRequest = new FriendRequest(toAccountUser, currentlyLoggedInUser, toAccountUser.getId(), currentlyLoggedInUser.getId(), RequestStatus.PENDING, toUsername, fromUsername, LocalDateTime.now());
 		
 		friendRequestRepository.save(fromRequest);
 		friendRequestRepository.save(toRequest);
@@ -93,7 +93,12 @@ public class FriendRequestService {
 	public ArrayList<String> getAllAccountsWithSpecificStatus(RequestStatus status){
 		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
 		
-		ArrayList<Long> idsOfAllAccountsWithSpecificStatus = friendRequestRepository.getToAccountFromFromAccountAndStatus(currentlyLoggedInUserId, status);
+		Optional<ArrayList<Long>> optionalIdsOfAllAccountsWithSpecificStatus = friendRequestRepository.getToAccountFromFromAccountAndStatus(currentlyLoggedInUserId, status);
+		
+		if(optionalIdsOfAllAccountsWithSpecificStatus.isEmpty())
+			throw new RuntimeException("The currently logged in user has no realtionships with any accounts with status = " + status);
+		
+		ArrayList<Long> idsOfAllAccountsWithSpecificStatus = optionalIdsOfAllAccountsWithSpecificStatus.get();
 		
 		ArrayList<String> listOfUsernamesReturnedByMethod = new ArrayList<>();
 		
@@ -131,7 +136,7 @@ public class FriendRequestService {
 		FriendRequest fromRequest = friendRequestRepository.findByAccountIdOfFromAccountAndAccountIdOfToAccount(currentlyLoggedInUserId, toAccountId).get();
 		FriendRequest toRequest = friendRequestRepository.findByAccountIdOfFromAccountAndAccountIdOfToAccount(toAccountId, currentlyLoggedInUserId).get();
 		
-		fromRequest = FriendRequestMapper.INSTANCE.toFriendRequest(friendRequestDto);
+		fromRequest.status = friendRequestDto.status;
 		changeToRequestBasedOnStatus(toRequest, friendRequestDto.status);
 		
 		fromRequest.dateTimeOfMostRecentChangeToStatus = LocalDateTime.now();

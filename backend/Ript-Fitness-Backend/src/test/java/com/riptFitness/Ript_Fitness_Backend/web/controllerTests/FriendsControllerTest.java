@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
@@ -70,13 +71,25 @@ public class FriendsControllerTest {
 	
 	@Test
 	public void testGetFriendsListOfCurrentlyLoggedInUserValidRequest() throws Exception {
-		ArrayList<String> returnedArrayList = new ArrayList<>();
-		returnedArrayList.add("cpichle1");
-		returnedArrayList.add("nHalash");
+		ArrayList<String> returnedArrayList = new ArrayList<>(List.of("cpichle1", "nHalash"));
 		
 		when(friendsService.getFriendsListOfCurrentlyLoggedInUser()).thenReturn(returnedArrayList);
 		
 		mockMvc.perform(get("/friends/getFriendsListOfCurrentlyLoggedInUser")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(""))
+				.andExpect(status().isOk())
+                .andExpect(content().json("[\"cpichle1\", \"nHalash\"]"))
+                .andReturn();
+	}
+	
+	@Test
+	public void testGetFriendsValidRequest() throws Exception {
+		ArrayList<String> returnedArrayList = new ArrayList<>(List.of("cpichle1", "nHalash"));
+
+		when(friendsService.getFriendsList(2L)).thenReturn(returnedArrayList);
+		
+		mockMvc.perform(get("/friends/getFriendsList/2")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(""))
 				.andExpect(status().isOk())
