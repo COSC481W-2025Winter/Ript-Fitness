@@ -1,6 +1,9 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -38,6 +41,7 @@ public class UserProfile {
     
     @OneToOne
     @JoinColumn(name = "account_id", referencedColumnName = "id")
+    @JsonBackReference
     private AccountsModel account;
 
     // Soft delete flag
