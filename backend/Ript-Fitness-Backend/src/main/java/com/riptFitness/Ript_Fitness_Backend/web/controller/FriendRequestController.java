@@ -38,7 +38,7 @@ public class FriendRequestController {
 		return new ResponseEntity<>(returnedStatusString, HttpStatus.OK);
 	}
 	
-	@GetMapping("/getAllAccountsWithSpecifcStatus/{status}")
+	@GetMapping("/getAllAccountsWithSpecificStatus/{status}")
 	public ResponseEntity<ArrayList<String>> getAllAccountsWithSpecificStatus(@PathVariable RequestStatus status){
 		ArrayList<String> returnedListOfUsernames = friendRequestService.getAllAccountsWithSpecificStatus(status);
 		return new ResponseEntity<>(returnedListOfUsernames, HttpStatus.OK);

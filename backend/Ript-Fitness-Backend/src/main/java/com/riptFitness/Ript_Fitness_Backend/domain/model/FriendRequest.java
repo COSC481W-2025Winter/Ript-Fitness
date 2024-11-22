@@ -42,6 +42,8 @@ public class FriendRequest {
 	public String toUsername;	//Username of toAccount's userProfile
 	
 	public LocalDateTime dateTimeOfMostRecentChangeToStatus;
+	
+	public FriendRequest() {}	//Required for database interactions to work
 
 	public FriendRequest(AccountsModel fromAccount, AccountsModel toAccount, Long accountIdOfFromAccount, Long accountIdOfToAccount, RequestStatus status, String fromUsername,
 			String toUsername, LocalDateTime dateTimeOfMostRecentChangeToStatus) {

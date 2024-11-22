@@ -115,7 +115,7 @@ public class FriendRequestControllerTest {
 	public void testGetAllAccountsWithSpecificStatusValidRequest() throws Exception {
 		when(friendRequestService.getAllAccountsWithSpecificStatus(any(RequestStatus.class))).thenReturn(new ArrayList<String>(List.of("cpichle1", "nHalash")));
 		
-		mockMvc.perform(get("/friendRequest/getAllAccountsWithSpecifcStatus/PENDING")
+		mockMvc.perform(get("/friendRequest/getAllAccountsWithSpecificStatus/PENDING")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(""))
 				.andExpect(status().isOk())
@@ -125,7 +125,7 @@ public class FriendRequestControllerTest {
 	
 	@Test
 	public void testGetAllAccountsWithSpecificStatusInvalidRequestNoPathVariable() throws Exception {
-		mockMvc.perform(get("/friendRequest/getAllAccountsWithSpecifcStatus"))
+		mockMvc.perform(get("/friendRequest/getAllAccountsWithSpecificStatus"))
 				.andExpect(status().isInternalServerError())
 				.andReturn();
 	}
