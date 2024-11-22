@@ -143,7 +143,7 @@ public class FriendRequestServiceTest {
 	@Test
 	void testGetAllAccountsWithSpecificStatusValid() {
 		when(accountsService.getLoggedInUserId()).thenReturn(1L);
-		when(friendRequestRepository.getToAccountFromFromAccountAndStatus(1L, RequestStatus.PENDING)).thenReturn(new ArrayList<Long>(List.of(2L, 3L)));
+		when(friendRequestRepository.getToAccountFromFromAccountAndStatus(1L, RequestStatus.PENDING)).thenReturn(Optional.of(new ArrayList<Long>(List.of(2L, 3L))));
 		when(accountsRepository.findById(any(Long.class))).thenReturn(Optional.of(toAccount));
 		
 		ArrayList<String> result = friendRequestService.getAllAccountsWithSpecificStatus(RequestStatus.PENDING);
@@ -155,7 +155,7 @@ public class FriendRequestServiceTest {
 	@Test
 	void testGetAllAccountsWithSpecificStatusInvalidAccountNotValidInFriendRequestTable() {
 		when(accountsService.getLoggedInUserId()).thenReturn(1L);
-		when(friendRequestRepository.getToAccountFromFromAccountAndStatus(1L, RequestStatus.PENDING)).thenReturn(new ArrayList<Long>(List.of(2L, 3L)));
+		when(friendRequestRepository.getToAccountFromFromAccountAndStatus(1L, RequestStatus.PENDING)).thenReturn(Optional.of(new ArrayList<Long>(List.of(2L, 3L))));
 		when(accountsRepository.findById(any(Long.class))).thenReturn(Optional.empty());
 		
 		RuntimeException exceptionThrown = assertThrows(RuntimeException.class, () -> {

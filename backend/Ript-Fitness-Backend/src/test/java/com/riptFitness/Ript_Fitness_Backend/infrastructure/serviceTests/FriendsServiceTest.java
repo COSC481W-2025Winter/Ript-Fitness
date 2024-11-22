@@ -54,6 +54,9 @@ public class FriendsServiceTest {
 		
 		currentlyLoggedInUser.setFriends(new ArrayList<AccountsModel>());
 		friendOfCurrentlyLoggedInUser.setFriends(new ArrayList<AccountsModel>());
+		
+		currentlyLoggedInUser.setUsername("cpichle1");
+		friendOfCurrentlyLoggedInUser.setUsername("nHalash");
 	}
 	
 	@Test
@@ -99,8 +102,6 @@ public class FriendsServiceTest {
 	
 	@Test
 	void testGetFriendsListOfCurrentlyLoggedInUserValidRequest() {
-		friendOfCurrentlyLoggedInUser.setUserProfile(new UserProfile());
-		friendOfCurrentlyLoggedInUser.getUserProfile().setUsername("nHalash");
 		currentlyLoggedInUser.setFriends(List.of(friendOfCurrentlyLoggedInUser));
 		
 		when(accountsService.getLoggedInUserId()).thenReturn(1L);
@@ -110,6 +111,30 @@ public class FriendsServiceTest {
 		
 		assertNotNull(result);
 		assertEquals(result.get(0), "nHalash");
+	}
+	
+	@Test
+	void testGetFriendsListValidRequest() {
+		friendOfCurrentlyLoggedInUser.setFriends(List.of(currentlyLoggedInUser));
+
+		when(accountsRepository.findById(2L)).thenReturn(Optional.of(friendOfCurrentlyLoggedInUser));
+		
+		ArrayList<String> result = friendsService.getFriendsList(2L);
+		
+		assertNotNull(result);
+		assertEquals(result.get(0), "cpichle1");
+
+	}
+	
+	@Test
+	void testGetFriendsListInvalidRequestAccountIdNotInDatabase() {
+		when(accountsRepository.findById(2L)).thenReturn(Optional.empty());
+				
+		RuntimeException exceptionThrown = assertThrows(RuntimeException.class, () -> {
+			friendsService.getFriendsList(2L);
+		});
+		
+		assertEquals(exceptionThrown.getMessage(), "The account with ID = 2 could not be found in the AccountsModel database table.");
 	}
 	
 	@Test

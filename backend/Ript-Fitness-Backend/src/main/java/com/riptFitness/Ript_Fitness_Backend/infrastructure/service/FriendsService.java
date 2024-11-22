@@ -60,10 +60,27 @@ public class FriendsService {
 		ArrayList<String> listOfUsernamesInCurrentlyLoggedInUsersFriendsList = new ArrayList<String>();
 		
 		for(AccountsModel accountOfFriend: currentlyLoggedInAccount.getFriends()) {
-			listOfUsernamesInCurrentlyLoggedInUsersFriendsList.add(accountOfFriend.getUserProfile().username);
+			listOfUsernamesInCurrentlyLoggedInUsersFriendsList.add(accountOfFriend.getUsername());
 		}
 		
 		return listOfUsernamesInCurrentlyLoggedInUsersFriendsList;
+	}
+	
+	public ArrayList<String> getFriendsList(Long accountId){
+		Optional<AccountsModel> optionalAccount = accountsRepository.findById(accountId);
+		
+		if(optionalAccount.isEmpty())
+			throw new RuntimeException("The account with ID = " + accountId + " could not be found in the AccountsModel database table.");
+		
+		AccountsModel account = optionalAccount.get();
+		
+		ArrayList<String> listOfUsernamesInAccountsFriendsList = new ArrayList<String>();
+		
+		for(AccountsModel accountOfFriend : account.getFriends()) {
+			listOfUsernamesInAccountsFriendsList.add(accountOfFriend.getUsername());
+		}
+		
+		return listOfUsernamesInAccountsFriendsList;
 	}
 	
 	public String deleteFriend(Long id) {
