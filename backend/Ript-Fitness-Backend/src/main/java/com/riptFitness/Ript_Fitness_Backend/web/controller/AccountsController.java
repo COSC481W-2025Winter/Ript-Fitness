@@ -47,7 +47,7 @@ public class AccountsController {
 	}
 	
 	// get email:
-	@GetMapping("/updateEmail/{newEmail}")
+	@PutMapping("/updateEmail/{newEmail}")
 	public ResponseEntity<String> updateEmail(@PathVariable String newEmail) {
 		String updatedEmail = accountsService.updateEmail(newEmail);
 		return new ResponseEntity<>(updatedEmail, HttpStatus.OK);
