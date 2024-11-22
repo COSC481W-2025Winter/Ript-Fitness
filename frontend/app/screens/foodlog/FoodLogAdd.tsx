@@ -32,14 +32,15 @@ const FoodLogAddPage = () => {
 
 
     const setTotalForDay = async () => {
-        const cachedDay = await AsyncStorage.getItem('day');
-        if (cachedDay) {
-            setDay(JSON.parse(cachedDay));
-        } else {
-            console.log("there is no cachedDay");
-        }
+        console.log("the day is: ", day);
+        // const cachedDay = await AsyncStorage.getItem('day');
+        // if (cachedDay) {
+        //     setDay(JSON.parse(cachedDay));
+        // } else {
+        //     console.log("there is no cachedDay");
+        // }
         try {
-            const getDayResponse = await fetch (`${httpRequests.getBaseURL()}/nutritionCalculator/getDay/${day}`, {
+            const getDayResponse = await fetch (`${httpRequests.getBaseURL()}/nutritionCalculator/getDayOfLoggedInUser/${day}`, {
                 method: 'PUT', 
                 headers: {
                     'Content-Type': 'application/json',
@@ -65,9 +66,49 @@ const FoodLogAddPage = () => {
         }
     }
 
+    // const doesFoodExist = async (foodName: string) => {
+    //     try {
+    //         const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFoodsOfLoggedInUser`, {
+    //             method: 'GET',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'Authorization': `Bearer ${context?.data.token}`,
+    //             }
+    //         });
+    
+    //         if (response.status === 200) {
+    //             const foodIds = await response.json();
+
+    //              // Use Promise.all to fetch details for all food IDs in parallel
+    //             const foodPromises = foodIds.map((foodId: any) => 
+    //             fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFood/${foodId}`, {
+    //                 method: 'GET',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                     'Authorization': `Bearer ${context?.data.token}`,
+    //                 }
+    //             }).then(foodResponse => foodResponse.status === 200 ? foodResponse.json() : null)
+    //         );
+
+    //         // Wait for all fetches to complete and filter out any unsuccessful responses (null)
+    //         const foods = (await Promise.all(foodPromises)).filter(food => food !== null);
+
+    //         // Check if any food's name matches the input foodName
+    //         return foods.some(food => food.name && food.name.toLowerCase() === foodName.toLowerCase());
+    //         } else {
+    //             // console.log('Error fetching foods');
+    //             // Alert.alert("Error", 'Failed to fetch foods');
+    //             return false;
+    //         }
+    //     } catch (error) {
+    //         console.log('Error', 'An error occurred while checking for duplicate food.');
+    //         return false;
+    //     }
+    // };
+
     const doesFoodExist = async (foodName: string) => {
         try {
-            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFoodIdsOfLoggedInUser`, {
+            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFoodsOfLoggedInUser`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -76,27 +117,12 @@ const FoodLogAddPage = () => {
             });
     
             if (response.status === 200) {
-                const foodIds = await response.json();
-
-                 // Use Promise.all to fetch details for all food IDs in parallel
-                const foodPromises = foodIds.map((foodId: any) => 
-                fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFood/${foodId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${context?.data.token}`,
-                    }
-                }).then(foodResponse => foodResponse.status === 200 ? foodResponse.json() : null)
-            );
-
-            // Wait for all fetches to complete and filter out any unsuccessful responses (null)
-            const foods = (await Promise.all(foodPromises)).filter(food => food !== null);
-
-            // Check if any food's name matches the input foodName
-            return foods.some(food => food.name && food.name.toLowerCase() === foodName.toLowerCase());
+                const foods = await response.json(); // Assume this returns an array of food objects
+    
+                // Check if any food's name matches the input foodName
+                return foods.some((food: any) => food.name && food.name.toLowerCase() === foodName.toLowerCase());
             } else {
-                // console.log('Error fetching foods');
-                // Alert.alert("Error", 'Failed to fetch foods');
+                console.log('Error fetching foods');
                 return false;
             }
         } catch (error) {
@@ -104,6 +130,7 @@ const FoodLogAddPage = () => {
             return false;
         }
     };
+    
 
     const handleFoodDataSaveOnly = async () => {
         // Check if food with the same name exists
@@ -135,7 +162,6 @@ const FoodLogAddPage = () => {
             if (response.status === 201) {
                 Alert.alert("Success", 'Food data saved successfully!');
               } else {
-                // console.log('Error', 'Failed to save food data.');
                 Alert.alert("Error", 'Failed to save food data');
               }
         } catch (error) {
@@ -159,50 +185,51 @@ const FoodLogAddPage = () => {
             multiplier: foodServings, 
             isDeleted: false, 
         };
-        const cachedDay = await AsyncStorage.getItem('day');
-        if (cachedDay) {
-            setDay(JSON.parse(cachedDay));
-        } else {
-            console.log("there is no cachedDay");
-        }
+        // const cachedDay = await AsyncStorage.getItem('day');
+        // if (cachedDay) {
+        //     setDay(JSON.parse(cachedDay));
+        // } else {
+        //     console.log("there is no cachedDay");
+        // }
 
-
+        // first add food to the database
         try {
-                const foodResponse = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/addFood`, { 
-                method: 'POST', 
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${context?.data.token}`,
-                  },
-                  body: JSON.stringify(foodData),
+            const foodResponse = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/addFood`, { 
+            method: 'POST', 
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${context?.data.token}`,
                 },
-                );
-                if (foodResponse.status === 201) {
-                    const foodData = await foodResponse.json();
-                    const foodID = [foodData.id];
-                    
-                    const addResponse = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/addFoodsToDay/${day}`, {
-                        method: 'POST', 
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${context?.data.token}`,
-                        }, 
-                        body:JSON.stringify(foodID),
-                    });
-                    console.log("add to day response status", addResponse.status);
-                    if (addResponse.status === 201) {
-                        console.log('Success', 'Food data added to day successfully!');
-                        setTotalForDay();
-                        clearInputFields();
-                    } else {
-                        console.log('Error', 'Failed to save food data to day.');
-                    }
-                    // console.log('Success', 'Food data saved successfully!');
-                    Alert.alert("Success", 'Food data saved successfully!');
-                } else {    
-                    // console.log('Error', 'Failed to save food data.');
-                    Alert.alert("Error", 'Failed to save food data');
+                body: JSON.stringify(foodData),
+            },
+            );
+            
+            if (foodResponse.status === 201) {
+                const foodData = await foodResponse.json();
+                const foodID = [foodData.id];
+                
+                const addResponse = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/addFoodsToDay/${day}`, {
+                    method: 'POST', 
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${context?.data.token}`,
+                    }, 
+                    body:JSON.stringify(foodID),
+                });
+                console.log("add to day response status", addResponse.status);
+                if (addResponse.status === 201) {
+                    console.log('Success', 'Food data added to day successfully!');
+                    setTotalForDay();
+                    clearInputFields();
+                } else {
+                    console.log('Error', 'Failed to save food data to day.');
                 }
+                // console.log('Success', 'Food data saved successfully!');
+                Alert.alert("Success", 'Food data saved successfully!');
+            } else {    
+                // console.log('Error', 'Failed to save food data.');
+                Alert.alert("Error", 'Failed to save food data');
+            }
         } catch {
             console.log('Error', 'An error occurred. Please try again.');
         }

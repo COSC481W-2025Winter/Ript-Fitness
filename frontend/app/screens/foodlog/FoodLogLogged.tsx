@@ -1,4 +1,4 @@
-import { TextInput, StyleSheet, ScrollView, Text, View, FlatList, Alert, TouchableOpacity } from "react-native";
+import { TextInput, StyleSheet, ScrollView, Text, View, FlatList, Alert, TouchableOpacity, Modal } from "react-native";
 import React,  { useCallback, useContext, useEffect, useState } from 'react';
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { GlobalContext } from "@/context/GlobalContext";
@@ -20,24 +20,24 @@ interface Food {
     isDelted: boolean;
 }
 
-const FoodItem: React.FC<{ food: Food }> =  ({ food }) => {
+const FoodItem: React.FC<{ food: Food; saveFoodChanges: (food: Food) => void}> =  ({ food, saveFoodChanges}) => {
     const navigation = useNavigation<WorkoutScreenNavigationProp>();
     return(
     <LogFoodButton 
-        id={food.id}
-        name={food.name}
-        calories={food.calories}
-        protein={food.protein}
-        carbs={food.carbs}
-        fat={food.fat}
-        multiplier={food.multiplier}
-        textColor="black"
-        backgroundColor='white'
-        borderWidth={1}
-        fontSize={16}
-        width ='100%'
-        onPress={() => navigation.navigate('ApiScreen', {})}
-        />
+            id={food.id}
+            name={food.name}
+            calories={food.calories}
+            protein={food.protein}
+            carbs={food.carbs}
+            fat={food.fat}
+            multiplier={food.multiplier}
+            saveFoodChanges={(updatedFood) => saveFoodChanges(updatedFood)}
+            textColor="black"
+            backgroundColor='white'
+            borderWidth={1}
+            fontSize={16}
+            width='100%'
+    />
     );
     };
 
@@ -48,23 +48,27 @@ const FoodLogLoggedPage = () => {
     const [day, setDay] = useState(0);
     // const [lastDay, setLastDay] = useState(0);
     const context = useContext(GlobalContext);
+    const [isFoodModalVisible, setFoodModalVisible] = useState(false);
+    const [foodText, setFoodText] = useState("");
+    const [selectedFood, setSelectedFood] = useState<Food | null>(null);
 
+    setDay(0);
 
     // Function to fetch food details based on the food ID
     const fetchFoodIDs = async () => {
         try {
             const cachedFoodTodayDetails = await AsyncStorage.getItem('foodTodayDetails');
-            const cachedDay = await AsyncStorage.getItem('day');
+            // const cachedDay = await AsyncStorage.getItem('day');
             // const lastCachedDay = await AsyncStorage.getItem('lastDay');
 
-            if(cachedDay) {
-                console.log("There is a cached day: ", JSON.parse(cachedDay));
-                try {
-                    setDay(JSON.parse(cachedDay));
-                } catch (error) {
-                    console.error('error parsing cached day:', error);
-                }
-            }
+            // if(cachedDay) {
+            //     console.log("There is a cached day: ", JSON.parse(cachedDay));
+            //     try {
+            //         setDay(JSON.parse(cachedDay));
+            //     } catch (error) {
+            //         console.error('error parsing cached day:', error);
+            //     }
+            // }
 
             // if(lastCachedDay) {
             //     setLastDay(JSON.parse(lastCachedDay));
@@ -79,7 +83,9 @@ const FoodLogLoggedPage = () => {
                 setCached(false);
             }
 
-            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getDay/${day}`, {
+            console.log("using this day: ", day);
+
+            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getDayOfLoggedInUser/${day}`, {
                 method: 'PUT', 
                 headers: {
                     'Content-Type': 'application/json',
@@ -143,6 +149,12 @@ const FoodLogLoggedPage = () => {
     };
 
 
+function saveFoodChanges(food: Food): void {
+    throw new Error("Function not implemented.");
+}
+
+
+
     useFocusEffect(
         useCallback(() => {
             fetchFoodIDs();
@@ -199,7 +211,7 @@ const FoodLogLoggedPage = () => {
                 </View>
             )}
         >
-        <FoodItem food={item} />
+        <FoodItem food={item} saveFoodChanges={saveFoodChanges}/>
         </Swipeable>
     
     );
@@ -277,6 +289,23 @@ const styles = StyleSheet.create({
       deleteText: {
         color: 'white',
         fontWeight: 'bold',
+      },
+      modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      modalContent: {
+        width: '80%',
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+      },
+      modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
       },
 })
 

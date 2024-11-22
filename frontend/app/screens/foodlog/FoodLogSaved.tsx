@@ -1,14 +1,13 @@
-import { TextInput, StyleSheet, ScrollView, Text, View, FlatList, Alert, TouchableOpacity, Modal } from "react-native";
+import { TextInput, StyleSheet, ScrollView, Text, View, FlatList, Alert, TouchableOpacity, Modal, TouchableWithoutFeedback } from "react-native";
 import React,  { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { GlobalContext } from "@/context/GlobalContext";
 import { httpRequests } from "@/api/httpRequests";
 import LogFoodButton from "@/components/foodlog/FoodLogButton";
-import { WorkoutScreenNavigationProp } from "@/app/(tabs)/WorkoutStack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import SplashScreen from "../SplashScreen";
 import { Swipeable } from 'react-native-gesture-handler';
 import CustomSearchBar from '@/components/custom/CustomSearchBar';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 interface Food {
     id: number;
@@ -18,14 +17,13 @@ interface Food {
     carbs: number;
     fat: number;
     multiplier: number;
-    isDelted: boolean;
-    onPress: {};
+    isDeleted: boolean;
+    // onPress: {};
 }
 
-const FoodItem: React.FC<{ food: Food, onPress: () => void }> =  ({ food, onPress }) => {
-    const navigation = useNavigation<WorkoutScreenNavigationProp>();
-   
-    return (
+const FoodItem: React.FC<{ food: Food; saveFoodChanges: (food: Food) => void}> =  ({ food, saveFoodChanges}) => {
+    // const navigation = useNavigation<WorkoutScreenNavigationProp>();
+    return(
         <LogFoodButton 
             id={food.id}
             name={food.name}
@@ -34,27 +32,27 @@ const FoodItem: React.FC<{ food: Food, onPress: () => void }> =  ({ food, onPres
             carbs={food.carbs}
             fat={food.fat}
             multiplier={food.multiplier}
+            saveFoodChanges={(updatedFood) => saveFoodChanges(updatedFood)}
             textColor="black"
             backgroundColor='white'
             borderWidth={1}
             fontSize={16}
             width ='100%'
-            onPress={onPress}
             />
-    )
-};
+    );
+    };
 
 
-const FoodLogSavedPage = () => { 
+const FoodLogSavedPage: React.FC<{ foods: Food[] }> = ({ foods }) => { 
     const [foodDetails, setFoodDetails] = useState<Food[]>([]);
     const [loading, setLoading] = useState(true);
     const [cached, setCached] = useState(false);
     const context = useContext(GlobalContext);
-    const [isFoodModalVisable, setFoodModalVisable] = useState(false);
+    const [isFoodModalVisible, setFoodModalVisible] = useState(false);
     const [foodText, setFoodText] = useState("");
     const [selectedFood, setSelectedFood] = useState<Food | null>(null);
     
-    const fetchFoodIDs = async () => {
+    const fetchFoods = async () => {
         try {
             console.log("Fetching food details...");
             const cachedFoodDetails = await AsyncStorage.getItem('foodDetails');
@@ -64,7 +62,7 @@ const FoodLogSavedPage = () => {
                 setCached(true);
                 setFoodDetails(JSON.parse(cachedFoodDetails));
             } 
-                const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFoodIdsOfLoggedInUser`,
+                const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFoodsOfLoggedInUser/0/200`,
                 {
                     method: "GET", 
                     headers: {
@@ -74,18 +72,17 @@ const FoodLogSavedPage = () => {
                 });
             
                 if (response.status === 200) {
-                    const foodIDs = await response.json();
-    
-                    const detailsArray = await Promise.all(foodIDs.map((id: number) => fetchingSingleFoodDetail(id)));
-                    
 
-                    const validDetails = detailsArray.filter((food) => food !== null);
-                    validDetails.sort((a,b) => a.name.localeCompare(b.name));
+                    const foodArray = await response.json();
 
-                    console.log("Fetched and sorted food details:", validDetails);
-                    setFoodDetails(validDetails);
+                    // Ensure the array is sorted by food name alphabetically
+                    foodArray.sort((a: Food, b: Food) => a.name.localeCompare(b.name));
 
-                    await AsyncStorage.setItem('foodDetails', JSON.stringify(validDetails));
+                    console.log("Fetched and sorted food details:", foodArray);
+                    setFoodDetails(foodArray);
+
+                     // Cache the sorted food details
+                    await AsyncStorage.setItem('foodDetails', JSON.stringify(foodArray));
                 } else {
                     console.log("Failed to fetch food IDs. Status:", response.status);
                 }
@@ -97,33 +94,70 @@ const FoodLogSavedPage = () => {
         }
     };
 
-        const fetchingSingleFoodDetail = async (foodID: number) => {
-            try {
-                const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFood/${foodID}`, {
-                    method: 'GET', 
-                    headers: {
-                        'Content-Type': 'application/json', 
-                        'Authorization': `Bearer ${context?.data.token}`,
-                    }
-                });
-    
-                if (response.status === 200) {
-                    return await response.json();
-                } else {
-                    return null;
-                }
-            } catch (error) {
-                console.log(`Error fetching details for food ID ${foodID}:`, error);
+    const saveFoodChanges = async (updatedFood: Food) => {
+        console.log("UPdated food: ", updatedFood);
+        // const orderedFood = {
+        //     name: updatedFood.name,
+        //     calories: updatedFood.calories,
+        //     protein: updatedFood.protein,
+        //     carbs: updatedFood.carbs,
+        //     fat: updatedFood.fat,
+        //     multiplier: updatedFood.multiplier,
+        //     isDeleted: updatedFood.isDeleted,
+        // };
+        function customJSONStringify(obj: any, keysOrder: string[]): string {
+            const orderedObj: any = {};
+            for (const key of keysOrder) {
+              if (key in obj) {
+                orderedObj[key] = obj[key];
+              }
             }
-            return null;
-        };
+            return JSON.stringify(orderedObj);
+          }
+          
+          // Specify the desired order of keys
+          const keysOrder = ["name", "calories", "protein", "carbs", "fat", "multiplier", "isDeleted"];
+          
+          // Serialize updatedFood with the desired key order
+          const body = customJSONStringify(updatedFood, keysOrder);
 
+          console.log("UpdatedFoodID", updatedFood.id);
+          
+        try {
+            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/editFood/${updatedFood.id}`, {
+                method: "PUT", 
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': `Bearer ${context?.data.token}`,
+                }, 
+                body: body, 
+            });
 
-        useFocusEffect(
-            useCallback(() => {
-                fetchFoodIDs();
-            }, [])
-        );
+            console.log(body);
+            console.log(response.status);
+
+            if (response.status === 200) {
+                //update local state with the updated food details 
+                setFoodDetails((prev) => 
+                prev.map((food) => (food.id === updatedFood.id ? updatedFood : food))
+                );
+            } else {
+                console.error("Failed to save food changes");
+            }
+        } catch (error) {
+            console.error("Error saving food changes: ", error);
+        }
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchFoods();
+        }, [])
+    );
+
+    // useEffect(() => {
+    //     fetchFoods();
+    // }, []);
 
         // Show a confirmation before deleting a food
   const confirmDeleteFood = (id: number) => {
@@ -161,86 +195,60 @@ const FoodLogSavedPage = () => {
                 }
             } catch (error) {
                 console.error(error);
-            }
-    }
+            };
+    };
+
 
     const renderItem = ({ item }:{item: Food}) => (
         <Swipeable
             renderLeftActions={() => (
-                <View style={styles.swipeDeleteButton}>
-                    <Text 
-                        style={styles.deleteText}
-                        onPress={() => confirmDeleteFood(item.id)}
-                    >Delete</Text>
-                </View>
-            )}
+            <View style={styles.swipeDeleteButton}>
+                <Text
+                    style={styles.deleteText}
+                    onPress={() => confirmDeleteFood(item.id)}
+                >
+                Delete
+                </Text>
+            </View>
+        )}
         >
-        <FoodItem 
-            food={item} 
-            onPress={() => {
-                setSelectedFood(item);
-                console.log("item: ", item);
-                setFoodModalVisable(true); 
-                }}
-            />
+            {/* <LogFoodButton {...item} saveFoodChanges={saveFoodChanges} /> */}
+        <FoodItem food={item} saveFoodChanges={saveFoodChanges}/> 
+        {/* {foodDetails.map((food) => (
+        <FoodItem key={food.id} food={food} saveFoodChanges={saveFoodChanges} /> */}
+      {/* ))} */}
+            
         </Swipeable>
-    
     );
 
 
-    // return cached ? (
-    //     <View style={styles.bottomContainer}>
-    //         <CustomSearchBar></CustomSearchBar>
-    //         <FlatList 
-    //             data={foodDetails}
-    //             renderItem={renderItem}
-    //             keyExtractor={(item) => `${item.id}`}
-    //         />
-    //     </View>
-    // ) : loading ? (
-    //     <View style={styles.bottomContainer}>
-    //         <CustomSearchBar></CustomSearchBar>
-    //         <Text style={styles.message}>Loading...</Text>
-    //    </View>
-    // ) : foodDetails.length === 0 ? (
-    //     <View style={styles.bottomContainer}>
-    //         <CustomSearchBar></CustomSearchBar>
-    //         <Text style={styles.message}>No food items logged.</Text>
-    //     </View>
-    // ) : (
-    return (
+    return cached ? (
         <View style={styles.bottomContainer}>
-            {/* Notes modal */}
             <CustomSearchBar></CustomSearchBar>
-            <Modal
-                transparent={true}
-                visible={isFoodModalVisable}
-                animationType="slide"
-                onRequestClose={() => setFoodModalVisable(false)}
-            >
-                <View style={styles.modalOverlay}>
-                <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>Food Details</Text>
-                    {selectedFood && ( 
-                        <>
-                            <Text>Name: {selectedFood.name}</Text>
-                            <Text>Calories: {selectedFood.calories}</Text>
-                            <Text>Protein: {selectedFood.protein}</Text>
-                            <Text>Carbs: {selectedFood.carbs}</Text>
-                            <Text>Fat: {selectedFood.fat}</Text>
-                        </>
-                    )}
-                    <TouchableOpacity onPress={() => setFoodModalVisable(false)} >
-                        <Text>Save Details</Text>
-                    </TouchableOpacity>
-                </View>
-                </View>
-            </Modal>
-            
             <FlatList 
                 data={foodDetails}
                 renderItem={renderItem}
                 keyExtractor={(item) => `${item.id}`}
+            />
+        </View>
+    ) : loading ? (
+        <View style={styles.bottomContainer}>
+            <CustomSearchBar></CustomSearchBar>
+            <Text style={styles.message}>Loading...</Text>
+       </View>
+    ) : foodDetails.length === 0 ? (
+        <View style={styles.bottomContainer}>
+            <CustomSearchBar></CustomSearchBar>
+            <Text style={styles.message}>No food items logged.</Text>
+        </View>
+    ) : (
+        <View style={styles.bottomContainer}>
+            <CustomSearchBar></CustomSearchBar>
+            <FlatList 
+                data={foodDetails}
+                renderItem={renderItem}
+                keyExtractor={(item) => `${item.id}`}
+                
             />
         </View>
     );
