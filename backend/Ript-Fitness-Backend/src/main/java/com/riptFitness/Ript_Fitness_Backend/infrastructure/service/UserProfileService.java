@@ -1,13 +1,16 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.UserProfileMapper;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.Photo;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.PhotoRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.UserProfileRepository;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.UserDto;
 
@@ -17,10 +20,12 @@ import jakarta.transaction.Transactional;
 public class UserProfileService {
 
     private final UserProfileRepository userRepository;
+    private final PhotoRepository photoRepository;
 
     // Dependency injection constructor
-    public UserProfileService(UserProfileRepository userRepository) {
+    public UserProfileService(UserProfileRepository userRepository, PhotoRepository photoRepository) {
         this.userRepository = userRepository;
+        this.photoRepository = photoRepository;
     }
 
     // Adds a new user profile with default values
@@ -156,5 +161,43 @@ public class UserProfileService {
         return userProfiles.stream()
                            .map(UserProfileMapper.INSTANCE::toUserDto)
                            .collect(Collectors.toList());
+    }
+    // Add profile picture
+    public void updateProfilePicture(String username, byte[] profilePicture) {
+        UserProfile user = userProfileRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setProfilePicture(profilePicture);
+        userProfileRepository.save(user);
+    }
+
+    // Get profile picture
+    public byte[] getProfilePicture(String username) {
+        UserProfile user = userProfileRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getProfilePicture();
+    }
+
+    // Add private photo
+    public void addPrivatePhoto(String username, byte[] photo) {
+        UserProfile user = userProfileRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Photo newPhoto = new Photo();
+        newPhoto.setUserProfile(user);
+        newPhoto.setPhoto(photo);
+        newPhoto.setUploadTimestamp(LocalDateTime.now());
+        photoRepository.save(newPhoto);
+    }
+
+    // Get all private photos
+    public List<Photo> getPrivatePhotos(String username) {
+        UserProfile user = UserProfileRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        return photoRepository.findByUserProfile_Id(user.getId());
+    }
+
+    // Delete private photo
+    public void deletePrivatePhoto(Long photoId) {
+        photoRepository.deleteById(photoId);
     }
 }
