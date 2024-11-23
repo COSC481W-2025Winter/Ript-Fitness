@@ -60,7 +60,7 @@ public class FriendsService {
 		ArrayList<String> listOfUsernamesInCurrentlyLoggedInUsersFriendsList = new ArrayList<String>();
 		
 		for(AccountsModel accountOfFriend: currentlyLoggedInAccount.getFriends()) {
-			listOfUsernamesInCurrentlyLoggedInUsersFriendsList.add(accountOfFriend.getUserProfile().getUsername());
+			listOfUsernamesInCurrentlyLoggedInUsersFriendsList.add(accountOfFriend.getUsername());
 		}
 		
 		return listOfUsernamesInCurrentlyLoggedInUsersFriendsList;
