@@ -187,8 +187,4 @@ public class UserProfile {
     public void setRestResetDayOfWeek(Integer restResetDayOfWeek) {
         this.restResetDayOfWeek = restResetDayOfWeek;
     }
-	public Object getNextSunday() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

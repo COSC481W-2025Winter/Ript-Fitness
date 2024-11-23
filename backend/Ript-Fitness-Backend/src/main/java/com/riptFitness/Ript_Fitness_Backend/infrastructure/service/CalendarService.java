@@ -79,7 +79,7 @@ public class CalendarService {
             throw new IllegalStateException("Rest day already logged for this date.");
         }
         
-        if (LocalDate.now().isAfter(userProfile.getRestResetDate().plusDays(1))) {
+        if (LocalDate.now().isAfter(userProfile.getRestResetDate())) {
             LocalDate today = LocalDate.now();
             int todayDayOfWeek = today.getDayOfWeek().getValue();
             int daysUntilSunday = 7 - todayDayOfWeek;
