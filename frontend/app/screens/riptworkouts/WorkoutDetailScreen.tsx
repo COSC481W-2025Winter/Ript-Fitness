@@ -15,7 +15,6 @@ export default function WorkoutDetailScreen() {
 
   return (
     <View style={styles.container}>
-      <StreakHeader></StreakHeader>
       <ThemedText style={styles.title}>{workout.name}</ThemedText>
 
       <View style={styles.textWrapper}>
@@ -24,7 +23,7 @@ export default function WorkoutDetailScreen() {
 
       <FlatList
         data={workout.exercises}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(index) => index.toString()}
         renderItem={({ item }) => (
           <View style={styles.exercise}>
             <Text style={styles.exerciseName}>{item.exercise}</Text>
