@@ -100,7 +100,7 @@ public class NutritionTrackerControllerTest {
 		foodTwo.multiplier = 0.5;
 				
 		dayDto = new DayDto();
-		dayDto.foodsEatenInDay = List.of(food, foodTwo);
+		dayDto.foodsEatenInDay = List.of(foodDto, foodDtoTwo);
 		dayDto.totalWaterConsumed = 0;
 
 		day = new Day();

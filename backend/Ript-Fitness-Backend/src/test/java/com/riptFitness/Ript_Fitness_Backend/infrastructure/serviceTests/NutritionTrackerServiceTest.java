@@ -94,7 +94,7 @@ public class NutritionTrackerServiceTest {
 		foodTwo.multiplier = 0.5;
 				
 		dayDto = new DayDto();
-		dayDto.foodsEatenInDay = List.of(food, foodTwo);
+		dayDto.foodsEatenInDay = List.of(foodDto, foodDtoTwo);
 
 		day = new Day();
 		day.foodsEatenInDay = List.of(food, foodTwo);

@@ -13,6 +13,8 @@ public class ExerciseDto {
 	public boolean isDeleted = false; // False to start because true means the exercisde is deleted.
 	private List<Integer> weight;
 	public String nameOfExercise;
+	private String description;
+    private int exerciseType;
 
 	// Reference to the users account (AccountsModel)
 	public Long accountReferenceId; // Reference to the account that owns this exercise
@@ -23,6 +25,22 @@ public class ExerciseDto {
 	// public Workouts workout;
 
 	// Getters and Setters
+	public String getDescription() {
+    	return description;
+    }
+    
+    public void setDescription(String description) {
+    	this.description = description;
+    }
+    
+    public int getExerciseType() {
+    	return exerciseType;
+    }
+    
+    public void setExerciseType(int exerciseType) {
+    	this.exerciseType = exerciseType;
+    }
+    
 	public Long getExerciseId() {
 		return exerciseId;
 	}

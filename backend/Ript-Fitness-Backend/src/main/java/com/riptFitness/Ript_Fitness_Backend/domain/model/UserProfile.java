@@ -4,6 +4,18 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.JoinColumn;
+
 @Entity
 public class UserProfile {
 
@@ -15,8 +27,8 @@ public class UserProfile {
 
     private String lastName;
 
-    private String displayname;
-
+    public String displayName;
+    
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SocialPost> socialPosts;
 
@@ -31,6 +43,7 @@ public class UserProfile {
 
     @OneToOne
     @JoinColumn(name = "account_id", referencedColumnName = "id")
+    @JsonBackReference
     private AccountsModel account;
 
     private boolean isDeleted = false;
@@ -64,6 +77,7 @@ public class UserProfile {
         this.lastName = lastName;
         this.username = username;
         this.bio = bio;
+        this.displayName = username;
         this.restDays = 3; 
         this.restDaysLeft = 3;  
         
@@ -140,6 +154,14 @@ public class UserProfile {
         this.username = username;
     }
 
+    public String getDisplayName() {
+    	return displayName;
+    }
+    
+    public void setDisplayName(String displayName) {
+    	this.displayName = displayName;
+    }
+    
     public AccountsModel getAccount() {
         return account;
     }

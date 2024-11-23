@@ -1,12 +1,13 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.riptFitness.Ript_Fitness_Backend.domain.mapper.ExerciseMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.WorkoutsMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.ExerciseModel;
@@ -14,6 +15,7 @@ import com.riptFitness.Ript_Fitness_Backend.domain.model.Workouts;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.ExerciseRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.WorkoutsRepository;
+import com.riptFitness.Ript_Fitness_Backend.web.dto.ExerciseDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.WorkoutsDto;
 
 @Service
@@ -36,35 +38,44 @@ public class WorkoutsService {
 	}
 
 	@Transactional
-	public WorkoutsDto addWorkout(WorkoutsDto workoutsDto) {
-	    Long currentUserId = accountsService.getLoggedInUserId();
-	    AccountsModel account = accountsRepository.findById(currentUserId)
-	            .orElseThrow(() -> new RuntimeException("Account not found"));
+    public WorkoutsDto addWorkout(WorkoutsDto workoutsDto) {
+        Long currentUserId = accountsService.getLoggedInUserId();
+        AccountsModel account = accountsRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
 
-	    Workouts newWorkout = new Workouts();
-	    newWorkout.name = workoutsDto.getName();
-	    newWorkout.setAccount(account);
+        // Create a new Workouts entity and set its properties
+        Workouts newWorkout = new Workouts();
+        newWorkout.setName(workoutsDto.getName());
+        newWorkout.setAccount(account);
 
-	    if (workoutsDto.getExerciseIds() != null) {
-	        List<ExerciseModel> exercises = workoutsDto.getExerciseIds().stream()
-	                .map(id -> exerciseRepository.findById(id)
-	                        .orElseThrow(() -> new RuntimeException("Exercise not found with ID: " + id)))
-	                .collect(Collectors.toList());
-	        newWorkout.setExercises(exercises);
-	    }
+        List<ExerciseModel> exercises = new ArrayList<>();
 
-	    workoutsRepository.save(newWorkout);
+        if (workoutsDto.getExerciseIds() != null) {
+            for (Long exerciseId : workoutsDto.getExerciseIds()) {
+                // Retrieve existing exercise by ID
+                ExerciseModel exerciseModel = exerciseRepository.findById(exerciseId)
+                        .orElseThrow(() -> new RuntimeException("Exercise not found with ID: " + exerciseId));
 
-	    // Fetch the workout again with exercises initialized
-	    Workouts savedWorkout = workoutsRepository.findById(newWorkout.workoutsId)
-	            .orElseThrow(() -> new RuntimeException("Workout not found after saving"));
+                // Verify that the exercise belongs to the current user
+                if (!exerciseModel.getAccount().getId().equals(currentUserId)) {
+                    throw new RuntimeException("Exercise does not belong to the current user");
+                }
 
-	    // Initialize the exercises collection
-	    savedWorkout.getExercises().size(); // Forces initialization
+                // Add the exercise to the list
+                exercises.add(exerciseModel);
+            }
+        }
 
-	    // Return the mapped savedWorkout instead of newWorkout
-	    return WorkoutsMapper.INSTANCE.toWorkoutsDto(savedWorkout);
-	}
+        // Set exercises to the workout and save
+        newWorkout.setExercises(exercises);
+        workoutsRepository.save(newWorkout);
+
+        // Map the saved workout to WorkoutsDto, including the exercises
+        WorkoutsDto responseDto = WorkoutsMapper.INSTANCE.toWorkoutsDto(newWorkout);
+
+        return responseDto;
+    }
+
 
 
 
@@ -125,20 +136,53 @@ public class WorkoutsService {
 	 * WorkoutsMapper.INSTANCE.toWorkoutsDto(workoutToBeUpdated); }
 	 */
 
+	@Transactional
 	public WorkoutsDto updateWorkout(Long workoutId, WorkoutsDto workoutsDto) {
-		Optional<Workouts> optWorkout = workoutsRepository.findById(workoutId);
-		if (optWorkout.isEmpty()) {
-			throw new RuntimeException("no workout found with id = " + workoutId);
-		}
-		Workouts workoutToBeUpdated = optWorkout.get();
+	    Long currentUserId = accountsService.getLoggedInUserId();
 
-		// Update basic workout properties
-		workoutToBeUpdated.name = workoutsDto.getName();
+	    // Retrieve the workout to be updated
+	    Workouts workoutToBeUpdated = workoutsRepository.findById(workoutId)
+	            .orElseThrow(() -> new RuntimeException("No workout found with id = " + workoutId));
 
-		// Save the updated workout entity
-		workoutToBeUpdated = workoutsRepository.save(workoutToBeUpdated);
-		return WorkoutsMapper.INSTANCE.toWorkoutsDto(workoutToBeUpdated);
+	    // Verify that the workout belongs to the current user
+	    if (!workoutToBeUpdated.getAccount().getId().equals(currentUserId)) {
+	        throw new RuntimeException("You do not have permission to update this workout");
+	    }
+
+	    // Update the workout name if provided
+	    if (workoutsDto.getName() != null) {
+	        workoutToBeUpdated.setName(workoutsDto.getName());
+	    }
+
+	    // Update the exercises if exerciseIds are provided
+	    if (workoutsDto.getExerciseIds() != null) {
+	        List<ExerciseModel> newExercises = new ArrayList<>();
+
+	        for (Long exerciseId : workoutsDto.getExerciseIds()) {
+	            // Retrieve the exercise
+	            ExerciseModel exerciseModel = exerciseRepository.findById(exerciseId)
+	                    .orElseThrow(() -> new RuntimeException("Exercise not found with ID: " + exerciseId));
+
+	            // Verify that the exercise belongs to the current user
+	            if (!exerciseModel.getAccount().getId().equals(currentUserId)) {
+	                throw new RuntimeException("Exercise with ID " + exerciseId + " does not belong to the current user");
+	            }
+
+	            newExercises.add(exerciseModel);
+	        }
+
+	        // Update the exercises associated with the workout
+	        workoutToBeUpdated.setExercises(newExercises);
+	    }
+
+	    // Save the updated workout entity
+	    Workouts updatedWorkout = workoutsRepository.save(workoutToBeUpdated);
+
+	    // Map the updated workout to WorkoutsDto and return
+	    WorkoutsDto responseDto = WorkoutsMapper.INSTANCE.toWorkoutsDto(updatedWorkout);
+	    return responseDto;
 	}
+
 
 	public WorkoutsDto deleteWorkout(Long workoutId) {
 		Optional<Workouts> optWorkoutToBeDeleted = workoutsRepository.findById(workoutId);
