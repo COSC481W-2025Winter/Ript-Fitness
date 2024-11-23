@@ -42,6 +42,9 @@ public class AccountsModel {
     // If you want to define a bi-directional relationship
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Workouts> workouts;
+    
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
+    private List<WorkoutData> workoutdata;
 
     // 10/17/24: Adding One-To-Many relationship with the exercise class:
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL) // "account" is the insatnce variable in the exercise class
