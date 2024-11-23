@@ -1,6 +1,8 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -147,5 +149,12 @@ public class UserProfileService {
             userProfile.setRestDaysLeft(userProfile.getRestDays()); 
             userRepository.save(userProfile); 
         }
+    }
+    
+    public List<UserDto> getUserProfilesFromListOfUsernames(List<String> usernames) {
+        List<UserProfile> userProfiles = userRepository.findAllByUsernames(usernames);
+        return userProfiles.stream()
+                           .map(UserProfileMapper.INSTANCE::toUserDto)
+                           .collect(Collectors.toList());
     }
 }

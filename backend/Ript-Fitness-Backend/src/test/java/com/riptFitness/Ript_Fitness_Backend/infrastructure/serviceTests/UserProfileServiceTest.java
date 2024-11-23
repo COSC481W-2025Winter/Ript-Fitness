@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -175,5 +176,44 @@ public class UserProfileServiceTest {
         assertEquals(LocalDate.now().plusDays(7 - LocalDate.now().getDayOfWeek().getValue()), userProfile.getRestResetDate());
         assertEquals(userProfile.getRestDays(), userProfile.getRestDaysLeft());
         verify(userProfileRepository, times(1)).save(userProfile);
+    }
+    @Test
+    public void testGetUserProfilesFromListOfUsernames() {
+        List<String> usernames = List.of("user1", "user2");
+        List<UserProfile> userProfiles = List.of(userProfile);
+
+        when(userProfileRepository.findAllByUsernames(anyList())).thenReturn(userProfiles);
+
+        List<UserDto> result = userProfileService.getUserProfilesFromListOfUsernames(usernames);
+
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals("Tom", result.get(0).firstName);
+        verify(userProfileRepository, times(1)).findAllByUsernames(usernames);
+    }
+    @Test
+    public void testGetUserProfilesFromEmptyList() {
+        List<String> usernames = List.of();
+
+        when(userProfileRepository.findAllByUsernames(anyList())).thenReturn(List.of());
+
+        List<UserDto> result = userProfileService.getUserProfilesFromListOfUsernames(usernames);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(userProfileRepository, times(1)).findAllByUsernames(usernames);
+    }
+    @Test
+    public void testGetUserProfilesFromNonExistentUsernames() {
+        List<String> usernames = List.of("nonexistent1", "nonexistent2");
+
+        when(userProfileRepository.findAllByUsernames(anyList())).thenReturn(List.of());
+
+        List<UserDto> result = userProfileService.getUserProfilesFromListOfUsernames(usernames);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(userProfileRepository, times(1)).findAllByUsernames(usernames);
     }
 }
