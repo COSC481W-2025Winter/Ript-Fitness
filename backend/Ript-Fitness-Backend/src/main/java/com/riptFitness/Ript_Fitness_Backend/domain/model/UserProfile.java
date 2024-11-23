@@ -41,7 +41,7 @@ public class UserProfile {
     private String username;
 
     @OneToOne
-    @JoinColumn(name = "account_id", referencedColumnName = "id")
+    @JoinColumn(name = "account_id", referencedColumnName = "id") 
     @JsonBackReference
     private AccountsModel account;
 

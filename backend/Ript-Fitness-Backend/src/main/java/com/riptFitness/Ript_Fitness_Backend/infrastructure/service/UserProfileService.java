@@ -49,7 +49,7 @@ public class UserProfileService {
         userProfile.setRestResetDate(getNextSunday());
         userProfile.setRestResetDayOfWeek(1); 
     }
-
+ 
     // Check if user profile exists by username
     public boolean existsByUsername(String username) {
         return userRepository.findByUsername(username).isPresent();
@@ -75,6 +75,18 @@ public class UserProfileService {
 
     // Update the profile fields based on UserDto
     private void updateProfileFields(UserProfile userProfile, UserDto userDto) {
+        if (userDto.getFirstName() != null) {
+            userProfile.setFirstName(userDto.getFirstName());
+        }
+        if (userDto.getLastName() != null) {
+            userProfile.setLastName(userDto.getLastName());
+        }
+        if (userDto.getDisplayname() != null) {
+            userProfile.setDisplayName(userDto.getDisplayname());
+        }
+        if (userDto.getBio() != null) {
+            userProfile.setBio(userDto.getBio());
+        }
         if (userDto.getRestDays() != null) {
             userProfile.setRestDays(userDto.getRestDays());
         }
@@ -88,6 +100,7 @@ public class UserProfileService {
             userProfile.setRestResetDayOfWeek(userDto.getRestResetDayOfWeek());
         }
     }
+
 
     // Soft-deletes user profile by username
     public UserDto softDeleteUserByUsername(String username) {

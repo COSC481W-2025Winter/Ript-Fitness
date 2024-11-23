@@ -10,14 +10,27 @@ public class UserDto {
     public String displayname;
     public String bio;
     public boolean isDeleted = false;
-    
-    // Add the necessary fields here
+
     public Integer restDays;
     public Integer restDaysLeft;
     public LocalDate restResetDate;
     public Integer restResetDayOfWeek;
 
-    // Add getter methods for each field
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getDisplayname() {
+        return displayname;
+    }
+
+    public String getBio() {
+        return bio;
+    }
 
     public Integer getRestDays() {
         return restDays;
