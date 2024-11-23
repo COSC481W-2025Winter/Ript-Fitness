@@ -2,9 +2,10 @@ import React, { useState, useContext  } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, TextInput, Modal, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Swipeable } from 'react-native-gesture-handler';
-import { GlobalContext } from "@/context/GlobalContext"; // Context for token
+import { GlobalContext } from "@/context/GlobalContext"; // Access global context
 import { useNavigation } from "@react-navigation/native"; // Navigation
 import { WorkoutScreenNavigationProp } from '@/app/(tabs)/WorkoutStack';
+
 
 // structure of a set detail with reps and weight
 
@@ -50,16 +51,17 @@ export default function StartWorkoutScreen() {
     try {
       setSubmitting(true); // Indicate submission is in progress
       const WorkoutExercises: number[] = []; // Array to hold exercise IDs
-      // Loop through each exercise and submit it to the backend
-      for (let i =0; i<exercises.length; i++) {
+  
+      // Submit each exercise to the backend
+      for (let i = 0; i < exercises.length; i++) {
         const currentExercise = {
-          "sets": exercises[i].sets,
-          "reps": exercises[i].reps,
-          "nameOfExercise": exercises[i].nameOfExercise,
-		  "weight": exercises[i].weight
-      }
-
-
+          sets: exercises[i].sets,
+          reps: exercises[i].reps,
+          nameOfExercise: exercises[i].nameOfExercise,
+          weight: exercises[i].weight,
+          description: "",
+          exerciseType: 0,
+        };
   
         try {
           console.log("Submitting exercise:", JSON.stringify(currentExercise));
@@ -79,22 +81,22 @@ export default function StartWorkoutScreen() {
             throw new Error(`Error adding exercise: ${response.status}`);
           }
   
-          const json = await response.json(); // Parse the response JSON
-          WorkoutExercises.push(json.exerciseId); // Collect the exercise ID
+          const json = await response.json();
+          console.log("Exercise added successfully:", json);
+          WorkoutExercises.push(json.exerciseId);
         } catch (error) {
           console.error("Failed to add exercise:", error);
-          // Continue processing other exercises even if one fails
         }
       }
   
-      // Once all exercises are added, submit the workout with collected exercise IDs
+      // Submit the workout to the backend
       const workoutPayload = {
         name: workoutName || "Untitled Workout",
-        exerciseIds: WorkoutExercises, // Pass the array of exercise IDs
+        exerciseIds: WorkoutExercises,
         isDeleted: false,
       };
   
-      console.log("Submitting workout:", JSON.stringify(workoutPayload));
+      console.log("Submitting workout payload:", workoutPayload);
   
       const workoutResponse = await fetch(
         `${httpRequests.getBaseURL()}/workouts/addWorkout`,
@@ -112,18 +114,24 @@ export default function StartWorkoutScreen() {
         throw new Error(`Error adding workout: ${workoutResponse.status}`);
       }
   
-      const workoutJson = await workoutResponse.json(); // Parse workout response
+      const workoutJson = await workoutResponse.json();
       console.log("Workout added successfully:", workoutJson);
   
+      // Update GlobalContext with the new workout
+      context.addWorkout({ ...workoutJson, exercises: [] });
   
-      // Navigate to MyWorkoutsScreen, passing the new workout as needed
-      navigation.navigate("MyWorkoutsScreen", { workoutJson });
+      // Reset the form and navigate
+      setWorkoutName("");
+      setExercises([]);
+      Alert.alert("Success", "Workout added successfully!");
+      navigation.navigate("MyWorkoutsScreen", {});
     } catch (error) {
       console.error("Error submitting workout:", error);
     } finally {
-      setSubmitting(false); // Reset submission state
+      setSubmitting(false);
     }
   };
+  
   
   // add a new exercise
   const addExercise = () => {
