@@ -3,6 +3,7 @@ package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Calendar;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.CalendarRepository;
+import com.riptFitness.Ript_Fitness_Backend.web.dto.CalendarDto;
 
 @Service
 public class CalendarService {
@@ -54,8 +56,12 @@ public class CalendarService {
         calendarRepository.save(restDayEntry);
     }
 
-    public List<Calendar> getMonth(LocalDate startDate, LocalDate endDate) {
+    public List<CalendarDto> getMonth(LocalDate startDate, LocalDate endDate) {
         Long accountId = accountsService.getLoggedInUserId();
-        return calendarRepository.findByAccountIdAndDateBetween(accountId, startDate, endDate);
+        List<Calendar> entries = calendarRepository.findByAccountIdAndDateBetween(accountId, startDate, endDate);
+        return entries.stream()
+                      .map(calendar -> new CalendarDto(calendar.getDate(), calendar.getActivityType()))
+                      .collect(Collectors.toList());
     }
+
 }

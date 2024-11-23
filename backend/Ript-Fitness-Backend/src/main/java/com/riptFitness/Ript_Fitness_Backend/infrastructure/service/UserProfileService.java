@@ -8,7 +8,7 @@ import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.UserProfileRepository;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.UserDto;
 
-@Service // service class, which is required 
+@Service
 public class UserProfileService {
 
     private final UserProfileRepository userRepository;
@@ -68,5 +68,32 @@ public class UserProfileService {
         userToBeDeleted.setDeleted(true); // Flag as deleted
         userRepository.save(userToBeDeleted);
         return UserProfileMapper.INSTANCE.toUserDto(userToBeDeleted);
+    }
+
+    // Retrieves remaining rest days for the current week
+    public Integer getRemainingRestDays(String username) {
+        Optional<UserProfile> optionalUserProfile = userRepository.findByUsername(username);
+
+        if (optionalUserProfile.isEmpty()) {
+            throw new RuntimeException("User not found in database with username = " + username);
+        }
+
+        Integer restDaysLeft = optionalUserProfile.get().getRestDaysLeft();
+        return (restDaysLeft != null) ? restDaysLeft : 0; // Return 0 if restDaysLeft is null
+    }
+
+    // Updates the allowed rest days per week and the reset day of the week
+    public void updateRestDays(String username, Integer allowedRestDays, Integer resetDayOfWeek) {
+        Optional<UserProfile> optionalUserProfile = userRepository.findByUsername(username);
+
+        if (optionalUserProfile.isEmpty()) {
+            throw new RuntimeException("User not found in database with username = " + username);
+        }
+
+        UserProfile userProfile = optionalUserProfile.get();
+        userProfile.setRestDays(allowedRestDays != null ? allowedRestDays : 3); // Set default if null
+        userProfile.setRestDaysLeft(allowedRestDays != null ? allowedRestDays : 3); // Ensure restDaysLeft is set
+        userProfile.setRestResetDayOfWeek(resetDayOfWeek != null ? resetDayOfWeek : 1); // Default to Monday if null
+        userRepository.save(userProfile);
     }
 }

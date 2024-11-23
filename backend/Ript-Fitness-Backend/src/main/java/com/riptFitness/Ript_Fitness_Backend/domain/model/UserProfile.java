@@ -1,8 +1,8 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
+import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
-import jakarta.persistence.*;
 
 @Entity
 public class UserProfile {
@@ -35,17 +35,22 @@ public class UserProfile {
 
     private boolean isDeleted = false;
 
+    @Column(name = "rest_days", nullable = true)
+    private Integer restDays;  // Changed from int to Integer to handle null values
+
     @Column(name = "rest_days_left")
-    private int restDaysLeft;
+    private Integer restDaysLeft; // Changed from int to Integer to handle null values
 
     @Column(name = "rest_reset_date")
-    private LocalDate restResetDate;
+    private LocalDate restResetDate; // Date when rest days reset
 
     @Column(name = "rest_reset_day_of_week")
-    private int restResetDayOfWeek;
+    private Integer restResetDayOfWeek; // Changed from int to Integer to handle null values
 
     // Default Constructor
-    public UserProfile() {}
+    public UserProfile() {
+        this.restDays = 3; // Ensure restDays defaults to 3 when an instance is created
+    }
 
     // Parameterized Constructor
     public UserProfile(String firstName, String lastName, String username, String bio) {
@@ -53,6 +58,7 @@ public class UserProfile {
         this.lastName = lastName;
         this.username = username;
         this.bio = bio;
+        this.restDays = 3; // Ensure restDays defaults to 3 when this constructor is used
     }
 
     // Getters and Setters
@@ -136,11 +142,19 @@ public class UserProfile {
         this.isDeleted = isDeleted;
     }
 
-    public int getRestDaysLeft() {
+    public Integer getRestDays() {
+        return restDays != null ? restDays : 3;  // Return 3 if restDays is null
+    }
+
+    public void setRestDays(Integer restDays) {
+        this.restDays = restDays;
+    }
+
+    public Integer getRestDaysLeft() {
         return restDaysLeft;
     }
 
-    public void setRestDaysLeft(int restDaysLeft) {
+    public void setRestDaysLeft(Integer restDaysLeft) {
         this.restDaysLeft = restDaysLeft;
     }
 
@@ -152,11 +166,11 @@ public class UserProfile {
         this.restResetDate = restResetDate;
     }
 
-    public int getRestResetDayOfWeek() {
+    public Integer getRestResetDayOfWeek() {
         return restResetDayOfWeek;
     }
 
-    public void setRestResetDayOfWeek(int restResetDayOfWeek) {
+    public void setRestResetDayOfWeek(Integer restResetDayOfWeek) {
         this.restResetDayOfWeek = restResetDayOfWeek;
     }
 }

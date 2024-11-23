@@ -22,4 +22,14 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
     
     @Query("SELECT u FROM UserProfile u WHERE u.account.id = :id AND u.isDeleted = false")
     Optional<UserProfile> findUserProfileByAccountId(@Param("id") Long id);
+
+    // Updates the restDays for a user profile
+    @Modifying
+    @Transactional
+    @Query("UPDATE UserProfile u SET u.restDays = :restDays WHERE u.username = :username")
+    void updateRestDaysByUsername(@Param("username") String username, @Param("restDays") Integer restDays); // Changed to Integer
+
+    // Retrieves the restDays for a user profile
+    @Query("SELECT u.restDays FROM UserProfile u WHERE u.username = :username AND u.isDeleted = false")
+    Optional<Integer> findRestDaysByUsername(@Param("username") String username); // Changed to Integer
 }

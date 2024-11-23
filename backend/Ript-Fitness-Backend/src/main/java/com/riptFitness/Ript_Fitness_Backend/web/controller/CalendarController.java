@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Calendar;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.CalendarService;
+import com.riptFitness.Ript_Fitness_Backend.web.dto.CalendarDto;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
@@ -28,10 +29,12 @@ public class CalendarController {
     }
 
     @GetMapping("/getMonth")
-    public List<Calendar> getMonth(@RequestParam String startYear, @RequestParam String startMonth, @RequestParam String endYear, @RequestParam String endMonth) {
+    public List<CalendarDto> getMonth(@RequestParam String startYear, @RequestParam String startMonth,
+                                       @RequestParam String endYear, @RequestParam String endMonth) {
         LocalDate startDate = LocalDate.of(Integer.parseInt(startYear), Integer.parseInt(startMonth), 1);
         LocalDate endDate = LocalDate.of(Integer.parseInt(endYear), Integer.parseInt(endMonth), 1)
                                      .with(TemporalAdjusters.lastDayOfMonth());
         return calendarService.getMonth(startDate, endDate);
     }
+
 }

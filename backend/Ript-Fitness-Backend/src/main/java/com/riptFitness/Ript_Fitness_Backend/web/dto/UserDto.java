@@ -1,16 +1,18 @@
 package com.riptFitness.Ript_Fitness_Backend.web.dto;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
 
-//matches my UserProfile model class 
 public class UserDto {
-
     public Long id;                 
     public String firstName;         
     public String lastName;          
     public String username; 
     public String displayname;
     public String bio;
-    public boolean isDeleted = false; //sft delete flag 
+    public boolean isDeleted = false;
+
+    public Integer restDays; 
+    public Integer restDaysLeft; 
+    public LocalDate restResetDate; 
+    public Integer restResetDayOfWeek; 
 }
