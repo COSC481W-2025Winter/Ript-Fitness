@@ -62,6 +62,7 @@ public class WorkoutDataService {
 		List<WorkoutData> wDataL = workoutDataRepository.findByAccountId(currentUserId);
 		List<WorkoutDataDto> dataList = new ArrayList<>();
 		
+		
 		for(WorkoutData wData : wDataL) {
 			if(wData.getExerciseName().toLowerCase().equals(exerciseName)) {
 				WorkoutDataDto workoutDataDto = WorkoutDataMapper.INSTANCE.toWorkoutDataDto(wData);
@@ -70,7 +71,7 @@ public class WorkoutDataService {
 		}
 		
 		
-		return dataList;
+		return dataList.subList(startIndex, endIndex);
 	}
 
 	public WorkoutDataDto updateWorkoutData(Long wDataId, WorkoutDataDto workoutDataDto) {
@@ -97,13 +98,60 @@ public class WorkoutDataService {
 		return WorkoutDataMapper.INSTANCE.toWorkoutDataDto(wDataToBeDeleted);
 	}
 	
-	public Integer getMaxReps() {
+	public Integer getMaxReps(String exerciseName) {
+		Long currentUserId = accountsService.getLoggedInUserId();
+		AccountsModel account = accountsRepository.findById(currentUserId)
+				.orElseThrow(() -> new RuntimeException("Account not found"));
 		
-		return null;
+		List<WorkoutData> wDataL = workoutDataRepository.findByAccountId(currentUserId);
+		List<WorkoutDataDto> dataList = new ArrayList<>();
+		
+		
+		for(WorkoutData wData : wDataL) { //gets all data with the given exercise name
+			if(wData.getExerciseName().toLowerCase().equals(exerciseName)) {
+				WorkoutDataDto workoutDataDto = WorkoutDataMapper.INSTANCE.toWorkoutDataDto(wData);
+				dataList.add(workoutDataDto);
+			}
+		}
+		
+		int max = 0;
+		for(WorkoutDataDto wData: dataList) {//gets the max reps
+			for(int i = 0; i < wData.getReps().size(); i++) {
+				if(max < wData.getReps().get(i)) {
+					max = wData.getReps().get(i);
+				}
+			}
+		}
+		
+		return max;
 	}
 	
-	public Integer getMaxWeight() {
+	public Integer getMaxWeight(String exerciseName) {
 		
-		return null;
+		Long currentUserId = accountsService.getLoggedInUserId();
+		AccountsModel account = accountsRepository.findById(currentUserId)
+				.orElseThrow(() -> new RuntimeException("Account not found"));
+		
+		List<WorkoutData> wDataL = workoutDataRepository.findByAccountId(currentUserId);
+		List<WorkoutDataDto> dataList = new ArrayList<>();
+		
+		
+		for(WorkoutData wData : wDataL) { //gets all data with the given exercise name
+			if(wData.getExerciseName().toLowerCase().equals(exerciseName)) {
+				WorkoutDataDto workoutDataDto = WorkoutDataMapper.INSTANCE.toWorkoutDataDto(wData);
+				dataList.add(workoutDataDto);
+			}
+		}
+		
+		int max = 0;
+		for(WorkoutDataDto wData: dataList) {//gets the max weight
+			for(int i = 0; i < wData.getWeight().size(); i++) {
+				if(max < wData.getWeight().get(i)) {
+					max = wData.getWeight().get(i);
+				}
+			}
+		}
+		
+		return max;
 	}
 }

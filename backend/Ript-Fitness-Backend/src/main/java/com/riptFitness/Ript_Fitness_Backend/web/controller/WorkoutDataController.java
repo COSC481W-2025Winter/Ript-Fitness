@@ -46,6 +46,18 @@ public class WorkoutDataController {
 		return ResponseEntity.ok(returnedListOfData);
 	}
 	
+	@GetMapping("/getMaxReps/{exerciseName}")
+	public ResponseEntity<Integer> getMaxReps(@PathVariable String exerciseName){
+		Integer maxReps = workoutDataService.getMaxReps(exerciseName);
+		return ResponseEntity.ok(maxReps);
+	}
+	
+	@GetMapping("/getMaxReps/{exerciseName}")
+	public ResponseEntity<Integer> getMaxWeight(@PathVariable String exerciseName){
+		Integer maxWeight = workoutDataService.getMaxWeight(exerciseName);
+		return ResponseEntity.ok(maxWeight);
+	}
+	
 	//updates an existing workoutData
 	@PutMapping("updateWorkoutData/{wDataId}")
 	public ResponseEntity<WorkoutDataDto> updateWorkoutData(@PathVariable Long wDataId, @RequestBody WorkoutDataDto workoutDataDto) {
