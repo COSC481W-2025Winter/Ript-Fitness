@@ -92,6 +92,7 @@ export default function FoodLogScreen() {
                 setTotalCarbs(dayData.totalCarbs);
                 setTotalProtein(dayData.totalProtein);
                 setTotalFat(dayData.totalFat);
+                setTotalWater(dayData.totalWaterConsumed);
                 setCached(true);
 
                 await AsyncStorage.setItem('day', JSON.stringify(dayData.id));
