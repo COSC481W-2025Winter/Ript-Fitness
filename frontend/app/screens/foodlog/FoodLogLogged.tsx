@@ -20,8 +20,7 @@ interface Food {
     isDelted: boolean;
 }
 
-const FoodItem: React.FC<{ food: Food; saveFoodChanges: (food: Food) => void}> =  ({ food, saveFoodChanges}) => {
-    const navigation = useNavigation<WorkoutScreenNavigationProp>();
+const FoodItem: React.FC<{ food: Food; saveFoodChanges: (food: Food) => void; logFoodToDay: (food: Food) => void}> =  ({ food, saveFoodChanges, logFoodToDay}) => {
     return(
     <LogFoodButton 
             id={food.id}
@@ -32,6 +31,7 @@ const FoodItem: React.FC<{ food: Food; saveFoodChanges: (food: Food) => void}> =
             fat={food.fat}
             multiplier={food.multiplier}
             saveFoodChanges={(updatedFood) => saveFoodChanges(updatedFood)}
+            logFoodToDay={(updatedFood) => logFoodToDay(updatedFood)}
             textColor="black"
             backgroundColor='white'
             borderWidth={1}
@@ -45,75 +45,59 @@ const FoodLogLoggedPage = () => {
     const [foodDetails, setFoodDetails] = useState<Food[]>([]);
     const [loading, setLoading] = useState(true);
     const [cached, setCached] = useState(false);
-    const [day, setDay] = useState(0);
-    // const [lastDay, setLastDay] = useState(0);
+    const [refreshing, setRefreshing] = useState(false); 
+    const [day, setDay] = useState();
+    const [dayIndex, setDayIndex] = useState(0);
     const context = useContext(GlobalContext);
-    const [isFoodModalVisible, setFoodModalVisible] = useState(false);
-    const [foodText, setFoodText] = useState("");
-    const [selectedFood, setSelectedFood] = useState<Food | null>(null);
 
-    setDay(0);
 
-    // Function to fetch food details based on the food ID
-    const fetchFoodIDs = async () => {
+    // Function to fetch food details
+    const fetchFoods = async () => {
         try {
             const cachedFoodTodayDetails = await AsyncStorage.getItem('foodTodayDetails');
-            // const cachedDay = await AsyncStorage.getItem('day');
-            // const lastCachedDay = await AsyncStorage.getItem('lastDay');
-
-            // if(cachedDay) {
-            //     console.log("There is a cached day: ", JSON.parse(cachedDay));
-            //     try {
-            //         setDay(JSON.parse(cachedDay));
-            //     } catch (error) {
-            //         console.error('error parsing cached day:', error);
-            //     }
-            // }
-
-            // if(lastCachedDay) {
-            //     setLastDay(JSON.parse(lastCachedDay));
-            // }
             
             if (cachedFoodTodayDetails) {
                 console.log("Using cached food details", cachedFoodTodayDetails);
                 setFoodDetails(JSON.parse(cachedFoodTodayDetails));
                 setCached(true);
             } else {
+                console.log("there are no cached foods to use");
                 setFoodDetails([]);
                 setCached(false);
             }
 
-            console.log("using this day: ", day);
+            console.log("the day is: ", day);
+            const thisDay = await AsyncStorage.getItem('day');
+            if (thisDay) {
+                setDay(JSON.parse(thisDay));
+            } else {
+                console.log("Error setting day: ", thisDay);
+            }
 
-            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getDayOfLoggedInUser/${day}`, {
-                method: 'PUT', 
+            console.log("using this day: ", day);
+            console.log("using this day index: ", dayIndex);
+
+            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getDayOfLoggedInUser/${dayIndex}`, {
+                method: 'GET', 
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${context?.data.token}`,
                 }
             });
-            console.log("response status for get Day : ", response.status);
 
-            if (response.status === 200 || response.status === 201 || response.status === 204) {
+            console.log("response status for get Day of logged in user : ", response.status);
+
+            if (response.status === 200) {
                 const dayData = await response.json();
-                const foodIDs = dayData.foodIdsInFoodsEatenInDayList;
-                console.log("Food ids today: ", foodIDs);
+                const foodArray = dayData.foodsEatenInDay;
+                const dayID = dayData.id;
+                console.log("Foods today: ", foodArray);
                 
-                // handle fetching and displaying food details for all IDs 
-                const detailsArray = await Promise.all(foodIDs.map((id: number) => fetchingSingleFoodDetail(id)));
-
-                // Filter out any failed requests
-                const validDetails = detailsArray.filter((food) => food !== null);
-                
-                console.log("Fetched and sorted food logged details:", validDetails);
-                setFoodDetails(validDetails);
-
-                await AsyncStorage.setItem('foodTodayDetails', JSON.stringify(validDetails));
-                // await AsyncStorage.setItem('lastDay', JSON.stringify(day));
+                await AsyncStorage.setItem('foodTodayDetails', JSON.stringify(foodArray));
+                await AsyncStorage.setItem('day', JSON.stringify(dayID));
 
                 console.log("cached", cached);
                 console.log("loading", loading);
-
             } else {
                 console.log("error getting day");
                 console.log("day response: ", response.status);
@@ -126,40 +110,110 @@ const FoodLogLoggedPage = () => {
             setLoading(false);
         }
 }; 
-    const fetchingSingleFoodDetail = async (foodID: number) => {
-        try {
-            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFood/${foodID}`, {
-                method: 'GET', 
-                headers: {
-                    'Content-Type': 'application/json', 
-                    'Authorization': `Bearer ${context?.data.token}`,
-                }
-            });
 
-            if (response.status === 200) {
-                const foodData = await response.json();
-                return foodData; 
-            } else {
-                return null;
-            }
-        } catch (error) {
-            // console.error(`Error fetching details for food ID ${foodID}:`, error);
-            return null;
+
+const saveFoodChanges = async (updatedFood: Food) => {
+    console.log("UPdated food: ", updatedFood);
+    
+    function customJSONStringify(obj: any, keysOrder: string[]): string {
+        const orderedObj: any = {};
+        for (const key of keysOrder) {
+          if (key in obj) {
+            orderedObj[key] = obj[key];
+          }
         }
+        return JSON.stringify(orderedObj);
+      }
+      
+      // Specify the desired order of keys
+      const keysOrder = ["name", "calories", "protein", "carbs", "fat", "multiplier", "isDeleted"];
+      
+      // Serialize updatedFood with the desired key order
+      const body = customJSONStringify(updatedFood, keysOrder);
+
+      console.log("UpdatedFoodID", updatedFood.id);
+      
+    try {
+        const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/editFood/${updatedFood.id}`, {
+            method: "PUT", 
+            headers: {
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${context?.data.token}`,
+            }, 
+            body: body, 
+        });
+
+        console.log(body);
+        console.log(response.status);
+
+        if (response.status === 200) {
+            //update local state with the updated food details 
+            setFoodDetails((prev) => 
+            prev.map((food) => (food.id === updatedFood.id ? updatedFood : food))
+            );
+        } else {
+            console.error("Failed to save food changes");
+        }
+    } catch (error) {
+        console.error("Error saving food changes: ", error);
+    }
+};
+
+
+const logFoodToDay = async (food: Food) => {
+    try {
+        const body = JSON.stringify([food.id]);
+        console.log("Logging food: ", food);
+
+        const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/addFoodsToDay/${day}`, {
+            method: "POST", 
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${context?.data.token}`,
+            },
+            body: body,
+        });
+
+        console.log("Response status for logging food: ", response.status);
+        if (response.status === 201) {
+            console.log("Successfully logged food to the day.");
+            // Optionally update the local state to reflect the change.
+            setFoodDetails((prev) => [...prev, food]);
+        } else {
+            console.error("Failed to log food.");
+        }
+    } catch (error) {
+        console.error("Error logging food to day: ", error);
+    }
+};
+
+    const onRefresh = async () => {
+        // Triggered when user performs a pull-to-refresh action
+        console.log("Refreshing food details...");
+        setRefreshing(true);
+        await fetchFoods();
+        
+        setRefreshing(false);
     };
-
-
-function saveFoodChanges(food: Food): void {
-    throw new Error("Function not implemented.");
-}
-
-
 
     useFocusEffect(
         useCallback(() => {
-            fetchFoodIDs();
+            fetchFoods();
         }, [])
     );
+
+    useEffect(() => {
+        const fetchDayID = async () => {
+            const dayID = await AsyncStorage.getItem('day');
+            console.log(dayID); // Should print the stored ID
+            if(dayID) {
+                setDay(JSON.parse(dayID));
+            } else {
+                console.log("dayID is null");
+            }
+        };
+        fetchDayID();
+    }, []);
 
     const confirmDeleteFood = (id: number) => {
         Alert.alert(
@@ -172,11 +226,11 @@ function saveFoodChanges(food: Food): void {
         );
       };
     
-        // Remove a food by ID
-        const removeFood = (id: number) => {
-            setFoodDetails(foodDetails.filter((food) => food.id !== id));   
-            removeFoodFromDay(id);
-          };
+    // Remove a food by ID
+    const removeFood = (id: number) => {
+        setFoodDetails(foodDetails.filter((food) => food.id !== id));   
+        removeFoodFromDay(id);
+    };
     
     const removeFoodFromDay = async (id: number) => {
         try {
@@ -211,29 +265,30 @@ function saveFoodChanges(food: Food): void {
                 </View>
             )}
         >
-        <FoodItem food={item} saveFoodChanges={saveFoodChanges}/>
+        <FoodItem food={item} saveFoodChanges={saveFoodChanges} logFoodToDay={logFoodToDay}/>
         </Swipeable>
     
     );
 
 
-    // return cached ? (
-    //     <View style={styles.bottomContainer}>
-    //         <FlatList<Food>
-    //             data={foodDetails}
-    //             renderItem={renderItem}
-    //             keyExtractor={(item) => `${item.name}`}
-    //         />
-    //     </View>
-    // ) :  
-    return loading ? (
+    return cached ? (
+        <View style={styles.bottomContainer}>
+            <FlatList<Food>
+                data={foodDetails}
+                renderItem={renderItem}
+                keyExtractor={(item) => `${item.id}`}
+                refreshing={refreshing} // Add refreshing prop
+                onRefresh={onRefresh}  // Add onRefresh callback
+            />
+        </View>
+    ) :  loading ? (
         <View>
              <Text style={styles.message}>Loading...</Text>
         </View>
      ) : foodDetails.length === 0 ? (
-         <View>
-             <Text style={styles.message}>No food items found.</Text>
-         </View>
+        <View>
+            <Text style={styles.message}>No food items found.</Text>
+        </View>
      ) : (
 // {/* THIS IS THE NEW STUFF FOR THE ADD PAGE*/}
         <View style={styles.bottomContainer}>
@@ -241,7 +296,9 @@ function saveFoodChanges(food: Food): void {
             <FlatList
                 data={foodDetails}
                 renderItem={renderItem}
-                keyExtractor={(item) => `${item.name}`}
+                keyExtractor={(item) => `${item.id}`}
+                refreshing={refreshing} // Add refreshing prop
+                onRefresh={onRefresh}  // Add onRefresh callback
             />
         </View>
     );

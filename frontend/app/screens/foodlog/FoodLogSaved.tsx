@@ -7,7 +7,6 @@ import LogFoodButton from "@/components/foodlog/FoodLogButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Swipeable } from 'react-native-gesture-handler';
 import CustomSearchBar from '@/components/custom/CustomSearchBar';
-import Ionicons from '@expo/vector-icons/Ionicons';
 
 interface Food {
     id: number;
@@ -18,11 +17,9 @@ interface Food {
     fat: number;
     multiplier: number;
     isDeleted: boolean;
-    // onPress: {};
 }
 
-const FoodItem: React.FC<{ food: Food; saveFoodChanges: (food: Food) => void}> =  ({ food, saveFoodChanges}) => {
-    // const navigation = useNavigation<WorkoutScreenNavigationProp>();
+const FoodItem: React.FC<{ food: Food; saveFoodChanges: (food: Food) => void; logFoodToDay: (food: Food) => void}> =  ({ food, saveFoodChanges, logFoodToDay}) => {
     return(
         <LogFoodButton 
             id={food.id}
@@ -33,6 +30,7 @@ const FoodItem: React.FC<{ food: Food; saveFoodChanges: (food: Food) => void}> =
             fat={food.fat}
             multiplier={food.multiplier}
             saveFoodChanges={(updatedFood) => saveFoodChanges(updatedFood)}
+            logFoodToDay={(updatedFood) => logFoodToDay(updatedFood)}
             textColor="black"
             backgroundColor='white'
             borderWidth={1}
@@ -43,14 +41,13 @@ const FoodItem: React.FC<{ food: Food; saveFoodChanges: (food: Food) => void}> =
     };
 
 
-const FoodLogSavedPage: React.FC<{ foods: Food[] }> = ({ foods }) => { 
+const FoodLogSavedPage = () => { 
     const [foodDetails, setFoodDetails] = useState<Food[]>([]);
     const [loading, setLoading] = useState(true);
     const [cached, setCached] = useState(false);
+    const [refreshing, setRefreshing] = useState(false); 
+    const [day, setDay] = useState();
     const context = useContext(GlobalContext);
-    const [isFoodModalVisible, setFoodModalVisible] = useState(false);
-    const [foodText, setFoodText] = useState("");
-    const [selectedFood, setSelectedFood] = useState<Food | null>(null);
     
     const fetchFoods = async () => {
         try {
@@ -96,15 +93,7 @@ const FoodLogSavedPage: React.FC<{ foods: Food[] }> = ({ foods }) => {
 
     const saveFoodChanges = async (updatedFood: Food) => {
         console.log("UPdated food: ", updatedFood);
-        // const orderedFood = {
-        //     name: updatedFood.name,
-        //     calories: updatedFood.calories,
-        //     protein: updatedFood.protein,
-        //     carbs: updatedFood.carbs,
-        //     fat: updatedFood.fat,
-        //     multiplier: updatedFood.multiplier,
-        //     isDeleted: updatedFood.isDeleted,
-        // };
+        
         function customJSONStringify(obj: any, keysOrder: string[]): string {
             const orderedObj: any = {};
             for (const key of keysOrder) {
@@ -149,17 +138,63 @@ const FoodLogSavedPage: React.FC<{ foods: Food[] }> = ({ foods }) => {
         }
     };
 
+    const logFoodToDay = async (food: Food) => {
+        try {
+            
+            const body = JSON.stringify([food.id]);
+            console.log("Logging food: ", food);
+    
+            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/addFoodsToDay/${day}`, {
+                method: "POST", 
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${context?.data.token}`,
+                },
+                body: body,
+            });
+    
+            console.log("Response status for logging food: ", response.status);
+            if (response.status === 201) {
+                console.log("Successfully logged food to the day.");
+                // Optionally update the local state to reflect the change.
+                setFoodDetails((prev) => [...prev, food]);
+            } else {
+                console.error("Failed to log food.");
+            }
+        } catch (error) {
+            console.error("Error logging food to day: ", error);
+        }
+    };
+
+    const onRefresh = async () => {
+        // Triggered when user performs a pull-to-refresh action
+        console.log("Refreshing food details...");
+        setRefreshing(true);
+        await fetchFoods();
+        setRefreshing(false);
+    };
+
     useFocusEffect(
         useCallback(() => {
             fetchFoods();
         }, [])
     );
 
-    // useEffect(() => {
-    //     fetchFoods();
-    // }, []);
+    useEffect(() => {
+        const fetchDayID = async () => {
+            const dayID = await AsyncStorage.getItem('day');
+            console.log(dayID); // Should print the stored ID
+            if(dayID) {
+                setDay(JSON.parse(dayID));
+            } else {
+                console.log("dayID is null");
+            }
+        };
+        fetchDayID();
+    }, []);
 
-        // Show a confirmation before deleting a food
+
+    // Show a confirmation before deleting a food
   const confirmDeleteFood = (id: number) => {
     Alert.alert(
       "Delete Food",
@@ -175,7 +210,7 @@ const FoodLogSavedPage: React.FC<{ foods: Food[] }> = ({ foods }) => {
     const removeFood = (id: number) => {
         setFoodDetails(foodDetails.filter((food) => food.id !== id));   
         removeFromDatabase(id);
-      };
+    };
 
     const removeFromDatabase = async (id: number) => {
         try {
@@ -212,11 +247,8 @@ const FoodLogSavedPage: React.FC<{ foods: Food[] }> = ({ foods }) => {
             </View>
         )}
         >
-            {/* <LogFoodButton {...item} saveFoodChanges={saveFoodChanges} /> */}
-        <FoodItem food={item} saveFoodChanges={saveFoodChanges}/> 
-        {/* {foodDetails.map((food) => (
-        <FoodItem key={food.id} food={food} saveFoodChanges={saveFoodChanges} /> */}
-      {/* ))} */}
+        
+        <FoodItem food={item} saveFoodChanges={saveFoodChanges} logFoodToDay={logFoodToDay}/> 
             
         </Swipeable>
     );
@@ -229,6 +261,8 @@ const FoodLogSavedPage: React.FC<{ foods: Food[] }> = ({ foods }) => {
                 data={foodDetails}
                 renderItem={renderItem}
                 keyExtractor={(item) => `${item.id}`}
+                refreshing={refreshing} // Add refreshing prop
+                onRefresh={onRefresh}  // Add onRefresh callback
             />
         </View>
     ) : loading ? (
@@ -248,7 +282,8 @@ const FoodLogSavedPage: React.FC<{ foods: Food[] }> = ({ foods }) => {
                 data={foodDetails}
                 renderItem={renderItem}
                 keyExtractor={(item) => `${item.id}`}
-                
+                refreshing={refreshing} // Add refreshing prop
+                onRefresh={onRefresh}  // Add onRefresh callback
             />
         </View>
     );

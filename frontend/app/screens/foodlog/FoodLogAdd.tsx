@@ -1,14 +1,11 @@
 
 import { TextInput, StyleSheet, ScrollView, Text, View, KeyboardAvoidingView, Platform, TouchableOpacity, Dimensions, Button, Alert  } from "react-native";
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigation } from "@react-navigation/native";
 import AddFoodButton from "@/components/foodlog/AddFoodButton";
 import { httpRequests } from "@/api/httpRequests";
 import { GlobalContext } from "@/context/GlobalContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import FoodLogLoggedPage from "./FoodLogLogged";
-import FoodLogScreen from "./FoodLog";
-import FoodLogSavedPage from "./FoodLogSaved";
 
 //Need to figure out how to get the day to work on login and then not switch until the next day 
 
@@ -26,22 +23,24 @@ const FoodLogAddPage = () => {
     const [totalCarbs, setTotalCarbs] = useState(0);
     const [totalProtein, setTotalProtein] = useState(0);
     const [totalWater, setTotalWater] = useState(0);
-    const [day, setDay] = useState(0);
+    const [day, setDay] = useState();
     const context = useContext(GlobalContext);
 
 
 
     const setTotalForDay = async () => {
         console.log("the day is: ", day);
-        // const cachedDay = await AsyncStorage.getItem('day');
-        // if (cachedDay) {
-        //     setDay(JSON.parse(cachedDay));
-        // } else {
-        //     console.log("there is no cachedDay");
-        // }
+        const thisDay = await AsyncStorage.getItem('day');
+        if (thisDay) {
+            setDay(JSON.parse(thisDay));
+        } else {
+            console.log("Error setting day: ", thisDay);
+        }
+
         try {
-            const getDayResponse = await fetch (`${httpRequests.getBaseURL()}/nutritionCalculator/getDayOfLoggedInUser/${day}`, {
-                method: 'PUT', 
+            console.log("day", day);
+            const getDayResponse = await fetch (`${httpRequests.getBaseURL()}/nutritionCalculator/getDayOfLoggedInUser/0`, {
+                method: 'GET', 
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${context?.data.token}`,
@@ -49,7 +48,7 @@ const FoodLogAddPage = () => {
             }); 
             console.log(getDayResponse.status);
 
-            if (getDayResponse.status == 201 || getDayResponse.status == 200) {
+            if (getDayResponse.status == 200) {
                 const dayData = await getDayResponse.json(); 
                 console.log(dayData);
                 setTotalCalories(dayData.calories); 
@@ -66,9 +65,11 @@ const FoodLogAddPage = () => {
         }
     }
 
+    //This is in case we want to ensure food names are unique... i think this is a feature we decided against for now. 
+
     // const doesFoodExist = async (foodName: string) => {
     //     try {
-    //         const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFoodsOfLoggedInUser`, {
+    //         const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFoodsOfLoggedInUser/0/200`, {
     //             method: 'GET',
     //             headers: {
     //                 'Content-Type': 'application/json',
@@ -77,27 +78,12 @@ const FoodLogAddPage = () => {
     //         });
     
     //         if (response.status === 200) {
-    //             const foodIds = await response.json();
-
-    //              // Use Promise.all to fetch details for all food IDs in parallel
-    //             const foodPromises = foodIds.map((foodId: any) => 
-    //             fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFood/${foodId}`, {
-    //                 method: 'GET',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     'Authorization': `Bearer ${context?.data.token}`,
-    //                 }
-    //             }).then(foodResponse => foodResponse.status === 200 ? foodResponse.json() : null)
-    //         );
-
-    //         // Wait for all fetches to complete and filter out any unsuccessful responses (null)
-    //         const foods = (await Promise.all(foodPromises)).filter(food => food !== null);
-
-    //         // Check if any food's name matches the input foodName
-    //         return foods.some(food => food.name && food.name.toLowerCase() === foodName.toLowerCase());
+    //             const foods = await response.json(); // Assume this returns an array of food objects
+    
+    //             // Check if any food's name matches the input foodName
+    //             return foods.some((food: any) => food.name && food.name.toLowerCase() === foodName.toLowerCase());
     //         } else {
-    //             // console.log('Error fetching foods');
-    //             // Alert.alert("Error", 'Failed to fetch foods');
+    //             console.log('Error fetching foods');
     //             return false;
     //         }
     //     } catch (error) {
@@ -105,40 +91,14 @@ const FoodLogAddPage = () => {
     //         return false;
     //     }
     // };
-
-    const doesFoodExist = async (foodName: string) => {
-        try {
-            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getFoodsOfLoggedInUser`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${context?.data.token}`,
-                }
-            });
     
-            if (response.status === 200) {
-                const foods = await response.json(); // Assume this returns an array of food objects
-    
-                // Check if any food's name matches the input foodName
-                return foods.some((food: any) => food.name && food.name.toLowerCase() === foodName.toLowerCase());
-            } else {
-                console.log('Error fetching foods');
-                return false;
-            }
-        } catch (error) {
-            console.log('Error', 'An error occurred while checking for duplicate food.');
-            return false;
-        }
-    };
-    
-
     const handleFoodDataSaveOnly = async () => {
         // Check if food with the same name exists
-        const foodExists = await doesFoodExist(foodName);
-        if (foodExists) {
-            Alert.alert("Error", "A food with this name already exists. Please use a different name.");
-        return;
-        }
+        // const foodExists = await doesFoodExist(foodName);
+        // if (foodExists) {
+        //     Alert.alert("Error", "A food with this name already exists. Please use a different name.");
+        // return;
+        // }
         const foodData = {
             name: foodName, 
             calories: foodCalories, 
@@ -171,11 +131,11 @@ const FoodLogAddPage = () => {
 
 
     const handleFoodDataSaveAddDay = async () => {
-        const foodExists = await doesFoodExist(foodName);
-        if (foodExists) {
-            Alert.alert("Error", "A food with this name already exists. Please use a different name.");
-        return;
-    }
+    //     const foodExists = await doesFoodExist(foodName);
+    //     if (foodExists) {
+    //         Alert.alert("Error", "A food with this name already exists. Please use a different name.");
+    //     return;
+    // }
         const foodData = {
             name: foodName, 
             calories: foodCalories, 
@@ -185,15 +145,18 @@ const FoodLogAddPage = () => {
             multiplier: foodServings, 
             isDeleted: false, 
         };
-        // const cachedDay = await AsyncStorage.getItem('day');
-        // if (cachedDay) {
-        //     setDay(JSON.parse(cachedDay));
-        // } else {
-        //     console.log("there is no cachedDay");
-        // }
+
+        console.log("the day is: ", day);
+        const thisDay = await AsyncStorage.getItem('day');
+        if (thisDay) {
+            setDay(JSON.parse(thisDay));
+        } else {
+            console.log("Error setting day: ", thisDay);
+        }
 
         // first add food to the database
         try {
+            console.log("day in foodadd: ", day);
             const foodResponse = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/addFood`, { 
             method: 'POST', 
             headers: {
@@ -203,10 +166,13 @@ const FoodLogAddPage = () => {
                 body: JSON.stringify(foodData),
             },
             );
-            
+            console.log("foodResponseAdd status: ", foodResponse.status);
+            console.log("day id: ", day);
+
             if (foodResponse.status === 201) {
                 const foodData = await foodResponse.json();
-                const foodID = [foodData.id];
+                const foodID = foodData.id;
+                console.log("day in foodlog add: ", day);
                 
                 const addResponse = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/addFoodsToDay/${day}`, {
                     method: 'POST', 
@@ -214,7 +180,7 @@ const FoodLogAddPage = () => {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${context?.data.token}`,
                     }, 
-                    body:JSON.stringify(foodID),
+                    body: JSON.stringify([foodID]),
                 });
                 console.log("add to day response status", addResponse.status);
                 if (addResponse.status === 201) {
@@ -234,6 +200,19 @@ const FoodLogAddPage = () => {
             console.log('Error', 'An error occurred. Please try again.');
         }
     };
+
+    useEffect(() => {
+        const fetchDayID = async () => {
+            const dayID = await AsyncStorage.getItem('day');
+            console.log(dayID); // Should print the stored ID
+            if(dayID) {
+                setDay(JSON.parse(dayID));
+            } else {
+                console.log("dayID is null");
+            }
+        };
+        fetchDayID();
+    }, []);
         
     // Helper function to clear input fields
     const clearInputFields = () => {
@@ -246,7 +225,6 @@ const FoodLogAddPage = () => {
 
 
     //Section for validating inputs 
-    const navigation = useNavigation();
     const [validCals, setValidCals] = useState(true);
     const [validFat, setValidFat] = useState(true);
     const [validCarbs, setValidCarbs] = useState(true);
@@ -455,7 +433,6 @@ const FoodLogAddPage = () => {
                         onPress={() => {
                             if (validateAllFields()) {
                                 handleFoodDataSaveOnly();
-                                // return <FoodLogSavedPage />
                             } else {
                                 alert("Please fill out all fields correctly.");
                             }

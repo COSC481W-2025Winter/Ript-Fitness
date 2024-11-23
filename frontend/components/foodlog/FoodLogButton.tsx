@@ -12,6 +12,7 @@ type LogFoodButtonProps = {
   fat: number;
   multiplier: number;
   saveFoodChanges: (updatedFood: any) => void;
+  logFoodToDay: (foodData: any) => void;
   backgroundColor?: string;
   borderColor?: string;
   borderWidth?: number;
@@ -31,6 +32,7 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
   fat,
   multiplier,
   saveFoodChanges,
+  logFoodToDay,
   backgroundColor,
   borderColor,
   borderWidth,
@@ -83,6 +85,25 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
 
     setIsFoodEditMode(false);
   };
+
+  const foodSaveAndAddToDay = () => {
+    const updatedFood = {
+      id,
+      name: tempName, 
+      calories: tempCalories, 
+      protein: tempProtein, 
+      carbs: tempCarbs, 
+      fat: tempFat, 
+      multiplier: tempMultiplier,
+      isDeleted: false,
+    };
+    // call the parent function
+    console.log("updated food: ", updatedFood)
+    saveFoodChanges(updatedFood);
+    logFoodToDay(updatedFood);
+
+    setFoodModalVisible(false);
+  }
 
   const closeWithoutSaving = () => {
     setTempName(thisName);
@@ -191,7 +212,7 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
             })}
 
             <View style={styles.modalButtonsContainer}>
-              <TouchableOpacity style={styles.modalButton1} onPress={saveChanges}>
+              <TouchableOpacity style={styles.modalButton1} onPress={foodSaveAndAddToDay}>
                 <Text style={{ color: '#21BFBF', fontSize: 15 }}>Log Today</Text>
               </TouchableOpacity>
               {isFoodEditMode ? (
