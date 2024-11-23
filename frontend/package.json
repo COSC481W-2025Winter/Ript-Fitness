@@ -49,7 +49,7 @@
       "./jest.setup.js"
     ],
     "transformIgnorePatterns": [
-      "node_modules/(?!(victory(-.*)?|react-native-svg|d3-(array|interpolate|format|time|time-format|scale|shape)|internmap|@expo|expo-font|expo-modules-core|react-native|@react-navigation|react-native-reanimated|@react-native|@testing-library)/)"
+      "node_modules/(?!(victory(-.*)?|react-native|react-native-vector-icons|react-native-svg|d3-(array|interpolate|format|time|time-format|scale|shape)|internmap|@expo|expo-font|expo-modules-core|react-native|@react-navigation|react-native-reanimated|@react-native|@testing-library)/)"
     ],
     "transform": {
       "^.+\\.(js|jsx|ts|tsx)$": "babel-jest"
@@ -64,7 +64,8 @@
     ],
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/$1",
-      "\\.svg$": "react-native-svg-mock"
+      "\\.svg$": "react-native-svg-mock",
+      "^react-native-reanimated$": "<rootDir>/__mocks__/react-native-reanimated.js"
     }
   },
   "devDependencies": {
