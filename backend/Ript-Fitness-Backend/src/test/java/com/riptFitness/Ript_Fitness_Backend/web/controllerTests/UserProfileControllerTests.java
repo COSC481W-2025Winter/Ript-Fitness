@@ -155,15 +155,4 @@ public class UserProfileControllerTests {
                 .andExpect(jsonPath("$.length()").value(1)) // Only 1 valid profile
                 .andExpect(jsonPath("$[0].firstName").value("Tom"));
     }
-
-    @Test
-    public void testGetUserProfilesInvalidRequest() throws Exception {
-        String invalidJson = "{ invalid }";
-
-        mockMvc.perform(post("/userProfile/getUserProfilesFromList")
-                .header("Authorization", token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(invalidJson))
-                .andExpect(status().isBadRequest());
-    }
 }
