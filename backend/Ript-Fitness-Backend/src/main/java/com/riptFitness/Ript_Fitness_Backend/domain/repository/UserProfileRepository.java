@@ -1,6 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -64,4 +65,8 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
     // Retrieves the restResetDayOfWeek for a user profile (Day of the week when rest resets)
     @Query("SELECT u.restResetDayOfWeek FROM UserProfile u WHERE u.username = :username AND u.isDeleted = false")
     Optional<Integer> findRestResetDayOfWeekByUsername(@Param("username") String username);
+    
+    @Query("SELECT u FROM UserProfile u WHERE u.username IN :usernames AND u.isDeleted = false")
+    List<UserProfile> findAllByUsernames(@Param("usernames") List<String> usernames);
+
 }

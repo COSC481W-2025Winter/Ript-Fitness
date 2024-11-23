@@ -5,6 +5,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,5 +92,78 @@ public class UserProfileControllerTests {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.isDeleted").value(true));
+    }
+
+    @Test
+    public void testGetUserProfilesFromList() throws Exception {
+        List<UserDto> userDtos = List.of(userDto);
+        List<String> usernames = List.of("tom.van");
+
+        when(userProfileService.getUserProfilesFromListOfUsernames(any(List.class))).thenReturn(userDtos);
+
+        mockMvc.perform(post("/userProfile/getUserProfilesFromList")
+                .header("Authorization", token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(usernames)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].firstName").value("Tom"))
+                .andExpect(jsonPath("$[0].lastName").value("Van"));
+    }
+
+    @Test
+    public void testGetUserProfilesFromEmptyList() throws Exception {
+        List<UserDto> userDtos = List.of();
+        List<String> usernames = List.of();
+
+        when(userProfileService.getUserProfilesFromListOfUsernames(any(List.class))).thenReturn(userDtos);
+
+        mockMvc.perform(post("/userProfile/getUserProfilesFromList")
+                .header("Authorization", token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(usernames)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0)); // No user profiles in response
+    }
+
+    @Test
+    public void testGetUserProfilesFromNonExistentUsernames() throws Exception {
+        List<UserDto> userDtos = List.of();
+        List<String> usernames = List.of("nonexistentUser");
+
+        when(userProfileService.getUserProfilesFromListOfUsernames(any(List.class))).thenReturn(userDtos);
+
+        mockMvc.perform(post("/userProfile/getUserProfilesFromList")
+                .header("Authorization", token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(usernames)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0)); // Empty response
+    }
+
+    @Test
+    public void testGetUserProfilesFromMixedUsernames() throws Exception {
+        List<UserDto> userDtos = List.of(userDto);
+        List<String> usernames = List.of("validUser", "invalidUser");
+
+        when(userProfileService.getUserProfilesFromListOfUsernames(any(List.class))).thenReturn(userDtos);
+
+        mockMvc.perform(post("/userProfile/getUserProfilesFromList")
+                .header("Authorization", token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(usernames)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1)) // Only 1 valid profile
+                .andExpect(jsonPath("$[0].firstName").value("Tom"));
+    }
+
+    @Test
+    public void testGetUserProfilesInvalidRequest() throws Exception {
+        String invalidJson = "{ invalid }";
+
+        mockMvc.perform(post("/userProfile/getUserProfilesFromList")
+                .header("Authorization", token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidJson))
+                .andExpect(status().isBadRequest());
     }
 }
