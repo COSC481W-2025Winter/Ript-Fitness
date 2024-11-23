@@ -22,21 +22,22 @@ public class UserProfileService {
         this.userRepository = userRepository;
     }
 
-    // Adds a new user profile
+    // Adds a new user profile with default values
     public UserDto addUser(UserDto userDto, String username) {
-        // Convert UserDto to UserProfile
         UserProfile userToBeAdded = UserProfileMapper.INSTANCE.toUser(userDto);
         userToBeAdded.setUsername(username);
-
-        // Initialize default values
-        userToBeAdded.setRestDays(3); 
-        userToBeAdded.setRestDaysLeft(3); 
-        userToBeAdded.setRestResetDate(LocalDate.now()); 
-        userToBeAdded.setRestResetDayOfWeek(1); // Set reset day to Sunday (7 for Sunday)
-
+        initializeDefaultValues(userToBeAdded); // Set default values for rest days and reset date
+        
         userToBeAdded = userRepository.save(userToBeAdded);
-
         return UserProfileMapper.INSTANCE.toUserDto(userToBeAdded);
+    }
+
+    // Initialize default values for the UserProfile
+    private void initializeDefaultValues(UserProfile userProfile) {
+        userProfile.setRestDays(3);
+        userProfile.setRestDaysLeft(3);
+        userProfile.setRestResetDate(LocalDate.now());
+        userProfile.setRestResetDayOfWeek(1); // Default reset day is Sunday
     }
 
     // Check if user profile exists by username
@@ -46,65 +47,43 @@ public class UserProfileService {
 
     // Retrieves user profile by username
     public UserDto getUserByUsername(String username) {
-        Optional<UserProfile> returnedOptionalUserObject = userRepository.findByUsername(username);
-        if (returnedOptionalUserObject.isEmpty()) {
-            throw new RuntimeException("User not found in database with username = " + username);
-        }
-
-        UserProfile returnedUserObject = returnedOptionalUserObject.get();
-        return UserProfileMapper.INSTANCE.toUserDto(returnedUserObject);
+        return userRepository.findByUsername(username)
+            .map(UserProfileMapper.INSTANCE::toUserDto)
+            .orElseThrow(() -> new RuntimeException("User not found with username = " + username));
     }
 
     // Edits user profile by username
     public UserDto updateUserByUsername(String username, UserDto userDto) {
-        Optional<UserProfile> optionalUserToBeEdited = userRepository.findByUsername(username);
+        UserProfile userToBeEdited = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found with username = " + username));
 
-        if (optionalUserToBeEdited.isEmpty()) {
-            throw new RuntimeException("User not found in database with username = " + username);
-        }
-
-        UserProfile userToBeEdited = optionalUserToBeEdited.get();
-        // Ensure restDays and other fields are set with valid values (check nulls)
-        if (userDto.getRestDays() != null) {
-            userToBeEdited.setRestDays(userDto.getRestDays());
-        } else {
-            userToBeEdited.setRestDays(3); // Set default value if null
-        }
-
-        if (userDto.getRestDaysLeft() != null) {
-            userToBeEdited.setRestDaysLeft(userDto.getRestDaysLeft());
-        } else {
-            userToBeEdited.setRestDaysLeft(userToBeEdited.getRestDays()); // Set restDaysLeft to restDays if null
-        }
-
-        if (userDto.getRestResetDate() != null) {
-            userToBeEdited.setRestResetDate(userDto.getRestResetDate());
-        } else {
-            userToBeEdited.setRestResetDate(LocalDate.now()); // Set current date if null
-        }
-
-        if (userDto.getRestResetDayOfWeek() != null) {
-            userToBeEdited.setRestResetDayOfWeek(userDto.getRestResetDayOfWeek());
-        } else {
-            userToBeEdited.setRestResetDayOfWeek(1); // Default to Sunday
-        }
-
-        UserProfileMapper.INSTANCE.updateUserFromDto(userDto, userToBeEdited);
-        userToBeEdited.setUsername(username);
+        updateProfileFields(userToBeEdited, userDto); // Update fields from the UserDto
+        
         userToBeEdited = userRepository.save(userToBeEdited);
-
         return UserProfileMapper.INSTANCE.toUserDto(userToBeEdited);
+    }
+
+    // Update the profile fields based on UserDto
+    private void updateProfileFields(UserProfile userProfile, UserDto userDto) {
+        if (userDto.getRestDays() != null) {
+            userProfile.setRestDays(userDto.getRestDays());
+        }
+        if (userDto.getRestDaysLeft() != null) {
+            userProfile.setRestDaysLeft(userDto.getRestDaysLeft());
+        }
+        if (userDto.getRestResetDate() != null) {
+            userProfile.setRestResetDate(userDto.getRestResetDate());
+        }
+        if (userDto.getRestResetDayOfWeek() != null) {
+            userProfile.setRestResetDayOfWeek(userDto.getRestResetDayOfWeek());
+        }
     }
 
     // Soft-deletes user profile by username
     public UserDto softDeleteUserByUsername(String username) {
-        Optional<UserProfile> optionalUserToBeDeleted = userRepository.findByUsername(username);
+        UserProfile userToBeDeleted = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found with username = " + username));
 
-        if (optionalUserToBeDeleted.isEmpty()) {
-            throw new RuntimeException("User not found in database with username = " + username);
-        }
-
-        UserProfile userToBeDeleted = optionalUserToBeDeleted.get();
         userToBeDeleted.setDeleted(true); // Flag as deleted
         userRepository.save(userToBeDeleted);
         return UserProfileMapper.INSTANCE.toUserDto(userToBeDeleted);
@@ -112,52 +91,34 @@ public class UserProfileService {
 
     // Retrieves remaining rest days for the current week
     public Integer getRemainingRestDays(String username) {
-        Optional<UserProfile> optionalUserProfile = userRepository.findByUsername(username);
-
-        if (optionalUserProfile.isEmpty()) {
-            throw new RuntimeException("User not found in database with username = " + username);
-        }
-
-        Integer restDaysLeft = optionalUserProfile.get().getRestDaysLeft();
-        return (restDaysLeft != null) ? restDaysLeft : 0; // Return 0 if restDaysLeft is null
+        return userRepository.findByUsername(username)
+            .map(userProfile -> userProfile.getRestDaysLeft() != null ? userProfile.getRestDaysLeft() : 0)
+            .orElseThrow(() -> new RuntimeException("User not found with username = " + username));
     }
 
     // Updates the allowed rest days per week and the reset day of the week
     public void updateRestDays(String username, Integer allowedRestDays, Integer resetDayOfWeek) {
-        Optional<UserProfile> optionalUserProfile = userRepository.findByUsername(username);
+        UserProfile userProfile = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found with username = " + username));
 
-        if (optionalUserProfile.isEmpty()) {
-            throw new RuntimeException("User not found in database with username = " + username);
-        }
-
-        UserProfile userProfile = optionalUserProfile.get();
-
-        // Update restDays and restDaysLeft
         if (allowedRestDays != null) {
-            userProfile.setRestDays(allowedRestDays);  // Update the max allowed rest days
+            userProfile.setRestDays(allowedRestDays);
             userProfile.setRestDaysLeft(allowedRestDays);  // Reset remaining rest days to the new limit
         }
 
-        // Ensure restResetDayOfWeek is set properly
         userProfile.setRestResetDayOfWeek(resetDayOfWeek != null ? resetDayOfWeek : 1); // Default to Sunday if null
         userRepository.save(userProfile);
     }
 
     // Log a rest day for a user
     public void logRestDay(String username) {
-        Optional<UserProfile> optionalUserProfile = userRepository.findByUsername(username);
-
-        if (optionalUserProfile.isEmpty()) {
-            throw new RuntimeException("User not found in database with username = " + username);
-        }
-
-        UserProfile userProfile = optionalUserProfile.get();
+        UserProfile userProfile = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found with username = " + username));
 
         // Ensure the restResetDate is updated if necessary
         updateRestResetDateIfNeeded(userProfile);
 
         Integer restDaysLeft = userProfile.getRestDaysLeft();
-
         if (restDaysLeft != null && restDaysLeft > 0) {
             userProfile.setRestDaysLeft(restDaysLeft - 1);
             userRepository.save(userProfile);
