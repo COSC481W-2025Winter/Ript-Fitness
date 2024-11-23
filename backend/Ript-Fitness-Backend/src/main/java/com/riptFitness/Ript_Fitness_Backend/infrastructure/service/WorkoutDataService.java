@@ -119,6 +119,8 @@ public class WorkoutDataService {
 			for(int i = 0; i < wData.getReps().size(); i++) {
 				if(max < wData.getReps().get(i)) {
 					max = wData.getReps().get(i);
+					System.out.println(max);
+					
 				}
 			}
 		}
@@ -148,6 +150,7 @@ public class WorkoutDataService {
 			for(int i = 0; i < wData.getWeight().size(); i++) {
 				if(max < wData.getWeight().get(i)) {
 					max = wData.getWeight().get(i);
+					System.out.println(max);
 				}
 			}
 		}

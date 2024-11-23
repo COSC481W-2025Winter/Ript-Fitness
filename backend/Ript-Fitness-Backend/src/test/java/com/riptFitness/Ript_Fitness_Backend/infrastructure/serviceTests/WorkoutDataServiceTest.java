@@ -59,10 +59,14 @@ public class WorkoutDataServiceTest {
         workoutData.setDataId(1L);;
         workoutData.setExerciseName("Push Ups");
         workoutData.setAccount(account);
-
+        workoutData.setReps(Arrays.asList(8, 10, 12));
+        workoutData.setWeight(Arrays.asList(100, 120, 140));
+        
         workoutDataDto = new WorkoutDataDto();
         workoutDataDto.setDataId(1L);
         workoutDataDto.setExerciseName("Push Ups");
+        workoutDataDto.setReps(Arrays.asList(8, 10, 12));
+        workoutDataDto.setWeight(Arrays.asList(100, 120, 140));
     }
 
     @Test
@@ -117,7 +121,7 @@ public class WorkoutDataServiceTest {
         when(accountsRepository.findById(1L)).thenReturn(Optional.of(account));
         when(workoutDataRepository.findByAccountId(1L)).thenReturn(Arrays.asList(workoutData));
 
-        List<WorkoutDataDto> results = workoutDataService.getAllWorkoutData(0, 10, "push ups");
+        List<WorkoutDataDto> results = workoutDataService.getAllWorkoutData(0, 1, "push ups");
 
         assertNotNull(results);
         assertEquals(1, results.size());
@@ -173,4 +177,33 @@ public class WorkoutDataServiceTest {
         assertThrows(RuntimeException.class, 
             () -> workoutDataService.deleteWorkoutData(1L));
     }
+    
+    @Test
+    public void testGetMaxReps() {
+        // Mock dependencies
+    	when(accountsService.getLoggedInUserId()).thenReturn(1L);
+        when(accountsRepository.findById(1L)).thenReturn(Optional.of(account));
+        when(workoutDataRepository.findByAccountId(1L)).thenReturn(Arrays.asList(workoutData));
+        
+        // Call the method
+        int maxReps = workoutDataService.getMaxReps("push ups");
+
+        // Assert the result
+        assertEquals(12, maxReps); // 12 is the highest in the mock data
+    }
+
+    @Test
+    public void testGetMaxWeight() {
+        // Mock dependencies
+    	when(accountsService.getLoggedInUserId()).thenReturn(1L);
+        when(accountsRepository.findById(1L)).thenReturn(Optional.of(account));
+        when(workoutDataRepository.findByAccountId(1L)).thenReturn(Arrays.asList(workoutData));
+        
+        // Call the method
+        int maxWeight = workoutDataService.getMaxWeight("push ups");
+
+        // Assert the result
+        assertEquals(140, maxWeight); // 140 is the highest in the mock data
+    }
+    
 }

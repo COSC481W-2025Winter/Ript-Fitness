@@ -113,4 +113,29 @@ public class WorkoutDataControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.deleted").value("true"));
     }
+    @Test
+    public void testGetMaxReps() throws Exception {
+        
+        // Mock the service call
+        when(workoutDataService.getMaxReps("Test Exercise")).thenReturn(12);
+
+        // Perform the GET request
+        mockMvc.perform(get("/workoutData/getMaxReps/Test Exercise", "Test Exercise"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(12)); // Assert the returned value is as expected
+    }
+
+    @Test
+    public void testGetMaxWeight() throws Exception {
+
+        // Mock the service call
+        when(workoutDataService.getMaxWeight("Test Exercise")).thenReturn(140);
+
+        // Perform the GET request
+        mockMvc.perform(get("/workoutData/getMaxWeight/Test Exercise", "Test Exercise"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(140)); // Assert the returned value is as expected
+    }
+
+    
 }
