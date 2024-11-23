@@ -1,28 +1,25 @@
 import React, { useState } from 'react';
 import { Dimensions, TouchableOpacity, View, type ViewProps, StyleSheet } from 'react-native';
 import { ThemedText } from '../ThemedText';
+import { Exercise } from '@/app/screens/riptworkouts/RiptWorkouts';
 
-export type SavedWorkoutButtonProps = ViewProps & {
+export type SavedWorkoutButtonProps = {
     key: any;
-    title: string;
+    name: string;
     level: string; 
     time: number; 
-    // exercises: [{
-    //     exercise: string;
-    //     sets: number;
-    //     reps: number;
-    // }];
+    exercises: Exercise[];
+    onPress: () => void;
     children?: React.ReactNode;
     darkColor?: string;
     id?: string;
     onLongPress?: any;
-    onPress?: any;
     isActive?: any
     style?: any
 };
 
 
-export function SavedWorkoutButton({title, level, time, children, id, onLongPress, onPress, isActive, style, ...otherProps }: SavedWorkoutButtonProps) {
+export function SavedWorkoutButton({name, level, time, exercises, children, id, onLongPress, onPress, isActive, style, ...otherProps }: SavedWorkoutButtonProps) {
   
     return (
         <View style={styles.container}>
@@ -30,7 +27,7 @@ export function SavedWorkoutButton({title, level, time, children, id, onLongPres
                 onPress={onPress}
                 style={styles.button}
             >  
-                <ThemedText style={styles.text}>{title}</ThemedText>
+                <ThemedText style={styles.text}>{name}</ThemedText>
 
                 <View style={styles.textWrapper}>
                     <ThemedText style={styles.dateText}>{level}: {time} min</ThemedText>
@@ -58,30 +55,32 @@ export function SavedWorkoutButton({title, level, time, children, id, onLongPres
         padding: 5, 
         margin: 5,
         borderRadius: 20,
-        borderColor: 'grey',
+        borderColor: 'lightgrey',
         borderWidth: 1, 
         width: width/2-20,
-        height: 120,
+        height: height/6,
         alignContent: 'center',
     }, 
     text: {
         color: 'black',
-        fontWeight: 'bold',
-        fontSize: 15,
+        // fontWeight: 'bold',
+        fontSize: 20,
         padding: 20,
         position: 'absolute',
         top: -5, 
+        // textAlign: 'center',
     },
     textWrapper: {
         alignItems: 'center',
         backgroundColor: '#2493BF',
-        padding: 10, 
+        padding: 5, 
         borderRadius: 40, 
         width: '80%',
+        bottom: 10,
     }, 
     dateText: {
-        color: 'black', 
-        fontSize: 10, 
+        color: 'white', 
+        fontSize: 12, 
     },
   });
   

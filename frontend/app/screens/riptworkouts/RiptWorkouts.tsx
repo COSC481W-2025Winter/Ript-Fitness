@@ -1,4 +1,18 @@
-const workouts = [
+export type Exercise = {
+  exercise: string; 
+  sets: number; 
+  reps: any; 
+};
+
+export type Workout = {
+  id: number;
+  name: string; 
+  level: string;
+  time: number; 
+  exercises: Exercise[];
+};
+
+const RiptWorkouts: Workout[] = [
     {
       "id": 1,
       "name": "Shoulder Showdown",
@@ -19,7 +33,7 @@ const workouts = [
       "level": "Intermediate", 
       "time": 60, 
       "exercises": [
-        { "exercise": "Walking Lunge", "sets": 4, "reps": "10ea" },
+        { "exercise": "Walking Lunge", "sets": 4, "reps": "10" },
         { "exercise": "Front Squat", "sets": 4, "reps": 12 },
         { "exercise": "Romanian Deadlift", "sets": 4, "reps": 8 },
         { "exercise": "Leg Extension Machine", "sets": 3, "reps": 10 },
@@ -162,5 +176,5 @@ const workouts = [
     }
 ]
 
-export default workouts;
+export default RiptWorkouts;
   

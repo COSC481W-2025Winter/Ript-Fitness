@@ -8,13 +8,16 @@ import WorkoutApiScreen from '@/app/screens/WorkoutApiScreen';
 import { WorkoutProvider } from '@/context/WorkoutContext';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import AddWorkoutScreen from '../screens/workout/AddWorkoutScreen';
-import StartWorkoutScreen from '../screens/StartWorkoutScreen';
+import StartWorkoutScreen from '@/app/screens/StartWorkoutScreen';
+import RiptWorkoutScreen from '@/app/screens/riptworkouts/RiptWorkoutScreen';
+import WorkoutDetailScreen from '@/app/screens/riptworkouts/WorkoutDetailScreen';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation } from '@react-navigation/native';
 import StreakCounter from '@/components/StreakCounter';
-import MyNotesScreen from '../screens/MyNotesScreen';
+import MyNotesScreen from '@/app/screens/MyNotesScreen';
 import EditNoteScreen from '@/app/screens/notes/EditNoteScreen';
 import { Note } from '@/components/MyNotes/NotesContext';
+import { Workout } from '../screens/riptworkouts/RiptWorkouts';
 
 
 const Stack = createStackNavigator();
@@ -26,6 +29,8 @@ export type WorkoutStackParamList = {
   StartWorkoutScreen: {};
   AddWorkoutScreen: {};
   MyWorkoutsScreen: {};
+  RiptWorkoutScreen: {};
+  WorkoutDetailScreen: { workout: Workout};
   MyNotesScreen: {};
   EditNoteScreen: { note:Note | null };
 };
@@ -59,6 +64,27 @@ export default function WorkoutStack(props : any) {
         headerTitleAlign: 'center',
         }}
       />
+      <Stack.Screen name="RiptWorkoutScreen" component={RiptWorkoutScreen} options={{ title: 'Ript Workouts',
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => { navigation.navigate("WorkoutApiScreen", {}) }}
+            style={[styles.leftButton, styles.button, styles.buttonSize]}>
+            <TabBarIcon style={styles.leftArrow} name='arrow-down' size={30} color='#454343' />
+          </TouchableOpacity>
+        ),
+        headerTitleAlign: 'center',
+        }}
+      />
+      <Stack.Screen name="WorkoutDetailScreen" component={WorkoutDetailScreen} options={{ title: 'Workout Details', 
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => { navigation.navigate("RiptWorkoutScreen", {}) }}
+            style={[styles.leftButton, styles.button, styles.buttonSize]}>
+            <TabBarIcon style={styles.leftArrow} name='arrow-down' size={30} color='#454343' />
+          </TouchableOpacity>
+        ),
+        headerTitleAlign: 'center',
+     }} />
 
       <Stack.Screen name="EditNoteScreen" component={EditNoteScreen} options={{ title: '',
         headerLeft: () => (
