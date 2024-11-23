@@ -35,8 +35,8 @@ public class UserProfile {
 
     private boolean isDeleted = false;
 
-    @Column(name = "rest_days", nullable = true)
-    private Integer restDays;  // Changed from int to Integer to handle null values
+    @Column(name = "rest_days")
+    private Integer restDays = 3; // Default value
 
     @Column(name = "rest_days_left")
     private Integer restDaysLeft; // Changed from int to Integer to handle null values
@@ -45,20 +45,25 @@ public class UserProfile {
     private LocalDate restResetDate; // Date when rest days reset
 
     @Column(name = "rest_reset_day_of_week")
-    private Integer restResetDayOfWeek; // Changed from int to Integer to handle null values
+    private Integer restResetDayOfWeek = 7; // Sunday (default reset day)
 
     // Default Constructor
     public UserProfile() {
-        this.restDays = 3; // Ensure restDays defaults to 3 when an instance is created
+        this.restDays = 3;
+        this.restDaysLeft = 3;  
+        this.restResetDate = LocalDate.now();  
+        this.restResetDayOfWeek = 7;     
     }
-
     // Parameterized Constructor
     public UserProfile(String firstName, String lastName, String username, String bio) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.bio = bio;
-        this.restDays = 3; // Ensure restDays defaults to 3 when this constructor is used
+        this.restDays = 3; 
+        this.restDaysLeft = 3;  
+        this.restResetDate = LocalDate.now(); 
+        this.restResetDayOfWeek = 7;  
     }
 
     // Getters and Setters
