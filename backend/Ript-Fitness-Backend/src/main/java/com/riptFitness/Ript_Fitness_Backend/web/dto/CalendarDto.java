@@ -7,13 +7,11 @@ public class CalendarDto {
     private LocalDate date;   // The date of the calendar entry
     private int activityType; // 1 = WORKOUT, 2 = REST, 3 = MISSED, etc.
 
-    // Constructor
     public CalendarDto(LocalDate date, int activityType) {
         this.date = date;
         this.activityType = activityType;
     }
 
-    // Getters and Setters
     public LocalDate getDate() {
         return date;
     }

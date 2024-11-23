@@ -29,7 +29,7 @@ public class CalendarService {
     private AccountsService accountsService;
 
     @Autowired
-    private UserProfileRepository userProfileRepository; // Add this to access UserProfile
+    private UserProfileRepository userProfileRepository;
 
     public void logWorkoutDay(LocalDate date) {
         Long accountId = accountsService.getLoggedInUserId();
@@ -70,9 +70,6 @@ public class CalendarService {
         UserProfile userProfile = userProfileRepository.findUserProfileByAccountId(accountId)
             .orElseThrow(() -> new IllegalStateException("User profile not found for account ID: " + accountId));
 
-        // Ensure the restResetDate is updated if necessary (handled by UserProfileService)
-        // No longer updating restResetDate here - it will be handled in UserProfileService
-
         // Check if a rest day is already logged for the given date
         Optional<Calendar> existingEntry = calendarRepository.findByAccountIdAndDate(accountId, date);
         if (existingEntry.isPresent()) {
@@ -91,7 +88,7 @@ public class CalendarService {
 
         // Check if there are remaining rest days
         if (userProfile.getRestDaysLeft() > 0) {
-            userProfile.setRestDaysLeft(userProfile.getRestDaysLeft() - 1); // Decrease remaining rest days
+            userProfile.setRestDaysLeft(userProfile.getRestDaysLeft() - 1); 
         } else {
             throw new IllegalStateException("No rest days left for this week.");
         }

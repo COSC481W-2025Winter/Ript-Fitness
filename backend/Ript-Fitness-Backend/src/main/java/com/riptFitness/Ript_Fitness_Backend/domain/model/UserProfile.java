@@ -1,6 +1,5 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -49,13 +48,13 @@ public class UserProfile {
     private boolean isDeleted = false;
 
     @Column(name = "rest_days")
-    private Integer restDays = 3; // Default value
+    private Integer restDays = 3; 
 
     @Column(name = "rest_days_left")
-    private Integer restDaysLeft; // Changed from int to Integer to handle null values
+    private Integer restDaysLeft; 
 
     @Column(name = "rest_reset_date")
-    private LocalDate restResetDate; // Date when rest days reset
+    private LocalDate restResetDate; 
 
     @Column(name = "rest_reset_day_of_week")
     private Integer restResetDayOfWeek = 7; // Sunday (default reset day)
@@ -115,11 +114,11 @@ public class UserProfile {
     }
 
     public String getDisplayname() {
-        return displayname;
+        return displayName;
     }
 
     public void setDisplayname(String displayname) {
-        this.displayname = displayname;
+        this.displayName = displayname;
     }
 
     public List<SocialPost> getSocialPosts() {
@@ -179,7 +178,7 @@ public class UserProfile {
     }
 
     public Integer getRestDays() {
-        return restDays != null ? restDays : 3;  // Return 3 if restDays is null
+        return restDays != null ? restDays : 3;  
     }
 
     public void setRestDays(Integer restDays) {
