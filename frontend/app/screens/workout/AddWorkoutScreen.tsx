@@ -44,6 +44,15 @@ export function AddWorkoutScreen() {
       {setNumber: prevSets.length + 1, reps: ''},
     ]);
   };
+  const handleRemoveSet = () => {
+    setSets((prevSets) => {
+      if (prevSets.length > 1) {
+        return prevSets.slice(0, -1);
+      }
+      return prevSets;
+    });
+  };
+
   const handleRepChange = (index: number, value: string) => {
     setSets((prevSets) =>
       prevSets.map((set, i) =>
@@ -115,34 +124,61 @@ export function AddWorkoutScreen() {
               onTypeSelect={(type) => setTypeOfExercise(type)}
             />
             {/* Each set with rep for the exercise */}
-            <ScrollView style={{ maxHeight: 125 }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5, width: '90%', alignSelf: 'center' }}>
+            <ScrollView style={{ maxHeight: 150 }}>
+              {/* Header Row */}
+              <View 
+                style={{ 
+                  flexDirection: 'row', 
+                  justifyContent: 'space-between', 
+                  marginBottom: 5, 
+                  width: '90%', 
+                  alignSelf: 'center', 
+                }}
+              >
                 <Text style={styles.modalLabels}>Set</Text>
                 <Text style={styles.modalLabels}>Reps</Text>
               </View>
+
               {sets.map((set, index) => (
                 <View 
                   key={index} 
                   style={{ 
-                    flexDirection: 'row', 
-                    justifyContent: 'space-between', 
+                    flexDirection: 'column', 
                     marginBottom: 10, 
                     width: '90%', 
-                    alignSelf: 'center' 
+                    alignSelf: 'center', 
                   }}
                 >
-                  <Text style={{ fontSize: 16, marginLeft: 10 }}>{set.setNumber}</Text>
-                  <TextInput 
-                    style={styles.repInput}
-                    maxLength={3}
-                    keyboardType='numeric'
-                    value={set.reps}
-                    onChangeText={(value) => handleRepChange(index, value)}
-                  />
+                  {/* Row for Set Number and Input */}
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 16, marginLeft: 10 }}>{set.setNumber}</Text>
+                    <TextInput 
+                      style={styles.repInput}
+                      maxLength={3}
+                      keyboardType='numeric'
+                      value={set.reps}
+                      onChangeText={(value) => handleRepChange(index, value)}
+                    />
+                  </View>
+
+                  {/* Delete Set Button for the Last Set */}
+                  {index === sets.length - 1 && sets.length > 1 && (
+                    <TouchableOpacity 
+                      style={{ 
+                        flexDirection: 'row', 
+                        alignItems: 'flex-end', 
+                        marginTop: 10, 
+                        // marginLeft: 5, 
+                      }} 
+                      onPress={handleRemoveSet}
+                    >
+                      <Ionicons name="trash-outline" size={20} color="#F22E2E" />
+                      <Text style={{ fontSize: 14, color: '#F22E2E', marginLeft: 3 }}>Delete Set</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               ))}
             </ScrollView>
-            
             {/* Buttons for add set or save exercise */}
             <View style={styles.modalButtonsContainer}>
               <TouchableOpacity style={styles.modalButton1} onPress={handleAddSet}>
@@ -522,7 +558,7 @@ test: {
     alignItems: 'center',
   },
   modalContent: {
-    width: '80%',
+    width: '85%',
     backgroundColor: '#fff',
     padding: 20,
     borderRadius: 10,
