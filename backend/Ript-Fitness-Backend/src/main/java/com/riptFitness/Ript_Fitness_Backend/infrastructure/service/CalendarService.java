@@ -42,7 +42,7 @@ public class CalendarService {
             throw new IllegalStateException("Workout already logged for this date.");
         }
 
-        Calendar workoutEntry = new Calendar(account, date, 1);
+        Calendar workoutEntry = new Calendar(account, date, 1); // Activity type 1 for workout
         calendarRepository.save(workoutEntry);
     }
 
@@ -55,6 +55,9 @@ public class CalendarService {
         // Retrieve the user's profile to update rest days
         UserProfile userProfile = userProfileRepository.findUserProfileByAccountId(accountId)
             .orElseThrow(() -> new IllegalStateException("User profile not found for account ID: " + accountId));
+
+        // Ensure the restResetDate is updated if necessary (handled by UserProfileService)
+        // No longer updating restResetDate here - it will be handled in UserProfileService
 
         // Check if a rest day is already logged for the given date
         Optional<Calendar> existingEntry = calendarRepository.findByAccountIdAndDate(accountId, date);
@@ -84,6 +87,4 @@ public class CalendarService {
                       .map(calendar -> new CalendarDto(calendar.getDate(), calendar.getActivityType()))
                       .collect(Collectors.toList());
     }
-
 }
-

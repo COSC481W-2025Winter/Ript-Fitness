@@ -2,12 +2,15 @@ package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
 import java.time.LocalDate;
 import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.UserProfileMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.UserProfileRepository;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.UserDto;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class UserProfileService {
@@ -19,11 +22,13 @@ public class UserProfileService {
         this.userRepository = userRepository;
     }
 
+    // Adds a new user profile
     public UserDto addUser(UserDto userDto, String username) {
         // Convert UserDto to UserProfile
         UserProfile userToBeAdded = UserProfileMapper.INSTANCE.toUser(userDto);
         userToBeAdded.setUsername(username);
 
+        // Initialize default values
         userToBeAdded.setRestDays(3); 
         userToBeAdded.setRestDaysLeft(3); 
         userToBeAdded.setRestResetDate(LocalDate.now()); 
@@ -34,8 +39,7 @@ public class UserProfileService {
         return UserProfileMapper.INSTANCE.toUserDto(userToBeAdded);
     }
 
-
-    // Checks if a UserProfile exists by username
+    // Check if user profile exists by username
     public boolean existsByUsername(String username) {
         return userRepository.findByUsername(username).isPresent();
     }
@@ -91,6 +95,7 @@ public class UserProfileService {
 
         return UserProfileMapper.INSTANCE.toUserDto(userToBeEdited);
     }
+
     // Soft-deletes user profile by username
     public UserDto softDeleteUserByUsername(String username) {
         Optional<UserProfile> optionalUserToBeDeleted = userRepository.findByUsername(username);
@@ -126,19 +131,19 @@ public class UserProfileService {
         }
 
         UserProfile userProfile = optionalUserProfile.get();
-        
+
         // Update restDays and restDaysLeft
         if (allowedRestDays != null) {
             userProfile.setRestDays(allowedRestDays);  // Update the max allowed rest days
             userProfile.setRestDaysLeft(allowedRestDays);  // Reset remaining rest days to the new limit
         }
-        
+
         // Ensure restResetDayOfWeek is set properly
         userProfile.setRestResetDayOfWeek(resetDayOfWeek != null ? resetDayOfWeek : 1); // Default to Sunday if null
         userRepository.save(userProfile);
     }
 
-    // Log a rest day and decrement restDaysLeft
+    // Log a rest day for a user
     public void logRestDay(String username) {
         Optional<UserProfile> optionalUserProfile = userRepository.findByUsername(username);
 
@@ -147,12 +152,13 @@ public class UserProfileService {
         }
 
         UserProfile userProfile = optionalUserProfile.get();
-        
-        // Check if there are remaining rest days
+
+        // Ensure the restResetDate is updated if necessary
+        updateRestResetDateIfNeeded(userProfile);
+
         Integer restDaysLeft = userProfile.getRestDaysLeft();
-        
+
         if (restDaysLeft != null && restDaysLeft > 0) {
-            // Decrease restDaysLeft by 1
             userProfile.setRestDaysLeft(restDaysLeft - 1);
             userRepository.save(userProfile);
         } else {
@@ -160,4 +166,25 @@ public class UserProfileService {
         }
     }
 
+    // Calculates the next Sunday for resetting the rest day logic
+    private LocalDate getNextSunday() {
+        LocalDate today = LocalDate.now();
+        int todayDayOfWeek = today.getDayOfWeek().getValue();
+        int daysUntilSunday = 7 - todayDayOfWeek;
+        return today.plusDays(daysUntilSunday); // Get the next Sunday
+    }
+
+    // Updates restResetDate if it's older than 7 days
+    @Transactional
+    public void updateRestResetDateIfNeeded(UserProfile userProfile) {
+        LocalDate currentRestResetDate = userProfile.getRestResetDate();
+        LocalDate today = LocalDate.now();
+
+        // Check if the restResetDate is more than 7 days ago
+        if (currentRestResetDate.isBefore(today.minusDays(7))) {
+            userProfile.setRestResetDate(getNextSunday());
+            userProfile.setRestDaysLeft(userProfile.getRestDays()); // Reset remaining rest days to the full amount
+            userRepository.save(userProfile); // Save the updated profile
+        }
+    }
 }
