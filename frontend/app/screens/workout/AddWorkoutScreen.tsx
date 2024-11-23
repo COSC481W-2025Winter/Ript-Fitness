@@ -108,6 +108,7 @@ export function AddWorkoutScreen() {
               />
               {/* Close/ x button */}
               <TouchableOpacity 
+              testID='close-modal'
                 onPress={() => {
                   context?.setVisible(false)
                   //setAddModalVisible(false);
