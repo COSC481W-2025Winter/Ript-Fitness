@@ -175,12 +175,12 @@ public class AccountsService {
 		streak.prevLogin = LocalDateTime.now();
 		streakRepository.save(streak);
 
-		// UserProfile logic
-		UserProfile user = new UserProfile();
-		user.username = username;
+		//UserProfile logic 
+		UserProfile user = new UserProfile(); 
+		user.setUsername(username);
 		user.setAccount(accountsModel);
-		user.firstName = "";
-		user.lastName = "";
+		user.setFirstName("");
+		user.setLastName("");
 		userProfileRepository.save(user);
 
 		accountsModel.setUserProfile(user);

@@ -105,6 +105,20 @@ public class FriendRequestServiceTest {
 	}
 	
 	@Test
+	void testSendNewRequestInvalidIdOfToAccountInDTOIsSameAsCurrentlyLoggedInUser() {
+		FriendRequestDto parameterDto = new FriendRequestDto();
+		parameterDto.accountIdOfToAccount = 1L;
+		
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+		
+		RuntimeException exceptionThrown = assertThrows(RuntimeException.class, () -> {
+			friendRequestService.sendNewRequest(parameterDto);
+		});
+		
+		assertEquals(exceptionThrown.getMessage(), "The ID in the DTO body object can't be the same as the currently logged in user.");
+	}
+	
+	@Test
 	void testGetStatusValid() {
 		when(accountsService.getLoggedInUserId()).thenReturn(1L);
 		when(accountsRepository.findById(2L)).thenReturn(Optional.of(toAccount));
@@ -114,6 +128,19 @@ public class FriendRequestServiceTest {
 		
 		assertNotNull(result);
 		assertEquals(result, "SENT");
+	}
+	
+	@Test
+	void testGetAllAccountsWithSpecificStatusValidDatabaseQueryReturnedNoAccounts() {
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+		when(friendRequestRepository.getToAccountFromFromAccountAndStatus(1L, RequestStatus.PENDING)).thenReturn(Optional.empty());
+		
+		RuntimeException exceptionThrown = assertThrows(RuntimeException.class, () -> {
+			friendRequestService.getAllAccountsWithSpecificStatus(RequestStatus.PENDING);
+		});
+		
+		assertEquals(exceptionThrown.getMessage(), "The currently logged in user has no realtionships with any accounts with status = PENDING");
+	
 	}
 	
 	@Test
@@ -138,6 +165,17 @@ public class FriendRequestServiceTest {
 		
 		assertNotNull(result);
 		assertEquals(result, "NO RELATIONSHIP");
+	}
+	
+	@Test
+	void testGetStatusInvalidParameterIdIsSameAsCurrentlyLoggedInUser() {
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+
+		RuntimeException exceptionThrown = assertThrows(RuntimeException.class, () -> {
+			friendRequestService.getStatus(1L);
+		});
+		
+		assertEquals(exceptionThrown.getMessage(), "The ID in the path can't be the same as the currently logged in user.");
 	}
 	
 	@Test
@@ -273,5 +311,19 @@ public class FriendRequestServiceTest {
 		});
 		
 		assertEquals(exceptionThrown.getMessage(), "A relationship does not already exist between the currently logged in user and the user with ID = 2. Please call the sendNewRequest endpoint.");
+	}
+	
+	@Test
+	void testSendRequestInvalidIdOfToAccountInDTOIsSameAsCurrentlyLoggedInUser() {
+		FriendRequestDto parameterDto = new FriendRequestDto();
+		parameterDto.accountIdOfToAccount = 1L;
+		
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+			
+		RuntimeException exceptionThrown = assertThrows(RuntimeException.class, () -> {
+			friendRequestService.sendRequest(parameterDto);
+		});
+		
+		assertEquals(exceptionThrown.getMessage(), "The ID in the DTO body object can't be the same as the currently logged in user.");
 	}
 }

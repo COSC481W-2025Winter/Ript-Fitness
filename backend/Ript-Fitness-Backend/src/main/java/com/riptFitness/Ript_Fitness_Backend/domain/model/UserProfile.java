@@ -1,5 +1,6 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -19,44 +20,72 @@ public class UserProfile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+    private Long id;
 
-    public String firstName;
+    private String firstName;
 
-    public String lastName;
+    private String lastName;
 
     public String displayName;
     
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
-    public List<SocialPost> socialPosts;
+    private List<SocialPost> socialPosts;
 
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
-    public List<SocialPostComment> comments;
+    private List<SocialPostComment> comments;
 
-    // New bio field
     @Column
-    public String bio; 
+    private String bio;
 
-    // User's email or username
     @Column(unique = true, nullable = false)
-    public String username;
-    
+    private String username;
+
     @OneToOne
     @JoinColumn(name = "account_id", referencedColumnName = "id")
     @JsonBackReference
     private AccountsModel account;
 
-    // Soft delete flag
-    public boolean isDeleted = false;
+    private boolean isDeleted = false;
 
-    public UserProfile() {}
+    @Column(name = "rest_days")
+    private Integer restDays = 3; 
 
+    @Column(name = "rest_days_left")
+    private Integer restDaysLeft; 
+
+    @Column(name = "rest_reset_date")
+    private LocalDate restResetDate; 
+
+    @Column(name = "rest_reset_day_of_week")
+    private Integer restResetDayOfWeek = 7; // Sunday (default reset day)
+
+    // Default Constructor
+    public UserProfile() {
+        this.restDays = 3;
+        this.restDaysLeft = 3;  
+        LocalDate today = LocalDate.now();
+        int todayDayOfWeek = today.getDayOfWeek().getValue();
+        int daysUntilSunday = 7 - todayDayOfWeek;
+        
+        this.restResetDate = today.plusDays(daysUntilSunday);  
+        this.restResetDayOfWeek = 7;     
+    }
+    // Parameterized Constructor
     public UserProfile(String firstName, String lastName, String username, String bio) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.bio = bio;
         this.displayName = username;
+        this.restDays = 3; 
+        this.restDaysLeft = 3;  
+        
+        LocalDate today = LocalDate.now();
+        int todayDayOfWeek = today.getDayOfWeek().getValue();
+        int daysUntilSunday = 7 - todayDayOfWeek;
+        
+        this.restResetDate = today.plusDays(daysUntilSunday); 
+        this.restResetDayOfWeek = 7;  
     }
 
     // Getters and Setters
@@ -84,6 +113,30 @@ public class UserProfile {
         this.lastName = lastName;
     }
 
+    public String getDisplayname() {
+        return displayName;
+    }
+
+    public void setDisplayname(String displayname) {
+        this.displayName = displayname;
+    }
+
+    public List<SocialPost> getSocialPosts() {
+        return socialPosts;
+    }
+
+    public void setSocialPosts(List<SocialPost> socialPosts) {
+        this.socialPosts = socialPosts;
+    }
+
+    public List<SocialPostComment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<SocialPostComment> comments) {
+        this.comments = comments;
+    }
+
     public String getBio() {
         return bio;
     }
@@ -108,6 +161,14 @@ public class UserProfile {
     	this.displayName = displayName;
     }
     
+    public AccountsModel getAccount() {
+        return account;
+    }
+
+    public void setAccount(AccountsModel account) {
+        this.account = account;
+    }
+
     public boolean isDeleted() {
         return isDeleted;
     }
@@ -116,13 +177,35 @@ public class UserProfile {
         this.isDeleted = isDeleted;
     }
 
-	public AccountsModel getAccount() {
-		return account;
-	}
+    public Integer getRestDays() {
+        return restDays != null ? restDays : 3;  
+    }
 
-	public void setAccount(AccountsModel account) {
-		this.account = account;
-	}
-    
-    
+    public void setRestDays(Integer restDays) {
+        this.restDays = restDays;
+    }
+
+    public Integer getRestDaysLeft() {
+        return restDaysLeft;
+    }
+
+    public void setRestDaysLeft(Integer restDaysLeft) {
+        this.restDaysLeft = restDaysLeft;
+    }
+
+    public LocalDate getRestResetDate() {
+        return restResetDate;
+    }
+
+    public void setRestResetDate(LocalDate restResetDate) {
+        this.restResetDate = restResetDate;
+    }
+
+    public Integer getRestResetDayOfWeek() {
+        return restResetDayOfWeek;
+    }
+
+    public void setRestResetDayOfWeek(Integer restResetDayOfWeek) {
+        this.restResetDayOfWeek = restResetDayOfWeek;
+    }
 }

@@ -101,6 +101,17 @@ public class FriendsServiceTest {
 	}
 	
 	@Test
+	void testAddFriendAccountIdParameterIsSameAsCurrentlyLoggedInUser() {
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+		
+		RuntimeException exceptionThrown = assertThrows(RuntimeException.class, () -> {
+			friendsService.addFriend(1L);
+		});
+		
+		assertEquals(exceptionThrown.getMessage(), "The ID in the path can't be the same as the currently logged in user.");
+	}
+	
+	@Test
 	void testGetFriendsListOfCurrentlyLoggedInUserValidRequest() {
 		currentlyLoggedInUser.setFriends(List.of(friendOfCurrentlyLoggedInUser));
 		
@@ -184,5 +195,16 @@ public class FriendsServiceTest {
 		});
 		
 		assertEquals(exceptionThrown.getMessage(), "The currently logged in user is not friends with the user with ID = 2. No changes were made to the database with this HTTP request.");
+	}
+	
+	@Test
+	void testDeleteFriendAccountIdParameterIsSameAsCurrentlyLoggedInUser() {
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+
+		RuntimeException exceptionThrown = assertThrows(RuntimeException.class, () -> {
+			friendsService.deleteFriend(1L);
+		});
+		
+		assertEquals(exceptionThrown.getMessage(), "The ID in the path can't be the same as the currently logged in user.");
 	}
 }

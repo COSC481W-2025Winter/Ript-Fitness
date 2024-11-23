@@ -1,5 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.web.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -53,4 +55,10 @@ public class UserProfileController {
 		UserDto deletedUserObject = userProfileService.softDeleteUserByUsername(username);
 		return ResponseEntity.ok(deletedUserObject);
 	}
+	
+    @PostMapping("/getUserProfilesFromList")
+    public ResponseEntity<List<UserDto>> getUserProfilesFromList(@RequestBody List<String> usernames) {
+        List<UserDto> userProfiles = userProfileService.getUserProfilesFromListOfUsernames(usernames);
+        return ResponseEntity.ok(userProfiles);
+    }
 }
