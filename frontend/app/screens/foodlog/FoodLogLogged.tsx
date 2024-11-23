@@ -66,7 +66,7 @@ const FoodLogLoggedPage = () => {
                 setCached(false);
             }
 
-            console.log("the day is: ", day);
+            // console.log("the day is: ", day);
             const thisDay = await AsyncStorage.getItem('day');
             if (thisDay) {
                 setDay(JSON.parse(thisDay));
@@ -74,8 +74,8 @@ const FoodLogLoggedPage = () => {
                 console.log("Error setting day: ", thisDay);
             }
 
-            console.log("using this day: ", day);
-            console.log("using this day index: ", dayIndex);
+            // console.log("using this day: ", day);
+            // console.log("using this day index: ", dayIndex);
 
             const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getDayOfLoggedInUser/${dayIndex}`, {
                 method: 'GET', 
@@ -85,23 +85,23 @@ const FoodLogLoggedPage = () => {
                 }
             });
 
-            console.log("response status for get Day of logged in user : ", response.status);
+            // console.log("response status for get Day of logged in user : ", response.status);
 
             if (response.status === 200) {
                 const dayData = await response.json();
                 const foodArray = dayData.foodsEatenInDay;
                 const dayID = dayData.id;
-                console.log("Foods today: ", foodArray);
+                // console.log("Foods today: ", foodArray);
                 
                 await AsyncStorage.setItem('foodTodayDetails', JSON.stringify(foodArray));
                 await AsyncStorage.setItem('day', JSON.stringify(dayID));
 
-                console.log("cached", cached);
-                console.log("loading", loading);
+                // console.log("cached", cached);
+                // console.log("loading", loading);
             } else {
-                console.log("error getting day");
-                console.log("day response: ", response.status);
-                console.log("day json: ", response.json());
+                console.log("Error getting day");
+                // console.log("day response: ", response.status);
+                // console.log("day json: ", response.json());
             }
             
         } catch (error) {
@@ -113,7 +113,7 @@ const FoodLogLoggedPage = () => {
 
 
 const saveFoodChanges = async (updatedFood: Food) => {
-    console.log("UPdated food: ", updatedFood);
+    // console.log("UPdated food: ", updatedFood);
     
     function customJSONStringify(obj: any, keysOrder: string[]): string {
         const orderedObj: any = {};
@@ -131,7 +131,7 @@ const saveFoodChanges = async (updatedFood: Food) => {
       // Serialize updatedFood with the desired key order
       const body = customJSONStringify(updatedFood, keysOrder);
 
-      console.log("UpdatedFoodID", updatedFood.id);
+    //   console.log("UpdatedFoodID", updatedFood.id);
       
     try {
         const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/editFood/${updatedFood.id}`, {
@@ -143,8 +143,8 @@ const saveFoodChanges = async (updatedFood: Food) => {
             body: body, 
         });
 
-        console.log(body);
-        console.log(response.status);
+        // console.log(body);
+        // console.log(response.status);
 
         if (response.status === 200) {
             //update local state with the updated food details 
@@ -163,7 +163,7 @@ const saveFoodChanges = async (updatedFood: Food) => {
 const logFoodToDay = async (food: Food) => {
     try {
         const body = JSON.stringify([food.id]);
-        console.log("Logging food: ", food);
+        // console.log("Logging food: ", food);
 
         const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/addFoodsToDay/${day}`, {
             method: "POST", 
@@ -174,7 +174,7 @@ const logFoodToDay = async (food: Food) => {
             body: body,
         });
 
-        console.log("Response status for logging food: ", response.status);
+        // console.log("Response status for logging food: ", response.status);
         if (response.status === 201) {
             console.log("Successfully logged food to the day.");
             // Optionally update the local state to reflect the change.
@@ -243,7 +243,7 @@ const logFoodToDay = async (food: Food) => {
                        }, 
                        body: JSON.stringify([id]),
                    });
-                   console.log("Response status: ", response.status);
+                //    console.log("Response status: ", response.status);
                    if (response.status === 201) {
                        Alert.alert("Successfully deleted.");
                    } else {

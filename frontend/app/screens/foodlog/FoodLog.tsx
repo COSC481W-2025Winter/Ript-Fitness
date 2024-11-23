@@ -45,7 +45,7 @@ export default function FoodLogScreen() {
                 const data = await dayResponse.json(); 
                 const dayID = data.id;
                 setDay(dayID);
-                console.log("Day ID: ", dayID);
+                // console.log("Day ID: ", dayID);
                 clearMacroFields();
                 
                 await AsyncStorage.setItem('day', JSON.stringify(dayID));
@@ -85,7 +85,7 @@ export default function FoodLogScreen() {
 
             if (getDayResponse.status == 200) {
                 const dayData = await getDayResponse.json(); 
-                console.log(dayData);
+                // console.log(dayData);
                 await AsyncStorage.setItem('fullDay', JSON.stringify(dayData));
 
                 setTotalCalories(dayData.calories); 
@@ -96,7 +96,7 @@ export default function FoodLogScreen() {
 
                 await AsyncStorage.setItem('day', JSON.stringify(dayData.id));
                 setDay(dayData.id);
-                console.log("day item in storage: ", dayData.id);
+                // console.log("day item in storage: ", dayData.id);
             } else {
                 console.log('Failed to get day');
             }
@@ -119,7 +119,7 @@ export default function FoodLogScreen() {
         useCallback(() => {
             const fetchDayID = async () => {
                 const dayData = await AsyncStorage.getItem('fullDay');
-                console.log(dayData); // Should print the stored ID
+                // console.log(dayData); // Should print the stored ID
                 if (dayData) {
                     const dayID = JSON.parse(dayData).id;
                     setDay(dayID);
@@ -390,7 +390,3 @@ const styles = StyleSheet.create({
     }
 
 })
-
-function async(id: any) {
-    throw new Error("Function not implemented.");
-}

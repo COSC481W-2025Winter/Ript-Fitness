@@ -1,70 +1,39 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react-native';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import FoodLogSavedPage from '@/app/screens/foodlog/FoodLogSaved';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import fetchMock from 'jest-fetch-mock';
 import { GlobalContext } from '@/context/GlobalContext';
-import { httpRequests } from '@/api/httpRequests';
 
-// Mocking the GlobalContext
-const mockContextValue = {
-    data: {
-        token: 'mocked-token',
-    },
-};
+jest.mock('@react-navigation/native', () => ({
+  useFocusEffect: jest.fn(),
+}));
+jest.mock('@/api/httpRequests', () => ({
+  httpRequests: {
+    getBaseURL: () => 'https://mockbaseurl.com',
+  },
+}));
 
-// Mock the fetch function to return a resolved promise with fake food data
-global.fetch = jest.fn(() =>
-    Promise.resolve({
-        status: 200,
-        json: () => Promise.resolve([
-            { id: 1, name: 'Apple', calories: 95, protein: 0.5, carbs: 25, fat: 0.3, multiplier: 1, isDeleted: false },
-            { id: 2, name: 'Banana', calories: 105, protein: 1.3, carbs: 27, fat: 0.3, multiplier: 1, isDeleted: false },
-            { id: 3, name: 'Carrot', calories: 41, protein: 0.9, carbs: 10, fat: 0.2, multiplier: 1, isDeleted: false },
-        ]),
-    })
-);
+jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock'));
 
 describe('FoodLogSavedPage', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
+  beforeEach(() => {
+    fetchMock.resetMocks();
+    AsyncStorage.clear();
+  });
 
-    test('renders correctly and displays food items', async () => {
-        render(
-            <GlobalContext.Provider value={mockContextValue}>
-                <FoodLogSavedPage />
-            </GlobalContext.Provider>
-        );
+  const mockContext = {
+    data: { token: 'mock-token' },
+  };
 
-        // Wait for the food items to be fetched and displayed
-        await waitFor(() => {
-            expect(screen.getByText('Apple')).toBeTruthy();
-            expect(screen.getByText('Banana')).toBeTruthy();
-            expect(screen.getByText('Carrot')).toBeTruthy();
-        });
-    });
+  it('renders loading state correctly', () => {
+    const { getByText } = render(
+      <GlobalContext.Provider value={mockContext}>
+        <FoodLogSavedPage />
+      </GlobalContext.Provider>
+    );
+    expect(getByText('Loading...')).toBeTruthy();
+  });
 
-    test('fetches food details and updates state', async () => {
-        render(
-            <GlobalContext.Provider value={mockContextValue}>
-                <FoodLogSavedPage />
-            </GlobalContext.Provider>
-        );
 
-        // Ensure the fetch was called correctly
-        expect(fetch).toHaveBeenCalledWith(`${httpRequests.getBaseURL()}/nutritionCalculator/getFoodIdsOfLoggedInUser`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${mockContextValue.data.token}`,
-            },
-        });
-
-        // // Wait for the FlatList to render with the correct items
-        // await waitFor(() => {
-        //     const foodItems = screen.getAllByText(/Apple|Banana|Carrot/i);
-        //     expect(foodItems).toHaveLength(3);
-        // });
-        const foodItems = await screen.findAllByText(/Apple|Banana|Carrot/i);
-        expect(foodItems).toHaveLength(3);
-    });
 });

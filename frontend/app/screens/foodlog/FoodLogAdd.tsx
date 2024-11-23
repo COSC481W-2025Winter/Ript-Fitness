@@ -353,7 +353,7 @@ const FoodLogAddPage = () => {
             <Text style={styles.inputLabel}>Name</Text>
             <TextInput
                 style={styles.input}
-                placeholder={!validName ? "Food name required" : "Add name"}
+                placeholder={!validName ? "Food name required" : "Add Name"}
                 placeholderTextColor={!validName ? 'red' : '#999'}
                 value={foodName}
                 onChangeText={handleFoodNameChange}

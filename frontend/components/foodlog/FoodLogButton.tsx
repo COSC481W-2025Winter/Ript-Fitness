@@ -123,11 +123,6 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
     width: width || 'auto',
   };
 
-  const textStyle: TextStyle = {
-    color: textColor || '#fff',
-    fontSize: fontSize || 15,
-  };
-
   return (
     <View>
       <TouchableOpacity
