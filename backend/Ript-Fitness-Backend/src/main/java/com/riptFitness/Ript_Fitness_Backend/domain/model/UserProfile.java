@@ -41,7 +41,7 @@ public class UserProfile {
     private String username;
 
     @OneToOne
-    @JoinColumn(name = "account_id", referencedColumnName = "id")
+    @JoinColumn(name = "account_id", referencedColumnName = "id") 
     @JsonBackReference
     private AccountsModel account;
 
@@ -58,6 +58,9 @@ public class UserProfile {
 
     @Column(name = "rest_reset_day_of_week")
     private Integer restResetDayOfWeek = 7; // Sunday (default reset day)
+    
+    @Column(name = "profile_picture", columnDefinition = "LONGBLOB")
+    private byte[] profilePicture;
 
     // Default Constructor
     public UserProfile() {
@@ -207,5 +210,13 @@ public class UserProfile {
 
     public void setRestResetDayOfWeek(Integer restResetDayOfWeek) {
         this.restResetDayOfWeek = restResetDayOfWeek;
+    }
+    
+    public byte[] getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(byte[] profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }

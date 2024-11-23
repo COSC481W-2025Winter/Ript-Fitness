@@ -1,13 +1,19 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.UserProfileMapper;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.Photo;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.PhotoRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.UserProfileRepository;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.UserDto;
 
@@ -17,10 +23,12 @@ import jakarta.transaction.Transactional;
 public class UserProfileService {
 
     private final UserProfileRepository userRepository;
+    private final PhotoRepository photoRepository;
 
     // Dependency injection constructor
-    public UserProfileService(UserProfileRepository userRepository) {
+    public UserProfileService(UserProfileRepository userRepository, PhotoRepository photoRepository) {
         this.userRepository = userRepository;
+        this.photoRepository = photoRepository;
     }
 
     // Adds a new user profile with default values
@@ -41,7 +49,7 @@ public class UserProfileService {
         userProfile.setRestResetDate(getNextSunday());
         userProfile.setRestResetDayOfWeek(1); 
     }
-
+ 
     // Check if user profile exists by username
     public boolean existsByUsername(String username) {
         return userRepository.findByUsername(username).isPresent();
@@ -67,6 +75,18 @@ public class UserProfileService {
 
     // Update the profile fields based on UserDto
     private void updateProfileFields(UserProfile userProfile, UserDto userDto) {
+        if (userDto.getFirstName() != null) {
+            userProfile.setFirstName(userDto.getFirstName());
+        }
+        if (userDto.getLastName() != null) {
+            userProfile.setLastName(userDto.getLastName());
+        }
+        if (userDto.getDisplayname() != null) {
+            userProfile.setDisplayName(userDto.getDisplayname());
+        }
+        if (userDto.getBio() != null) {
+            userProfile.setBio(userDto.getBio());
+        }
         if (userDto.getRestDays() != null) {
             userProfile.setRestDays(userDto.getRestDays());
         }
@@ -80,6 +100,7 @@ public class UserProfileService {
             userProfile.setRestResetDayOfWeek(userDto.getRestResetDayOfWeek());
         }
     }
+
 
     // Soft-deletes user profile by username
     public UserDto softDeleteUserByUsername(String username) {
@@ -156,5 +177,86 @@ public class UserProfileService {
         return userProfiles.stream()
                            .map(UserProfileMapper.INSTANCE::toUserDto)
                            .collect(Collectors.toList());
+    }
+    // Add profile picture
+    public void updateProfilePicture(String username, byte[] profilePicture) {
+        UserProfile user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setProfilePicture(profilePicture);
+        userRepository.save(user);
+    }
+
+    // Get profile picture
+    public byte[] getProfilePicture(String username) {
+        UserProfile user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getProfilePicture();
+    }
+
+    // Add private photo
+    public void addPrivatePhoto(String username, byte[] photo) {
+        UserProfile user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Photo newPhoto = new Photo();
+        newPhoto.setUserProfile(user);
+        newPhoto.setPhoto(photo);
+        newPhoto.setUploadTimestamp(LocalDateTime.now());
+        photoRepository.save(newPhoto);
+    }
+
+    public List<Photo> getPrivatePhotos(String username, int startIndex, int endIndex) {
+        if (endIndex <= startIndex) {
+            throw new IllegalArgumentException("End index must be greater than start index.");
+        }
+
+        UserProfile user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Photo> allPhotos = photoRepository.findByUserProfile_Id(user.getId());
+
+        // Paginate results
+        int toIndex = Math.min(endIndex, allPhotos.size());
+        if (startIndex >= allPhotos.size()) {
+            return Collections.emptyList(); // No results in range
+        }
+        return allPhotos.subList(startIndex, toIndex);
+    }
+    
+    // Delete private photo
+    public void deletePrivatePhoto(Long photoId) {
+        photoRepository.deleteById(photoId);
+    }
+    
+    //search profiles by username
+    public List<UserDto> searchUserProfilesByUsername(String searchTerm, int startIndex, int endIndex) {
+        // Validate start and end indices
+        if (endIndex <= startIndex) {
+            throw new IllegalArgumentException("End index must be greater than start index.");
+        }
+
+        // Validate the search term
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            throw new IllegalArgumentException("Search term cannot be empty.");
+        }
+
+        // Calculate pagination parameters
+        int pageSize = endIndex - startIndex;
+        int pageNumber = startIndex / pageSize;
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        // Query the repository
+        List<UserProfile> userProfiles = userRepository.findByUsernameContainingIgnoreCase(searchTerm, pageable);
+
+        // Return an empty list if no results are found
+        if (userProfiles.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Map the result to DTOs and return
+        return userProfiles.stream()
+                .map(UserProfileMapper.INSTANCE::toUserDto)
+                .collect(Collectors.toList());
     }
 }

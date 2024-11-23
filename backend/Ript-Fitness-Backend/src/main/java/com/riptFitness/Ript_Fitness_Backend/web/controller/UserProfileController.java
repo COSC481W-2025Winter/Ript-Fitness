@@ -8,12 +8,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.riptFitness.Ript_Fitness_Backend.domain.model.Photo;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.UserProfileService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.UserDto;
 
@@ -60,5 +63,55 @@ public class UserProfileController {
     public ResponseEntity<List<UserDto>> getUserProfilesFromList(@RequestBody List<String> usernames) {
         List<UserDto> userProfiles = userProfileService.getUserProfilesFromListOfUsernames(usernames);
         return ResponseEntity.ok(userProfiles);
+    }
+    // Profile picture endpoints
+    @PutMapping("/profilePicture")
+    public ResponseEntity<Void> updateProfilePicture(@RequestBody byte[] profilePicture) {
+        String username = getUsernameFromContext();
+        userProfileService.updateProfilePicture(username, profilePicture);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/profilePicture")
+    public ResponseEntity<byte[]> getProfilePicture() {
+        String username = getUsernameFromContext();
+        byte[] profilePicture = userProfileService.getProfilePicture(username);
+        return ResponseEntity.ok(profilePicture);
+    }
+
+    // Private photo endpoints
+    @PostMapping("/photo")
+    public ResponseEntity<Void> addPrivatePhoto(@RequestBody byte[] photo) {
+        String username = getUsernameFromContext();
+        userProfileService.addPrivatePhoto(username, photo);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/userProfile/photos")
+    public ResponseEntity<List<Photo>> getPrivatePhotos(
+            @RequestParam String username,
+            @RequestParam int startIndex,
+            @RequestParam int endIndex) {
+        List<Photo> photos = userProfileService.getPrivatePhotos(username, startIndex, endIndex);
+        return ResponseEntity.ok(photos);
+    }
+
+    @DeleteMapping("/photo/{photoId}")
+    public ResponseEntity<Void> deletePrivatePhoto(@PathVariable Long photoId) {
+        userProfileService.deletePrivatePhoto(photoId);
+        return ResponseEntity.ok().build();
+    }
+    
+    @GetMapping("/search")
+    public ResponseEntity<?> searchUserProfiles(
+            @RequestParam String searchTerm,
+            @RequestParam int startIndex,
+            @RequestParam int endIndex) {
+        try {
+            List<UserDto> userProfiles = userProfileService.searchUserProfilesByUsername(searchTerm, startIndex, endIndex);
+            return ResponseEntity.ok(userProfiles);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        }
     }
 }
