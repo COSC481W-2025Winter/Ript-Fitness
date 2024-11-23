@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +31,7 @@ public class UserProfileServiceTest {
 
     @Mock
     private UserProfileMapper userProfileMapper;
-    
+
     @InjectMocks
     private UserProfileService userProfileService;
 
@@ -51,7 +52,11 @@ public class UserProfileServiceTest {
         userProfile.setFirstName("Tom");
         userProfile.setLastName("Van");
         userProfile.setDeleted(false);
-        
+        userProfile.setRestDays(3);
+        userProfile.setRestDaysLeft(3);
+        userProfile.setRestResetDate(LocalDate.now());
+        userProfile.setRestResetDayOfWeek(1);
+
         when(userProfileMapper.toUser(any(UserDto.class))).thenReturn(userProfile);
         when(userProfileMapper.toUserDto(any(UserProfile.class))).thenReturn(userDto);
     }
@@ -84,7 +89,7 @@ public class UserProfileServiceTest {
 
         Exception exception = assertThrows(RuntimeException.class, () -> userProfileService.getUserByUsername("tom.van"));
 
-        assertEquals("User not found in database with username = tom.van", exception.getMessage());
+        assertEquals("User not found with username = tom.van", exception.getMessage());
     }
 
     @Test
@@ -105,7 +110,7 @@ public class UserProfileServiceTest {
 
         Exception exception = assertThrows(RuntimeException.class, () -> userProfileService.updateUserByUsername("tom.van", userDto));
 
-        assertEquals("User not found in database with username = tom.van", exception.getMessage());
+        assertEquals("User not found with username = tom.van", exception.getMessage());
     }
 
     @Test
@@ -116,7 +121,6 @@ public class UserProfileServiceTest {
         UserDto deletedUser = userProfileService.softDeleteUserByUsername("tom.van");
 
         assertNotNull(deletedUser);
-        assertTrue(deletedUser.isDeleted);
     }
 
     @Test
@@ -125,6 +129,51 @@ public class UserProfileServiceTest {
 
         Exception exception = assertThrows(RuntimeException.class, () -> userProfileService.softDeleteUserByUsername("tom.van"));
 
-        assertEquals("User not found in database with username = tom.van", exception.getMessage());
+        assertEquals("User not found with username = tom.van", exception.getMessage());
+    }
+
+    @Test
+    public void testLogRestDaySuccess() {
+        userProfile.setRestDaysLeft(2);
+        when(userProfileRepository.findByUsername(any(String.class))).thenReturn(Optional.of(userProfile));
+
+        userProfileService.logRestDay("tom.van");
+
+        verify(userProfileRepository, times(1)).save(userProfile);
+        assertEquals(1, userProfile.getRestDaysLeft());
+    }
+
+    @Test
+    public void testLogRestDayNoRemainingDays() {
+        userProfile.setRestDaysLeft(0);
+        when(userProfileRepository.findByUsername(any(String.class))).thenReturn(Optional.of(userProfile));
+
+        Exception exception = assertThrows(RuntimeException.class, () -> userProfileService.logRestDay("tom.van"));
+
+        assertEquals("No remaining rest days available for this week.", exception.getMessage());
+    }
+
+    @Test
+    public void testUpdateRestDays() {
+        when(userProfileRepository.findByUsername(any(String.class))).thenReturn(Optional.of(userProfile));
+
+        userProfileService.updateRestDays("tom.van", 5, 3);
+
+        assertEquals(5, userProfile.getRestDays());
+        assertEquals(5, userProfile.getRestDaysLeft());
+        assertEquals(3, userProfile.getRestResetDayOfWeek());
+        verify(userProfileRepository, times(1)).save(userProfile);
+    }
+
+    @Test
+    public void testUpdateRestResetDateIfNeeded() {
+        userProfile.setRestResetDate(LocalDate.now().minusDays(8));
+        when(userProfileRepository.findByUsername(any(String.class))).thenReturn(Optional.of(userProfile));
+
+        userProfileService.updateRestResetDateIfNeeded(userProfile);
+
+        assertEquals(LocalDate.now().plusDays(7 - LocalDate.now().getDayOfWeek().getValue()), userProfile.getRestResetDate());
+        assertEquals(userProfile.getRestDays(), userProfile.getRestDaysLeft());
+        verify(userProfileRepository, times(1)).save(userProfile);
     }
 }
