@@ -71,14 +71,14 @@ export default function WorkoutStack(props : any) {
             <TabBarIcon style={styles.leftArrow} name='arrow-down' size={30} color='#454343' />
           </TouchableOpacity>
         ),
-        headerRight: () => (
-          <TouchableOpacity
-            // onPress={() => { navigation.navigate("WorkoutApiScreen", {}) }}
-            style={[styles.rightButton, styles.button, styles.buttonSize]}
-          >
-            <TabBarIcon name='trash-outline' size={30} color='#454343' />
-          </TouchableOpacity>
-        ),
+        // headerRight: () => (
+        //   <TouchableOpacity
+        //     // onPress={() => { navigation.navigate("WorkoutApiScreen", {}) }}
+        //     style={[styles.rightButton, styles.button, styles.buttonSize]}
+        //   >
+        //     <TabBarIcon name='trash-outline' size={30} color='#454343' />
+        //   </TouchableOpacity>
+        // ),
         headerTitleAlign: 'center',
         }}
       />

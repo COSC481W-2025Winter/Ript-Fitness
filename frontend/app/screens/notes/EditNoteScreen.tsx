@@ -1,97 +1,165 @@
-import CustomTextInput from '@/components/custom/CustomTextInput';
+import React, { useState, useEffect } from 'react';
+import { View, TextInput, Button, StyleSheet, Text, Alert, TouchableOpacity } from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import { useNotes } from '@/components/MyNotes/NotesContext';
-import { useState } from 'react';
-import { Button, StyleSheet, View } from 'react-native'
+import { Note as NoteType } from '@/components/MyNotes/NotesContext';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { WorkoutStackParamList } from '../(tabs)/WorkoutStack';
+import { RouteProp } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Note } from '@/components/MyNotes/NotesContext'; 
-import { useRoute } from '@react-navigation/native';
-import { useNavigation } from '@react-navigation/native';
 
-export default function EditNoteScreen() {
-  const navigation = useNavigation();
+type EditNoteRouteProp = RouteProp<WorkoutStackParamList, 'EditNoteScreen'>;
 
-  const route = useRoute();
-  const { note } = route.params as { note: Note } || { title: '', text: '', date: new Date().toLocaleDateString() || null};
-  const { addNote, updateNote } = useNotes();
+type EditNoteScreenNavigationProp = StackNavigationProp<WorkoutStackParamList, 'EditNoteScreen'>;
 
-  const [title, setTitle] = useState(note ? note.title : ''); // Initialize with note's title or empty
-  const [text, setText] = useState(note ? note.text : '');
+const EditNoteScreen = () => {
+  const { params } = useRoute<EditNoteRouteProp>(); // Use the correctly typed params
+  const navigation = useNavigation<EditNoteScreenNavigationProp>();
+  const { addNote, updateNote, deleteNote } = useNotes();
+  
+  // Default note structure
+  const [note, setNote] = useState<NoteType>({
+    id: '',  // Empty ID for a new note
+    title: '',
+    text: '',
+    date: '', 
+  });
 
-  const handleSave = () => {
-    console.log("handleSave triggered");
-    //updating note
-    if (note) {
-      const updatedNote: Note = {
-        ...note,
-        title,
-        date: new Date().toLocaleDateString(), 
-        text,
-      };
-      updateNote(updatedNote); 
-      console.log("Saving actual note1:", note);
-      console.log("Saving updateNote:", updatedNote);
-    } else {
-      // creating a new note
-      const newNote: Note = {
-        id: Date.now().toString(), // 
-        title,
-        date: new Date().toLocaleDateString(), // Set the current date
-        text,
-      };
-      //needs work
-      addNote(newNote); // Add new note to the context
-      console.log("Saving actual note 2:", note); //shows null in terminal
-      console.log("Saving addNote:", addNote);  //shows function addNote
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (params?.note) {
+      // If editing, load the existing note into state
+      const { note } = params;
+      setNote(note);
+      setIsEditing(true); // Set state to indicate that the user is editing a note
     }
-    navigation.goBack();
+  }, [params]);
+
+  const handleSave = async () => {
+    if (note.title.trim() === '' || note.text.trim() === '') {
+      Alert.alert('Error', 'Note cannot be empty');
+      return;
+    }
+
+    try {
+      if (isEditing) {
+        // If editing an existing note, update it
+        await updateNote(note); 
+        Alert.alert('Success', 'Note updated successfully');
+      } else {
+        // If adding a new note, create it
+        await addNote(note); // Add a new note
+        Alert.alert('Success', 'New note added successfully');
+      }
+      navigation.goBack(); 
+    } catch (error) {
+      Alert.alert('Error', 'An error occurred while saving the note.');
+      console.error(error);
+    }
+  };
+
+  const handleChangeTitle = (text: string) => {
+    setNote((prevNote) => ({
+      ...prevNote,
+      title: text,
+    }));
+  };
+
+  const handleChangeDescription = (text: string) => {
+    setNote((prevNote) => ({
+      ...prevNote,
+      text, 
+    }));
+  };
+
+  const handleDelete = () => {
+    Alert.alert(
+      'Confirm Delete',
+      'Are you sure you want to delete this note?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          onPress: async () => {
+            await deleteNote(note.id);  
+            navigation.goBack(); 
+          },
+        },
+      ]
+    );
   };
 
   return (
-    <ScrollView style={styles.page} contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
-          <CustomTextInput 
-              placeholder= "Title"
-              value={title}
-              onChangeText={setTitle}
-              autoCapitalize='words'
-              color="#1D1B20"
-              style={{
-                backgroundColor: '#FFF3AD',
-                width: '80%',
-                fontSize: 24,          
-                marginBottom: 0,
-              }}
-          />
-          <CustomTextInput 
-              placeholder= "Note" 
-              value={text}
-              onChangeText={setText}  
-              color="#454343"             
-              multiline={true}
-              style={{
-                backgroundColor: '#FFF3AD',
-                width: '100%',
-                flex: 1,
-                fontSize: 18,
-                // backgroundColor: '#EDEDED',
-              }}
-          />
-          <Button title="Save Note" onPress={handleSave} />
+    <ScrollView  keyboardDismissMode='on-drag' contentContainerStyle={styles.scrollContainer}>
+      <TextInput
+          style={[styles.input, {width: '100%'}]}
+          placeholder="Title"
+          value={note.title}
+          onChangeText={handleChangeTitle}
+          maxLength={25}
+          autoCapitalize='words'
+        />
+      <TextInput
+        style={[styles.input, styles.textArea, {fontSize: 18 }]}
+        placeholder="Note"
+        value={note.text}
+        onChangeText={handleChangeDescription}
+        multiline
+      />
+      <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
+        <TouchableOpacity 
+          style={styles.button}  
+          onPress={handleSave} 
+        >
+          <Text style={styles.buttonText}>
+            {isEditing ? "Save" : "Add Note"}
+          </Text>
+        </TouchableOpacity>
+        {isEditing && (
+        <TouchableOpacity 
+          style={[styles.button, {marginLeft: 10}]}  
+          onPress={handleDelete} 
+        >
+          <Text style={styles.buttonText}>Delete</Text>
+        </TouchableOpacity>
+      )}
       </View>
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-    page: {
-        backgroundColor: "#FFF3AD",
-    },
-    scrollContainer: {
-      flexGrow: 1, 
-      justifyContent: 'flex-start', 
-    },
-    container: {
-      flex: 1, 
-      padding: 10,
-    },
+  scrollContainer: {
+    flexGrow: 1,
+    padding: 20,
+    backgroundColor: '#FFF3AD',
+  },
+  button: {
+    backgroundColor: '#2C2C2C',
+    width: '30%',
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+    borderRadius: 10,
+  },
+  buttonText: {
+    fontSize: 15,
+    color: '#fff',
+  },
+  input: {
+    height: 50,
+    marginBottom: 20,
+    paddingLeft: 10,
+    borderRadius: 5,
+    width: '100%',
+    fontSize: 20,
+  },
+  textArea: {
+    height: '75%',
+    textAlignVertical: 'top',
+  },
 });
+
+export default EditNoteScreen;

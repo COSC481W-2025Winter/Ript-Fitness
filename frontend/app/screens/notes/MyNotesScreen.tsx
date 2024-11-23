@@ -8,12 +8,21 @@ import { Note as NoteType } from '@/components/MyNotes/NotesContext';
 import { StackNavigationProp } from "@react-navigation/stack";
 import { WorkoutStackParamList } from "../(tabs)/WorkoutStack";
 import CustomSearchBar from "@/components/custom/CustomSearchBar";
+import { useEffect } from "react";
 
 type MyNotesScreenNavigationProp = StackNavigationProp<WorkoutStackParamList, 'MyNotesScreen'>;
 
 export default function MyNotesScreen() {
-  const { notes } = useNotes();
+  const { notes, fetchNotes } = useNotes();
   const navigation = useNavigation<MyNotesScreenNavigationProp>();
+
+  useEffect(() => {
+    fetchNotes(); // Fetch notes on screen load
+  }, [fetchNotes]);
+
+  if (notes === undefined) {
+    return <Text>Loading...</Text>;  
+  }
 
   return (
     <View style={styles.container}>
@@ -25,7 +34,7 @@ export default function MyNotesScreen() {
           <Text>Notes will be displayed here</Text>
         ) : (
           <View style={styles.notesContainer}>
-          {notes.map((note: NoteType) => (
+          {notes.map((note) => (
             <Note 
               key={note.id} 
               title={note.title} 

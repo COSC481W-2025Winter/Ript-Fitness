@@ -8,58 +8,8 @@ interface NoteProps {
 }
 
 const Note: React.FC<NoteProps> = ({ title, date, text, onPress }) => {
-  // const notesData = [
-  //   {
-  //     title: 'Test',
-  //     date: '10/22/2024',
-  //     text: 'This is a test note.',
-  //   },
-  //   {
-  //     title: 'Title',
-  //     date: '10/19/2024',
-  //     text: 'Note',
-  //   },
-  //   {
-  //     title: 'Title',
-  //     date: '10/15/2024',
-  //     text: 'Note',
-  //   },
-  //   {
-  //     title: 'Title',
-  //     date: '10/11/2024',
-  //     text: 'Note',
-  //   },
-  //   {
-  //     title: 'Title',
-  //     date: '10/2/2024',
-  //     text: 'Note',
-  //   },
-  // ];
 
   return (
-    // <View style={styles.container}>
-    //   {notesData.map((note, index) => (
-    //     <TouchableOpacity 
-    //       key={index}
-    //       activeOpacity={0.7}
-    //       // onPress={() => navigation.navigate('WorkoutApiScreen')}
-    //       style={styles.button}>
-    //       <View style={styles.buttonContent}>
-    //         <Text style={styles.titleText}>
-    //           {note.title}
-    //         </Text>
-    //         <View style={styles.noteTextContainer}>
-    //           <Text style={styles.noteText}>
-    //             {note.text}
-    //           </Text>
-    //           <Text style={styles.dateText}>
-    //             {note.date}
-    //           </Text>
-    //         </View>
-    //       </View>
-    //     </TouchableOpacity>
-    //   ))}
-    // </View>
     <View style={styles.container}>
       <TouchableOpacity 
         onPress={onPress} 
@@ -70,7 +20,7 @@ const Note: React.FC<NoteProps> = ({ title, date, text, onPress }) => {
             {title}
           </Text>
           <View style={styles.noteTextContainer}>
-            <Text style={styles.noteText}>
+            <Text style={styles.noteText} numberOfLines={4}>
               {text}
             </Text>
             <Text style={styles.dateText}>
