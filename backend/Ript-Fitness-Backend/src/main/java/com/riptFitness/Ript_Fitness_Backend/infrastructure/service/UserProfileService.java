@@ -36,7 +36,8 @@ public class UserProfileService {
     private void initializeDefaultValues(UserProfile userProfile) {
         userProfile.setRestDays(3);
         userProfile.setRestDaysLeft(3);
-        userProfile.setRestResetDate(LocalDate.now());
+        System.out.println(getNextSunday().toString());
+        userProfile.setRestResetDate(getNextSunday());
         userProfile.setRestResetDayOfWeek(1); // Default reset day is Sunday
     }
 

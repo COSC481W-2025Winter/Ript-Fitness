@@ -51,7 +51,11 @@ public class UserProfile {
     public UserProfile() {
         this.restDays = 3;
         this.restDaysLeft = 3;  
-        this.restResetDate = LocalDate.now();  
+        LocalDate today = LocalDate.now();
+        int todayDayOfWeek = today.getDayOfWeek().getValue();
+        int daysUntilSunday = 7 - todayDayOfWeek;
+        
+        this.restResetDate = today.plusDays(daysUntilSunday);  
         this.restResetDayOfWeek = 7;     
     }
     // Parameterized Constructor
@@ -62,7 +66,12 @@ public class UserProfile {
         this.bio = bio;
         this.restDays = 3; 
         this.restDaysLeft = 3;  
-        this.restResetDate = LocalDate.now(); 
+        
+        LocalDate today = LocalDate.now();
+        int todayDayOfWeek = today.getDayOfWeek().getValue();
+        int daysUntilSunday = 7 - todayDayOfWeek;
+        
+        this.restResetDate = today.plusDays(daysUntilSunday); 
         this.restResetDayOfWeek = 7;  
     }
 
@@ -178,4 +187,8 @@ public class UserProfile {
     public void setRestResetDayOfWeek(Integer restResetDayOfWeek) {
         this.restResetDayOfWeek = restResetDayOfWeek;
     }
+	public Object getNextSunday() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
