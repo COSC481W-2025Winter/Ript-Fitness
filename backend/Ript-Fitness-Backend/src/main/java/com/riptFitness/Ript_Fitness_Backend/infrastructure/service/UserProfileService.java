@@ -164,22 +164,22 @@ public class UserProfileService {
     }
     // Add profile picture
     public void updateProfilePicture(String username, byte[] profilePicture) {
-        UserProfile user = userProfileRepository.findByUsername(username)
+        UserProfile user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
         user.setProfilePicture(profilePicture);
-        userProfileRepository.save(user);
+        userRepository.save(user);
     }
 
     // Get profile picture
     public byte[] getProfilePicture(String username) {
-        UserProfile user = userProfileRepository.findByUsername(username)
+        UserProfile user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
         return user.getProfilePicture();
     }
 
     // Add private photo
     public void addPrivatePhoto(String username, byte[] photo) {
-        UserProfile user = userProfileRepository.findByUsername(username)
+        UserProfile user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
         Photo newPhoto = new Photo();
@@ -189,9 +189,8 @@ public class UserProfileService {
         photoRepository.save(newPhoto);
     }
 
-    // Get all private photos
     public List<Photo> getPrivatePhotos(String username) {
-        UserProfile user = UserProfileRepository.findByUsername(username)
+        UserProfile user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
         return photoRepository.findByUserProfile_Id(user.getId());
     }
