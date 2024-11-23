@@ -11,8 +11,7 @@ public class CalendarMapper {
     public static CalendarDto toDto(Calendar calendar) {
         return new CalendarDto(
                 calendar.getDate(),
-                calendar.getActivityType(),
-                calendar.getColorCode()
+                calendar.getActivityType()
         );
     }
 
