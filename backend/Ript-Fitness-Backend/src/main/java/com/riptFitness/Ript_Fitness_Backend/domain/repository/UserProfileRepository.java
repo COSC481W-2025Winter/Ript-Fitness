@@ -2,6 +2,7 @@ package com.riptFitness.Ript_Fitness_Backend.domain.repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -68,5 +69,8 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
     
     @Query("SELECT u FROM UserProfile u WHERE u.username IN :usernames AND u.isDeleted = false")
     List<UserProfile> findAllByUsernames(@Param("usernames") List<String> usernames);
+    
+    @Query("SELECT u FROM UserProfile u WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :searchTerm, '%')) AND u.isDeleted = false")
+    List<UserProfile> findByUsernameContainingIgnoreCase(@Param("searchTerm") String searchTerm, Pageable pageable);
 
 }

@@ -2,10 +2,13 @@ package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.UserProfileMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Photo;
@@ -189,14 +192,58 @@ public class UserProfileService {
         photoRepository.save(newPhoto);
     }
 
-    public List<Photo> getPrivatePhotos(String username) {
+    public List<Photo> getPrivatePhotos(String username, int startIndex, int endIndex) {
+        if (endIndex <= startIndex) {
+            throw new IllegalArgumentException("End index must be greater than start index.");
+        }
+
         UserProfile user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
-        return photoRepository.findByUserProfile_Id(user.getId());
-    }
 
+        List<Photo> allPhotos = photoRepository.findByUserProfile_Id(user.getId());
+
+        // Paginate results
+        int toIndex = Math.min(endIndex, allPhotos.size());
+        if (startIndex >= allPhotos.size()) {
+            return Collections.emptyList(); // No results in range
+        }
+        return allPhotos.subList(startIndex, toIndex);
+    }
+    
     // Delete private photo
     public void deletePrivatePhoto(Long photoId) {
         photoRepository.deleteById(photoId);
+    }
+    
+    //search profiles by username
+    public List<UserDto> searchUserProfilesByUsername(String searchTerm, int startIndex, int endIndex) {
+        // Validate start and end indices
+        if (endIndex <= startIndex) {
+            throw new IllegalArgumentException("End index must be greater than start index.");
+        }
+
+        // Validate the search term
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            throw new IllegalArgumentException("Search term cannot be empty.");
+        }
+
+        // Calculate pagination parameters
+        int pageSize = endIndex - startIndex;
+        int pageNumber = startIndex / pageSize;
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        // Query the repository
+        List<UserProfile> userProfiles = userRepository.findByUsernameContainingIgnoreCase(searchTerm, pageable);
+
+        // Return an empty list if no results are found
+        if (userProfiles.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Map the result to DTOs and return
+        return userProfiles.stream()
+                .map(UserProfileMapper.INSTANCE::toUserDto)
+                .collect(Collectors.toList());
     }
 }

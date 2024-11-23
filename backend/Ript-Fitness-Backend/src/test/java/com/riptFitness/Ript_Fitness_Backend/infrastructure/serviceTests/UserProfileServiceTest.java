@@ -5,20 +5,26 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.data.domain.Pageable;
 
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.SecurityConfig;
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.UserProfileMapper;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.Photo;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.PhotoRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.UserProfileRepository;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.UserProfileService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.UserDto;
@@ -32,6 +38,9 @@ public class UserProfileServiceTest {
 
     @Mock
     private UserProfileMapper userProfileMapper;
+    
+    @Mock
+    private PhotoRepository photoRepository;
 
     @InjectMocks
     private UserProfileService userProfileService;
@@ -215,5 +224,77 @@ public class UserProfileServiceTest {
         assertNotNull(result);
         assertTrue(result.isEmpty());
         verify(userProfileRepository, times(1)).findAllByUsernames(usernames);
+    }
+    
+    @Test
+    void testSearchUserProfilesByUsername() {
+        String searchTerm = "test";
+        int startIndex = 0;
+        int endIndex = 10;
+
+        Pageable pageable = PageRequest.of(0, 10);
+        List<UserProfile> mockProfiles = List.of(
+            new UserProfile("John", "Doe", "testUser", "Bio"),
+            new UserProfile("Jane", "Smith", "TestUser2", "Another Bio")
+        );
+
+        when(userProfileRepository.findByUsernameContainingIgnoreCase(eq(searchTerm), eq(pageable)))
+            .thenReturn(mockProfiles);
+
+        List<UserDto> result = userProfileService.searchUserProfilesByUsername(searchTerm, startIndex, endIndex);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("testUser", result.get(0).username); // Access username field directly
+        verify(userProfileRepository, times(1)).findByUsernameContainingIgnoreCase(eq(searchTerm), eq(pageable));
+    }
+
+    
+    @Test
+    void testAddPrivatePhoto() {
+        String username = "testUser";
+        byte[] photoData = new byte[]{1, 2, 3};
+        UserProfile mockProfile = new UserProfile("John", "Doe", username, "Bio");
+
+        when(userProfileRepository.findByUsername(eq(username))).thenReturn(Optional.of(mockProfile));
+
+        userProfileService.addPrivatePhoto(username, photoData);
+
+        ArgumentCaptor<Photo> photoCaptor = ArgumentCaptor.forClass(Photo.class);
+        verify(photoRepository, times(1)).save(photoCaptor.capture());
+
+        Photo savedPhoto = photoCaptor.getValue();
+        assertNotNull(savedPhoto);
+        assertArrayEquals(photoData, savedPhoto.getPhoto());
+        assertEquals(mockProfile, savedPhoto.getUserProfile());
+    }
+    @Test
+    void testGetPrivatePhotosWithPagination() {
+        String username = "testUser";
+        UserProfile mockProfile = new UserProfile();
+        mockProfile.setId(1L);
+
+        Photo photo1 = new Photo();
+        photo1.setId(1L);
+        photo1.setUserProfile(mockProfile);
+        photo1.setPhoto(new byte[]{1, 2, 3});
+        photo1.setUploadTimestamp(LocalDateTime.now());
+
+        Photo photo2 = new Photo();
+        photo2.setId(2L);
+        photo2.setUserProfile(mockProfile);
+        photo2.setPhoto(new byte[]{4, 5, 6});
+        photo2.setUploadTimestamp(LocalDateTime.now());
+
+        List<Photo> mockPhotos = List.of(photo1, photo2);
+
+        when(userProfileRepository.findByUsername(eq(username))).thenReturn(Optional.of(mockProfile));
+        when(photoRepository.findByUserProfile_Id(eq(mockProfile.getId()))).thenReturn(mockPhotos);
+
+        List<Photo> result = userProfileService.getPrivatePhotos(username, 0, 1);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(photoRepository, times(1)).findByUserProfile_Id(mockProfile.getId());
     }
 }

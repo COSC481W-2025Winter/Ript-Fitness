@@ -1,6 +1,9 @@
 package com.riptFitness.Ript_Fitness_Backend.web.controllerTests;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -154,5 +157,48 @@ public class UserProfileControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1)) // Only 1 valid profile
                 .andExpect(jsonPath("$[0].firstName").value("Tom"));
+    }
+    @Test
+    void testGetProfilePicture() throws Exception {
+        byte[] mockPhoto = new byte[]{1, 2, 3};
+        when(userProfileService.getProfilePicture(eq("testUser"))).thenReturn(mockPhoto);
+
+        mockMvc.perform(get("/userProfile/profilePicture"))
+            .andExpect(status().isOk())
+            .andExpect(content().bytes(mockPhoto));
+
+        verify(userProfileService, times(1)).getProfilePicture(eq("testUser"));
+    }
+    
+    @Test
+    void testSearchUserProfiles() throws Exception {
+        UserDto user1 = new UserDto();
+        user1.id = 1L;
+        user1.firstName = "John";
+        user1.lastName = "Doe";
+        user1.username = "testUser";
+        user1.bio = "Bio";
+
+        UserDto user2 = new UserDto();
+        user2.id = 2L;
+        user2.firstName = "Jane";
+        user2.lastName = "Smith";
+        user2.username = "TestUser2";
+        user2.bio = "Another Bio";
+
+        List<UserDto> mockProfiles = List.of(user1, user2);
+
+        when(userProfileService.searchUserProfilesByUsername(eq("test"), eq(0), eq(10)))
+            .thenReturn(mockProfiles);
+
+        mockMvc.perform(get("/userProfile/search")
+                .param("searchTerm", "test")
+                .param("startIndex", "0")
+                .param("endIndex", "10"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(2))
+            .andExpect(jsonPath("$[0].username").value("testUser"));
+
+        verify(userProfileService, times(1)).searchUserProfilesByUsername(eq("test"), eq(0), eq(10));
     }
 }
