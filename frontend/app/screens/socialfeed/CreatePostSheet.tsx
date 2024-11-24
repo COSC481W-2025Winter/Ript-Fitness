@@ -4,22 +4,21 @@ import React, {
   useCallback,
   forwardRef,
   useImperativeHandle,
-} from 'react';
-import { 
-  View, 
-  TextInput, 
-  TouchableOpacity, 
-  Text, 
-  Platform, 
-  Keyboard, 
+} from "react";
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  Platform,
   Image,
   StyleSheet,
   KeyboardAvoidingView,
-} from 'react-native';
-import BottomSheet from '@gorhom/bottom-sheet';
-import { MaterialIcons } from '@expo/vector-icons';
-import { useSocialFeed } from '@/context/SocialFeedContext';
-import ProfileImage from '../../../assets/images/profile/Profile.png';
+  Keyboard,
+} from "react-native";
+import BottomSheet, { BottomSheetTextInput } from "@gorhom/bottom-sheet";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useSocialFeed } from "@/context/SocialFeedContext";
+import ProfileImage from "../../../assets/images/profile/Profile.png";
 
 export interface CreatePostSheetRef {
   snapToIndex: (index: number) => void;
@@ -27,19 +26,30 @@ export interface CreatePostSheetRef {
 }
 
 const CreatePostSheet = forwardRef<CreatePostSheetRef>((props, ref) => {
-  const [postText, setPostText] = useState('');
+  const [postText, setPostText] = useState("");
   const { addPost } = useSocialFeed();
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const [isOpen, setIsOpen] = useState(false);
-  const inputRef = useRef<TextInput>(null);
-  const snapPoints = React.useMemo(() => ['100%'], []);
+  const inputRef = useRef<BottomSheetTextInput>(null);
+  const snapPoints = React.useMemo(() => ["100%"], []);
+
+  // Handle sheet state changes
+  const handleSheetChange = useCallback((index: number) => {
+    if (index === -1) {
+      setPostText("");
+      Keyboard.dismiss();
+    }
+  }, []);
+
+  const handleCancel = () => {
+    setPostText("");
+    Keyboard.dismiss();
+    bottomSheetRef.current?.close();
+  };
 
   useImperativeHandle(ref, () => ({
     snapToIndex: (index: number) => {
-      setIsOpen(true);
       bottomSheetRef.current?.snapToIndex(index);
-      
-      if (index === 0) {
+      if (index === 0 || index === 1) {
         setTimeout(() => {
           inputRef.current?.focus();
         }, 100);
@@ -47,7 +57,6 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef>((props, ref) => {
     },
     close: () => {
       Keyboard.dismiss();
-      setIsOpen(false);
       bottomSheetRef.current?.close();
     },
   }));
@@ -55,34 +64,11 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef>((props, ref) => {
   const handlePost = async () => {
     if (postText.trim()) {
       await addPost(postText);
+      setPostText("");
       Keyboard.dismiss();
-      setPostText('');
-      setIsOpen(false);
       bottomSheetRef.current?.close();
     }
   };
-
-  const handleCancel = () => {
-    Keyboard.dismiss();
-    setPostText('');
-    setIsOpen(false);
-    bottomSheetRef.current?.close();
-  };
-
-  const handleSheetChange = useCallback((index: number) => {
-    if (index === -1) {
-      Keyboard.dismiss();
-      setIsOpen(false);
-    } else {
-      setIsOpen(index === 0);
-    }
-  }, []);
-
-  const handleSheetAnimate = useCallback((_fromIndex: number, toIndex: number) => {
-    if (toIndex === -1) {
-      Keyboard.dismiss();
-    }
-  }, []);
 
   return (
     <BottomSheet
@@ -91,113 +77,112 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef>((props, ref) => {
       snapPoints={snapPoints}
       enablePanDownToClose={true}
       onChange={handleSheetChange}
-      onAnimate={handleSheetAnimate}
+      keyboardBehavior="extend"
+      keyboardBlurBehavior="none"
+      android_keyboardInputMode="adjustResize"
     >
-      <KeyboardAvoidingView
-        style={styles.keyboardAvoidingView}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : -500}
-      >
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={handleCancel}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-            <Text style={styles.title}>New Post</Text>
-            <TouchableOpacity
+      {/* Rest of your component remains the same */}
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </TouchableOpacity>
+          <Text style={styles.title}>New Post</Text>
+          <TouchableOpacity
+            style={[
+              styles.shareButton,
+              !postText.trim() && styles.shareButtonDisabled,
+            ]}
+            onPress={handlePost}
+            disabled={!postText.trim()}
+          >
+            <Text
               style={[
-                styles.shareButton, 
-                !postText.trim() && styles.shareButtonDisabled
+                styles.shareButtonText,
+                !postText.trim() && styles.shareButtonDisabled,
               ]}
-              onPress={handlePost}
-              disabled={!postText.trim()}
             >
-              <Text 
-                style={[
-                  styles.shareButtonText, 
-                  !postText.trim() && styles.shareButtonDisabled
-                ]}
-              >
-                Share
-              </Text>
-            </TouchableOpacity>
-          </View>
+              Share
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-          <View style={styles.mainContent}>
-            <View style={styles.userInfoContainer}>
-              <Image 
-                source={ProfileImage}
-                style={styles.profileImage}
-              />
-              <TextInput
-                ref={inputRef}
-                style={styles.input}
-                multiline
-                placeholder="What's happening?"
-                value={postText}
-                onChangeText={setPostText}
-                autoFocus={false}
-                scrollEnabled={true}
-              />
-            </View>
-          </View>
-
-          <View style={styles.mediaButtonsContainer}>
-            <TouchableOpacity style={styles.mediaButton}>
-              <MaterialIcons name="photo" size={24} color="#21BFBF" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.mediaButton}>
-              <MaterialIcons name="camera-alt" size={24} color="#21BFBF" />
-            </TouchableOpacity>
+        <View style={styles.mainContent}>
+          <View style={styles.userInfoContainer}>
+            <Image source={ProfileImage} style={styles.profileImage} />
+            <BottomSheetTextInput
+              ref={inputRef}
+              style={styles.input}
+              multiline
+              placeholder="What's happening?"
+              value={postText}
+              onChangeText={setPostText}
+              autoFocus={false}
+              scrollEnabled={true}
+              onSubmitEditing={handlePost}
+            />
           </View>
         </View>
-      </KeyboardAvoidingView>
+
+        <View style={styles.mediaButtonsContainer}>
+          <TouchableOpacity style={styles.mediaButton}>
+            <MaterialIcons name="photo" size={24} color="#21BFBF" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.mediaButton}>
+            <MaterialIcons name="camera-alt" size={24} color="#21BFBF" />
+          </TouchableOpacity>
+        </View>
+      </View>
     </BottomSheet>
   );
 });
 
 const styles = StyleSheet.create({
-    keyboardAvoidingView: {
+  keyboardAvoidingView: {
     flex: 1,
   },
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
+    overflow: "hidden",
   },
   title: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: "700",
+    flex: 1,
+    marginHorizontal: 30,
   },
   cancelButton: {
+    width: 80,
     padding: 4,
+    flex: 1,
   },
   cancelButtonText: {
     fontSize: 18,
-    color: '#000',
+    color: "#000",
   },
   shareButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 24,
+    width: 80,
+    paddingVertical: 8,
+    paddingHorizontal: 8,
     borderRadius: 25,
-    backgroundColor: '#21BFBF',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#21BFBF",
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
   },
   shareButtonText: {
-    color: 'white',
-    fontWeight: '400',
+    color: "white",
+    fontWeight: "400",
     fontSize: 17,
     letterSpacing: 0.1,
     lineHeight: 24,
@@ -209,9 +194,9 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   userInfoContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     padding: 16,
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
   },
   profileImage: {
     width: 40,
@@ -227,12 +212,12 @@ const styles = StyleSheet.create({
     maxHeight: 230,
   },
   mediaButtonsContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     padding: 8,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
-    backgroundColor: 'white',
-    shadowColor: '#000',
+    borderTopColor: "#eee",
+    backgroundColor: "white",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: -2,
@@ -246,11 +231,10 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f5f5f5',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#f5f5f5",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
 export default CreatePostSheet;
-

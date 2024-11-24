@@ -4,7 +4,7 @@ import React, {
   useCallback,
   forwardRef,
   useImperativeHandle,
-} from 'react';
+} from "react";
 import {
   View,
   TextInput,
@@ -16,36 +16,45 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   FlatList,
-} from 'react-native';
-import BottomSheet from '@gorhom/bottom-sheet';
-import { useSocialFeed, SocialPostComment } from '@/context/SocialFeedContext';
-import ProfileImage from '../../../assets/images/profile/Profile.png';
+} from "react-native";
+import BottomSheet, { BottomSheetTextInput } from "@gorhom/bottom-sheet";
+import { useSocialFeed, SocialPostComment } from "@/context/SocialFeedContext";
+import ProfileImage from "../../../assets/images/profile/Profile.png";
 
+//Interface for external control of the CommentsSheet
 export interface CommentsSheetRef {
   snapToIndex: (index: number) => void;
   close: () => void;
   showCommentsForPost: (postId: string) => void;
 }
 
+//Props for individual comment items in the list
 interface CommentItemProps {
   comment: SocialPostComment;
   onReply?: () => void;
 }
 
+/**
+ * Formats a date string into a human-readable relative time
+ * @param dateString - ISO date string to format
+ * @returns Formatted string like "just now", "5m ago", "2h ago", etc.
+ */
 const formatCommentTime = (dateString: string) => {
   const date = new Date(dateString);
   const now = new Date();
-  const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-  
-  if (diffInMinutes < 1) return 'just now';
+  const diffInMinutes = Math.floor(
+    (now.getTime() - date.getTime()) / (1000 * 60)
+  );
+
+  if (diffInMinutes < 1) return "just now";
   if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-  
+
   const diffInHours = Math.floor(diffInMinutes / 60);
   if (diffInHours < 24) return `${diffInHours}h ago`;
-  
+
   const diffInDays = Math.floor(diffInHours / 24);
   if (diffInDays < 7) return `${diffInDays}d ago`;
-  
+
   return date.toLocaleDateString();
 };
 
@@ -67,49 +76,83 @@ const CommentItem = ({ comment, onReply }: CommentItemProps) => (
   </View>
 );
 
+/**
+ * A bottom sheet component for displaying and managing comments on social posts.
+ * Uses forwardRef to expose methods for external control of the sheet.
+ */
 const CommentsSheet = forwardRef<CommentsSheetRef>((props, ref) => {
-  const [commentText, setCommentText] = useState('');
+  // State Management
+  const [commentText, setCommentText] = useState("");
   const [currentPostId, setCurrentPostId] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Context and Refs
   const { posts, addComment } = useSocialFeed();
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<TextInput>(null);
-  const snapPoints = React.useMemo(() => ['85%'], []);
 
-  const currentPost = posts.find(post => post.id === currentPostId);
+  // How far up on the screen the bottom sheet will go
+  const snapPoints = React.useMemo(() => ["85%"], []);
+
+  // Get current post and it's comments
+  const currentPost = posts.find((post) => post.id === currentPostId);
   const comments = currentPost?.comments || [];
 
+  // Expose methods for external control
   useImperativeHandle(ref, () => ({
     snapToIndex: (index: number) => {
-      console.log('Snapping to index:', index);
+      console.log("Snapping to index:", index);
       setIsOpen(true);
       bottomSheetRef.current?.snapToIndex(index);
     },
     close: () => {
-      console.log('Closing comments sheet');
+      console.log("Closing comments sheet");
       Keyboard.dismiss();
       setIsOpen(false);
       bottomSheetRef.current?.close();
       setCurrentPostId(null);
     },
     showCommentsForPost: (postId: string) => {
-      console.log('Opening comments for post:', postId);
+      console.log("Opening comments for post:", postId);
       setCurrentPostId(postId);
       setIsOpen(true);
       bottomSheetRef.current?.snapToIndex(0);
     },
   }));
 
+  /**
+   * Handles submission of a new comment
+   * Adds the comment to the post and clears the input
+   */
   const handleSubmitComment = async () => {
     if (commentText.trim() && currentPostId) {
-      await addComment(currentPostId, commentText);
-      setCommentText('');
-      Keyboard.dismiss();
+      console.log("[DEBUG] Submitting comment:", {
+        postId: currentPostId,
+        commentText: commentText,
+      });
+
+      try {
+        console.log("[DEBUG] Calling addComment...");
+        await addComment(currentPostId, commentText);
+        console.log("[DEBUG] addComment completed");
+
+        const updatedPost = posts.find((p) => p.id === currentPostId);
+        console.log("[DEBUG] Post state after API call:", updatedPost);
+
+        setCommentText("");
+        Keyboard.dismiss();
+      } catch (error) {
+        console.error("[DEBUG] Error in handleSubmitComment:", error);
+      }
     }
   };
 
+  /**
+   * Handles changes in the bottom sheet position
+   * Updates state and keyboard when sheet is closed
+   */
   const handleSheetChange = useCallback((index: number) => {
-    console.log('Sheet index changed to:', index);
+    console.log("Sheet index changed to:", index);
     if (index === -1) {
       Keyboard.dismiss();
       setIsOpen(false);
@@ -126,17 +169,20 @@ const CommentsSheet = forwardRef<CommentsSheetRef>((props, ref) => {
       snapPoints={snapPoints}
       enablePanDownToClose={true}
       onChange={handleSheetChange}
+      keyboardBehavior="interactive"
+      keyboardBlurBehavior="restore"
     >
       <KeyboardAvoidingView
         style={styles.keyboardAvoidingView}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       >
         <View style={styles.container}>
           <View style={styles.header}>
             <Text style={styles.title}>Comments</Text>
           </View>
 
+          {/* Comments list */}
           <FlatList
             data={comments}
             keyExtractor={(item) => item.id}
@@ -152,10 +198,11 @@ const CommentsSheet = forwardRef<CommentsSheetRef>((props, ref) => {
             contentContainerStyle={styles.commentsList}
           />
 
+          {/* Comment input section */}
           <View style={styles.inputContainer}>
             <Image source={ProfileImage} style={styles.inputAvatar} />
             <View style={styles.textInputContainer}>
-              <TextInput
+              <BottomSheetTextInput
                 ref={inputRef}
                 style={styles.input}
                 placeholder="Add a comment"
@@ -163,6 +210,7 @@ const CommentsSheet = forwardRef<CommentsSheetRef>((props, ref) => {
                 onChangeText={setCommentText}
                 multiline
                 maxLength={1000}
+                onSubmitEditing={handleSubmitComment}
               />
               <TouchableOpacity
                 style={[
@@ -188,26 +236,26 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
   title: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   commentsList: {
     paddingHorizontal: 16,
     paddingVertical: 8,
   },
   commentContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginVertical: 8,
   },
   commentAvatar: {
@@ -220,16 +268,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   commentHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 4,
   },
   commentUsername: {
-    fontWeight: '600',
+    fontWeight: "600",
     marginRight: 8,
   },
   commentTime: {
-    color: '#666',
+    color: "#666",
     fontSize: 12,
   },
   commentText: {
@@ -240,15 +288,15 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   replyButtonText: {
-    color: '#666',
+    color: "#666",
     fontSize: 12,
   },
   inputContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
-    alignItems: 'flex-end',
+    borderTopColor: "#eee",
+    alignItems: "flex-end",
   },
   inputAvatar: {
     width: 32,
@@ -258,32 +306,30 @@ const styles = StyleSheet.create({
   },
   textInputContainer: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'flex-end',
+    flexDirection: "row",
+    //alignItems: "flex-end",
+    alignItems: "center",
   },
   input: {
     flex: 1,
     maxHeight: 100,
     borderRadius: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    paddingRight: 50,
     fontSize: 14,
+    paddingVertical: 9,
   },
   sendButton: {
-    position: 'absolute',
-    right: 8,
-    bottom: 8,
     paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingVertical: 8,
+    marginLeft: 8,
   },
   sendButtonDisabled: {
     opacity: 0.5,
   },
   sendButtonText: {
-    color: '#21BFBF',
-    fontWeight: '600',
+    color: "#21BFBF",
+    fontWeight: "600",
   },
 });
 

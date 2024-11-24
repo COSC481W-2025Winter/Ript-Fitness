@@ -1,17 +1,17 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import React from "react";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
 
 type PostItemType = {
   id: string;
-  type: 'text' | 'image';
+  type: "text" | "image";
   content?: string;
   imageUrl?: string;
   caption?: string;
   user: {
     name: string;
-    profilePicture: ProfileImage;
+    profilePicture: any; // Using any for the ProfileImage type
   };
   dateTimeCreated: string;
   likes: string[];
@@ -22,6 +22,10 @@ type PostItemType = {
     accountId: string;
     dateTimeCreated: string;
   }>;
+  // Add userProfile for debugging
+  userProfile?: {
+    username?: string;
+  } | null;
 };
 
 type ItemProps = {
@@ -32,10 +36,12 @@ type ItemProps = {
 };
 
 const formatTimestamp = (dateTimeCreated: string): string => {
-   //console.log("Original Timestamp:", dateTimeCreated);
+  //console.log("Original Timestamp:", dateTimeCreated);
 
   const trimmedTimestamp = dateTimeCreated.includes(".")
-    ? dateTimeCreated.split(".")[0] + "." + dateTimeCreated.split(".")[1].slice(0, 3)
+    ? dateTimeCreated.split(".")[0] +
+      "." +
+      dateTimeCreated.split(".")[1].slice(0, 3)
     : dateTimeCreated;
 
   const date = new Date(trimmedTimestamp);
@@ -47,11 +53,11 @@ const formatTimestamp = (dateTimeCreated: string): string => {
   }
 
   return date.toLocaleString(undefined, {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
     hour12: true,
   });
 };
@@ -59,11 +65,23 @@ const formatTimestamp = (dateTimeCreated: string): string => {
 const PostItem = ({ item, liked, onLikePress, onCommentPress }: ItemProps) => {
   const navigation = useNavigation<NavigationProp<any>>();
 
+  console.log("[DEBUG] PostItem received:", {
+    id: item.id,
+    user: item.user,
+    rawName: item.user.name,
+  });
+
   const handlePostPress = () => {
-    if (item.type === 'text') {
-      navigation.navigate('TextPostScreen', { postId: item.id, content: item.content });
-    } else if (item.type === 'image') {
-      navigation.navigate('ImagePostScreen', { postId: item.id, imageUrl: item.imageUrl });
+    if (item.type === "text") {
+      navigation.navigate("TextPostScreen", {
+        postId: item.id,
+        content: item.content,
+      });
+    } else if (item.type === "image") {
+      navigation.navigate("ImagePostScreen", {
+        postId: item.id,
+        imageUrl: item.imageUrl,
+      });
     }
   };
 
@@ -78,30 +96,34 @@ const PostItem = ({ item, liked, onLikePress, onCommentPress }: ItemProps) => {
       </TouchableOpacity>
 
       {/* Content */}
-      {item.type === 'text' && item.content && (
+      {item.type === "text" && item.content && (
         <Text style={styles.contentText}>{item.content}</Text>
       )}
-      {item.type === 'image' && item.imageUrl && (
+      {item.type === "image" && item.imageUrl && (
         <Image style={styles.postImage} source={{ uri: item.imageUrl }} />
       )}
-      {item.type === 'image' && item.caption && (
+      {item.type === "image" && item.caption && (
         <Text style={styles.caption}>{item.caption}</Text>
       )}
 
       {/* Footer */}
       <View style={styles.footer}>
         <View style={styles.likecomment}>
-          <TouchableOpacity 
-            onPress={onLikePress} 
+          <TouchableOpacity
+            onPress={onLikePress}
             style={styles.likeButton}
             accessibilityLabel="Like post"
             accessibilityHint="Toggles the like state for this post"
           >
-            <Ionicons name="heart" size={24} color={liked ? '#FF3B30' : '#B1B6C0'} />
+            <Ionicons
+              name="heart"
+              size={24}
+              color={liked ? "#FF3B30" : "#B1B6C0"}
+            />
           </TouchableOpacity>
           <Text style={styles.likeCounter}>{item.likes.length}</Text>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             onPress={onCommentPress}
             style={styles.commentButton}
             accessibilityLabel="Open comments"
@@ -111,7 +133,9 @@ const PostItem = ({ item, liked, onLikePress, onCommentPress }: ItemProps) => {
           </TouchableOpacity>
           <Text style={styles.commentCounter}>{item.comments.length}</Text>
         </View>
-        <Text style={styles.timestamp}>{formatTimestamp(item.dateTimeCreated)}</Text>
+        <Text style={styles.timestamp}>
+          {formatTimestamp(item.dateTimeCreated)}
+        </Text>
       </View>
     </View>
   );
@@ -119,8 +143,8 @@ const PostItem = ({ item, liked, onLikePress, onCommentPress }: ItemProps) => {
 
 const styles = StyleSheet.create({
   item: {
-    backgroundColor: '#fff',
-    borderColor: '#B1B6C0',
+    backgroundColor: "#fff",
+    borderColor: "#B1B6C0",
     borderWidth: 1,
     padding: 15,
     marginVertical: 8,
@@ -128,8 +152,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 10,
   },
   profile: {
@@ -140,8 +164,8 @@ const styles = StyleSheet.create({
   username: {
     flex: 1,
     fontSize: 17,
-    fontWeight: 'bold',
-    textAlign: 'left',
+    fontWeight: "bold",
+    textAlign: "left",
     marginLeft: 7,
   },
   contentText: {
@@ -150,11 +174,11 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   postImage: {
-    width: '100%',
+    width: "100%",
     height: 200,
     marginTop: 10,
     borderRadius: 10,
-    resizeMode: 'cover',
+    resizeMode: "cover",
   },
   caption: {
     fontSize: 16,
@@ -162,15 +186,15 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginTop: 15,
   },
   timestamp: {
     fontSize: 13,
-    color: '#999',
-    alignSelf: 'flex-end',
+    color: "#999",
+    alignSelf: "flex-end",
   },
   likeButton: {
     padding: 7,
@@ -181,20 +205,20 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   likecomment: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   likeCounter: {
-    color: 'black',
+    color: "black",
     padding: 7,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   commentCounter: {
-    color: 'black',
+    color: "black",
     padding: 7,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 
