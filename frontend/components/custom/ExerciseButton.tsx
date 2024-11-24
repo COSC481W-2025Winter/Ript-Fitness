@@ -8,6 +8,7 @@ import { ThemedText } from '../ThemedText';
 
 export type ExerciseButtonProps = ViewProps & {
     leftColor?: string;
+    descColor?: string;
     title?: string;
     desc?: string;
     children?: React.ReactNode;
@@ -20,7 +21,7 @@ export type ExerciseButtonProps = ViewProps & {
     style?: any
 };
 
-export function ExerciseButton({ leftColor, title, desc, children, sideButtons, id, onLongPress, onPressOut, isActive, style, ...otherProps }: ExerciseButtonProps) {
+export function ExerciseButton({ leftColor, descColor, title, desc, children, sideButtons, id, onLongPress, onPressOut, isActive, style, ...otherProps }: ExerciseButtonProps) {
   const toggleExpand = () => {
     if (isExpanded) {
       setExpanded(false)
@@ -40,7 +41,7 @@ export function ExerciseButton({ leftColor, title, desc, children, sideButtons, 
 
 <ThemedView style={styles.fullWidth}>
 <ThemedText style={styles.title}>{title}</ThemedText>
-{desc && <ThemedView style={styles.innerBar}><ThemedText style={styles.description}>{desc}</ThemedText></ThemedView>}
+{desc && <ThemedView style={[{backgroundColor: descColor}, styles.innerBar]}><ThemedText style={styles.description}>{desc}</ThemedText></ThemedView>}
 </ThemedView>
 
        {isExpanded && (
@@ -84,7 +85,7 @@ export function ExerciseButton({ leftColor, title, desc, children, sideButtons, 
 
 const { width, height } = Dimensions.get('window');
 const titleSize = width * 0.06;
-const descSize = width * 0.04;
+const descSize = width * 0.035;
 
 const styles = StyleSheet.create({ 
   fullWidth: {
@@ -106,25 +107,30 @@ const styles = StyleSheet.create({
   title: {
     fontSize:titleSize,
     marginBottom:5,
+    fontWeight: '500',
   },
 
   description: {
     fontSize:descSize,
-    color:'white'
+    color:'#40403F',    //or #fff
+    alignSelf: 'center',
+    fontWeight: '600',
   },
+  //Sets
   innerBar: {
-    backgroundColor:'black',
-    width:'auto',
+    backgroundColor:'#BFBFBF', //or comment out to match left color
+    width: '25%',
     paddingTop:'2%',
     paddingBottom:'2%',
     paddingLeft:'5%',
     paddingRight:'5%',
-    borderRadius:15,
+    borderRadius:20,
     marginTop:5,
   },
     view: {
-        backgroundColor:'#E2E2E2',
+        backgroundColor:'#F2F2F2',    //color for exercise container
         borderRadius:15,
+        // borderWidth: 1,
         marginTop:15,
       },
       innerButton: {
@@ -133,7 +139,7 @@ const styles = StyleSheet.create({
         top:11,
         height:30,
         width:30,
-        //backgroundColor:'blue',
+        // backgroundColor:'blue',
         //color:'white',
         borderTopLeftRadius:15,
         borderBottomLeftRadius:15,

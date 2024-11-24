@@ -3,19 +3,17 @@ import React, { createContext, useState, ReactNode } from 'react';
 
 
 // Define this at the top of your file or in a separate types file
-export interface WorkoutObjectsToPass {
+export interface modalInfo {
     id: string;
-    name: string;
-    title: string;
-    employer: string;
-    // ... other fields
+    isVisible: boolean;
   }
   
 
 
 interface WorkoutContextType {
-  exampleObject: WorkoutObjectsToPass[];
-  updateExampleObject: (newExampleObject: WorkoutObjectsToPass) => void;
+  modalObject: modalInfo;
+  setModalObject: (newModalObject: modalInfo) => void;
+  setVisible: (visible : boolean) => void;
 }
 
 export const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
@@ -27,25 +25,18 @@ interface WorkoutProviderProps {
 export const WorkoutProvider: React.FC<WorkoutProviderProps> = ({ children }) => {
     //Creating an array here, feel free to make it whatever you want though.
   //Pretty sure this would usually be an API call unless we hardcode some workouts?
-  const [exampleObject, setExampleObject] = useState<WorkoutObjectsToPass[]>([
-     { id: '1', name: 'Alice Smith', title: 'Engineer', employer: 'Tech Corp' },
-     { id: '2', name: 'Bob Johnson', title: 'Designer', employer: 'Design Studio' },
-     { id: '3', name: 'Bob Johnson', title: 'Designer', employer: 'Design Studio' },
-     { id: '4', name: 'Bob Johnson', title: 'Designer', employer: 'Design Studio' },
-     { id: '5', name: 'Bob Johnson', title: 'Designer', employer: 'Design Studio' },
-  ]);
+  const [modalObject, setModalObject] = useState<modalInfo>({id: "-1", isVisible: false});
 
-  const updateExampleObject = (newExampleObject: WorkoutObjectsToPass) => {
-    console.log(newExampleObject)
-    setExampleObject(previousObject =>
-      previousObject.map(exampleObject =>
-        exampleObject.id === newExampleObject.id ? newExampleObject : exampleObject
-      )
-    );
+  const updateExampleObject = (newModalObject: modalInfo) => {
+    setModalObject(newModalObject)
   };
 
+  const setVisible = (visible: boolean) => {
+    setModalObject((prevData) => ({ ...prevData, isVisible:visible }))
+  }
+
   return (
-    <WorkoutContext.Provider value={{ exampleObject, updateExampleObject }}>
+    <WorkoutContext.Provider value={{ modalObject, setModalObject, setVisible }}>
       {children}
     </WorkoutContext.Provider>
   );
