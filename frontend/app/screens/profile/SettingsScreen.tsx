@@ -1,17 +1,94 @@
-import React, { useContext, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Platform } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, Alert } from 'react-native';
+import { Image as ImgTag } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { GlobalContext } from '@/context/GlobalContext';
 import { httpRequests } from '@/api/httpRequests';
+import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
+import * as FileSystem from 'expo-file-system';
+import { useNavigation } from '@react-navigation/native';
+import { ProfileScreenNavigationProp } from '@/app/(tabs)/ProfileStack';
+
+
+const uploadPhoto = async () => {
+  try {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Permission Denied", "We need access to your photo library.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const imageUri = result.assets[0].uri;
+
+      console.log("myURI: ", imageUri);
+      const resizedUri = await resizeImage(imageUri, 250);
+
+      const base64 = await FileSystem.readAsStringAsync(resizedUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      return (base64);
+    }
+  } catch (error) {
+    console.error("Error picking or resizing image:", error);
+  }
+};
+
+const resizeImage = async (uri: string, maxDimension: number): Promise<string> => {
+  try {
+    const result = await ImageManipulator.manipulateAsync(
+      uri,
+      [{ resize: { width: maxDimension } }], // Resize only width to maintain aspect ratio
+      { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
+    );
+
+    console.log("Resized Image URI:", result.uri);
+    return result.uri;
+  } catch (error) {
+    console.error("Error resizing image:", error);
+    throw error;
+  }
+};
+
 
 const SettingsScreen = ({ navigation }: any) => {
-    const context = useContext(GlobalContext)
-  const [displayName, setDisplayName] = useState(context?.userProfile.username);
-  const [bio, setBio] = useState("placeholder");
+  const context = useContext(GlobalContext);
+
+  const [displayName, setDisplayName] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [restDays, setRestDays] = useState<string>("");
+  const [bio, setBio] = useState<string>("");
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  
+  useEffect(() => {
+    if (context?.userProfile) {
+      setDisplayName(context.userProfile.displayname);
+      setFirstName(context.userProfile.firstName);
+      setLastName(context.userProfile.lastName);
+      setRestDays(context.userProfile.restDays.toString());
+      setBio(context.userProfile.bio);
+    }
+  }, [context?.userProfile]);
+
+  useEffect(() => {
+    setSelectedImage(context?.userProfile.profilePicture || null);
+  }, [context?.userProfile.profilePicture]);
+  
+
+
+
   const [email, setEmail] = useState("placeholder");
   const [error, setError] = useState("");
-
 
   const setEmailChecked = (value: string) => {
     const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
@@ -24,39 +101,53 @@ const SettingsScreen = ({ navigation }: any) => {
     }
   };
 
-  const saveSettings = async () => {
-    if (context?.userProfile.username != displayName) {
-        const newProfile : any = {
-            ...context?.userProfile,
-            username: displayName ?? context?.userProfile.username // Replace `newId` with the desired new Id
-    };
-    console.log(newProfile)
-        try {
-        await context?.updateUserProfile(newProfile)
-        const response = await fetch(`${httpRequests.getBaseURL()}/userProfile/updateUserProfile`, {
-            method: 'PUT', // Set method to POST
-            headers: {
-              'Content-Type': 'application/json', // Set content type to JSON
-              "Authorization": `Bearer ${context?.data.token}`,
-            },
-            body: `${JSON.stringify(newProfile)}`, // Convert the data to a JSON string
-          }); // Use endpoint or replace with BASE_URL if needed
-          if (!response.ok) {
-
-          }
-          //const json = await response.text() //.json(); // Parse the response as JSON;
-          //return json; // Return the JSON data directly
-          console.log(await response.text())
-        } catch (error) {
-        
-          console.error('GET request failed:', error);
-          throw error; // Throw the error for further handling if needed
-        }
-        };
+  const handlePhoto = async () => {
+    const base64Image = await uploadPhoto();
+    if (base64Image) {
+      setSelectedImage(base64Image);
+    }
   };
+  
 
-  const changePicture = () => {
-    // Handle picture change logic here
+  const saveSettings = async () => {
+    if (
+      context?.userProfile.username !== displayName ||
+      context?.userProfile.bio !== bio ||
+      context?.userProfile.firstName !== firstName ||
+      context?.userProfile.lastName !== lastName ||
+      context?.userProfile.restDays.toString() !== restDays
+    ) {
+      const newProfile: any = {
+        ...context?.userProfile,
+        displayname: displayName ?? context?.userProfile.displayname,
+        firstName: firstName ?? context?.userProfile.firstName,
+        lastName: lastName ?? context?.userProfile.lastName,
+        restDays: parseInt(restDays ?? "") ?? context?.userProfile.restDays,
+        bio: bio ?? context?.userProfile.bio,
+        profilePicture: selectedImage ?? context?.userProfile.profilePicture,
+      };
+      try {
+        await context?.updateUserProfile(newProfile);
+        const response = await fetch(
+          `${httpRequests.getBaseURL()}/userProfile/updateUserProfile`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${context?.data.token}`,
+            },
+            body: `${JSON.stringify(newProfile)}`,
+          }
+        );
+        if (!response.ok) {
+          console.error("Failed to update profile.");
+        }
+        navigation.goBack()
+      } catch (error) {
+        console.error("GET request failed:", error);
+        throw error;
+      }
+    }
   };
 
   return (
@@ -64,7 +155,7 @@ const SettingsScreen = ({ navigation }: any) => {
       style={styles.container}
       contentContainerStyle={styles.scrollContainer}
       enableOnAndroid={true}
-      extraScrollHeight={80} // Adjust to match the height of the bottom tab bar if needed
+      extraScrollHeight={80}
     >
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -77,11 +168,12 @@ const SettingsScreen = ({ navigation }: any) => {
       </View>
 
       <View style={styles.profileImageContainer}>
-        <Image
-          source={require('../../../assets/images/profile/Profile.png')}
+        <ImgTag
+          source={{
+            uri: `data:image/png;base64,${selectedImage}` }}
           style={styles.profileImage}
         />
-        <TouchableOpacity style={styles.cameraIcon} onPress={changePicture}>
+        <TouchableOpacity style={styles.cameraIcon} onPress={handlePhoto}>
           <Ionicons name="camera" size={50} color="white" style={{ opacity: 0.75 }} />
         </TouchableOpacity>
       </View>
@@ -94,11 +186,36 @@ const SettingsScreen = ({ navigation }: any) => {
 
       <View style={styles.infoContainer}>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Name</Text>
+          <Text style={styles.label}>First Name</Text>
+          <TextInput
+            style={styles.input}
+            value={firstName}
+            onChangeText={setFirstName}
+          />
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Last Name</Text>
+          <TextInput
+            style={styles.input}
+            value={lastName}
+            onChangeText={setLastName}
+          />
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Display Name</Text>
           <TextInput
             style={styles.input}
             value={displayName}
             onChangeText={setDisplayName}
+          />
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Rest Days</Text>
+          <TextInput
+            style={styles.input}
+            value={restDays}
+            onChangeText={setRestDays}
+            keyboardType="numeric"
           />
         </View>
         <View style={styles.infoRow}>
@@ -110,7 +227,7 @@ const SettingsScreen = ({ navigation }: any) => {
             multiline
           />
         </View>
-        <View style={styles.infoRow}>
+        {/*<View style={styles.infoRow}>
           <Text style={styles.label}>Email</Text>
           <TextInput
             style={styles.input}
@@ -118,8 +235,11 @@ const SettingsScreen = ({ navigation }: any) => {
             onChangeText={setEmailChecked}
             keyboardType="email-address"
           />
-        </View>
-        <TouchableOpacity style={styles.infoRow} onPress={() => navigation.navigate("ChangePasswordScreen")}>
+        </View>*/}
+        <TouchableOpacity
+          style={styles.infoRow}
+          onPress={() => navigation.navigate("ChangePasswordScreen")}
+        >
           <Text style={styles.label}>Change password</Text>
           <Ionicons name="chevron-forward" size={20} color="black" />
         </TouchableOpacity>
@@ -127,6 +247,7 @@ const SettingsScreen = ({ navigation }: any) => {
     </KeyboardAwareScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },

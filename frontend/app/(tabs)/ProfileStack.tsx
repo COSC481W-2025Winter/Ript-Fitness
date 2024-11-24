@@ -7,10 +7,19 @@ import ProfileScreen from '@/app/screens/profile/ProfileScreen';
 import GraphScreen from '@/app/screens/profile/GraphScreen';
 import SettingsScreen from '../screens/profile/SettingsScreen';
 import ChangePasswordScreen from '../screens/profile/PasswordScreen';
+import FriendsScreen from '../screens/profile/FriendsScreen';
+import FindFriendsScreen from '../screens/profile/FindFriendsScreen';
+import FullBioScreen from '../screens/profile/FullBioScreen'
+import VisitProfileScreen from '../screens/profile/VisitProfileScreen'
+import { ProfileObject } from '@/context/GlobalContext';
 
 export type ProfileStackParamList = {
   GraphScreen: undefined;
   SettingsScreen: undefined;
+  FriendsScreen: undefined;
+  FindFriendsScreen: undefined;
+  FullBioScreen: { userProfile: ProfileObject };
+  VisitProfileScreen: any;
 };
 
 export type ProfileScreenNavigationProp = StackNavigationProp<ProfileStackParamList>;
@@ -25,6 +34,10 @@ export default function ProfileStack(props : any) {
       <Stack.Screen name="GraphScreen" component={GraphScreen} options={{headerShown:false}}/>
       <Stack.Screen name="SettingsScreen" component={SettingsScreen} options={{headerShown:false}}/>
       <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} options={{headerShown:false}}/>
+      <Stack.Screen name="FriendsScreen" component={FriendsScreen} options={{headerShown:false}}/>
+      <Stack.Screen name="FindFriendsScreen" component={FindFriendsScreen} options={{headerShown:false}}/>
+      <Stack.Screen name="FullBioScreen" component={FullBioScreen} options={{headerShown:false}}/>
+      <Stack.Screen name="VisitProfileScreen" component={VisitProfileScreen} options={{headerShown:false}}/>
       {/* Put any additional screens for your tab here. This allows us to use a stack.
         A stack allows us to easily navigate back a page when we're in a secondary screen on a certain tab.
       */}

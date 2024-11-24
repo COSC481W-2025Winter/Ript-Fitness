@@ -104,7 +104,7 @@ const GraphScreen: React.FC = () => {
           domain={{ y: getYDomain() }}
           containerComponent={
             <VictoryVoronoiContainer
-              labels={({ datum }) =>
+              labels={({ datum }: any) =>
                 range === 'year'
                   ? `Month: ${datum.date.toLocaleString('default', { month: 'short' })}\nAvg Reps: ${datum.averageReps}`
                   : `Date: ${datum.date.toISOString().split('T')[0].slice(5, 10)}\nAvg Reps: ${datum.averageReps}`
