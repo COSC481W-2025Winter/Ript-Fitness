@@ -5,11 +5,6 @@ import { RouteProp, useNavigation } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { ProfileStackParamList } from '@/app/(tabs)/ProfileStack';
 
-type FullBioScreenRouteProp = RouteProp<ProfileStackParamList, 'FullBioScreen'>;
-
-interface FullBioScreenProps {
-  route: FullBioScreenRouteProp;
-}
 
 
 const FullBioScreen: React.FC<FullBioScreenProps> = ({ route }) => {

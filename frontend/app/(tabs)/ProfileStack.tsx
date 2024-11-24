@@ -36,7 +36,7 @@ export default function ProfileStack(props : any) {
       <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} options={{headerShown:false}}/>
       <Stack.Screen name="FriendsScreen" component={FriendsScreen} options={{headerShown:false}}/>
       <Stack.Screen name="FindFriendsScreen" component={FindFriendsScreen} options={{headerShown:false}}/>
-      <Stack.Screen name="FullBioScreen" component={FullBioScreen} options={{headerShown:false}}/>
+      <Stack.Screen name="FullBioScreen" component={FullBioScreen as any} options={{headerShown:false}}/>
       <Stack.Screen name="VisitProfileScreen" component={VisitProfileScreen} options={{headerShown:false}}/>
       {/* Put any additional screens for your tab here. This allows us to use a stack.
         A stack allows us to easily navigate back a page when we're in a secondary screen on a certain tab.
