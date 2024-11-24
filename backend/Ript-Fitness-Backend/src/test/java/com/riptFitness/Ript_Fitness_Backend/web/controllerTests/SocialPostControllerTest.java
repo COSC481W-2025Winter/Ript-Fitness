@@ -135,12 +135,27 @@ public class SocialPostControllerTest {
 	}
 	
 	@Test
+	public void testGetPostsFromCurrentlyLoggedInUserValid() throws Exception {
+		ArrayList<SocialPostDto> returnedArrayList = new ArrayList<>();
+		returnedArrayList.add(socialPost);
+		when(socialPostService.getPostsFromCurrentlyLoggedInUser(0, 0)).thenReturn(returnedArrayList);
+		
+		mockMvc.perform(get("/socialPost/getPostsFromCurrentlyLoggedInUser/0/0")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(""))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$[0].content").value("Just benched 500 pounds, my name is Chris and I'm so strong!!"))
+				.andReturn();
+	}
+	
+	@Test
 	public void testGetPostsFromAccountIdValid() throws Exception {
 		ArrayList<SocialPostDto> returnedArrayList = new ArrayList<>();
 		returnedArrayList.add(socialPost);
-		when(socialPostService.getPostsFromAccountId(0, 0)).thenReturn(returnedArrayList);
+		when(socialPostService.getPostsFromAccountId(2L, 0, 0)).thenReturn(returnedArrayList);
 		
-		mockMvc.perform(get("/socialPost/getPostsFromAccountId/0/0")
+		mockMvc.perform(get("/socialPost/getPostsFromAccountId/2/0/0")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(""))
 				.andExpect(status().isOk())
