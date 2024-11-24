@@ -21,6 +21,7 @@ import SignupScreen from '@/app/screens/welcome/SignupScreen';
 import { SocialFeedProvider } from './context/SocialFeedContext';
 
 import { NotesProvider } from './components/MyNotes/NotesContext';
+import FoodLogScreen from './app/screens/foodlog/FoodLog';
 
 
 // Define types for the navigation stack
@@ -71,6 +72,7 @@ function MainApp() {
           tabBarIcon: ({ focused, size, color }) => (
             <Ionicons name={focused ? 'nutrition' : 'nutrition-outline'} size={size} color={color}/>
           ),
+          headerShown: false,
         }}
       />
       <Tab.Screen 

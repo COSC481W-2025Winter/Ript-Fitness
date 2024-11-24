@@ -3,6 +3,7 @@ import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle, View } from '
 
 type MacroButtonProps = {
   title: string;
+  label: string;
   total: number;
   backgroundColor?: string;
   borderColor?: string;
@@ -14,7 +15,7 @@ type MacroButtonProps = {
   underlineOnPress?: boolean;
 };
 
-const MacroButton: React.FC<MacroButtonProps> = ({ title, backgroundColor, borderColor, borderWidth, width, textColor, fontSize, total}) => {
+const MacroButton: React.FC<MacroButtonProps> = ({ title, backgroundColor, borderColor, borderWidth, width, textColor, fontSize, total, label}) => {
 
   const buttonStyle: ViewStyle = {
     backgroundColor: 'white',
@@ -30,7 +31,7 @@ const MacroButton: React.FC<MacroButtonProps> = ({ title, backgroundColor, borde
 
   return (
     <View style={[styles.circle, buttonStyle]}>
-      <Text style={[styles.buttonText, textStyle]}>{total}</Text>
+      <Text style={[styles.buttonText, textStyle]}>{total}{label}</Text>
       <Text style={[styles.buttonText, textStyle]}>{title}</Text>
     </View>
   );
