@@ -58,7 +58,11 @@ public class UserProfileService {
     // Retrieves user profile by username
     public UserDto getUserByUsername(String username) {
         return userRepository.findByUsername(username)
-            .map(UserProfileMapper.INSTANCE::toUserDto)
+            .map(user -> {
+                UserDto userDto = UserProfileMapper.INSTANCE.toUserDto(user);
+                userDto.setProfilePicture(user.getProfilePicture()); // Include profile picture
+                return userDto;
+            })
             .orElseThrow(() -> new RuntimeException("User not found with username = " + username));
     }
 
@@ -68,12 +72,14 @@ public class UserProfileService {
             .orElseThrow(() -> new RuntimeException("User not found with username = " + username));
 
         updateProfileFields(userToBeEdited, userDto); 
-        
+
         userToBeEdited = userRepository.save(userToBeEdited);
-        return UserProfileMapper.INSTANCE.toUserDto(userToBeEdited);
+        UserDto updatedDto = UserProfileMapper.INSTANCE.toUserDto(userToBeEdited);
+        updatedDto.setProfilePicture(userToBeEdited.getProfilePicture()); // Include profile picture
+        return updatedDto;
     }
 
-    // Update the profile fields based on UserDto
+    // Update the profile fields based on UserDto, including profile picture
     private void updateProfileFields(UserProfile userProfile, UserDto userDto) {
         if (userDto.getFirstName() != null) {
             userProfile.setFirstName(userDto.getFirstName());
@@ -98,6 +104,9 @@ public class UserProfileService {
         }
         if (userDto.getRestResetDayOfWeek() != null) {
             userProfile.setRestResetDayOfWeek(userDto.getRestResetDayOfWeek());
+        }
+        if (userDto.getProfilePicture() != null) {
+            userProfile.setProfilePicture(userDto.getProfilePicture()); // Update profile picture
         }
     }
 
@@ -175,8 +184,12 @@ public class UserProfileService {
     public List<UserDto> getUserProfilesFromListOfUsernames(List<String> usernames) {
         List<UserProfile> userProfiles = userRepository.findAllByUsernames(usernames);
         return userProfiles.stream()
-                           .map(UserProfileMapper.INSTANCE::toUserDto)
-                           .collect(Collectors.toList());
+            .map(user -> {
+                UserDto userDto = UserProfileMapper.INSTANCE.toUserDto(user);
+                userDto.setProfilePicture(user.getProfilePicture()); // Include profile picture
+                return userDto;
+            })
+            .collect(Collectors.toList());
     }
     // Add profile picture
     public void updateProfilePicture(String username, byte[] profilePicture) {

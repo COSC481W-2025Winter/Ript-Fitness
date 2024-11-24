@@ -40,6 +40,7 @@ public class UserProfileController {
 	public ResponseEntity<UserDto> getUserProfile() {
 		String username = getUsernameFromContext();
 		UserDto returnedUserObject = userProfileService.getUserByUsername(username);
+		returnedUserObject.setProfilePicture(userProfileService.getProfilePicture(username));
 		return ResponseEntity.ok(returnedUserObject);
 	}
 
@@ -48,6 +49,7 @@ public class UserProfileController {
 	public ResponseEntity<UserDto> updateUserProfile(@RequestBody UserDto userDto) {
 		String username = getUsernameFromContext();
 		UserDto updatedUserObject = userProfileService.updateUserByUsername(username, userDto);
+		updatedUserObject.setProfilePicture(userProfileService.getProfilePicture(username));
 		return ResponseEntity.ok(updatedUserObject);
 	}
 
@@ -56,12 +58,14 @@ public class UserProfileController {
 	public ResponseEntity<UserDto> deleteUserProfile() {
 		String username = getUsernameFromContext();
 		UserDto deletedUserObject = userProfileService.softDeleteUserByUsername(username);
+		deletedUserObject.setProfilePicture(userProfileService.getProfilePicture(username));
 		return ResponseEntity.ok(deletedUserObject);
 	}
 	
     @PostMapping("/getUserProfilesFromList")
     public ResponseEntity<List<UserDto>> getUserProfilesFromList(@RequestBody List<String> usernames) {
         List<UserDto> userProfiles = userProfileService.getUserProfilesFromListOfUsernames(usernames);
+        userProfiles.forEach(user -> user.setProfilePicture(userProfileService.getProfilePicture(user.getUsername())));
         return ResponseEntity.ok(userProfiles);
     }
     // Profile picture endpoints
@@ -109,6 +113,7 @@ public class UserProfileController {
             @RequestParam int endIndex) {
         try {
             List<UserDto> userProfiles = userProfileService.searchUserProfilesByUsername(searchTerm, startIndex, endIndex);
+            userProfiles.forEach(user -> user.setProfilePicture(userProfileService.getProfilePicture(user.getUsername())));
             return ResponseEntity.ok(userProfiles);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
