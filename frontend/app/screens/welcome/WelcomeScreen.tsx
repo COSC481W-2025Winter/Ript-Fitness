@@ -1,6 +1,6 @@
 import CustomButton from '@/components/custom/CustomButton';
 import LogoImage from '@/components/custom/LogoImage';
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, Dimensions } from 'react-native'
 
 // Navigation imports
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -10,6 +10,7 @@ type WelcomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Welcome'>;
 
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
+  const { width } = Dimensions.get('window');
   return (
     <View style={styles.container}>
       <View>
@@ -20,19 +21,21 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
         <View style={styles.buttonContainer}>
           <CustomButton 
             title="Log in" 
-            width={210} 
+            width={width * 0.75} 
             fontSize={16}
+            borderRadius={30}
             onPress={()  => navigation.navigate('Login')}
           />
         </View>
         <View style={styles.buttonContainer}>
           <CustomButton
             title="Sign up"
-            width={210}
+            width={width * 0.75}
             backgroundColor='#fff'
-            borderColor='#03A696'
+            borderColor='#21BFBF'
             borderWidth={2}
-            textColor='#03A696'
+            borderRadius={30}
+            textColor='#21BFBF'
             fontSize={16}
             onPress={()  => navigation.navigate('Signup')}
           />
@@ -54,6 +57,7 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     fontSize: 24,
+    color: '#3F4040',
     margin: 10,
     textAlign: 'center'
   },

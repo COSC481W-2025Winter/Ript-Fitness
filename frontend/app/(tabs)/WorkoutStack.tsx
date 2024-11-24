@@ -47,12 +47,18 @@ export default function WorkoutStack(props : any) {
       headerShown: true,
       headerStyleInterpolator: HeaderStyleInterpolators.forNoAnimation,
     }}>
-      <Stack.Screen name="WorkoutApiScreen" component={WorkoutApiScreen} options={{ headerShown: true,
+
+      <Stack.Screen name="WorkoutApiScreen" component={WorkoutApiScreen} options={{ 
+        title: '', 
+        headerRight: () => <StreakCounter />,
+      }} />
+      <Stack.Screen name="ApiScreen" component={ApiScreen} options={{
+
         headerRight: () => <StreakCounter />,
        }}/>
       <Stack.Screen name="ApiScreen" component={ApiScreen} options={{   }} />
       <Stack.Screen name="StartWorkoutScreen" component={StartWorkoutScreen} options={{
-        headerRight: () => <StreakCounter />,
+        // headerRight: () => <StreakCounter />,
       }} />
       <Stack.Screen name="MyWorkoutsScreen" component={MyWorkoutsScreen} options={{ title: 'My Workouts',
         headerLeft: () => (
@@ -95,14 +101,14 @@ export default function WorkoutStack(props : any) {
             <TabBarIcon style={styles.leftArrow} name='arrow-down' size={30} color='#454343' />
           </TouchableOpacity>
         ),
-        headerRight: () => (
-          <TouchableOpacity
-            // onPress={() => { navigation.navigate("WorkoutApiScreen", {}) }}
-            style={[styles.rightButton, styles.button, styles.buttonSize]}
-          >
-            <TabBarIcon name='trash-outline' size={30} color='#454343' />
-          </TouchableOpacity>
-        ),
+        // headerRight: () => (
+        //   <TouchableOpacity
+        //     // onPress={() => { navigation.navigate("WorkoutApiScreen", {}) }}
+        //     style={[styles.rightButton, styles.button, styles.buttonSize]}
+        //   >
+        //     <TabBarIcon name='trash-outline' size={30} color='#454343' />
+        //   </TouchableOpacity>
+        // ),
         headerTitleAlign: 'center',
         }}
       />

@@ -1,16 +1,20 @@
-import { TouchableOpacity, View, Text, StyleSheet, Dimensions } from 'react-native';
+
+import { TouchableOpacity, View, Text, StyleSheet, Dimensions, SafeAreaView } from 'react-native';
+
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { SocialScreenNavigationProp } from '@/app/(tabs)/SocialStack';
 
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const PreCreatedWorkoutButton: React.FC = () => {
+    
     const navigation = useNavigation<SocialScreenNavigationProp >();
 
-    const buttonTitles = ['Push Day 1', 'Pull Day 1', 'Back/bis', 'Legs: Glutes/Ham', 'Push (Summer)', 'Pull (Summer)', 'Legs (Summer)', 'Upper Body', 'Push Day 2', 'Pull Day 2'];
+    const buttonTitles = ['Push Day', 'Pull Day', 'Back/bis', 'Glutes/Ham', 'Push (Summer)', 'Pull (Summer)', 'Leg Day', 'Upper Body', 'Core', 'Pull Day 2'];
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             {buttonTitles.map((title, index) => (
                 <TouchableOpacity 
                     key={index}
@@ -27,13 +31,13 @@ const PreCreatedWorkoutButton: React.FC = () => {
                         </Text>
 
                         <View style={styles.textWrapper}>
-                            <Text style={styles.dateText}>last completed: 10/07/2024</Text>
+                            <Text style={styles.dateText}>10/07/2024</Text>
                         </View>
                     </View>
                 </TouchableOpacity>
             ))}
 
-        </View>
+        </SafeAreaView>
     )
 }
 
@@ -41,15 +45,63 @@ const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
     container: {
-        flex:1,
-        flexWrap: 'wrap',
+        flex: 1,
         flexDirection: 'row', 
-        justifyContent: 'center', 
-        gap: 15,
-        width: width,
+        flexWrap: 'wrap',
+        justifyContent: 'space-evenly', 
+        gap: 20,
+        width: '100%',
+        // backgroundColor: 'red'
     },
     button: {
         flexWrap: 'wrap',
+
+        justifyContent: 'center',
+        backgroundColor: '#F2F2F2', 
+        borderWidth: 1,
+        borderColor: '#E2E2E2',
+        padding: 5, 
+        borderRadius: 10,
+        width: screenWidth / 2 -30,
+        height: screenHeight / 5 - 30,
+        // position: 'relative',
+    }, 
+    buttonContent: {
+        flexDirection: 'column', 
+        // position: 'relative',
+        height: '100%',
+        width: '100%',
+        // backgroundColor: 'blue',
+    },
+    text: {
+        textAlign: 'center',
+        color: 'black',
+        fontSize: 20,
+        fontWeight: '500',
+        padding: 10,
+        position: 'absolute',
+        top: -5, 
+        // backgroundColor: 'green',
+        alignSelf: 'center',
+    },
+    textWrapper: {
+        position: 'absolute',
+        bottom: 6, 
+        right: 0, 
+        left: 0,
+        height: '25%', 
+        // alignItems: 'left',
+        // backgroundColor: 'black', 
+        // padding: 10, 
+        // borderRadius: 10, 
+        justifyContent: 'flex-end',
+    }, 
+    dateText: {
+        position: 'relative',
+        color: 'black', 
+        fontSize: 12, 
+        textAlign: 'left',
+
         justifyContent: 'flex-end',
         backgroundColor: 'white', 
         padding: 5, 
@@ -76,6 +128,7 @@ const styles = StyleSheet.create({
     dateText: {
         color: 'black', 
         fontSize: 10, 
+
     },
     // container: {
     //     flexDirection: 'row', 

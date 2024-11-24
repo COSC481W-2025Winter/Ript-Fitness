@@ -374,7 +374,10 @@ function CustomDrawerContent({navigation} : any) {
           navigation.navigate('ApiScreen');
         }}
       >
-        <Text style={styles.drawerItemText}>Settings</Text>
+        <View style={styles.drawerItemTextContainer}>
+          <Ionicons name="settings-outline" size={24} color={'#1E1E1E'} />
+          <Text style={styles.drawerItemText}>Account Settings</Text>
+        </View>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.drawerItem}
@@ -385,7 +388,10 @@ function CustomDrawerContent({navigation} : any) {
           // Perform logout actions
         }}
       >
-        <Text style={styles.drawerItemText}>Logout</Text>
+        <View style={styles.drawerItemTextContainer}>
+          <Ionicons name="log-out-outline" size={24} color={'#1E1E1E'} />
+          <Text style={styles.drawerItemText}>Logout</Text>
+        </View>
       </TouchableOpacity>
     </View>
   );
@@ -494,6 +500,11 @@ const styles = StyleSheet.create({
   },
   drawerItemText: {
     fontSize: 18,
+    paddingLeft: 5,
+  },
+  drawerItemTextContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
   },
   postsContainer: {
   flex:1,
@@ -641,7 +652,7 @@ const styles = StyleSheet.create({
   day: { width: "11.42%", aspectRatio:1, margin: 4, borderRadius: 20, alignItems: 'center', justifyContent:'center' },
   
   activeDay: { backgroundColor: "#63c782" },
-  inactiveDay: { backgroundColor: '#ff2434' },
+  inactiveDay: { backgroundColor: '#F2505D' },
   restDay: { backgroundColor: '#f4d47c' },
   upcomingDay:  { backgroundColor: '#f0ecec', color:'black'},
   dayText: { color: '#fff', fontWeight: 'bold' },

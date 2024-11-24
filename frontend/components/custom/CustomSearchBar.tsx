@@ -23,9 +23,10 @@ const SearchBar = () => {
 
   return (
     <View style={styles.searchContainer}>
-     <Ionicons name="search-outline" size={20} color="grey" style={styles.iconStyle} />
+     <Ionicons name="search-outline" size={20} color="#747474" style={styles.iconStyle} />
       <TextInput
         placeholder="Search"
+        placeholderTextColor={'#747474'}
         style={styles.inputStyle}
         // value={searchQuery}
         // onChangeText={setSearchQuery} // Update the query as user types
@@ -38,20 +39,23 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: 10,
+
+    // borderWidth: 1,
+    borderRadius: 20,
     padding: 10,
-    borderColor: 'grey',
+    // borderColor: 'grey',
     width: '90%',
-    alignSelf: 'center',
-    margin: 10, 
+    // height: '10%',
+    backgroundColor: '#EDEDED',
+
   },
   iconStyle: {
-    marginRight: 10,
+    marginRight: 5,
     marginLeft: 10,
   },
   inputStyle: {
     flex: 1, // Ensures the input takes up the remaining space
+    // color: '#747474',
   },
 });
 
