@@ -7,7 +7,10 @@ import { useNavigation } from "@react-navigation/native"; // Navigation
 import { WorkoutScreenNavigationProp } from '@/app/(tabs)/WorkoutStack';
 
 
+
+
 // structure of a set detail with reps and weight
+
 
 // structure of an exercise with a name and list of sets
 interface Exercise {
@@ -16,7 +19,9 @@ interface Exercise {
   weight: number[]; // Changed from string to number for better type handling
   reps: number[];
 
+
 }
+
 
 export default function StartWorkoutScreen() {
   //  hold all exercises
@@ -36,23 +41,63 @@ export default function StartWorkoutScreen() {
   const httpRequests = {
     getBaseURL: () => "http://ript-fitness-app.azurewebsites.net",
   };
-  
+ 
   console.log(
     "Mapped exercises payload:",
     exercises.map((exercise) => ({
       nameOfExercise: exercise.nameOfExercise,
-	  sets: exercise.sets,
+    sets: exercise.sets,
       weight: exercise.weight,
     }))
   );
+  const addNote = async () => {
+    if (!noteText) {
+      Alert.alert("FYI!", "Reminder you can add a note!");
+      return;
+    }
   
+    try {
+      const notePayload = {
+        title: workoutName || "Untitled Workout",
+        description: noteText,
+      };
   
+      const response = await fetch(
+        "http://ript-fitness-app.azurewebsites.net/note/addNote",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${context?.data.token}`, // Add the token from context
+          },
+          body: JSON.stringify(notePayload),
+        }
+      );
+  
+      if (!response.ok) {
+        throw new Error(`Failed to add note: ${response.statusText}`);
+      }
+  
+      console.log("Note added successfully");
+      Alert.alert("Success", "Note saved successfully!");
+  
+      // Clear the note input after submission
+      setNoteText("");
+  
+      // Optionally, navigate to MyNotesScreen if needed
+      navigation.navigate("MyNotesScreen", {});
+    } catch (error) {
+      console.error("Error adding note:", error);
+      Alert.alert("Error", "Failed to save note. Please try again.");
+    }
+  };
   const submitWorkout = async () => {
     try {
-      setSubmitting(true); // Indicate submission is in progress
-      const WorkoutExercises: number[] = []; // Array to hold exercise IDs
+      setSubmitting(true);
   
-      // Submit each exercise to the backend
+      // Submit exercises logic here (already in your code)
+      const WorkoutExercises: number[] = [];
+  
       for (let i = 0; i < exercises.length; i++) {
         const currentExercise = {
           sets: exercises[i].sets,
@@ -64,7 +109,6 @@ export default function StartWorkoutScreen() {
         };
   
         try {
-          console.log("Submitting exercise:", JSON.stringify(currentExercise));
           const response = await fetch(
             `${httpRequests.getBaseURL()}/exercises/addExercise`,
             {
@@ -82,21 +126,18 @@ export default function StartWorkoutScreen() {
           }
   
           const json = await response.json();
-          console.log("Exercise added successfully:", json);
           WorkoutExercises.push(json.exerciseId);
         } catch (error) {
           console.error("Failed to add exercise:", error);
         }
       }
   
-      // Submit the workout to the backend
+      // Submit the workout
       const workoutPayload = {
         name: workoutName || "Untitled Workout",
         exerciseIds: WorkoutExercises,
         isDeleted: false,
       };
-  
-      console.log("Submitting workout payload:", workoutPayload);
   
       const workoutResponse = await fetch(
         `${httpRequests.getBaseURL()}/workouts/addWorkout`,
@@ -115,24 +156,27 @@ export default function StartWorkoutScreen() {
       }
   
       const workoutJson = await workoutResponse.json();
-      console.log("Workout added successfully:", workoutJson);
   
-      // Update GlobalContext with the new workout
+      // Add workout to context
       context.addWorkout({ ...workoutJson, exercises: [] });
+  
+      // Save the note
+      await addNote();
   
       // Reset the form and navigate
       setWorkoutName("");
       setExercises([]);
-      Alert.alert("Success", "Workout added successfully!");
+      Alert.alert("Success", "Workout and note added successfully!");
       navigation.navigate("MyWorkoutsScreen", {});
     } catch (error) {
       console.error("Error submitting workout:", error);
+      Alert.alert("Error", "Failed to submit workout. Please try again.");
     } finally {
       setSubmitting(false);
     }
   };
   
-  
+ 
   // add a new exercise
   const addExercise = () => {
     if (newExerciseName) {
@@ -146,8 +190,9 @@ export default function StartWorkoutScreen() {
       setNewExerciseName("");
     }
   };
-  
-  
+ 
+ 
+
 
   // Add a new set to an existing exercise
   const addSetToExercise = (index: number) => {
@@ -164,10 +209,11 @@ export default function StartWorkoutScreen() {
       )
     );
   };
-  
-  
-  
-  
+ 
+ 
+ 
+ 
+
 
  // Show a confirmation before deleting an exercise
 const confirmDeleteExercise = (exerciseIndex: number) => {
@@ -185,11 +231,12 @@ const confirmDeleteExercise = (exerciseIndex: number) => {
   );
 };
 
+
   // Remove an exercise by ID
   const removeExercise = (index: number) => {
     setExercises(exercises.filter((_, i) => i !== index));
   };
-  
+ 
   // Show a confirmation  before deleting a set within an exercise
   const confirmDeleteSet = (exerciseIndex: number, setIndex: number) => {
     Alert.alert(
@@ -205,7 +252,8 @@ const confirmDeleteExercise = (exerciseIndex: number) => {
       ]
     );
   };
-  
+ 
+
 
   // Remove a set from an exercise based on index
   const removeSetFromExercise = (exerciseIndex: number, setIndex: number) => {
@@ -222,7 +270,8 @@ const confirmDeleteExercise = (exerciseIndex: number) => {
       )
     );
   };
-  
+ 
+
 
   //  editing an exercise name
   const handleEditName = (exerciseIndex: number) => {
@@ -230,7 +279,7 @@ const confirmDeleteExercise = (exerciseIndex: number) => {
     setEditingExerciseId(exerciseIndex.toString()); // Use the index as a temporary identifier
     setTemporaryName(selectedExercise.nameOfExercise); // Set the current name to be edited
   };
-  
+ 
   // Save the edited exercise name and reset editing state
   const saveNameEdit = (exerciseIndex: number) => {
     setExercises(exercises.map((exercise, index) =>
@@ -262,12 +311,12 @@ const confirmDeleteExercise = (exerciseIndex: number) => {
               autoFocus
             />
           ) : (
-            <TouchableOpacity onPress={() => handleEditName(index)}> 
+            <TouchableOpacity onPress={() => handleEditName(index)}>
               <Text style={styles.exerciseTitleText}>{item.nameOfExercise}</Text>
             </TouchableOpacity>
           )}
         </View>
-  
+ 
         {/* Render each set for the exercise */}
         {Array.from({ length: item.sets }).map((_, setIndex) => (
           <View key={setIndex} style={styles.setContainer}>
@@ -294,7 +343,7 @@ const confirmDeleteExercise = (exerciseIndex: number) => {
                   keyboardType="numeric"
                 />
               </View>
-  
+ 
               {/* Input for reps */}
               <View style={styles.setInputContainer}>
                 <Text style={styles.inputLabel}>Reps</Text>
@@ -316,7 +365,7 @@ const confirmDeleteExercise = (exerciseIndex: number) => {
                   keyboardType="numeric"
                 />
               </View>
-  
+ 
               {/* Delete set button */}
               <TouchableOpacity
                 onPress={() => confirmDeleteSet(index, setIndex)} // Pass both exercise index and set index
@@ -327,7 +376,7 @@ const confirmDeleteExercise = (exerciseIndex: number) => {
             </View>
           </View>
         ))}
-  
+ 
         {/* Add set button */}
         <TouchableOpacity
           onPress={() => addSetToExercise(index)} // Pass the index to add a set
@@ -340,6 +389,7 @@ const confirmDeleteExercise = (exerciseIndex: number) => {
     </Swipeable>
   );
  
+
 
 const styles = StyleSheet.create({
   // the entire screen
@@ -500,7 +550,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderRadius: 8,
   },
-  
+ 
   closeButton: {
     backgroundColor: '#FF6347',
     padding: 10,
@@ -521,13 +571,14 @@ return (
         Notes: {noteText ? noteText.slice(0, 20) + "..." : "Add notes here"}
       </Text>
     </TouchableOpacity>
-    
+   
     <TextInput
       style={styles.workoutNameInput}
       placeholder="Enter Workout Name"
       value={workoutName}
-      onChangeText={setWorkoutName} 
+      onChangeText={setWorkoutName}
     />
+
 
     {/* Notes modal */}
     <Modal
@@ -553,6 +604,7 @@ return (
       </View>
     </Modal>
 
+
     {/* Input for new exercise name */}
     <TextInput
       style={styles.exerciseNameInput}
@@ -566,6 +618,7 @@ return (
       <Ionicons name="add-circle-outline" size={20} color="white" />
     </TouchableOpacity>
 
+
     {/* Exercise list */}
     <FlatList
       data={exercises}
@@ -573,9 +626,13 @@ return (
       renderItem={renderExercise} // Use the updated renderExercise function
     />
 
+
     {/* Submit button */}
     <TouchableOpacity style={styles.submitButton} onPress={submitWorkout}>
       <Text style={styles.submitButtonText}>Submit</Text>
     </TouchableOpacity>
   </View>
 )};
+
+
+

@@ -2,16 +2,21 @@ import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
+
+
 // Define the structure of your global data
 export interface GlobalData {
   token: string;
 }
 
+
 export interface Workout {
-  id: number;
+  id: number; // Optional, as it will be mapped from workoutsId
   name: string;
-  exercises: Exercise[]; // List of exercise details directly fetched
+  exercises: Exercise[];
+  isDeleted?: boolean;
 }
+
 
 export interface Exercise {
   exerciseId: number;
@@ -21,9 +26,11 @@ export interface Exercise {
   weight: number[];
   description: string;
   exerciseType: number;
-  isDeleted?: boolean; 
+  isDeleted?: boolean;
+
 
 }
+
 
 interface GlobalContextType {
   data: GlobalData;
@@ -31,16 +38,18 @@ interface GlobalContextType {
   isLoaded: boolean;
   loadInitialData: () => void;
   setToken: (token: string) => void;
-  
+ 
   workouts: Workout[];
   fetchWorkouts: () => Promise<void>;
   addWorkout: (workout: Workout) => void;
-  updateWorkout: (updatedWorkout: Workout) => void; 
+  updateWorkout: (updatedWorkout: Workout) => void;
+
 
 }
 const httpRequests = {
   getBaseURL: () => "http://ript-fitness-app.azurewebsites.net",
 };
+
 
 const defaultGlobalContext: GlobalContextType = {
   data: { token: '' },
@@ -48,31 +57,42 @@ const defaultGlobalContext: GlobalContextType = {
   isLoaded: false,
   loadInitialData: () => {},
   setToken: () => {},
- 
+
+
   workouts: [],
   fetchWorkouts: async () => {},
   addWorkout: () => {},
   updateWorkout: () => {}, // Default no-op
 
+
 };
 
 
+
+
 export const GlobalContext = createContext<GlobalContextType>(defaultGlobalContext);
+
 
 interface GlobalProviderProps {
   children: ReactNode;
 }
 
+
 export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
+
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [data, setData] = useState<GlobalData>({ token: '' });
   const [workouts, setWorkouts] = useState<Workout[]>([]);
 
 
+
+
   const updateGlobalData = (updatedData: GlobalData) => {
     setData(updatedData);
   };
+
+
 
 
   const setToken = async (token: string) => {
@@ -92,9 +112,11 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
     );
   };
 
+
   const fetchWorkouts = async () => {
     try {
       console.log("Fetching workouts with token:", data.token);
+
 
       const response = await fetch(`${httpRequests.getBaseURL()}/workouts/getUsersWorkouts`, {
         method: "GET",
@@ -103,12 +125,15 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         },
       });
 
+
       if (!response.ok) {
         throw new Error(`Failed to fetch workouts: ${response.statusText}`);
       }
 
+
       const fetchedWorkouts: Workout[] = await response.json();
       console.log("Fetched workouts:", fetchedWorkouts);
+
 
       setWorkouts(fetchedWorkouts); // Update the state with fetched workouts
     } catch (error) {
@@ -120,49 +145,19 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
     setWorkouts((prevWorkouts) => [...prevWorkouts, workout]);
   };
 
-  const addExerciseToWorkout = async (workoutId: number, exercise: Exercise) => {
-    try {
-      console.log("Adding exercise to workout:", { workoutId, exercise });
 
-      // Call backend to add the exercise
-      const response = await fetch(`${httpRequests.getBaseURL()}/exercises/addExercise`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${data.token}`,
-        },
-        body: JSON.stringify(exercise),
-      });
 
-      if (!response.ok) {
-        throw new Error(`Failed to add exercise: ${response.statusText}`);
-      }
-
-      const addedExercise = await response.json();
-      console.log("Exercise added successfully:", addedExercise);
-
-      // Update the global state with the new exercise
-      setWorkouts((prevWorkouts) =>
-        prevWorkouts.map((workout) =>
-          workout.id === workoutId
-            ? { ...workout, exercises: [...workout.exercises, addedExercise] }
-            : workout
-        )
-      );
-    } catch (error) {
-      console.error("Error adding exercise to workout:", error);
-    }
-  };
 
   // Track changes to `data` and log the new value
   useEffect(() => {
     console.log("Updated token:", data.token);
   }, [data]); // Run whenever `data` changes
 
+
   const loadInitialData = async () => {
     try {
       console.log("Loading initial data...");
-      
+     
       // Simulated or real initial loading functions
       const loadInitialBodyData = async () => {
         console.log("Loading body data...");
@@ -170,27 +165,27 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         console.log("Body data loaded.");
       };
-  
+ 
       const loadInitialProfileData = async () => {
         console.log("Loading profile data...");
         // Simulate delay or real API calls here
         await new Promise((resolve) => setTimeout(resolve, 1000));
         console.log("Profile data loaded.");
       };
-  
+ 
       const loadInitialSocialData = async () => {
         console.log("Loading social data...");
         // Simulate delay or real API calls here
         await new Promise((resolve) => setTimeout(resolve, 1000));
         console.log("Social data loaded.");
       };
-  
+ 
       const loadInitialWorkoutData = async () => {
         console.log("Loading workout data...");
         await fetchWorkouts(); // Ensure workouts are fetched
         console.log("Workout data loaded.");
       };
-  
+ 
       // Execute all loading tasks in parallel
       await Promise.all([
         loadInitialBodyData(),
@@ -198,7 +193,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         loadInitialSocialData(),
         loadInitialWorkoutData(),
       ]);
-  
+ 
       console.log("All initial data loaded.");
       setIsLoaded(true); // Indicate that the data is loaded
     } catch (error) {
@@ -206,7 +201,9 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
     }
   };
 
+
   return (
+
 
     <GlobalContext.Provider
       value={{
@@ -222,7 +219,9 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
       }}
     >
 
+
       {children}
     </GlobalContext.Provider>
   );
 };
+
