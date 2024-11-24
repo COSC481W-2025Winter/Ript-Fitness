@@ -40,7 +40,7 @@ public class SecurityConfig {
         } else {
             http.csrf(csrf -> csrf.disable())  // Disable CSRF for simplicity
                 .authorizeRequests(requests -> requests
-                    .requestMatchers("/accounts/createNewAccount", "/accounts/login").permitAll()  // Permit unauthenticated access to these endpoints
+                    .requestMatchers("/accounts/createNewAccount", "/accounts/login", "/api/token/validate").permitAll()  // Permit unauthenticated access to these endpoints
                     .anyRequest().authenticated()  // All other requests require authentication
                 )
                 .addFilterBefore(jwtRequestFilter(), UsernamePasswordAuthenticationFilter.class);  // Add JWT filter before UsernamePasswordAuthenticationFilter

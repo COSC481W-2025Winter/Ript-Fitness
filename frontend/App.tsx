@@ -22,6 +22,7 @@ import { SocialFeedProvider } from './context/SocialFeedContext';
 
 import { NotesProvider } from './components/MyNotes/NotesContext';
 import { WorkoutProvider } from './context/WorkoutContext';
+import FoodLogScreen from './app/screens/foodlog/FoodLog';
 
 
 // Define types for the navigation stack
@@ -66,12 +67,13 @@ function MainApp() {
         }}
       />
       <Tab.Screen 
-        name="Body" 
+        name="Food" 
         component={BodyStack} 
         options={{
           tabBarIcon: ({ focused, size, color }) => (
-            <Ionicons name={focused ? 'body' : 'body-outline'} size={size} color={color}/>
+            <Ionicons name={focused ? 'nutrition' : 'nutrition-outline'} size={size} color={color}/>
           ),
+          headerShown: false,
         }}
       />
       <Tab.Screen 
