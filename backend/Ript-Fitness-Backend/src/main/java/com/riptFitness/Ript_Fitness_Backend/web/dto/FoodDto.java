@@ -4,7 +4,6 @@ package com.riptFitness.Ript_Fitness_Backend.web.dto;
 public class FoodDto {
 
 	public Long id;	
-	public Long accountId;
 	public String name;
 	public double calories;
 	public double carbs;
