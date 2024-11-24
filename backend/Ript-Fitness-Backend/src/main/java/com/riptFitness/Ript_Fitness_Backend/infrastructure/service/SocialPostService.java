@@ -59,7 +59,7 @@ public class SocialPostService {
 		return SocialPostMapper.INSTANCE.toSocialPostDto(returnedSocialPostObject);
 	}
 	
-	public ArrayList<SocialPostDto> getPostsFromAccountId(Integer startIndex, Integer endIndex){
+	public ArrayList<SocialPostDto> getPostsFromCurrentlyLoggedInUser(Integer startIndex, Integer endIndex){
 		if(startIndex > endIndex)
 			throw new RuntimeException("Start index cannot be greater than end index. Start index = " + startIndex + ", end index = " + endIndex);
 		
@@ -69,6 +69,41 @@ public class SocialPostService {
 		Long currentUsersAccountId = accountsService.getLoggedInUserId();
 		
 		Optional<ArrayList<SocialPost>> optionalPostsFromAccountId = socialPostRepository.getPostsFromAccountId(currentUsersAccountId);
+		
+		if(optionalPostsFromAccountId.isEmpty())
+			return new ArrayList<SocialPostDto>();
+		
+		ArrayList<SocialPost> postsFromAccountId = optionalPostsFromAccountId.get();
+		
+		int start = postsFromAccountId.size() - startIndex - 1;
+		int end = postsFromAccountId.size() - endIndex - 1;
+		
+		if(start < 0)
+			throw new RuntimeException("There are not enough posts from the current user to match the path variables provided.");
+		
+		if(start >= postsFromAccountId.size()) 
+			start = postsFromAccountId.size() - 1;
+		
+		if(end < 0)
+			end = 0;
+		
+		ArrayList<SocialPostDto> postDtosFromAccountId = new ArrayList<SocialPostDto>();
+				
+		for(int i = start; i >= end; i--) {
+			postDtosFromAccountId.add(SocialPostMapper.INSTANCE.toSocialPostDto(postsFromAccountId.get(i)));
+		}
+		
+		return postDtosFromAccountId;
+	}
+	
+	public ArrayList<SocialPostDto> getPostsFromAccountId(Long accountId, Integer startIndex, Integer endIndex){
+		if(startIndex > endIndex)
+			throw new RuntimeException("Start index cannot be greater than end index. Start index = " + startIndex + ", end index = " + endIndex);
+		
+		if(startIndex < 0 || endIndex < 0)
+			throw new RuntimeException("Start index and end index must be greater than 0. Start index = " + startIndex + ", end index = " + endIndex);
+		
+		Optional<ArrayList<SocialPost>> optionalPostsFromAccountId = socialPostRepository.getPostsFromAccountId(accountId);
 		
 		if(optionalPostsFromAccountId.isEmpty())
 			return new ArrayList<SocialPostDto>();

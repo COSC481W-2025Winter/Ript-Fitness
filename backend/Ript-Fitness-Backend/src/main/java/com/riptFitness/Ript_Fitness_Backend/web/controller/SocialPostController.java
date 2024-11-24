@@ -39,9 +39,15 @@ public class SocialPostController {
 		return new ResponseEntity<>(returnedSocialPostObject, HttpStatus.OK);
 	}
 	
-	@GetMapping("/getPostsFromAccountId/{startIndex}/{endIndex}")
-	public ResponseEntity<ArrayList<SocialPostDto>> getPostsFromAccountId(@PathVariable Integer startIndex, @PathVariable Integer endIndex){
-		ArrayList<SocialPostDto> returnedListOfPosts = socialPostService.getPostsFromAccountId(startIndex, endIndex);
+	@GetMapping("/getPostsFromCurrentlyLoggedInUser/{startIndex}/{endIndex}")
+	public ResponseEntity<ArrayList<SocialPostDto>> getPostsFromCurrentlyLoggedInUser(@PathVariable Integer startIndex, @PathVariable Integer endIndex){
+		ArrayList<SocialPostDto> returnedListOfPosts = socialPostService.getPostsFromCurrentlyLoggedInUser(startIndex, endIndex);
+		return new ResponseEntity<>(returnedListOfPosts, HttpStatus.OK);
+	}
+	
+	@GetMapping("/getPostsFromAccountId/{accountId}/{startIndex}/{endIndex}")
+	public ResponseEntity<ArrayList<SocialPostDto>> getPostsFromAccountId(@PathVariable Long accountId, @PathVariable Integer startIndex, @PathVariable Integer endIndex){
+		ArrayList<SocialPostDto> returnedListOfPosts = socialPostService.getPostsFromAccountId(accountId, startIndex, endIndex);
 		return new ResponseEntity<>(returnedListOfPosts, HttpStatus.OK);
 	}
 	

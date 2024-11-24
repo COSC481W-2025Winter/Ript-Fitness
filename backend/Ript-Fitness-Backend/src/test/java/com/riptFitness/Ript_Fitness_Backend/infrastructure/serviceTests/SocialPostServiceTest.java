@@ -137,7 +137,7 @@ public class SocialPostServiceTest {
 		when(accountsService.getLoggedInUserId()).thenReturn(1L);
 		when(socialPostRepository.getPostsFromAccountId(1L)).thenReturn(Optional.of(socialPosts));
 		
-		ArrayList<SocialPostDto> result = socialPostService.getPostsFromAccountId(0, 1);
+		ArrayList<SocialPostDto> result = socialPostService.getPostsFromCurrentlyLoggedInUser(0, 1);
 		
 		assertNotNull(result);
 		assertEquals(result.size(), 1);
