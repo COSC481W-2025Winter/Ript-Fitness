@@ -23,7 +23,7 @@ export default function WorkoutDetailScreen() {
 
       <FlatList
         data={workout.exercises}
-        keyExtractor={(index) => index.toString()}
+        keyExtractor={(_, index) => index.toString()}
         renderItem={({ item }) => (
           <View style={styles.exercise}>
             <Text style={styles.exerciseName}>{item.exercise}</Text>
