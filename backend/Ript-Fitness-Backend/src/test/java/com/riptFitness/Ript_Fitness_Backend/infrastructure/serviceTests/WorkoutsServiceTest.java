@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.riptFitness.Ript_Fitness_Backend.domain.mapper.WorkoutsMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.ExerciseModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Workouts;
@@ -47,6 +49,9 @@ public class WorkoutsServiceTest {
 
     @InjectMocks
     private WorkoutsService workoutsService;
+    
+    @Mock
+    private WorkoutsMapper workoutsMapper; // Add this mock
 
     private WorkoutsDto workoutDto;
     private WorkoutsDto workoutDto2;
@@ -115,6 +120,24 @@ public class WorkoutsServiceTest {
 
     @Test
     public void testAddWorkout() {
+        // Create and set up the account
+        AccountsModel account = new AccountsModel();
+        account.setId(1L);
+        account.setUsername("testUser");
+        // ... set other necessary fields
+
+        // Create and set up the exercise
+        ExerciseModel exercise = new ExerciseModel();
+        exercise.setExerciseId(1L);
+        exercise.setNameOfExercise("Test Exercise");
+        exercise.setAccount(account); // Set the account
+        // ... set other necessary fields
+
+        // Create and set up the workout DTO
+        WorkoutsDto workoutDto = new WorkoutsDto();
+        workoutDto.setName("Test Workout");
+        workoutDto.setExerciseIds(Arrays.asList(1L));
+
         // Mock dependencies
         when(accountsService.getLoggedInUserId()).thenReturn(1L);
         when(accountsRepository.findById(1L)).thenReturn(Optional.of(account));
@@ -124,30 +147,54 @@ public class WorkoutsServiceTest {
             savedWorkout.workoutsId = (1L); // Simulate auto-generated ID
             return savedWorkout;
         });
-        when(workoutsRepository.findById(1L)).thenReturn(Optional.of(workout));
-        
+
         // Call the service method
         WorkoutsDto result = workoutsService.addWorkout(workoutDto);
-        
+
         // Assertions
         assertNotNull(result);
         assertEquals("Test Workout", result.getName());
-        assertNotNull(result.getExerciseIds());
-        assertEquals(1, result.getExerciseIds().size());
-        assertEquals(1L, result.getExerciseIds().get(0));
+        assertNotNull(result.getExercises());
+        assertEquals(1, result.getExercises().size());
+        assertEquals(1L, result.getExercises().get(0).getExerciseId());
     }
+
 
     @Test
     public void testGetWorkoutById() {
+        // Create and set up the account
+        AccountsModel account = new AccountsModel();
+        account.setId(1L);
+        account.setUsername("testUser");
+        // ... set other necessary fields
+
+        // Create and set up the exercise
+        ExerciseModel exercise = new ExerciseModel();
+        exercise.setExerciseId(1L);
+        exercise.setNameOfExercise("Test Exercise");
+        exercise.setAccount(account);
+
+        // Create and set up the workout
+        Workouts workout = new Workouts();
+        workout.workoutsId = (1L);
+        workout.setName("Test Workout");
+        workout.setAccount(account);
+        workout.setExercises(Arrays.asList(exercise));
+
+        // Mock dependencies
         when(workoutsRepository.findById(1L)).thenReturn(Optional.of(workout));
 
+        // Call the service method
         WorkoutsDto result = workoutsService.getWorkout(1L);
+
+        // Assertions
         assertNotNull(result);
         assertEquals("Test Workout", result.getName());
-        assertNotNull(result.getExerciseIds());
-        assertEquals(1, result.getExerciseIds().size());
-        assertEquals(1L, result.getExerciseIds().get(0));
+        assertNotNull(result.getExercises());
+        assertEquals(1, result.getExercises().size());
+        assertEquals(1L, result.getExercises().get(0).getExerciseId());
     }
+
 
     @Test
     public void testGetWorkoutByInvalidId() {
@@ -190,13 +237,97 @@ public class WorkoutsServiceTest {
     
     @Test
     public void testUpdateWorkoutValid() {
-        when(workoutsRepository.findById(1L)).thenReturn(Optional.of(workout));
+        // Set up current user ID
+        Long currentUserId = 1L;
+        when(accountsService.getLoggedInUserId()).thenReturn(currentUserId);
+
+        // Set up account
+        AccountsModel account = new AccountsModel();
+        account.setId(currentUserId);
+        account.setUsername("testUser");
+
+        // Set up existing exercises associated with the workout
+        ExerciseModel oldExercise1 = new ExerciseModel();
+        oldExercise1.setExerciseId(10L);
+        oldExercise1.setNameOfExercise("Old Exercise 1");
+        oldExercise1.setAccount(account);
+
+        ExerciseModel oldExercise2 = new ExerciseModel();
+        oldExercise2.setExerciseId(11L);
+        oldExercise2.setNameOfExercise("Old Exercise 2");
+        oldExercise2.setAccount(account);
+
+        // Set up existing workout with old exercises
+        Workouts existingWorkout = new Workouts();
+        existingWorkout.workoutsId = (1L);
+        existingWorkout.setName("Old Workout Name");
+        existingWorkout.setAccount(account);
+        existingWorkout.setExercises(Arrays.asList(oldExercise1, oldExercise2));
+
+        // Set up new exercises to update the workout with
+        ExerciseModel newExercise1 = new ExerciseModel();
+        newExercise1.setExerciseId(1L);
+        newExercise1.setNameOfExercise("New Exercise 1");
+        newExercise1.setAccount(account);
+
+        ExerciseModel newExercise2 = new ExerciseModel();
+        newExercise2.setExerciseId(2L);
+        newExercise2.setNameOfExercise("New Exercise 2");
+        newExercise2.setAccount(account);
+
+        ExerciseModel newExercise3 = new ExerciseModel();
+        newExercise3.setExerciseId(3L);
+        newExercise3.setNameOfExercise("New Exercise 3");
+        newExercise3.setAccount(account);
+
+        // Mock the exercise repository to return new exercises when their IDs are fetched
+        when(exerciseRepository.findById(1L)).thenReturn(Optional.of(newExercise1));
+        when(exerciseRepository.findById(2L)).thenReturn(Optional.of(newExercise2));
+        when(exerciseRepository.findById(3L)).thenReturn(Optional.of(newExercise3));
+
+        // Set up WorkoutsDto with the new name and exercise IDs
+        WorkoutsDto workoutDto = new WorkoutsDto();
+        workoutDto.setName("Updated Workout Name");
+        workoutDto.setExerciseIds(Arrays.asList(1L, 2L, 3L));
+
+        // Mock the workouts repository to return the existing workout when fetched by ID
+        when(workoutsRepository.findById(1L)).thenReturn(Optional.of(existingWorkout));
+
+        // Mock the workouts repository save method to return the updated workout
         when(workoutsRepository.save(any(Workouts.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
+        // Mock the workouts mapper to map the updated workout to a WorkoutsDto
+        when(workoutsMapper.toWorkoutsDto(any(Workouts.class))).thenAnswer(invocation -> {
+            Workouts updatedWorkout = invocation.getArgument(0);
+            WorkoutsDto dto = new WorkoutsDto();
+            dto.setWorkoutsId(updatedWorkout.workoutsId);
+            dto.setName(updatedWorkout.getName());
+            dto.setExercises(updatedWorkout.getExercises().stream()
+                .map(exerciseModel -> {
+                    ExerciseDto exerciseDto = new ExerciseDto();
+                    exerciseDto.setExerciseId(exerciseModel.getExerciseId());
+                    exerciseDto.setNameOfExercise(exerciseModel.getNameOfExercise());
+                    return exerciseDto;
+                })
+                .collect(Collectors.toList()));
+            return dto;
+        });
+
+        // Call the updateWorkout method
         WorkoutsDto result = workoutsService.updateWorkout(1L, workoutDto);
+
+        // Assertions
         assertNotNull(result);
-        assertEquals("Test Workout", result.getName());
+        assertEquals("Updated Workout Name", result.getName());
+        assertNotNull(result.getExercises());
+        assertEquals(3, result.getExercises().size());
+
+        List<Long> exerciseIds = result.getExercises().stream()
+            .map(ExerciseDto::getExerciseId)
+            .collect(Collectors.toList());
+        assertTrue(exerciseIds.containsAll(Arrays.asList(1L, 2L, 3L)));
     }
+
     
     @Test
     public void testUpdateWorkoutInvalid() {

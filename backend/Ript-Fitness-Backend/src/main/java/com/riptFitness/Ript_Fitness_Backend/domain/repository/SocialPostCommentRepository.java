@@ -15,6 +15,9 @@ public interface SocialPostCommentRepository extends JpaRepository <SocialPostCo
 	@Query("SELECT s FROM SocialPostComment s WHERE s.id = :id AND s.isDeleted = false")
 	Optional<SocialPostComment> findById(@Param("id") Long id);
 
-	@Query("SELECT s.id FROM SocialPostComment s WHERE s.accountId = :accountId AND s.isDeleted = false")
-	Optional<ArrayList<Long>> getPostsFromAccountId(@Param("accountId") Long accountId);
+	/*
+	Query is currently not used as the endpoint using it has been deprecated
+	@Query("SELECT s FROM SocialPostComment s WHERE s.account.id = :accountId AND s.isDeleted = false")
+	Optional<ArrayList<SocialPostComment>> getPostsFromAccountId(@Param("accountId") Long accountId);
+	*/
 }

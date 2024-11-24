@@ -2,6 +2,8 @@ package com.riptFitness.Ript_Fitness_Backend.web.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,8 +39,19 @@ public class AccountsController {
 	    return new ResponseEntity<>(token, HttpStatus.OK);
 	}
 
+	// Update password:
+	@PutMapping("/changePassword/{currentPassword}/{newPassword}")
+	public ResponseEntity<String> changePassword(@PathVariable String currentPassword, @PathVariable String newPassword) {
+		String token = accountsService.changePassword(currentPassword, newPassword);
+		return new ResponseEntity<>(token, HttpStatus.OK);
+	}
 	
-	
+	// get email:
+	@PutMapping("/updateEmail/{newEmail}")
+	public ResponseEntity<String> updateEmail(@PathVariable String newEmail) {
+		String updatedEmail = accountsService.updateEmail(newEmail);
+		return new ResponseEntity<>(updatedEmail, HttpStatus.OK);
+	}
 	
 }
 

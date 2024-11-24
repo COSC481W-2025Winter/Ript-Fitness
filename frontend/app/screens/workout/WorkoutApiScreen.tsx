@@ -34,7 +34,7 @@ export default function WorkoutApiScreen() {
       </TouchableOpacity>
 
       {/* Ript Workouts */}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('RiptWorkoutScreen', { })}  >
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ApiScreen', { })}  >
         <Text style={styles.buttonText}>Ript Workouts</Text>
         <Ionicons name="barbell-outline" size={30} color="black" />
       </TouchableOpacity>

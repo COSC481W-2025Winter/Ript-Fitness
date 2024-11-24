@@ -6,9 +6,9 @@ import java.util.List;
 public class SocialPostDto {
 
 	public Long id;
-	
-	public Long accountId;
-    
+		
+    public UserDto userProfile;
+	    
     public String content;
     
     public int numberOfLikes;

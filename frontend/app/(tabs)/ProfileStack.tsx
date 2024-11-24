@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 
 import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
 import { ProfileProvider } from '@/context/ProfileContext';
-import ProfileScreen from '@/app/screens/ProfileScreen';
+import ProfileScreen from '@/app/screens/profile/ProfileScreen';
 import GraphScreen from '@/app/screens/profile/GraphScreen';
 
 export type ProfileStackParamList = {
