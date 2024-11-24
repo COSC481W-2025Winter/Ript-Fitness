@@ -65,11 +65,11 @@ function MainApp() {
         }}
       />
       <Tab.Screen 
-        name="Body" 
+        name="Food" 
         component={BodyStack} 
         options={{
           tabBarIcon: ({ focused, size, color }) => (
-            <Ionicons name={focused ? 'body' : 'body-outline'} size={size} color={color}/>
+            <Ionicons name={focused ? 'nutrition' : 'nutrition-outline'} size={size} color={color}/>
           ),
         }}
       />
