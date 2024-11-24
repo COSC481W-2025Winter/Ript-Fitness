@@ -5,9 +5,9 @@ import { createStackNavigator, StackNavigationProp, HeaderStyleInterpolators } f
 import ApiScreen from '@/app/screens/ApiScreen';
 import MyWorkoutsScreen from '@/app/screens/workout/MyWorkoutsScreen';
 import WorkoutApiScreen from '@/app/screens/workout/WorkoutApiScreen';
-import { WorkoutProvider } from '@/context/WorkoutContext';
+import { WorkoutContext, WorkoutProvider } from '@/context/WorkoutContext';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import AddWorkoutScreen from '../screens/workout/AddWorkoutScreen';
+import {AddWorkoutScreen} from '../screens/workout/AddWorkoutScreen'
 import StartWorkoutScreen from '@/app/screens/workout/StartWorkoutScreen';
 import RiptWorkoutScreen from '@/app/screens/riptworkouts/RiptWorkoutScreen';
 import WorkoutDetailScreen from '@/app/screens/riptworkouts/WorkoutDetailScreen';
@@ -17,6 +17,7 @@ import StreakCounter from '@/components/StreakCounter';
 import MyNotesScreen from '@/app/screens/notes/MyNotesScreen';
 import EditNoteScreen from '@/app/screens/notes/EditNoteScreen';
 import { Note } from '@/components/MyNotes/NotesContext';
+import { useContext } from 'react';
 import { Workout } from '../screens/riptworkouts/RiptWorkouts';
 
 
@@ -39,17 +40,17 @@ export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamL
 
 export default function WorkoutStack(props : any) {
   const navigation = useNavigation<WorkoutScreenNavigationProp >();
+  const context = useContext(WorkoutContext)
   return (
-    <WorkoutProvider>
 
     <Stack.Navigator initialRouteName="WorkoutApiScreen" screenOptions={{ 
       headerShown: true,
       headerStyleInterpolator: HeaderStyleInterpolators.forNoAnimation,
     }}>
-      <Stack.Screen name="WorkoutApiScreen" component={WorkoutApiScreen} options={{ headerShown: true }}/>
-      <Stack.Screen name="ApiScreen" component={ApiScreen} options={{
+      <Stack.Screen name="WorkoutApiScreen" component={WorkoutApiScreen} options={{ headerShown: true,
         headerRight: () => <StreakCounter />,
-      }} />
+       }}/>
+      <Stack.Screen name="ApiScreen" component={ApiScreen} options={{   }} />
       <Stack.Screen name="StartWorkoutScreen" component={StartWorkoutScreen} options={{
         headerRight: () => <StreakCounter />,
       }} />
@@ -120,9 +121,11 @@ export default function WorkoutStack(props : any) {
         //   </View>
         // ),
         // <Svg ... /> commented out
+
+        //Add button - add a workout
         headerRight: () => (
           <TouchableOpacity
-            onPress={() => { navigation.navigate("ApiScreen", {}) }}
+            onPress={() => { context?.setVisible(true) }}
             style={[styles.rightButton, styles.button, styles.buttonSize]}
           >
             <TabBarIcon name='add-outline' size={30} color='#454343' />
@@ -164,7 +167,6 @@ export default function WorkoutStack(props : any) {
 
       */}
     </Stack.Navigator>
-    </WorkoutProvider>
   );
 }
 

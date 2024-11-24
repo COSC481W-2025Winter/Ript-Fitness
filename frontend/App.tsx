@@ -21,6 +21,7 @@ import SignupScreen from '@/app/screens/welcome/SignupScreen';
 import { SocialFeedProvider } from './context/SocialFeedContext';
 
 import { NotesProvider } from './components/MyNotes/NotesContext';
+import { WorkoutProvider } from './context/WorkoutContext';
 import FoodLogScreen from './app/screens/foodlog/FoodLog';
 
 
@@ -144,12 +145,14 @@ export default function App() {
       <StreakProvider>
         <NotesProvider>
         <SocialFeedProvider>
+        <WorkoutProvider>
         <>
           <StatusBar barStyle="default" />
           <NavigationContainer>
             <RootNavigator />
           </NavigationContainer>
         </>
+        </WorkoutProvider>
         </SocialFeedProvider>
           </NotesProvider>
 
