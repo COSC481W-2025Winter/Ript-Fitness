@@ -63,6 +63,7 @@ const Tab = createBottomTabNavigator();
 
 function MainApp() {
   const context = useContext(GlobalContext)
+
   if (context?.additionalLoadingRequired) {
     return (<SplashScreen/>)
   }
@@ -182,6 +183,7 @@ function RootNavigator() {
 
 export default function App() {
 
+  return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer>
         <PortalProvider>
@@ -189,17 +191,19 @@ export default function App() {
             <StreakProvider>
               <NotesProvider>
                 <SocialFeedProvider>
+                  <WorkoutProvider>
                   <>
                     <StatusBar barStyle="default" />
                     <RootNavigator />
                   </>
+                  </WorkoutProvider>
                 </SocialFeedProvider>
               </NotesProvider>
             </StreakProvider>
           </GlobalProvider>
         </PortalProvider>
       </NavigationContainer>
-    </GestureHandlerRootView>
+    </GestureHandlerRootView>)
 
   
 }

@@ -12,6 +12,8 @@
   "dependencies": {
     "@expo/metro-runtime": "~4.0.0",
     "@expo/vector-icons": "^14.0.4",
+    "@gorhom/bottom-sheet": "^5.0.6",
+    "@gorhom/portal": "^1.0.14",
     "@react-native-async-storage/async-storage": "^2.0.0",
     "@react-navigation/bottom-tabs": "^7.0.7",
     "@react-navigation/drawer": "^7.0.7",
@@ -19,7 +21,8 @@
     "@react-navigation/native": "^7.0.4",
     "@react-navigation/native-stack": "^7.1.1",
     "@react-navigation/stack": "^7.0.6",
-    "@shopify/react-native-skia": "1.5.8",
+    "@shopify/react-native-skia": "1.5.0",
+    "expo-file-system": "~18.0.4",
     "expo-font": "~13.0.1",
     "expo-haptics": "~14.0.0",
     "expo-image-manipulator": "~13.0.5",
@@ -33,19 +36,18 @@
     "react-native": "^0.76.3",
     "react-native-dotenv": "^3.4.11",
     "react-native-draggable-flatlist": "^4.0.1",
-    "react-native-gesture-handler": "~2.21.2",
+    "react-native-gesture-handler": "~2.20.2",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-pager-view": "^6.5.1",
     "react-native-reanimated": "~3.16.2",
-    "react-native-safe-area-context": "^4.14.0",
-    "react-native-screens": "~4.3.0",
-    "react-native-svg": "15.9.0",
+    "react-native-safe-area-context": "4.12.0",
+    "react-native-screens": "~4.1.0",
+    "react-native-svg": "15.8.0",
     "react-native-tab-view": "^4.0.3",
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "~0.19.13",
     "victory": "^37.3.2",
-    "victory-native": "^41.12.0",
-    "expo-file-system": "~18.0.4"
+    "victory-native": "^41.12.0"
   },
   "jest": {
     "preset": "react-native",
@@ -59,6 +61,7 @@
     "transform": {
       "^.+\\.(js|jsx|ts|tsx)$": "babel-jest"
     },
+    "testTimeout": 10000,
     "moduleFileExtensions": [
       "ts",
       "tsx",
@@ -78,7 +81,7 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-typescript": "^7.26.0",
-    "@react-native-async-storage/async-storage": "2.1.0",
+    "@react-native-async-storage/async-storage": "1.23.1",
     "@testing-library/jest-native": "^5.4.3",
     "@testing-library/react-native": "^12.8.1",
     "@types/expo": "^32.0.13",

@@ -98,10 +98,14 @@ interface GlobalContextType {
   calendarLoadTracker: CalendarLoadTracker;
   loadCalendarDays: (dateRange: { startYear: number; startMonth: number; endYear: number; endMonth: number; }) => Promise<void>;
   clearCalendar: () => void;
+
+
+  workouts: Workout[];
+  fetchWorkouts: () => Promise<void>;
+  addWorkout: (workout: Workout) => void;
+  updateWorkout: (updatedWorkout: Workout) => void;
+
 }
-const httpRequests = {
-  getBaseURL: () => "http://ript-fitness-app.azurewebsites.net",
-};
 
 
 export const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -549,7 +553,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         calendar,
         calendarLoadTracker,
         loadCalendarDays,
-        clearCalendar
+        clearCalendar,
         workouts,
         fetchWorkouts,
         addWorkout,

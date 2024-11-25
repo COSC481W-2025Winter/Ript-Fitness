@@ -110,12 +110,15 @@ const SettingsScreen = ({ navigation }: any) => {
   
 
   const saveSettings = async () => {
+    console.log(displayName)
+    console.log(context?.userProfile.displayname)
     if (
-      context?.userProfile.username !== displayName ||
+      context?.userProfile.displayname !== displayName ||
       context?.userProfile.bio !== bio ||
       context?.userProfile.firstName !== firstName ||
       context?.userProfile.lastName !== lastName ||
-      context?.userProfile.restDays.toString() !== restDays
+      context?.userProfile.restDays.toString() !== restDays ||
+      context?.userProfile.profilePicture !== selectedImage
     ) {
       const newProfile: any = {
         ...context?.userProfile,
@@ -264,6 +267,7 @@ const styles = StyleSheet.create({
   saveButton: {
     backgroundColor: '#E0F7FA',
     paddingHorizontal: 16,
+    height:'100%',
     paddingVertical: 6,
     borderRadius: 20,
   },

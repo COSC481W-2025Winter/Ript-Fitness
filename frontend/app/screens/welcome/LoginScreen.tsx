@@ -4,23 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import CustomButton from '@/components/custom/CustomButton';
 import CustomTextInput from '@/components/custom/CustomTextInput';
-<<<<<<< HEAD
-import LogoImage from '@/components/custom/LogoImage';
-import React, { createContext, useState, ReactNode, useEffect, useContext} from 'react';
-import { Ionicons } from '@expo/vector-icons';
-import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Dimensions, TouchableOpacity } from 'react-native'
-
-
-// Navigation imports
-import { RootScreenNavigationProp, RootStackParamList } from '../../../App';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { httpRequests } from '@/api/httpRequests';
-=======
->>>>>>> 0dbd9f033a1f597c2b26ed87bdc57bb53eedeceb
 import { GlobalContext } from '@/context/GlobalContext';
 import { httpRequests } from '@/api/httpRequests';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../App';
+import { RootStackParamList } from '@/App';
+
 
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -61,19 +49,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
     };
 
   const handleLogin = async () => {
-<<<<<<< HEAD
-    const credentials = { username, password }; // Assuming these states are set
-  
-    try {
-      console.log("Rergergerg")
-      const response = await httpRequests.put("/accounts/login","", credentials); // Ensure this matches your API
-      console.log("Rergergerg22")
-      // Check if the request was successful
-      if (response.status === 200) {
-=======
     setSubmitted(true);
     setErrorMessage('');
->>>>>>> 0dbd9f033a1f597c2b26ed87bdc57bb53eedeceb
 
     const credentials = { username, password };
     try {
@@ -105,18 +82,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   };
 
   const navigateToMainApp = () => {
-<<<<<<< HEAD
-    console.log(navigation.getState());
-    /*navigation.reset({
-      index: 0,
-      routes: [{ name:"Home"}],  // Only 'Home' will be in the stack
-    });*/
-=======
     navigation.reset({
       index: 0,
       routes: [{ name: "Home" }],
     });
->>>>>>> 0dbd9f033a1f597c2b26ed87bdc57bb53eedeceb
   };
 
   return (

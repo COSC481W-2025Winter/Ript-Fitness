@@ -38,6 +38,8 @@ export function AddWorkoutScreen() {
   //Manage the add exercise modal visibility
 
   const context = useContext(WorkoutContext)
+
+  console.log("workout context: " , context)
   const gblContext = useContext(GlobalContext)
 
   const navigation = useNavigation<WorkoutScreenNavigationProp >();
@@ -48,6 +50,11 @@ export function AddWorkoutScreen() {
   const [typeOfExercise, setTypeOfExercise] = useState<number | null>(null);
   const [sets, setSets] = useState<{ setNumber: number; reps: string}[]>([{ setNumber: 1, reps: ''}]);
 
+
+  useEffect(() => {
+    console.log('Exercises changed:', exercises);
+  }, [exercises]); // Re-run effect whenever exercises updates
+  
 
   const handleAddSet = () => {
     setSets((prevSets) => [
@@ -150,6 +157,40 @@ export function AddWorkoutScreen() {
    
 const viewWorkoutDetails = (id : any) => {
   navigation.navigate("ApiScreen", {})
+}
+
+const addWorkout = () => {
+  // User has to enter exercise name and choose the type
+  if (!exerciseName || typeOfExercise === null) {
+    alert("Exercise name and exercise type are required fields.");
+    return;
+  }        
+  const repNumbers = sets.map((set) => Number(set.reps));
+
+  const newExercise : Exercise = {
+    sets: sets.length,
+    reps: repNumbers,
+    nameOfExercise: exerciseName,
+    weight: [],
+    exerciseType: typeOfExercise!,
+    description: '',
+  };
+  console.log('New Exercise:', newExercise);
+
+  // Update the exercises state with the new exercise
+  setExercises((prev) => {
+    const updatedExercises = [...prev, newExercise];
+    console.log('Updated Exercises:', updatedExercises);  // Log updated exercises array
+    return updatedExercises;
+  });
+
+  //reset fields
+  //setExercises((prev) => [...prev, newExercise]);
+  context?.setVisible(false)
+  //setAddModalVisible(false);
+  setExerciseName('');
+  setSets([{ setNumber: 1, reps: '' }]);
+  setTypeOfExercise(null);
 }
 
   //Modal
@@ -262,39 +303,7 @@ const viewWorkoutDetails = (id : any) => {
               {/* Save Button */}
               <TouchableOpacity 
                 style={styles.modalButton2} 
-                onPress={() => {
-                  // User has to enter exercise name and choose the type
-                  if (!exerciseName || typeOfExercise === null) {
-                    alert("Exercise name and exercise type are required fields.");
-                    return;
-                  }        
-                  const repNumbers = sets.map((set) => Number(set.reps));
-
-                  const newExercise : Exercise = {
-                    sets: sets.length,
-                    reps: repNumbers,
-                    nameOfExercise: exerciseName,
-                    weight: [],
-                    exerciseType: typeOfExercise!,
-                    description: '',
-                  };
-                  console.log('New Exercise:', newExercise);
-
-                  // Update the exercises state with the new exercise
-                  setExercises((prev) => {
-                    const updatedExercises = [...prev, newExercise];
-                    console.log('Updated Exercises:', updatedExercises);  // Log updated exercises array
-                    return updatedExercises;
-                  });
-
-                  //reset fields
-                  setExercises((prev) => [...prev, newExercise]);
-                  context?.setVisible(false)
-                  //setAddModalVisible(false);
-                  setExerciseName('');
-                  setSets([{ setNumber: 1, reps: '' }]);
-                  setTypeOfExercise(null);
-                }}
+                onPress={addWorkout}
               >
                 <Text style={{ color: '#fff', fontSize: 15 }}>Save</Text>
               </TouchableOpacity>
@@ -402,7 +411,7 @@ const viewWorkoutDetails = (id : any) => {
       leftColor={getColor(item.exerciseType)}
       title={item.nameOfExercise}
       descColor={getColor(item.exerciseType)}
-      desc={item.reps.length.toString()}
+      desc={item.reps.length.toString() + " Sets"}
       //onLongPress={drag}  // Enable dragging when long-pressed
       isActive={isActive}
       style={styles.myWidth}
@@ -440,7 +449,7 @@ const viewWorkoutDetails = (id : any) => {
 
     <DraggableFlatList
     style={styles.flatList}
-      data={Exercises}
+      data={exercises}
       renderItem={renderItem}
       keyExtractor={(item, index) => index.toString()}
       onDragEnd={({ data }) => onDragEnd(data)} // Update the order after dragging

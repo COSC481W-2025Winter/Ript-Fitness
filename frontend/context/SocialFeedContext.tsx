@@ -91,9 +91,9 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const {
-    data: { token },
-  } = useContext(GlobalContext);
+  const context = useContext(GlobalContext)
+
+  const token: string = context?.data?.token ?? '';
 
   // Loading states for individual operations
   const [loadingStates, setLoadingStates] = useState<LoadingStates>({
@@ -180,7 +180,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
         const formattedPosts = response.map((post) => {
           console.log("[DEBUG] Processing post:", post);
           console.log("[DEBUG] Post accountId:", post.accountId);
-          console.log("[DEBUG] Post userProfile:", post.userProfile);
+          //console.log("[DEBUG] Post userProfile:", post.userProfile);
 
           console.log("[DEBUG] comment:", post.socialPostComments);
 
@@ -198,7 +198,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
                 }))
               : [],
             socialPostComments: Array.isArray(post.socialPostComments)
-              ? post.socialPostComments.map((comment) => ({
+              ? post.socialPostComments.map((comment : any) => ({
                   ...comment,
                   accountId: comment.accountId || "Unknown User",
                 }))

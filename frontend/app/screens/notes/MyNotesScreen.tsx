@@ -14,14 +14,15 @@ import { useNavigation } from "@react-navigation/native";
 import { GlobalContext } from "@/context/GlobalContext";
 import { Note as NoteType } from '@/components/MyNotes/NotesContext';
 import { StackNavigationProp } from "@react-navigation/stack";
-import { WorkoutStackParamList } from "../(tabs)/WorkoutStack";
+import { WorkoutScreenNavigationProp, WorkoutStackParamList } from "@/app/(tabs)/WorkoutStack";
 import CustomSearchBar from "@/components/custom/CustomSearchBar";
-import { useEffect } from "react";
 
 interface Note {
-  id: number;
+  id: string;
   title: string;
   description: string;
+  date: string; // Optional
+  text: string; // Optional
 }
 
 export default function MyNotesScreen() {
@@ -31,7 +32,7 @@ export default function MyNotesScreen() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const navigation = useNavigation();
+  const navigation = useNavigation<WorkoutScreenNavigationProp>();
 
   // Fetch notes from the backend
   useEffect(() => {
@@ -66,7 +67,7 @@ export default function MyNotesScreen() {
   }, [context?.data.token]);
 
   // Delete note functionality
-  const deleteNote = async (noteId: number) => {
+  const deleteNote = async (noteId: string) => {
     try {
       const response = await fetch(
         `http://ript-fitness-app.azurewebsites.net/note/deleteNote/${noteId}`,
@@ -93,11 +94,6 @@ export default function MyNotesScreen() {
   const filteredNotes = notes.filter((note) =>
     note.title.toLowerCase().includes(searchText.toLowerCase())
   );
-
-
-  useEffect(() => {
-    fetchNotes(); // Fetch notes on screen load
-  }, [fetchNotes]);
 
   if (notes === undefined) {
     return <Text>Loading...</Text>;  
