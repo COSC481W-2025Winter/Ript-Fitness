@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
-import { createStackNavigator, HeaderStyleInterpolators } from '@react-navigation/stack';
+import { createStackNavigator, HeaderStyleInterpolators, StackNavigationProp } from '@react-navigation/stack';
 import ApiScreen from '@/app/screens/ApiScreen';
 import MyWorkoutsScreen from '@/app/screens/workout/MyWorkoutsScreen';
 import WorkoutApiScreen from '@/app/screens/workout/WorkoutApiScreen';
@@ -13,8 +13,21 @@ import StreakCounter from '@/components/StreakCounter';
 import MyNotesScreen from '@/app/screens/notes/MyNotesScreen';
 import EditNoteScreen from '@/app/screens/notes/EditNoteScreen';
 import { AddWorkoutScreen } from '../screens/workout/AddWorkoutScreen';
+import { Note } from '@/components/MyNotes/NotesContext';
 
 const Stack = createStackNavigator();
+
+export type WorkoutStackParamList = {
+  WorkoutApiScreen: {};
+  ApiScreen: {};
+  StartWorkoutScreen: {};
+  AddWorkoutScreen: {};
+  MyWorkoutsScreen: {};
+  MyNotesScreen: {};
+  EditNoteScreen: { note:Note | null };
+};
+
+export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamList>;
 
 export default function WorkoutStack() {
   const context = useContext(WorkoutContext);

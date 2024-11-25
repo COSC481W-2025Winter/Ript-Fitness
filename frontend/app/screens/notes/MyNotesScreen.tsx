@@ -14,7 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 import { GlobalContext } from "@/context/GlobalContext";
 import { Note as NoteType } from '@/components/MyNotes/NotesContext';
 import { StackNavigationProp } from "@react-navigation/stack";
-import { WorkoutScreenNavigationProp, WorkoutStackParamList } from "@/app/(tabs)/WorkoutStack";
+import { WorkoutScreenNavigationProp } from "@/app/(tabs)/WorkoutStack";
 import CustomSearchBar from "@/components/custom/CustomSearchBar";
 
 interface Note {

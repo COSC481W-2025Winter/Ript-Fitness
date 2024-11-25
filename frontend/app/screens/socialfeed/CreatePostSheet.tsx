@@ -19,6 +19,8 @@ import BottomSheet, { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSocialFeed } from "@/context/SocialFeedContext";
 import ProfileImage from "../../../assets/images/profile/Profile.png";
+import { TextInput } from "react-native";
+
 
 export interface CreatePostSheetRef {
   snapToIndex: (index: number) => void;
@@ -29,7 +31,7 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef>((props, ref) => {
   const [postText, setPostText] = useState("");
   const { addPost } = useSocialFeed();
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const inputRef = useRef<BottomSheetTextInput>(null);
+  const inputRef = useRef<any>(null);
   const snapPoints = React.useMemo(() => ["100%"], []);
 
   // Handle sheet state changes
@@ -73,7 +75,7 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef>((props, ref) => {
   return (
     <BottomSheet
       ref={bottomSheetRef}
-      index={-1}
+      index={-1} //Replace with -1
       snapPoints={snapPoints}
       enablePanDownToClose={true}
       onChange={handleSheetChange}
