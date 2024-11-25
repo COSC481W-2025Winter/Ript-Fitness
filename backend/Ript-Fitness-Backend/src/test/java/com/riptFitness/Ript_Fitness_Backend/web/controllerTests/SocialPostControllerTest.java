@@ -61,7 +61,6 @@ public class SocialPostControllerTest {
 	@BeforeEach
 	public void setUp() {
 		socialPost = new SocialPostDto();
-		socialPost.accountId = 1L;
 		socialPost.content = "Just benched 500 pounds, my name is Chris and I'm so strong!!";
 		socialPost.numberOfLikes = 2;
 		socialPost.userIDsOfLikes = new ArrayList<>();
@@ -74,15 +73,12 @@ public class SocialPostControllerTest {
 		socialPost.socialPostComments.add(commentOne);
 		socialPost.socialPostComments.add(commentTwo);
 		
-		commentOne.accountId = 2L;
 		commentOne.content = "Great job Chris, OMG!";
 		commentOne.postId = 1L;
 		
-		commentTwo.accountId = 3L;
 		commentTwo.content = "Wow! So strong!!!";
 		commentTwo.postId = 1L;
 		
-		commentThree.accountId = 4L;
 		commentThree.content = "You can do better.";
 		commentThree.postId = 1L;
 	}
@@ -102,11 +98,9 @@ public class SocialPostControllerTest {
 				.content(objectMapper.writeValueAsBytes(socialPost)))
 				.andExpect(status().isCreated())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(jsonPath("$.accountId").value(1))
 				.andExpect(jsonPath("$.content").value("Just benched 500 pounds, my name is Chris and I'm so strong!!"))
 				.andExpect(jsonPath("$.numberOfLikes").value(2))
 				.andExpect(jsonPath("$.socialPostComments[0].content").value("Great job Chris, OMG!"))
-				.andExpect(jsonPath("$.socialPostComments[1].accountId").value("3"))
 				.andReturn();
 	}
 	
@@ -128,11 +122,9 @@ public class SocialPostControllerTest {
 				.content(""))
 				.andExpectAll(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(jsonPath("$.accountId").value(1))
 				.andExpect(jsonPath("$.content").value("Just benched 500 pounds, my name is Chris and I'm so strong!!"))
 				.andExpect(jsonPath("$.numberOfLikes").value(2))
 				.andExpect(jsonPath("$.socialPostComments[0].content").value("Great job Chris, OMG!"))
-				.andExpect(jsonPath("$.socialPostComments[1].accountId").value("3"))
 				.andReturn();
 	}
 	
@@ -141,6 +133,65 @@ public class SocialPostControllerTest {
 		mockMvc.perform(get("/socialPost/getPost"))
 			.andExpect(status().isInternalServerError());
 	}
+	
+	@Test
+	public void testGetPostsFromCurrentlyLoggedInUserValid() throws Exception {
+		ArrayList<SocialPostDto> returnedArrayList = new ArrayList<>();
+		returnedArrayList.add(socialPost);
+		when(socialPostService.getPostsFromCurrentlyLoggedInUser(0, 0)).thenReturn(returnedArrayList);
+		
+		mockMvc.perform(get("/socialPost/getPostsFromCurrentlyLoggedInUser/0/0")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(""))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$[0].content").value("Just benched 500 pounds, my name is Chris and I'm so strong!!"))
+				.andReturn();
+	}
+	
+	@Test
+	public void testGetPostsFromAccountIdValid() throws Exception {
+		ArrayList<SocialPostDto> returnedArrayList = new ArrayList<>();
+		returnedArrayList.add(socialPost);
+		when(socialPostService.getPostsFromAccountId(2L, 0, 0)).thenReturn(returnedArrayList);
+		
+		mockMvc.perform(get("/socialPost/getPostsFromAccountId/2/0/0")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(""))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$[0].content").value("Just benched 500 pounds, my name is Chris and I'm so strong!!"))
+				.andReturn();
+	}
+	
+	@Test
+	public void testGetPostsFromAccountIdInvalidNoPathVariables() throws Exception {
+		mockMvc.perform(get("/socialPost/getPostsFromAccountId"))
+				.andExpect(status().isInternalServerError());
+			
+	}
+	
+	@Test
+	public void testGetSocialFeedValid() throws Exception {
+		ArrayList<SocialPostDto> returnedArrayList = new ArrayList<>();
+		returnedArrayList.add(socialPost);
+		when(socialPostService.getSocialFeed(0, 0)).thenReturn(returnedArrayList);
+		
+		mockMvc.perform(get("/socialPost/getSocialFeed/0/0")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(""))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$[0].content").value("Just benched 500 pounds, my name is Chris and I'm so strong!!"))
+				.andReturn();
+	}
+	
+	@Test
+	public void testGetSocialFeedInvalidNoPathVariables() throws Exception {
+		mockMvc.perform(get("/socialPost/getSocialFeed"))
+				.andExpect(status().isInternalServerError());
+			
+	}	
 	
 	@Test
 	public void testEditPostContentValidRequest() throws Exception {

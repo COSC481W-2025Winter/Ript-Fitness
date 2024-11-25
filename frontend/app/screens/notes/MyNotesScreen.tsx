@@ -12,6 +12,11 @@ import CustomTextInput from "@/components/custom/CustomTextInput";
 import Note from "@/components/MyNotes/Note";
 import { useNavigation } from "@react-navigation/native";
 import { GlobalContext } from "@/context/GlobalContext";
+import { Note as NoteType } from '@/components/MyNotes/NotesContext';
+import { StackNavigationProp } from "@react-navigation/stack";
+import { WorkoutStackParamList } from "../(tabs)/WorkoutStack";
+import CustomSearchBar from "@/components/custom/CustomSearchBar";
+import { useEffect } from "react";
 
 interface Note {
   id: number;
@@ -20,6 +25,7 @@ interface Note {
 }
 
 export default function MyNotesScreen() {
+
   const context = useContext(GlobalContext);
   const { width } = Dimensions.get("window");
   const [notes, setNotes] = useState<Note[]>([]);
@@ -88,8 +94,18 @@ export default function MyNotesScreen() {
     note.title.toLowerCase().includes(searchText.toLowerCase())
   );
 
+
+  useEffect(() => {
+    fetchNotes(); // Fetch notes on screen load
+  }, [fetchNotes]);
+
+  if (notes === undefined) {
+    return <Text>Loading...</Text>;  
+  }
+
   return (
     <View style={styles.container}>
+
       <View style={styles.searchContainer}>
         <Ionicons
           name="search-outline"
@@ -111,6 +127,7 @@ export default function MyNotesScreen() {
             backgroundColor: "#EDEDED",
           }}
         />
+
       </View>
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -123,6 +140,7 @@ export default function MyNotesScreen() {
           <Text>Notes will be displayed here</Text>
         ) : (
           <View style={styles.notesContainer}>
+
             {filteredNotes.map((note: Note) => (
               <Note
                 key={note.id}
@@ -151,6 +169,7 @@ export default function MyNotesScreen() {
                 }
               />
             ))}
+
           </View>
         )}
       </ScrollView>
@@ -174,6 +193,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
   },
+
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -186,3 +206,4 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
 });
+

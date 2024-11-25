@@ -198,9 +198,30 @@ export default function MyWorkoutsScreen() {
 
 
 
+  return (
+    <ScrollView style= {styles.safeView}>    
+      <View style= {styles.container}> 
+        <StreakHeader></StreakHeader>
+        <View style={styles.searchContainer}>
+          {/* <Text>My History</Text> */}
+          <SearchBar/>
+        </View>
+        {/* <SafeAreaView style= {styles.safeView}> */}
+          <ScrollView
+            showsVerticalScrollIndicator={false}>
+            <PreCreatedWorkoutButton></PreCreatedWorkoutButton>
+          </ScrollView>
+        {/* </SafeAreaView> */}
+      </View>
+    </ScrollView>
+  );
+}
+
+
 
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     padding: 20,
@@ -323,6 +344,22 @@ const styles = StyleSheet.create({
     color: "#333",
     textAlign: "center",
     flex: 1,
+
+  searchContainer: {
+    // height: 'auto',
+    marginVertical: 15,
+    // gap: 8, 
+    alignItems: 'center',
+  },
+  safeView: {
+    flex:1,
+    backgroundColor: '#fff',
+    width:'100%',
+    height: '100%', 
+  },
+  text: {
+    fontSize: 20,
+
   },
   input: {
     borderWidth: 1,
@@ -415,6 +452,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
+
   exerciseNameInput: {
     fontSize: 18,
     fontWeight: "bold",
@@ -453,6 +491,14 @@ const styles = StyleSheet.create({
     color: "#555",
     textAlign: "center",
     flex: 1,
+  },
+  container: {
+    // width:'100%',
+    // height: '100%', 
+    // alignItems: 'center',
+    // gap: 8, 
+    // paddingBottom: 29,
+    // backgroundColor: '#fff',
   },
   addSetButton: {
     backgroundColor: "#4CAF50",

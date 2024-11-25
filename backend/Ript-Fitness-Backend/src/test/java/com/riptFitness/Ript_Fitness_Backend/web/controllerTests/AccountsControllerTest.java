@@ -54,6 +54,41 @@ public class AccountsControllerTest {
         accountsDto.setEmail("test@example.com");
         accountsDto.setlastLogin(LocalDateTime.now());
     }
+    
+    @Test
+    public void testChangePassword() throws Exception {
+        // Test data
+        String currentPassword = "password123";
+        String newPassword = "newPassword123";
+        String samePassword = "password123";
+        String wrongPassword = "wrongPassword";
+        String mockedToken = "mocked-jwt-token";
+
+        // Mock successful password change
+        when(accountsService.changePassword(currentPassword, newPassword)).thenReturn(mockedToken);
+
+        // Test 1: Successful password change
+        mockMvc.perform(put("/accounts/changePassword/{currentPassword}/{newPassword}", currentPassword, newPassword))
+                .andExpect(status().isOk()) // Verify status is 200 OK
+                .andExpect(content().string(mockedToken)); // Verify the response contains the JWT token
+
+        // Test 2: Incorrect current password
+        when(accountsService.changePassword(wrongPassword, newPassword))
+                .thenThrow(new RuntimeException("Current password does not match"));
+
+        mockMvc.perform(put("/accounts/changePassword/{currentPassword}/{newPassword}", wrongPassword, newPassword))
+                .andExpect(status().isInternalServerError()) // Verify status is 500 Internal Server Error
+                .andExpect(content().string("An unexpected error has occured. Message: Current password does not match"));
+
+        // Test 3: New password is the same as the current password
+        when(accountsService.changePassword(currentPassword, samePassword))
+                .thenThrow(new RuntimeException("New password cannot be the same as the current password"));
+
+        mockMvc.perform(put("/accounts/changePassword/{currentPassword}/{newPassword}", currentPassword, samePassword))
+                .andExpect(status().isInternalServerError()) // Verify status is 500 Internal Server Error
+                .andExpect(content().string("An unexpected error has occured. Message: New password cannot be the same as the current password"));
+    }
+
 
     // Test for createNewAccount - successful account creation
     @Test

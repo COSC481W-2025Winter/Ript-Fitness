@@ -11,6 +11,18 @@ import '@testing-library/jest-native/extend-expect';
 // Mock react-native-svg to prevent Jest from failing on SVG imports
 jest.mock('react-native-svg', () => require('react-native-svg-mock'));
 
+jest.mock('react-native-draggable-flatlist', () => {
+  return {
+    __esModule: true,
+    default: jest.fn(() => null), // Mock the DraggableFlatList component
+  };
+});
+
+jest.mock('expo-haptics', () => ({
+  impactAsync: jest.fn(),
+  notificationAsync: jest.fn(),
+  selectionAsync: jest.fn(),
+}));
 
 // jest.setup.js
 jest.mock('expo-modules-core', () => ({

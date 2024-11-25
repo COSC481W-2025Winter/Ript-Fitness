@@ -27,6 +27,8 @@ public class ExerciseModel {
     private String nameOfExercise;
     private boolean isDeleted = false; // False to start because true means the exercise is deleted
     private List<Integer> weight = new ArrayList<>();
+    private String description;
+    private int exerciseType;
 
     // Reference to the user's account (to get the ID of the account)
     @ManyToOne
@@ -40,7 +42,22 @@ public class ExerciseModel {
     private Workouts workout;
 
     // Getters and Setters for all fields
-
+    public String getDescription() {
+    	return description;
+    }
+    
+    public void setDescription(String description) {
+    	this.description = description;
+    }
+    
+    public int getExerciseType() {
+    	return exerciseType;
+    }
+    
+    public void setExerciseType(int exerciseType) {
+    	this.exerciseType = exerciseType;
+    }
+    
     public Long getExerciseId() {
         return exerciseId;
     }

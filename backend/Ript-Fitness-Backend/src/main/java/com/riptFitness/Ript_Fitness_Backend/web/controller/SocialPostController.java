@@ -39,16 +39,22 @@ public class SocialPostController {
 		return new ResponseEntity<>(returnedSocialPostObject, HttpStatus.OK);
 	}
 	
-	@GetMapping("/getPostsFromAccountId")
-	public ResponseEntity<ArrayList<Long>> getPostsFromAccountId(){
-		ArrayList<Long> returnedListOfPostIds = socialPostService.getPostsFromAccountId();
-		return new ResponseEntity<>(returnedListOfPostIds, HttpStatus.OK);
+	@GetMapping("/getPostsFromCurrentlyLoggedInUser/{startIndex}/{endIndex}")
+	public ResponseEntity<ArrayList<SocialPostDto>> getPostsFromCurrentlyLoggedInUser(@PathVariable Integer startIndex, @PathVariable Integer endIndex){
+		ArrayList<SocialPostDto> returnedListOfPosts = socialPostService.getPostsFromCurrentlyLoggedInUser(startIndex, endIndex);
+		return new ResponseEntity<>(returnedListOfPosts, HttpStatus.OK);
 	}
 	
-	@GetMapping("/getCommentsFromAccountId")
-	public ResponseEntity<ArrayList<Long>> getCommentsFromAccountId(){
-		ArrayList<Long> returnedListOfCommentIds = socialPostService.getCommentsFromAccountId();
-		return new ResponseEntity<>(returnedListOfCommentIds, HttpStatus.OK);
+	@GetMapping("/getPostsFromAccountId/{accountId}/{startIndex}/{endIndex}")
+	public ResponseEntity<ArrayList<SocialPostDto>> getPostsFromAccountId(@PathVariable Long accountId, @PathVariable Integer startIndex, @PathVariable Integer endIndex){
+		ArrayList<SocialPostDto> returnedListOfPosts = socialPostService.getPostsFromAccountId(accountId, startIndex, endIndex);
+		return new ResponseEntity<>(returnedListOfPosts, HttpStatus.OK);
+	}
+	
+	@GetMapping("/getSocialFeed/{startIndex}/{endIndex}")
+	public ResponseEntity<ArrayList<SocialPostDto>> getSocialFeed(@PathVariable Integer startIndex, @PathVariable Integer endIndex){
+		ArrayList<SocialPostDto> returnListOfPosts = socialPostService.getSocialFeed(startIndex, endIndex);
+		return new ResponseEntity<>(returnListOfPosts, HttpStatus.OK);
 	}
 	
 	@PutMapping("/editPostContent/{socialPostId}")
@@ -86,4 +92,13 @@ public class SocialPostController {
 		SocialPostDto socialPostObject = socialPostService.deleteComment(socialPostCommentId);
 		return new ResponseEntity<>(socialPostObject, HttpStatus.OK);
 	}
+	
+	/*
+	*** Getting rid of this endpoint for now, will add back later if necessary ***
+	@GetMapping("/getCommentsFromAccountId")
+	public ResponseEntity<ArrayList<SocialPostCommentDto>> getCommentsFromAccountId(){
+		ArrayList<SocialPostCommentDto> returnedListOfCommentIds = socialPostService.getCommentsFromAccountId();
+		return new ResponseEntity<>(returnedListOfCommentIds, HttpStatus.OK);
+	}
+	*/
 }

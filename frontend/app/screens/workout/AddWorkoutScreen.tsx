@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, TouchableOpacity, View, FlatList, ScrollView, Dimensions } from 'react-native';
+import { Image, StyleSheet, Platform, TouchableOpacity, View, FlatList, ScrollView, Dimensions, Modal, Text, KeyboardAvoidingView } from 'react-native';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -15,29 +15,226 @@ import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flat
 import { isAndroid } from 'react-native-draggable-flatlist/lib/typescript/constants';
 import * as Haptics from 'expo-haptics';
 import React from 'react';
+import CustomChip from '@/components/custom/CustomChip';
+import { WorkoutContext } from '@/context/WorkoutContext';
 
-export default function AddWorkoutScreen() {
+type Exercise = {
+  sets: number;
+  reps: number[];
+  nameOfExercise: string;
+  weight: number[]; // Assuming weight is a number array
+  typeOfExercise: number;
+};
+
+export function AddWorkoutScreen() {
+  //Manage the add exercise modal visibility
+
+  const context = useContext(WorkoutContext)
+
   const navigation = useNavigation<WorkoutScreenNavigationProp >();
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [exerciseName, setExerciseName] = useState('');
+  const [typeOfExercise, setTypeOfExercise] = useState<number | null>(null);
+  const [sets, setSets] = useState<{ setNumber: number; reps: string}[]>([{ setNumber: 1, reps: ''}]);
 
-   const removeWorkout = (id : any) => {
-    const updatedWorkouts = workouts.filter(workout => workout.id !== id);
-    setWorkouts(updatedWorkouts);
-   }
 
-   const editWorkout = (id : any) => {
-    navigation.navigate("ApiScreen", {})
-   }
+  const handleAddSet = () => {
+    setSets((prevSets) => [
+      ...prevSets,
+      {setNumber: prevSets.length + 1, reps: ''},
+    ]);
+  };
+  const handleRemoveSet = () => {
+    setSets((prevSets) => {
+      if (prevSets.length > 1) {
+        return prevSets.slice(0, -1);
+      }
+      return prevSets;
+    });
+  };
 
+  const handleRepChange = (index: number, value: string) => {
+    setSets((prevSets) =>
+      prevSets.map((set, i) =>
+        i ===index ? {...set, reps: value} : set
+      )
+    );
+  };
+
+  const removeWorkout = (id : any) => {
+  const updatedWorkouts = workouts.filter(workout => workout.id !== id);
+  setWorkouts(updatedWorkouts);
+  }
+
+  //make modal appear to edit added workout
+  const editWorkout = (id : any) => {
+  console.log('Opening modal for workout:', id);
+  //Open Modal when pencil icon is pressed
+  //setAddModalVisible(true);
+  context?.setVisible(true);
+  }
+
+  //submit button will send users to My Workout page
+  const submitWorkout = () => {
   
-   const submitWorkout = () => {
-    
-    
-   }
-const viewWorkoutDetails = (id : any) => {
-  navigation.navigate("ApiScreen", {})
-}
+  }
 
-   const data = [
+  //Modal
+  const modalComponent = (
+    <Modal
+      transparent={true}
+      visible={context?.modalObject.isVisible}
+      animationType='slide'
+      onRequestClose={() => context?.setVisible(false)/*setAddModalVisible(false)*/}
+    >
+      <View style={styles.modalOverlay}>
+
+        <KeyboardAvoidingView
+          style={styles.modalContentContainer}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}  
+        >
+
+          <View style={styles.modalContent}>
+            {/* Title and close modal icon */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <TextInput style={{fontSize: 18, fontWeight: '500', }}
+                placeholder='Exercise Name'
+                placeholderTextColor={'#B6B6B6'}
+                maxLength={20}
+                autoFocus={true}
+                autoCapitalize='words'
+                onChangeText={setExerciseName}
+              />
+              {/* Close/ x button */}
+              <TouchableOpacity 
+              testID='close-modal'
+                onPress={() => {
+                  context?.setVisible(false)
+                  //setAddModalVisible(false);
+                  setSets([{ setNumber: 1, reps: '' }]);
+                  setExerciseName('');
+                  setTypeOfExercise(null);
+                  }}
+                >
+                <Ionicons name='close-circle-outline' size={30} color={'#747474'} />
+              </TouchableOpacity>
+            </View>
+            {/* Upper, Lower, or Rec type - 1, 2, 3 */}
+            <CustomChip 
+              onTypeSelect={(type) => setTypeOfExercise(type)}
+            />
+            {/* Each set with rep for the exercise */}
+            <ScrollView style={{ maxHeight: 150 }}>
+              {/* Header Row */}
+              <View 
+                style={{ 
+                  flexDirection: 'row', 
+                  justifyContent: 'space-between', 
+                  marginBottom: 5, 
+                  width: '90%', 
+                  alignSelf: 'center', 
+                }}
+              >
+                <Text style={styles.modalLabels}>Set</Text>
+                <Text style={styles.modalLabels}>Reps</Text>
+              </View>
+
+              {sets.map((set, index) => (
+                <View 
+                  key={index} 
+                  style={{ 
+                    flexDirection: 'column', 
+                    marginBottom: 10, 
+                    width: '90%', 
+                    alignSelf: 'center', 
+                  }}
+                >
+                  {/* Row for Set Number and Input */}
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 16, marginLeft: 10 }}>{set.setNumber}</Text>
+                    <TextInput 
+                      style={styles.repInput}
+                      maxLength={3}
+                      keyboardType='numeric'
+                      value={set.reps}
+                      onChangeText={(value) => handleRepChange(index, value)}
+                    />
+                  </View>
+
+                  {/* Delete Set Button for the Last Set */}
+                  {index === sets.length - 1 && sets.length > 1 && (
+                    <TouchableOpacity 
+                      style={{ 
+                        flexDirection: 'row', 
+                        alignItems: 'flex-end', 
+                        marginTop: 10, 
+                        // marginLeft: 5, 
+                      }} 
+                      onPress={handleRemoveSet}
+                    >
+                      <Ionicons name="trash-outline" size={20} color="#F22E2E" />
+                      <Text style={{ fontSize: 14, color: '#F22E2E', marginLeft: 3 }}>Delete Set</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              ))}
+            </ScrollView>
+            {/* Buttons for add set or save exercise */}
+            <View style={styles.modalButtonsContainer}>
+              <TouchableOpacity style={styles.modalButton1} onPress={handleAddSet}>
+                <Text style={{ color: '#21BFBF', fontSize: 15 }}>Add Set</Text>
+              </TouchableOpacity>
+
+              {/* Save Button */}
+              <TouchableOpacity 
+                style={styles.modalButton2} 
+                onPress={() => {
+                  // User has to enter exercise name and choose the type
+                  if (!exerciseName || typeOfExercise === null) {
+                    alert("Exercise name and exercise type are required fields.");
+                    return;
+                  }        
+                  const repNumbers = sets.map((set) => Number(set.reps));
+
+                  const newExercise = {
+                    sets: sets.length,
+                    reps: repNumbers,
+                    nameOfExercise: exerciseName,
+                    weight: [],
+                    typeOfExercise: typeOfExercise!, // Pass the integer value
+                  };
+                  console.log('New Exercise:', newExercise);
+
+                  // Update the exercises state with the new exercise
+                  setExercises((prev) => {
+                    const updatedExercises = [...prev, newExercise];
+                    console.log('Updated Exercises:', updatedExercises);  // Log updated exercises array
+                    return updatedExercises;
+                  });
+
+                  //reset fields
+                  setExercises((prev) => [...prev, newExercise]);
+                  context?.setVisible(false)
+                  //setAddModalVisible(false);
+                  setExerciseName('');
+                  setSets([{ setNumber: 1, reps: '' }]);
+                  setTypeOfExercise(null);
+                }}
+              >
+                <Text style={{ color: '#fff', fontSize: 15 }}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </View>
+    </Modal>
+  );
+  const viewWorkoutDetails = (id : any) => {
+    navigation.navigate("ApiScreen", {})
+  }
+
+  const data = [
     { id: '1', name: 'Item 1' },
     { id: '2', name: 'Item 2' },
     { id: '3', name: 'Item 3' },
@@ -52,18 +249,18 @@ const viewWorkoutDetails = (id : any) => {
   //Instead of Sets, display
   //Sets last time, Reps for time, weight last time
   const [workouts, setWorkouts ]= useState([
-    { id: '1', name: 'Push-Ups', description: "5 Sets", values: ["10", "9", "8", "8", "9"], valueTypes: "Reps", color: "#F2846C" },
-    { id: '2', name: 'Squats', description: "4 Sets", values: ["15", "14", "13", "12"], valueTypes: "Reps", color: "#F2846C" },
-    { id: '3', name: 'Lunges', description: "3 Sets", values: ["12", "10", "11"], valueTypes: "Reps", color: "#F2846C" },
+    { id: '1', name: 'Push-Ups', description: "5 Sets", values: ["10", "9", "8", "8", "9"], valueTypes: "Reps", color: "#21BFBF" },
+    { id: '2', name: 'Squats', description: "4 Sets", values: ["15", "14", "13", "12"], valueTypes: "Reps", color: "#2493BF" },
+    { id: '3', name: 'Lunges', description: "3 Sets", values: ["12", "10", "11"], valueTypes: "Reps", color: "#2493BF" },
     
-    { id: '4', name: 'Bicep Curls', description: "5 Sets", values: ["10", "10", "9", "8", "10"], valueTypes: "Reps", color: "#048AC1" },
-    { id: '5', name: 'Plank Hold', description: "3 Sets", values: ["60", "45", "50"], valueTypes: "sec", color: "#048AC1" },
-    { id: '6', name: 'Mountain Climbers', description: "4 Sets", values: ["30", "25", "28", "30"], valueTypes: "Reps", color: "#048AC1" },
+    { id: '4', name: 'Bicep Curls', description: "5 Sets", values: ["10", "10", "9", "8", "10"], valueTypes: "Reps", color: "#21BFBF" },
+    { id: '5', name: 'Plank Hold', description: "3 Sets", values: ["60", "45", "50"], valueTypes: "sec", color: "#ECC275" },
+    { id: '6', name: 'Mountain Climbers', description: "4 Sets", values: ["30", "25", "28", "30"], valueTypes: "Reps", color: "#ECC275" },
     
-    { id: '7', name: 'Burpees', description: "3 Sets", values: ["12", "10", "12"], valueTypes: "Reps", color: "#03A696" },
-    { id: '8', name: 'Tricep Dips', description: "4 Sets", values: ["15", "14", "13", "15"], valueTypes: "Reps", color: "#03A696" },
-    { id: '9', name: 'Russian Twists', description: "5 Sets", values: ["20", "18", "20", "19", "18"], valueTypes: "Reps", color: "#03A696" },
-    { id: '10', name: 'Jumping Jacks', description: "3 Sets", values: ["25", "30", "28"], valueTypes: "Reps", color: "#03A696" }
+    { id: '7', name: 'Burpees', description: "3 Sets", values: ["12", "10", "12"], valueTypes: "Reps", color: "#ECC275" },
+    { id: '8', name: 'Tricep Dips', description: "4 Sets", values: ["15", "14", "13", "15"], valueTypes: "Reps", color: "#21BFBF" },
+    { id: '9', name: 'Russian Twists', description: "5 Sets", values: ["20", "18", "20", "19", "18"], valueTypes: "Reps", color: "#ECC275" },
+    { id: '10', name: 'Jumping Jacks', description: "3 Sets", values: ["25", "30", "28"], valueTypes: "Reps", color: "#ECC275" }
   ]);
   
 
@@ -143,6 +340,7 @@ const viewWorkoutDetails = (id : any) => {
       onPressOut={() => handlePressOut(isActive)}
       id={item.id}
       leftColor={item.color}
+      descColor={item.color}
       title={item.name}
       desc={item.description}
       //onLongPress={drag}  // Enable dragging when long-pressed
@@ -173,20 +371,20 @@ const viewWorkoutDetails = (id : any) => {
   return (
     <View style={styles.totalView}>
       <View style={styles.flatListView}>
-      
-
-      <DraggableFlatList
-      style={styles.flatList}
-        data={workouts}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        onDragEnd={({ data }) => onDragEnd(data)} // Update the order after dragging
-        ListFooterComponent={() => <View style={{ height: submitHeight }} />}
-      />
-      <View style={styles.submitView}>
-        <TouchableOpacity onPress={() => navigation.navigate("ApiScreen", {})} style={styles.button}><View style={styles.submitButtonView}><ThemedText style={styles.buttonText}>Submit </ThemedText><Ionicons name="chevron-up" style={[styles.submitIcon]} size={20} color="white"/></View></TouchableOpacity>
+        <DraggableFlatList
+        style={styles.flatList}
+          data={workouts}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          onDragEnd={({ data }) => onDragEnd(data)} // Update the order after dragging
+          ListFooterComponent={() => <View style={{ height: submitHeight }} />}
+        />
+        <View style={styles.submitView}>
+          <TouchableOpacity onPress={() => navigation.navigate("ApiScreen", {})} activeOpacity={0.9} style={styles.button}><View style={styles.submitButtonView}><ThemedText style={styles.buttonText}>Submit </ThemedText></View></TouchableOpacity>
+        </View>
       </View>
-    </View>
+    {/* Render Modal */}
+    {modalComponent}
     </View>
   );
 }//
@@ -233,7 +431,7 @@ test: {
   swipeContainer: {
     width:'90%',
     marginTop:15,
-    backgroundColor:'red',
+    backgroundColor:'#F22E2E',  //red color
     borderRadius:15,
     //marginRight:'5%',
     marginLeft:'5%',
@@ -269,6 +467,7 @@ test: {
     alignItems:'center',
     flex:1,
     justifyContent: 'center',
+    backgroundColor: '#fff', // main background e2e2e2 or f6f6f6
   },
   rowItem:{
     borderTopColor:'grey',
@@ -321,7 +520,7 @@ test: {
   button: {
     height:50,
     width:'90%',
-    backgroundColor:'#302c2c',
+    backgroundColor:'#302c2c',  //submit button color
     borderRadius:10,
     textAlign:'center',
     justifyContent:'center',
@@ -334,7 +533,7 @@ test: {
   submitButtonView: {
     flexDirection:'row',
     //width:'30%',
-    //backgroundColor:'red',
+    // backgroundColor:'red',
   },
   input: {
     height: 40,
@@ -346,5 +545,59 @@ test: {
   },
   container: {
     width:'100%',
+  },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  modalContentContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '85%',
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalLabels: {
+    fontSize: 16,
+    fontWeight: '500'
+  },
+  repInput: {
+    fontSize: 16,
+    backgroundColor: '#D9D9D9',
+    width: '15%',
+    borderRadius: 5,
+    textAlign: 'center',
+  },
+  modalButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  modalButton1: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#21BFBF',
+    borderRadius: 20,
+    padding: 10,
+    width: '48%',
+    alignItems: 'center',
+  },
+  modalButton2: {
+    backgroundColor: '#21BFBF',
+    borderRadius: 20,
+    padding: 10,
+    width: '48%',
+    alignItems: 'center',
   },
 });

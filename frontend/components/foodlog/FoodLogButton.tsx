@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle, View } from 'react-native'
+import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle, View, Modal, TextInput } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+
 
 type LogFoodButtonProps = {
   id: number;
@@ -9,86 +11,305 @@ type LogFoodButtonProps = {
   carbs: number;
   fat: number;
   multiplier: number;
+  saveFoodChanges: (updatedFood: any) => void;
+  logFoodToDay: (foodData: any) => void;
   backgroundColor?: string;
   borderColor?: string;
   borderWidth?: number;
-  width?: any,
+  width?: any;
   textColor?: string;
   fontSize?: number;
-  onPress?:  any;
+  onPress?: any;
   underlineOnPress?: boolean;
 };
 
-const LogFoodButton: React.FC<LogFoodButtonProps> = ({ name, calories, protein, carbs, fat, backgroundColor, borderColor, borderWidth, width, textColor, fontSize, onPress, underlineOnPress = false }) => {
-    const [isPressed, setIsPressed] = useState(false);
-  
-    const buttonStyle: ViewStyle = {
+const LogFoodButton: React.FC<LogFoodButtonProps> = ({
+  id,
+  name,
+  calories,
+  protein,
+  carbs,
+  fat,
+  multiplier,
+  saveFoodChanges,
+  logFoodToDay,
+  backgroundColor,
+  borderColor,
+  borderWidth,
+  width,
+  textColor,
+  fontSize,
+}) => {
+  const [isFoodModalVisible, setFoodModalVisible] = useState(false);
+  const [isFoodEditMode, setIsFoodEditMode] = useState(false);
+
+  // Temporary states for editing
+  const [tempName, setTempName] = useState(name);
+  const [tempCalories, setTempCalories] = useState(calories);
+  const [tempProtein, setTempProtein] = useState(protein);
+  const [tempCarbs, setTempCarbs] = useState(carbs);
+  const [tempFat, setTempFat] = useState(fat);
+  const [tempMultiplier, setTempMultiplier] = useState(multiplier);
+
+  // Original states to revert if the user does not save
+  const [thisName, setName] = useState(name);
+  const [thisCalories, setCalories] = useState(calories);
+  const [thisProtein, setProtein] = useState(protein);
+  const [thisCarbs, setCarbs] = useState(carbs);
+  const [thisFat, setFat] = useState(fat);
+  const [thisMultiplier, setMultiplier] = useState(multiplier);
+
+  const toggleEditMode = () => setIsFoodEditMode((prev) => !prev);
+
+  const saveChanges = () => {
+    const updatedFood = {
+      id,
+      name: tempName, 
+      calories: tempCalories, 
+      protein: tempProtein, 
+      carbs: tempCarbs, 
+      fat: tempFat, 
+      multiplier: tempMultiplier,
+      isDeleted: false,
+    };
+    // call the parent function
+    console.log("updated food: ", updatedFood)
+    saveFoodChanges(updatedFood);
+
+    setName(tempName);
+    setCalories(tempCalories);
+    setProtein(tempProtein);
+    setCarbs(tempCarbs);
+    setFat(tempFat);
+    setMultiplier(tempMultiplier);
+
+    setIsFoodEditMode(false);
+  };
+
+  const foodSaveAndAddToDay = () => {
+    const updatedFood = {
+      id,
+      name: tempName, 
+      calories: tempCalories, 
+      protein: tempProtein, 
+      carbs: tempCarbs, 
+      fat: tempFat, 
+      multiplier: tempMultiplier,
+      isDeleted: false,
+    };
+    // call the parent function
+    console.log("updated food: ", updatedFood)
+    saveFoodChanges(updatedFood);
+    logFoodToDay(updatedFood);
+
+    setFoodModalVisible(false);
+  }
+
+  const closeWithoutSaving = () => {
+    setTempName(thisName);
+    setTempCalories(thisCalories);
+    setTempProtein(thisProtein);
+    setTempCarbs(thisCarbs);
+    setTempFat(thisFat);
+    setTempMultiplier(thisMultiplier);
+    setIsFoodEditMode(false);
+    setFoodModalVisible(false);
+  };
+
+  const buttonStyle: ViewStyle = {
     backgroundColor: backgroundColor,
     borderColor: borderColor,
     borderWidth: borderWidth,
-    width: width || 'auto'
+    width: width || 'auto',
   };
-
-  const textStyle: TextStyle = {
-    color: textColor || '#fff',
-    fontSize: fontSize || 15,
-  };
-
 
   return (
-    <TouchableOpacity
-      style={[styles.foodItemContainer, buttonStyle]}
-      // onPressIn={() => setIsPressed(true)} // Set pressed state to true on press in
-      // onPressOut={() => {
-      //   setIsPressed(false);
-      //   if (onPress) onPress(); // Call onPress when released
-      // }}
-      activeOpacity={0.7}
-    >
+    <View>
+      <TouchableOpacity
+        style={[styles.foodItemContainer, buttonStyle]}
+        onPress={() => setFoodModalVisible(true)}
+        activeOpacity={0.5}
+      >
         <Text style={styles.foodName}>{name}</Text>
-          {/* <Text style={styles.foodDetails}>P: {protein} C: {carbs} F: {fat}</Text> */}
-        <Text style={styles.foodTextRight}>Calories: {calories}</Text>
-    </TouchableOpacity>
+        <View style={styles.foodTextRight}>
+          <Text>Calories: {calories}</Text>
+        </View>
+      </TouchableOpacity>
+
+      <Modal
+        transparent
+        visible={isFoodModalVisible}
+        animationType="slide"
+        onRequestClose={closeWithoutSaving}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              {isFoodEditMode ? (
+                  <TextInput
+                  style={styles.modalTitleEdit}
+                  value={tempName}
+                  onChangeText={setTempName} // Set the name directly
+                  keyboardType="default"
+                />
+              ) : ( 
+                <Text style={styles.modalTitle}>{tempName}</Text>
+              )}
+             
+              <TouchableOpacity onPress={closeWithoutSaving}>
+                <Ionicons name="close-circle-outline" size={30} color="#747474" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Map through stateMappings for numerical values */}
+            {['Calories', 'Protein', 'Carbs', 'Fat', 'Servings'].map((label, index) => {
+              // Define state mappings for numerical fields only
+              const stateMappings: [
+                number,
+                React.Dispatch<React.SetStateAction<number>>
+              ][] = [
+                [tempCalories, setTempCalories],
+                [tempProtein, setTempProtein],
+                [tempCarbs, setTempCarbs],
+                [tempFat, setTempFat],
+                [tempMultiplier, setTempMultiplier],
+              ];
+
+              const [value, setValue] = stateMappings[index]; // Deconstruct state and setter
+
+              return (
+                <View
+                  key={label}
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 10,
+                    width: '90%',
+                    alignSelf: 'center',
+                  }}
+                >
+                  <Text style={{ fontSize: 16 }}>{label}</Text>
+                  {isFoodEditMode ? (
+                    <TextInput
+                      style={styles.repInputEdit}
+                      value={value.toString()} // Ensure the value is a string
+                      onChangeText={(text) => {
+                        const numericValue = parseFloat(text) || 0; // Parse text to a number or default to 0
+                        setValue(numericValue); // Update the corresponding state
+                      }}
+                      keyboardType="numeric"
+                    />
+                  ) : (
+                    <Text style={styles.repInput}>{value}{(index == 1 || index == 2 || index == 3) ? 'g' : ''}</Text>
+                  )}
+                </View>
+              );
+            })}
+
+            <View style={styles.modalButtonsContainer}>
+              <TouchableOpacity style={styles.modalButton1} onPress={foodSaveAndAddToDay}>
+                <Text style={{ color: '#21BFBF', fontSize: 15 }}>Log Today</Text>
+              </TouchableOpacity>
+              {isFoodEditMode ? (
+                <TouchableOpacity style={styles.modalButton2} onPress={saveChanges}>
+                  <Text style={{ color: '#fff', fontSize: 15 }}>Save</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity style={styles.modalButton2} onPress={toggleEditMode}>
+                  <Text style={{ color: '#fff', fontSize: 15 }}>Edit</Text>
+                </TouchableOpacity>
+              ) }
+              
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-    circle: {
-        width: 100, // Diameter of the circle
-        height: 50,
-        borderRadius: 20, // Half of the width/height to make it a circle
-        justifyContent: 'center', // Center the text vertically
-        alignItems: 'center', // Center the text horizontally
-        marginRight: 10,
-        marginLeft: 10,
-        marginTop: 5,
-        marginBottom: 5,
-    },
   foodItemContainer: {
-    position: 'relative',
-    padding: 30, 
-    backgroundColor: 'white', 
-    borderBottomWidth: 1, 
+    padding: 20,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
     borderColor: 'black',
-    alignItems: 'center',
     flexDirection: 'row',
-}, 
-    foodName: {
-      position: 'absolute',
-      fontSize: 16,
-      fontWeight: 'bold',
-      left: 10, 
+  },
+  foodName: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   foodTextRight: {
-      position: 'absolute',
-      fontSize: 16, 
-      right: 10, 
+    position: 'absolute',
+    right: 10,
+    flexDirection: 'row',
+    marginTop: 23,
   },
-  foodDetails: {
-    position: 'relative', 
-    left: 100,
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  modalTitleEdit: {
+    fontSize: 18,
+    backgroundColor: '#D9D9D9',
+    width: '80%',
+    borderRadius: 5,
+    textAlign: 'center',
+    color: 'black',
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  repInputEdit: {
     fontSize: 16,
-  },    
+    backgroundColor: '#D9D9D9',
+    width: '20%',
+    borderRadius: 5,
+    textAlign: 'center',
+    color: 'black',
+  },
+  repInput: {
+    fontSize: 16,
+    backgroundColor: 'white',
+    width: '20%',
+    borderRadius: 5,
+    textAlign: 'center',
+    color: 'black',
+  },
+  modalButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
+  modalButton1: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#21BFBF',
+    borderRadius: 20,
+    padding: 10,
+    width: '48%',
+    alignItems: 'center',
+  },
+  modalButton2: {
+    backgroundColor: '#21BFBF',
+    borderRadius: 20,
+    padding: 10,
+    width: '48%',
+    alignItems: 'center',
+  },
 });
 
-export default LogFoodButton; 
+export default LogFoodButton;

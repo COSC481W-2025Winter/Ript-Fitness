@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, fireEvent, act } from '@testing-library/react-native';
-import LoginScreen from '@/app/screens/LoginScreen';
+import LoginScreen from '@/app/screens/welcome/LoginScreen';
+import SignupScreen from '@/app/screens/welcome/SignupScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -46,7 +47,7 @@ jest.mock('@/api/httpRequests', () => ({
 
 describe('LoginScreen', () => {
   it('renders correctly', () => {
-    const { getByPlaceholderText, getByText } = render(
+    const { getByTestId, getByPlaceholderText, getByText } = render(
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen name="Login" component={LoginScreen} />
@@ -54,7 +55,7 @@ describe('LoginScreen', () => {
       </NavigationContainer>
     );
 
-    expect(getByText('Welcome Back')).toBeTruthy();
+    expect(getByTestId('login-header')).toBeTruthy();
     expect(getByText('Sign into your Account')).toBeTruthy();
     expect(getByPlaceholderText('Username')).toBeTruthy();
     expect(getByPlaceholderText('Password')).toBeTruthy();
@@ -83,15 +84,16 @@ describe('LoginScreen', () => {
     const { getByText } = render(
       <NavigationContainer>
         <Stack.Navigator>
+          <Stack.Screen name="Signup" component={SignupScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     );
 
-    const loginButton = getByText('Log in');
+    const signupButton = getByText("I'm already registered");
 
     await act(async () => {
-      fireEvent.press(loginButton);
+      fireEvent.press(signupButton);
     });
 
     //expect(mockNavigate).toHaveBeenCalledWith('Home');
