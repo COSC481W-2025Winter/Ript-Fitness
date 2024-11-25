@@ -56,6 +56,8 @@ public class ExerciseControllerTest {
 	@Test
 	public void testGetExercisesFromCurrentUser() throws Exception {
 		// Arrange
+		int nMostRecent = 2; // Specify how many recent exercises you want to retrieve
+
 		ExerciseDto exerciseDto1 = new ExerciseDto();
 		exerciseDto1.setExerciseId(1L);
 		exerciseDto1.setNameOfExercise("Push Ups");
@@ -70,17 +72,18 @@ public class ExerciseControllerTest {
 
 		List<ExerciseDto> exerciseDtoList = Arrays.asList(exerciseDto1, exerciseDto2);
 
-		when(exerciseService.getExercisesFromCurrentUser()).thenReturn(exerciseDtoList);
+		when(exerciseService.getExercisesFromCurrentUser(nMostRecent)).thenReturn(exerciseDtoList);
 
 		// Act & Assert
-		mockMvc.perform(get("/exercises/getAllExercises").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+		mockMvc.perform(get("/exercises/getAllExercises/{nMostRecent}", nMostRecent) // Use path variable in the request
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(jsonPath("$[0].exerciseId").value(1))
 				.andExpect(jsonPath("$[0].nameOfExercise").value("Push Ups")).andExpect(jsonPath("$[0].sets").value(3))
 				.andExpect(jsonPath("$[0].reps[0]").value(10)).andExpect(jsonPath("$[1].exerciseId").value(2))
 				.andExpect(jsonPath("$[1].nameOfExercise").value("Squats")).andExpect(jsonPath("$[1].sets").value(4))
 				.andExpect(jsonPath("$[1].reps[1]").value(8));
 
-		verify(exerciseService, times(1)).getExercisesFromCurrentUser();
+		verify(exerciseService, times(1)).getExercisesFromCurrentUser(nMostRecent);
 	}
 
 	@Test
@@ -155,6 +158,32 @@ public class ExerciseControllerTest {
 		mockMvc.perform(get("/exercises/findByKeyword/ups")).andExpect(status().isOk())
 				.andExpect(jsonPath("$[0].nameOfExercise").value("Push Ups"))
 				.andExpect(jsonPath("$[1].nameOfExercise").value("Pull Ups"));
+	}
+
+	@Test
+	public void testUpdateExercise() throws Exception {
+		// Arrange
+		ExerciseDto exerciseDto = new ExerciseDto();
+		exerciseDto.setExerciseId(1L);
+		exerciseDto.setNameOfExercise("Updated Exercise");
+		exerciseDto.setSets(3);
+		exerciseDto.setReps(Arrays.asList(10, 12, 15));
+		exerciseDto.setWeight(Arrays.asList(100, 110, 120));
+
+		String exerciseJson = new ObjectMapper().writeValueAsString(exerciseDto);
+
+		when(exerciseService.updateExercise(any(ExerciseDto.class))).thenReturn(exerciseDto);
+
+		// Act & Assert
+		mockMvc.perform(put("/exercises/updateExercise").contentType(MediaType.APPLICATION_JSON).content(exerciseJson))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.exerciseId").value(1))
+				.andExpect(jsonPath("$.nameOfExercise").value("Updated Exercise"))
+				.andExpect(jsonPath("$.sets").value(3)).andExpect(jsonPath("$.reps[0]").value(10))
+				.andExpect(jsonPath("$.reps[1]").value(12)).andExpect(jsonPath("$.reps[2]").value(15))
+				.andExpect(jsonPath("$.weight[0]").value(100)).andExpect(jsonPath("$.weight[1]").value(110))
+				.andExpect(jsonPath("$.weight[2]").value(120));
+
+		verify(exerciseService, times(1)).updateExercise(any(ExerciseDto.class));
 	}
 
 }

@@ -1,7 +1,7 @@
 // ./app/(tabs)/SocialStack.tsx
 
 import React, { useContext } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Image } from 'react-native';
 import { createStackNavigator, HeaderStyleInterpolators, StackNavigationProp } from '@react-navigation/stack';
 import { SocialProvider } from '@/context/SocialContext';
 import SocialFeed from '../screens/socialfeed/SocialFeed';
@@ -36,7 +36,15 @@ const SocialStack: React.FC = () => {
           <Stack.Screen
             name="SocialFeed"
             component={SocialFeed}
-            options={{ title: 'Social Feed', headerRight: () => <StreakCounter />, }}
+            options={{ 
+              title: '',
+              headerTitle: () => (
+                <Image
+                  source={require('@/assets/images/Ript_logo_final.png')}
+                  style={{ width: 100, height: 35,}}
+                />
+              ), 
+              headerRight: () => <StreakCounter />, }}
           />
           <Stack.Screen
             name="CommentsScreen"

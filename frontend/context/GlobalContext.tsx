@@ -6,6 +6,8 @@ import { ProfileContext } from './ProfileContext';
 import DEFAULT_PROFILE_PICTURE from '@/assets/base64/defaultPicture';
 
 
+
+
 // Define the structure of your global data
 export interface GlobalData {
   token: string;
@@ -56,6 +58,28 @@ export interface CalendarLoadTracker {
   endDate: string,
 }
 
+export interface Workout {
+  id: number; // Optional, as it will be mapped from workoutsId
+  name: string;
+  exercises: Exercise[];
+  isDeleted?: boolean;
+}
+
+
+export interface Exercise {
+  exerciseId: number;
+  nameOfExercise: string;
+  sets: number;
+  reps: number[];
+  weight: number[];
+  description: string;
+  exerciseType: number;
+  isDeleted?: boolean;
+
+
+}
+
+
 interface GlobalContextType {
   data: GlobalData;
   updateGlobalData: (updatedData: GlobalData) => void;
@@ -75,8 +99,13 @@ interface GlobalContextType {
   loadCalendarDays: (dateRange: { startYear: number; startMonth: number; endYear: number; endMonth: number; }) => Promise<void>;
   clearCalendar: () => void;
 }
+const httpRequests = {
+  getBaseURL: () => "http://ript-fitness-app.azurewebsites.net",
+};
+
 
 export const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
+
 
 interface GlobalProviderProps {
   children: ReactNode;
@@ -103,11 +132,15 @@ function getDateRange() {
 
 export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
 
+
   const [isLoaded, setIsLoaded] = useState(false);
   const [additionalLoadingRequired, setAdditionalLoadingRequired] = useState(false);
   const [data, setData] = useState<GlobalData>({ token: '' });
   const [calendar, setCalendar] = useState<Calendar>({});
   const [calendarLoadTracker, setCalendarLoadTracker] = useState<CalendarLoadTracker>({ startDate:"", endDate:""})
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
+
+
 
 
   const updateCalendarLoadTracker = (dateRange: { startDate: string; endDate: string }) => {
@@ -229,10 +262,54 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
       console.error('Failed to save token:', error);
     }
   };
+  const updateWorkout = (updatedWorkout: Workout) => {
+    setWorkouts((prevWorkouts) =>
+      prevWorkouts.map((workout) =>
+        workout.id === updatedWorkout.id ? updatedWorkout : workout
+      )
+    );
+  };
+
+
+  const fetchWorkouts = async () => {
+    try {
+      console.log("Fetching workouts with token:", data.token);
+
+
+      const response = await fetch(`${httpRequests.getBaseURL()}/workouts/getUsersWorkouts`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${data.token}`,
+        },
+      });
+
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch workouts: ${response.statusText}`);
+      }
+
+
+      const fetchedWorkouts: Workout[] = await response.json();
+      console.log("Fetched workouts:", fetchedWorkouts);
+
+
+      setWorkouts(fetchedWorkouts); // Update the state with fetched workouts
+    } catch (error) {
+      console.error("Error fetching workouts:", error);
+    }
+  };
+  const addWorkout = (workout: Workout) => {
+    console.log("Adding workout to global context:", workout);
+    setWorkouts((prevWorkouts) => [...prevWorkouts, workout]);
+  };
+
+
+
 
   // Track changes to `data` and log the new value
   useEffect(() => {
   }, [data.token]); // Run whenever `data` changes
+
 
   const loadInitialData = async () => {
     if (!isLoaded) {
@@ -453,6 +530,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
 
   return (
 
+
     <GlobalContext.Provider
       value={{
         data,
@@ -472,10 +550,16 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         calendarLoadTracker,
         loadCalendarDays,
         clearCalendar
+        workouts,
+        fetchWorkouts,
+        addWorkout,
+        updateWorkout,
       }}
     >
+
 
       {children}
     </GlobalContext.Provider>
   );
 };
+

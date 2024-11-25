@@ -48,7 +48,7 @@ public class JwtUtil {
     }
 
     // Check if the token is expired
-    private Boolean isTokenExpired(String token) {
+    public Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
@@ -64,7 +64,7 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // Token validity: 10 hours
+                .setExpiration(new Date(System.currentTimeMillis() +  1000L * 60 * 60 * 24 * 365 * 50)) // Token validity: 50 years (24 * 365 * 50) 24 hours * 365 days * 50 years
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256) // Use the signing key and HS256 algorithm
                 .compact();
     }

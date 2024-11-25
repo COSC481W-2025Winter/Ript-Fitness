@@ -1,6 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import com.riptFitness.Ript_Fitness_Backend.domain.model.SocialPostComment;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.SocialPostCommentRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.SocialPostRepository;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.UserProfileRepository;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.SocialPostCommentDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.SocialPostDto;
 
@@ -26,17 +28,22 @@ public class SocialPostService {
 	private AccountsRepository accountsRepository;
 	
 	private AccountsService accountsService;
+	
+	private UserProfileRepository userProfileRepository;
 
-	public SocialPostService(SocialPostRepository socialPostRepository, SocialPostCommentRepository socialPostCommentRepository, AccountsRepository accountsRepository, AccountsService accountsService) {
+	public SocialPostService(SocialPostRepository socialPostRepository, SocialPostCommentRepository socialPostCommentRepository, AccountsRepository accountsRepository, AccountsService accountsService, UserProfileRepository userProfileRepository) {
 		this.socialPostRepository = socialPostRepository;
 		this.socialPostCommentRepository = socialPostCommentRepository;
 		this.accountsRepository = accountsRepository;
 		this.accountsService = accountsService;
+		this.userProfileRepository = userProfileRepository;
 	}
 	
 	public SocialPostDto addPost(SocialPostDto socialPostDto) {
 		SocialPost socialPostToBeAdded = SocialPostMapper.INSTANCE.toSocialPost(socialPostDto);
-		socialPostToBeAdded.accountId = accountsService.getLoggedInUserId();
+		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
+		socialPostToBeAdded.account = accountsRepository.findById(currentlyLoggedInUserId).get();
+		socialPostToBeAdded.userProfile = userProfileRepository.findUserProfileByAccountId(currentlyLoggedInUserId).get();
 		socialPostToBeAdded = socialPostRepository.save(socialPostToBeAdded);
 		return SocialPostMapper.INSTANCE.toSocialPostDto(socialPostToBeAdded);
 	}
@@ -52,15 +59,127 @@ public class SocialPostService {
 		return SocialPostMapper.INSTANCE.toSocialPostDto(returnedSocialPostObject);
 	}
 	
-	public ArrayList<Long> getPostsFromAccountId(){
+	public ArrayList<SocialPostDto> getPostsFromCurrentlyLoggedInUser(Integer startIndex, Integer endIndex){
+		if(startIndex > endIndex)
+			throw new RuntimeException("Start index cannot be greater than end index. Start index = " + startIndex + ", end index = " + endIndex);
+		
+		if(startIndex < 0 || endIndex < 0)
+			throw new RuntimeException("Start index and end index must be greater than 0. Start index = " + startIndex + ", end index = " + endIndex);
+				
 		Long currentUsersAccountId = accountsService.getLoggedInUserId();
 		
-		Optional<ArrayList<Long>> postsFromAccountId = socialPostRepository.getPostsFromAccountId(currentUsersAccountId);
+		Optional<ArrayList<SocialPost>> optionalPostsFromAccountId = socialPostRepository.getPostsFromAccountId(currentUsersAccountId);
 		
-		if(postsFromAccountId.isEmpty())
-			return new ArrayList<Long>();
+		if(optionalPostsFromAccountId.isEmpty())
+			return new ArrayList<SocialPostDto>();
 		
-		return postsFromAccountId.get();
+		ArrayList<SocialPost> postsFromAccountId = optionalPostsFromAccountId.get();
+		
+		int start = postsFromAccountId.size() - startIndex - 1;
+		int end = postsFromAccountId.size() - endIndex - 1;
+		
+		if(start < 0)
+			throw new RuntimeException("There are not enough posts from the current user to match the path variables provided.");
+		
+		if(start >= postsFromAccountId.size()) 
+			start = postsFromAccountId.size() - 1;
+		
+		if(end < 0)
+			end = 0;
+		
+		ArrayList<SocialPostDto> postDtosFromAccountId = new ArrayList<SocialPostDto>();
+				
+		for(int i = start; i >= end; i--) {
+			postDtosFromAccountId.add(SocialPostMapper.INSTANCE.toSocialPostDto(postsFromAccountId.get(i)));
+		}
+		
+		return postDtosFromAccountId;
+	}
+	
+	public ArrayList<SocialPostDto> getPostsFromAccountId(Long accountId, Integer startIndex, Integer endIndex){
+		if(startIndex > endIndex)
+			throw new RuntimeException("Start index cannot be greater than end index. Start index = " + startIndex + ", end index = " + endIndex);
+		
+		if(startIndex < 0 || endIndex < 0)
+			throw new RuntimeException("Start index and end index must be greater than 0. Start index = " + startIndex + ", end index = " + endIndex);
+		
+		Optional<ArrayList<SocialPost>> optionalPostsFromAccountId = socialPostRepository.getPostsFromAccountId(accountId);
+		
+		if(optionalPostsFromAccountId.isEmpty())
+			return new ArrayList<SocialPostDto>();
+		
+		ArrayList<SocialPost> postsFromAccountId = optionalPostsFromAccountId.get();
+		
+		int start = postsFromAccountId.size() - startIndex - 1;
+		int end = postsFromAccountId.size() - endIndex - 1;
+		
+		if(start < 0)
+			throw new RuntimeException("There are not enough posts from the current user to match the path variables provided.");
+		
+		if(start >= postsFromAccountId.size()) 
+			start = postsFromAccountId.size() - 1;
+		
+		if(end < 0)
+			end = 0;
+		
+		ArrayList<SocialPostDto> postDtosFromAccountId = new ArrayList<SocialPostDto>();
+				
+		for(int i = start; i >= end; i--) {
+			postDtosFromAccountId.add(SocialPostMapper.INSTANCE.toSocialPostDto(postsFromAccountId.get(i)));
+		}
+		
+		return postDtosFromAccountId;
+	}
+	
+	public ArrayList<SocialPostDto> getSocialFeed(Integer startIndex, Integer endIndex){
+		if(startIndex > endIndex)
+			throw new RuntimeException("Start index cannot be greater than end index. Start index = " + startIndex + ", end index = " + endIndex);
+		
+		if(startIndex < 0 || endIndex < 0)
+			throw new RuntimeException("Start index and end index must be greater than 0. Start index = " + startIndex + ", end index = " + endIndex);
+		
+		Long currentUsersAccountId = accountsService.getLoggedInUserId();
+		
+		AccountsModel currentlyLoggedInAccount = accountsRepository.findById(currentUsersAccountId).get();
+		
+		List<AccountsModel> currentUsersFriendsList = currentlyLoggedInAccount.getFriends();
+		
+		ArrayList<Long> currentUsersFriendsIds = new ArrayList<>();
+		
+		for(AccountsModel account : currentUsersFriendsList) {
+			currentUsersFriendsIds.add(account.getId());
+		}
+		
+		currentUsersFriendsIds.add(currentUsersAccountId);	//getSocialFeed should also include Social Posts from the currently logged in user
+			
+		Optional<List<SocialPost>> optionalSocialFeedList = accountsRepository.getSocialFeed(currentUsersFriendsIds);
+		
+		if(optionalSocialFeedList.isEmpty())
+			return new ArrayList<SocialPostDto>();
+			
+		List<SocialPost> socialFeedList = optionalSocialFeedList.get();
+		
+		ArrayList<SocialPost> socialFeed = new ArrayList<>(socialFeedList);
+		
+		int start = socialFeed.size() - startIndex - 1;
+		int end = socialFeed.size() - endIndex - 1;
+		
+		if(start < 0)
+			throw new RuntimeException("There are not enough posts from the current user's social feed to match the path variables provided.");
+		
+		if(start >= socialFeed.size()) 
+			start = socialFeed.size() - 1;
+		
+		if(end < 0)
+			end = 0;
+			
+		ArrayList<SocialPostDto> returnedSocialFeedList = new ArrayList<>();
+		
+		for(int i = start; i >= end; i--){
+			returnedSocialFeedList.add(SocialPostMapper.INSTANCE.toSocialPostDto(socialFeed.get(i)));
+		}
+		
+		return returnedSocialFeedList;
 	}
 	
 	public SocialPostDto editPostContent(Long socialPostId, String newSocialPostContent) {
@@ -148,8 +267,6 @@ public class SocialPostService {
 	}
 	
 	public SocialPostDto addComment(SocialPostCommentDto socialPostComment) {
-		socialPostComment.accountId = accountsService.getLoggedInUserId();
-		
 		Optional<SocialPost> optionalSocialPostObject = socialPostRepository.findById(socialPostComment.postId);
 		
 		if(optionalSocialPostObject.isEmpty())
@@ -158,6 +275,11 @@ public class SocialPostService {
 		SocialPost socialPostObject = optionalSocialPostObject.get();
 		
 		SocialPostComment socialPostCommentModel = SocialPostCommentMapper.INSTANCE.toSocialPostComment(socialPostComment);
+		
+		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
+
+		socialPostCommentModel.account = accountsRepository.findById(currentlyLoggedInUserId).get();
+		socialPostCommentModel.userProfile = userProfileRepository.findUserProfileByAccountId(currentlyLoggedInUserId).get();
 				
 		socialPostObject.socialPostComments.add(socialPostCommentModel);
 		
@@ -194,14 +316,25 @@ public class SocialPostService {
 		return SocialPostMapper.INSTANCE.toSocialPostDto(updatedSocialPost);
 	}
 	
-	public ArrayList<Long> getCommentsFromAccountId(){
+	/*
+	*** Getting rid of this endpoint for now as it isn't being used. Will add back if necessary. ***
+	public ArrayList<SocialPostCommentDto> getCommentsFromAccountId(){
 		Long currentUsersAccountId = accountsService.getLoggedInUserId();
 		
-		Optional<ArrayList<Long>> commentsFromAccountId = socialPostCommentRepository.getPostsFromAccountId(currentUsersAccountId);
+		Optional<ArrayList<SocialPostComment>> optionalCommentsFromAccountId = socialPostCommentRepository.getPostsFromAccountId(currentUsersAccountId);
 		
-		if(commentsFromAccountId.isEmpty())
-			return new ArrayList<Long>();
+		if(optionalCommentsFromAccountId.isEmpty())
+			return new ArrayList<SocialPostCommentDto>();
 		
-		return commentsFromAccountId.get();
+		ArrayList<SocialPostComment> commentsFromAccountId = optionalCommentsFromAccountId.get();
+		
+		ArrayList<SocialPostCommentDto> commentDtosFromAccountId = new ArrayList<SocialPostCommentDto>();
+		
+		for(int i = 0; i < commentsFromAccountId.size(); i++) {
+			commentDtosFromAccountId.add(SocialPostCommentMapper.INSTANCE.toSocialPostCommentDto(commentsFromAccountId.get(i)));
+		}
+		
+		return commentDtosFromAccountId;
 	}
+	*/
 }
