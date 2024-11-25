@@ -17,7 +17,6 @@ public class AccountsDto {
     public String email;
     public LocalDateTime lastLogin; // New date-time field
     public Streak streak;
-    public List<SocialPost> socialPosts;
     
     // Constructor
     public AccountsDto() {

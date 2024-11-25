@@ -5,16 +5,20 @@ import { createStackNavigator, StackNavigationProp, HeaderStyleInterpolators } f
 import ApiScreen from '@/app/screens/ApiScreen';
 import MyWorkoutsScreen from '@/app/screens/workout/MyWorkoutsScreen';
 import WorkoutApiScreen from '@/app/screens/workout/WorkoutApiScreen';
-import { WorkoutProvider } from '@/context/WorkoutContext';
+import { WorkoutContext, WorkoutProvider } from '@/context/WorkoutContext';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import AddWorkoutScreen from '../screens/workout/AddWorkoutScreen';
-import StartWorkoutScreen from '../screens/workout/StartWorkoutScreen';
+import {AddWorkoutScreen} from '../screens/workout/AddWorkoutScreen'
+import StartWorkoutScreen from '@/app/screens/workout/StartWorkoutScreen';
+import RiptWorkoutScreen from '@/app/screens/riptworkouts/RiptWorkoutScreen';
+import WorkoutDetailScreen from '@/app/screens/riptworkouts/WorkoutDetailScreen';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation } from '@react-navigation/native';
 import StreakCounter from '@/components/StreakCounter';
-import MyNotesScreen from '../screens/notes/MyNotesScreen';
+import MyNotesScreen from '@/app/screens/notes/MyNotesScreen';
 import EditNoteScreen from '@/app/screens/notes/EditNoteScreen';
 import { Note } from '@/components/MyNotes/NotesContext';
+import { useContext } from 'react';
+import { Workout } from '../screens/riptworkouts/RiptWorkouts';
 
 
 const Stack = createStackNavigator();
@@ -26,6 +30,8 @@ export type WorkoutStackParamList = {
   StartWorkoutScreen: {};
   AddWorkoutScreen: {};
   MyWorkoutsScreen: {};
+  RiptWorkoutScreen: {};
+  WorkoutDetailScreen: { workout: Workout};
   MyNotesScreen: {};
   EditNoteScreen: { note:Note | null };
 };
@@ -34,19 +40,25 @@ export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamL
 
 export default function WorkoutStack(props : any) {
   const navigation = useNavigation<WorkoutScreenNavigationProp >();
+  const context = useContext(WorkoutContext)
   return (
-    <WorkoutProvider>
 
     <Stack.Navigator initialRouteName="WorkoutApiScreen" screenOptions={{ 
       headerShown: true,
       headerStyleInterpolator: HeaderStyleInterpolators.forNoAnimation,
     }}>
-      <Stack.Screen name="WorkoutApiScreen" component={WorkoutApiScreen} options={{ headerShown: true }}/>
-      <Stack.Screen name="ApiScreen" component={ApiScreen} options={{
+
+      <Stack.Screen name="WorkoutApiScreen" component={WorkoutApiScreen} options={{ 
+        title: '', 
         headerRight: () => <StreakCounter />,
       }} />
-      <Stack.Screen name="StartWorkoutScreen" component={StartWorkoutScreen} options={{
+      <Stack.Screen name="ApiScreen" component={ApiScreen} options={{
+
         headerRight: () => <StreakCounter />,
+       }}/>
+      <Stack.Screen name="ApiScreen" component={ApiScreen} options={{   }} />
+      <Stack.Screen name="StartWorkoutScreen" component={StartWorkoutScreen} options={{
+        // headerRight: () => <StreakCounter />,
       }} />
       <Stack.Screen name="MyWorkoutsScreen" component={MyWorkoutsScreen} options={{ title: 'My Workouts',
         headerLeft: () => (
@@ -59,6 +71,27 @@ export default function WorkoutStack(props : any) {
         headerTitleAlign: 'center',
         }}
       />
+      <Stack.Screen name="RiptWorkoutScreen" component={RiptWorkoutScreen} options={{ title: 'Ript Workouts',
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => { navigation.navigate("WorkoutApiScreen", {}) }}
+            style={[styles.leftButton, styles.button, styles.buttonSize]}>
+            <TabBarIcon style={styles.leftArrow} name='arrow-down' size={30} color='#454343' />
+          </TouchableOpacity>
+        ),
+        headerTitleAlign: 'center',
+        }}
+      />
+      <Stack.Screen name="WorkoutDetailScreen" component={WorkoutDetailScreen} options={{ title: 'Workout Details', 
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => { navigation.navigate("RiptWorkoutScreen", {}) }}
+            style={[styles.leftButton, styles.button, styles.buttonSize]}>
+            <TabBarIcon style={styles.leftArrow} name='arrow-down' size={30} color='#454343' />
+          </TouchableOpacity>
+        ),
+        headerTitleAlign: 'center',
+     }} />
 
       <Stack.Screen name="EditNoteScreen" component={EditNoteScreen} options={{ title: '',
         headerLeft: () => (
@@ -68,14 +101,14 @@ export default function WorkoutStack(props : any) {
             <TabBarIcon style={styles.leftArrow} name='arrow-down' size={30} color='#454343' />
           </TouchableOpacity>
         ),
-        headerRight: () => (
-          <TouchableOpacity
-            // onPress={() => { navigation.navigate("WorkoutApiScreen", {}) }}
-            style={[styles.rightButton, styles.button, styles.buttonSize]}
-          >
-            <TabBarIcon name='trash-outline' size={30} color='#454343' />
-          </TouchableOpacity>
-        ),
+        // headerRight: () => (
+        //   <TouchableOpacity
+        //     // onPress={() => { navigation.navigate("WorkoutApiScreen", {}) }}
+        //     style={[styles.rightButton, styles.button, styles.buttonSize]}
+        //   >
+        //     <TabBarIcon name='trash-outline' size={30} color='#454343' />
+        //   </TouchableOpacity>
+        // ),
         headerTitleAlign: 'center',
         }}
       />
@@ -94,9 +127,11 @@ export default function WorkoutStack(props : any) {
         //   </View>
         // ),
         // <Svg ... /> commented out
+
+        //Add button - add a workout
         headerRight: () => (
           <TouchableOpacity
-            onPress={() => { navigation.navigate("ApiScreen", {}) }}
+            onPress={() => { context?.setVisible(true) }}
             style={[styles.rightButton, styles.button, styles.buttonSize]}
           >
             <TabBarIcon name='add-outline' size={30} color='#454343' />
@@ -138,7 +173,6 @@ export default function WorkoutStack(props : any) {
 
       */}
     </Stack.Navigator>
-    </WorkoutProvider>
   );
 }
 

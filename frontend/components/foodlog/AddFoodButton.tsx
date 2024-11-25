@@ -7,6 +7,7 @@ type AddFoodButtonProps = {
   borderColor?: string;
   borderWidth?: number;
   width?: number,
+  height?: number,
   textColor?: string;
   fontSize?: number;
   onPress?: () => void;

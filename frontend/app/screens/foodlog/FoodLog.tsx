@@ -1,20 +1,21 @@
 
-import { TextInput, StyleSheet, ScrollView, Text, View } from "react-native";
-import React, { useContext, useEffect, useState } from 'react';
+import { TextInput, StyleSheet, ScrollView, Text, View, SafeAreaView } from "react-native";
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import MacroButton from "@/components/foodlog/MacroButton";
 import { httpRequests } from "@/api/httpRequests";
 import { GlobalContext } from "@/context/GlobalContext";
 import FoodLogAddPage from "./FoodLogAdd";
 import FoodLogSavedPage from "./FoodLogSaved";
 import FoodLogLoggedPage from "./FoodLogLogged";
-import { WorkoutScreenNavigationProp } from "@/app/(tabs)/WorkoutStack";
 import { ProfileScreenNavigationProp } from "@/app/(tabs)/ProfileStack";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 
 export default function FoodLogScreen() {
-    
+
     const navigation = useNavigation<ProfileScreenNavigationProp>();
     const [selectedPage, setSelectedPage] = useState("Logged"); // Track selected page
     const [totalCalories, setTotalCalories] = useState(0);
@@ -22,14 +23,12 @@ export default function FoodLogScreen() {
     const [totalCarbs, setTotalCarbs] = useState(0);
     const [totalProtein, setTotalProtein] = useState(0);
     const [totalWater, setTotalWater] = useState(0);
+    const [dayIndex, setDayIndex] = useState(0);
     const [day, setDay] = useState();
     const context = useContext(GlobalContext);
-    
-    const dayData = {
-        "foodsEatenInDay": [],
-        "foodIdsInFoodsEatenInDayList": []
-    }
+    const [cached, setCached] = useState(false);
 
+    
     const newDay = async () => {
         try {
             const dayResponse = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/addDay`, {
@@ -38,14 +37,19 @@ export default function FoodLogScreen() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${context?.data.token}`,
                 }, 
-                body: JSON.stringify(dayData),
+                body: '{}',
             });
+            console.log(dayResponse.status);
 
             if (dayResponse.status === 201) {
                 const data = await dayResponse.json(); 
-                setDay(data.id);
-                console.log("Day ID: ", data.id);
+                const dayID = data.id;
+                setDay(dayID);
+                // console.log("Day ID: ", dayID);
                 clearMacroFields();
+                
+                await AsyncStorage.setItem('day', JSON.stringify(dayID));
+                await AsyncStorage.removeItem('foodTodayDetails');
             }
         } catch (error) {
             console.log("Failed to create day", error);
@@ -61,8 +65,15 @@ export default function FoodLogScreen() {
     };
 
     const setTotalForDay = async () => {
+        const thisDay = await AsyncStorage.getItem('day');
+        if (thisDay) {
+            setDay(JSON.parse(thisDay));
+        } else {
+            console.log("Error setting day: ", thisDay);
+        }
+
         try {
-            console.log(day)
+            console.log("day", day);
             const getDayResponse = await fetch (`${httpRequests.getBaseURL()}/nutritionCalculator/getDay/${day}`, {
                 method: 'PUT', 
                 headers: {
@@ -72,13 +83,21 @@ export default function FoodLogScreen() {
             }); 
             console.log(getDayResponse.status);
 
-            if (getDayResponse.status == 201 || getDayResponse.status == 200) {
+            if (getDayResponse.status == 200) {
                 const dayData = await getDayResponse.json(); 
-                console.log(dayData);
+                // console.log(dayData);
+                await AsyncStorage.setItem('fullDay', JSON.stringify(dayData));
+
                 setTotalCalories(dayData.calories); 
                 setTotalCarbs(dayData.totalCarbs);
                 setTotalProtein(dayData.totalProtein);
                 setTotalFat(dayData.totalFat);
+                setTotalWater(dayData.totalWaterConsumed);
+                setCached(true);
+
+                await AsyncStorage.setItem('day', JSON.stringify(dayData.id));
+                setDay(dayData.id);
+                // console.log("day item in storage: ", dayData.id);
             } else {
                 console.log('Failed to get day');
             }
@@ -87,114 +106,130 @@ export default function FoodLogScreen() {
         }
     };
 
+
     const updateTotalMacros = () => {
         setTotalCalories(totalCalories);
         setTotalFat(totalFat);
         setTotalCarbs(totalCarbs);
         setTotalProtein(totalProtein);
+        setTotalWater(totalWater);
     };
 
-    useEffect(() => {
-        setTotalForDay();
-        updateTotalMacros();
-    }, [selectedPage]);
 
+    useFocusEffect(
+        useCallback(() => {
+            const fetchDayID = async () => {
+                const dayData = await AsyncStorage.getItem('fullDay');
+                // console.log(dayData); // Should print the stored ID
+                if (dayData) {
+                    const dayID = JSON.parse(dayData).id;
+                    setDay(dayID);
+                } else {
+                    console.log("dayID is null");
+                }
+            };
 
+            fetchDayID();
+            setTotalForDay();
+            updateTotalMacros();
+            updateWater();
     
-    const addWater = async () => {
-        try {
-            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/editWaterIntake/${day}/10`, {
-                method: 'PUT', 
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${context?.data.token}`,
-                }
-            });
+            // Optionally clean up resources here
+        }, [totalCalories, selectedPage])
+    );
+    
+ 
+    
+let amount = totalWater;
 
-            if(response.status == 200 || response.status == 201) {
-                const dayData = await response.json();
-                setTotalWater(dayData.totalWaterConsumed);
-            } else {
-                console.log('Failed to edit water');
+const addWater = async () => {
+    amount += 8; 
+    setTotalWater(amount);
+}
+const minusWater = async () => {
+    if (amount!= 0) {
+        amount -= 8; 
+        setTotalWater(amount);
+    }
+}
+
+const updateWater = async () => {
+    try {
+        const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/editWaterIntake/${day}/${amount}`, {
+            method: 'PUT', 
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${context?.data.token}`,
             }
-        } catch (error) {
-            console.log('Error', 'An error occurred. Please try again.');
-        }
-    };
+        });
 
-    const minusWater = async () => {
-        try {
-            const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/editWaterIntake/${day}/-10`, {
-                method: 'PUT', 
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${context?.data.token}`,
-                }
-            });
-
-            if(response.status == 200 || response.status == 201) {
-                const dayData = await response.json();
-                setTotalWater(dayData.totalWaterConsumed);
-            } else {
-                console.log('Failed to edit water');
-            }
-        } catch (error) {
-            console.log('Error', 'An error occurred. Please try again.');
+        if(response.status == 200 || response.status == 201) {
+            const dayData = await response.json();
+            setTotalWater(dayData.totalWaterConsumed);
+        } else {
+            console.log('Failed to edit water');
         }
-    };
+    } catch (error) {
+        console.log('Error', 'An error occurred. Please try again.');
+    }
+}
 
     const renderContent = () => {
-        if (selectedPage === "Logged") return <FoodLogLoggedPage dayId={day}/>;
+        if (selectedPage === "Logged") return <FoodLogLoggedPage />;
         if (selectedPage === "Saved") return <FoodLogSavedPage />;
-        if (selectedPage === "Add") return <FoodLogAddPage dayId={day} />;
+        if (selectedPage === "Add") return <FoodLogAddPage />;
     };
 
-    return(
-        <View>
+    return (
+        <SafeAreaView style={styles.flexContainer}>
             <View>
                 <View style={styles.calendarNav}>
                     <Ionicons 
                         name={"chevron-back-outline"} 
+                        color={"white"}
                         size={24} 
                         style={styles.leftArrow}
                         onPress={() => navigation.navigate('ApiScreen')}
                 />
-                    <Ionicons name={"calendar-clear-outline"} size={24}></Ionicons>
-                    {/* This will be "today" when it is the current date, if not it will display the date of the data they are viewing*/}
-                    <Text onPress={() => newDay()}>Today</Text>
+                     <Ionicons name={"calendar-clear-outline"} size={24} color={"white"}></Ionicons>
+                    <Text style={styles.whiteText} onPress={() => newDay()}>Today</Text>
                     <Ionicons 
                         name={"chevron-forward-outline"} 
+                        color={"white"}
                         size={24} 
                         style={styles.rightArrow}
                         onPress={() => navigation.navigate('ApiScreen')}
-                    />
+                    /> 
                 </View>
             
             <View style={styles.macroView}> 
                 <View style={styles.macroRow}>
                     <MacroButton
                         title="Calories"
+                        label=""
                         total={totalCalories}
-                        textColor="#0E598D"
-                        borderColor="#0E598D"
+                        textColor="#F2D06B"
+                        borderColor="#F2D06B"
                         borderWidth={5}
                         fontSize={16}
                         width={100} 
                     ></MacroButton>
                     <MacroButton
                         title="Protein" 
+                        label="g"
                         total={totalProtein}
-                        textColor="#F2846C"
-                        borderColor="#F2846C"
+                        textColor="#2493BF"
+                        borderColor="#2493BF"
                         borderWidth={5}
                         fontSize={16}
                         width={100} 
                     ></MacroButton>
                     <MacroButton
                         title="Carbs" 
+                        label="g"
                         total={totalCarbs}
-                        textColor="#088C7F"
-                        borderColor="#088C7F"
+                        textColor="#56C97B"
+                        borderColor="#56C97B"
                         borderWidth={5}
                         fontSize={16}
                         width={100} 
@@ -203,15 +238,17 @@ export default function FoodLogScreen() {
                 <View style={styles.macroRow}>
                     <MacroButton
                         title="Fat" 
+                        label="g"
                         total={totalFat}
-                        textColor="#AC2641"
-                        borderColor="#AC2641"
+                        textColor="#F22E2E"
+                        borderColor="#F22E2E"
                         borderWidth={5}
                         fontSize={16}
                         width={100} 
                     ></MacroButton>
                     <MacroButton
                         title="Water" 
+                        label="oz"
                         total={totalWater}
                         textColor="black"
                         borderColor="black"
@@ -227,18 +264,27 @@ export default function FoodLogScreen() {
             </View> 
              {/* Navbar for Logged, Saved, Add */}
              <View style={styles.dataBar}>
+                {/* <View style={styles.align}>
+                    <Ionicons name="today-outline" size={30} onPress={() => addWater()}></Ionicons>
+                    <Text style={styles.text}>Start new day log</Text>
+                </View> */}
+                <View style={[styles.box, selectedPage === "Logged" && styles.selectedBox]}>
                     <Text 
                         style={[styles.text, selectedPage === "Logged" && styles.selectedText]} 
                         onPress={() => setSelectedPage("Logged")}
                     >
                         Logged
                     </Text>
+                </View>
+                <View style={[styles.box, selectedPage === "Saved" && styles.selectedBox]}>
                     <Text 
                         style={[styles.text, selectedPage === "Saved" && styles.selectedText]} 
                         onPress={() => setSelectedPage("Saved")}
                     >
                         Saved
                     </Text>
+                </View>
+                <View style={[styles.box, selectedPage === "Add" && styles.selectedBox]}>
                     <Text 
                         style={[styles.text, selectedPage === "Add" && styles.selectedText]} 
                         onPress={() => setSelectedPage("Add")}
@@ -246,25 +292,35 @@ export default function FoodLogScreen() {
                         Add
                     </Text>
                 </View>
+                </View>
         </View>
          {/* Display Selected Page Content */}
-        <View style={{}}>
+        <View style={styles.pageContainer}>
                 {renderContent()}
         </View>
-    </View>
+    </SafeAreaView> 
     );
-}
+};
 
 const styles = StyleSheet.create({
+    flexContainer: {
+        flexGrow: 1, 
+    },
+    pageContainer: {
+        flex: 1, 
+    },
     calendarNav: {
         height: 40,
         width: '100%', 
-        backgroundColor: 'lightgray',
+        backgroundColor: '#21BFBF',
         flexDirection: 'row',
         padding: 5,
         alignItems: 'center',
         position: 'relative',
         justifyContent: 'center',
+    },
+    whiteText: {
+        color: "white",
     },
     rightArrow: {
         position: 'absolute',
@@ -275,7 +331,7 @@ const styles = StyleSheet.create({
         left: 0,
     },
     macroView: {
-        height: 220,
+        height: 210,
         width: '100%',
         backgroundColor: 'white', 
     }, 
@@ -284,21 +340,40 @@ const styles = StyleSheet.create({
         justifyContent: 'center', 
     }, 
     dataBar: {
-        height: 50,
         width: '100%', 
-        backgroundColor: 'lightgray',
         flexDirection: 'row',
-        padding: 5,
+        borderColor: '#21BFBF',
+        borderWidth:1,
         alignItems: 'center',
         position: 'relative',
-        justifyContent: 'space-between',
+        justifyContent: 'space-evenly',
     }, 
+    selectedBox: {
+        width: '33%',
+        alignItems: 'center',
+        backgroundColor:'#21BFBF',
+        padding: 5, 
+    },
+    box: {
+        width: '33%',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        padding: 5,
+    },
+
+    align: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        alignContent: 'center',
+    },
     text: {
         padding: 10,
+        color: '#21BFBF',
     },
     selectedText: {
         fontWeight: 'bold',
-        textDecorationLine: 'underline', // Selected style
+        color: 'white',
+        backgroundColor: '#21BFBF',
     },
     plusMinus: {
       paddingTop: 20,
@@ -311,5 +386,8 @@ const styles = StyleSheet.create({
     contentContainer: {
         flexGrow: 1,
     },
+    startDayButton: {
+        alignContent: 'center',
+    }
 
 })

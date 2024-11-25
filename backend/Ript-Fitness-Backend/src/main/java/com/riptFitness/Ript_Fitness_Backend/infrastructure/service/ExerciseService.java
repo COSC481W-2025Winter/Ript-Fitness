@@ -192,6 +192,14 @@ public class ExerciseService {
 	    if (exerciseDto.getNameOfExercise() != null) {
 	        existingExercise.setNameOfExercise(exerciseDto.getNameOfExercise());
 	    }
+	    //Update descrption:
+	    if(exerciseDto.getDescription() != null) {
+	    	existingExercise.setDescription(exerciseDto.getDescription());
+	    }
+	    // Update exercise type:
+	    if(exerciseDto.getExerciseType() > -1) {
+	    	existingExercise.setExerciseType(exerciseDto.getExerciseType());
+	    }
 	    // Update Reps
 	    if (exerciseDto.getReps() != null && !exerciseDto.getReps().isEmpty()) {
 	        existingExercise.setReps(new ArrayList<>(exerciseDto.getReps())); // Ensure it's mutable

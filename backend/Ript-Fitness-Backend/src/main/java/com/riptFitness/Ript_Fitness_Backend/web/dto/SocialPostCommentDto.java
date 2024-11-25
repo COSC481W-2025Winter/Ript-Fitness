@@ -5,9 +5,9 @@ import java.time.LocalDateTime;
 public class SocialPostCommentDto {
 
 	public Long id;
-	
-	public Long accountId;
-	
+		
+    public UserDto userProfile;
+		
 	public String content;
 	
     public Long postId;

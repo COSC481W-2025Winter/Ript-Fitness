@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { WorkoutScreenNavigationProp } from '../../(tabs)/WorkoutStack';
+import { WorkoutScreenNavigationProp } from '@/app/(tabs)/WorkoutStack';
 
 //https://ionic.io/ionicons
 // used this for icons npm install react-native-vector-icons
@@ -21,36 +21,51 @@ export default function WorkoutApiScreen() {
 // makes button clickable 
   return (
     <View style={styles.container}>
+      <View style={styles.welcomeContainer}>
+        <Text style={styles.welcomeText}>Welcome, Steve!</Text>
+      </View>
+      <View style={styles.lineBreak}></View>
       {/* My Workouts */}
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('MyWorkoutsScreen', { })}  > 
+        {/* <Ionicons name="heart" size={35} color="#F2505D" /> */}
+        <Image 
+        style={styles.image}
+          source={require('@/assets/images/my_workouts.png')}
+        />
         <Text style={styles.buttonText}>My Workouts</Text>
-        <Ionicons name="heart-outline" size={30} color="red" />
       </TouchableOpacity>
 
       {/* Add Workout */}
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AddWorkoutScreen', { })}  >
+        <Image 
+        style={styles.image}
+          source={require('@/assets/images/dashboard-widgets-add.png')}
+        />
         <Text style={styles.buttonText}>Add Workout</Text>
-        <Ionicons name="add" size={30} color="green" />
       </TouchableOpacity>
-
+      
       {/* Ript Workouts */}
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ApiScreen', { })}  >
+      <Image 
+        style={styles.image}
+        source={require('@/assets/images/secondary.png')}
+        />
         <Text style={styles.buttonText}>Ript Workouts</Text>
-        <Ionicons name="barbell-outline" size={30} color="black" />
       </TouchableOpacity>
-
+      
       {/* My Notes */}
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('MyNotesScreen', { })} >
+      <Image 
+        style={styles.image}
+        source={require('@/assets/images/my-notes.png')}
+        />
         <Text style={styles.buttonText}>My Notes</Text>
-        <Ionicons name="document-outline" size={30} color="black" />
       </TouchableOpacity>
 
       {/* Start Workout */}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('StartWorkoutScreen', { })} >
+      <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('StartWorkoutScreen', { })} >
         <Text style={styles.buttonText}>Start Workout</Text>
-        <Ionicons name="chevron-forward-outline" size={30} color="blue" />
       </TouchableOpacity>
-
     </View>
   );
 }
@@ -59,31 +74,65 @@ export default function WorkoutApiScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    // paddingHorizontal: 50,
     paddingTop: 30,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FFFF',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignContent: 'center',
+    justifyContent: 'center',
   },
-
+  welcomeContainer: {
+    width: '90%',
+    // borderBottomColor: 'black',
+    // borderBottomWidth: 5,
+  },
+  welcomeText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    // marginHorizontal: 20,
+    color: '#1D2526',
+  },
+  lineBreak: {
+    backgroundColor: '#21BFBF',
+    width: '90%',
+    height: '1%',
+    borderRadius: 20,
+    marginBottom: 10,
+  },
   // add a button for ript fitness influencer links
   button: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    width: '45%',
+    height: 150,
+    justifyContent: 'space-evenly',
     alignItems: 'center',
     padding: 25,
-    backgroundColor: '#F5F5F5',
+    // backgroundColor: '#F5F5F5',
+    backgroundColor: '#2493BF',
     borderRadius: 20,
-    marginVertical: 10,
-    borderWidth: 1.5,
-    borderColor: '#E0E0E0',
+    marginVertical: 5,
+    marginHorizontal: 5,
     //'#000000', this is black border check with team
   },
-
+  startButton: {
+    width: '90%',
+    height: '7%',
+    backgroundColor: '#21BFBF',
+    alignItems: 'center',
+    borderRadius: 10,
+    marginTop: 10,
+  },
   // can add more button colors if needed for each button 
   // overall I like the UI tho
   buttonText: {
-    fontSize: 20,
-    fontWeight: '400',
-    color: '#000000',
-    //333333 gray text
+    paddingTop: 10,
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFF',
   },
+  image: {
+    width: 75,
+    height: 75,
+
+  }
 });

@@ -33,6 +33,10 @@ import {
   ReanimatedLogLevel,
 } from "react-native-reanimated";
 
+import { WorkoutProvider } from './context/WorkoutContext';
+import FoodLogScreen from './app/screens/foodlog/FoodLog';
+
+
 // Suppress specific Reanimated warnings using LogBox
 LogBox.ignoreLogs([
   /\[Reanimated\] Reading from `value` during component render/,
@@ -94,17 +98,16 @@ function MainApp() {
           headerShown: false,
         }}
       />
-      <Tab.Screen
-        name="Body"
-        component={BodyStack}
+
+      <Tab.Screen 
+        name="Food" 
+        component={BodyStack} 
         options={{
           tabBarIcon: ({ focused, size, color }) => (
-            <Ionicons
-              name={focused ? "body" : "body-outline"}
-              size={size}
-              color={color}
-            />
+            <Ionicons name={focused ? 'nutrition' : 'nutrition-outline'} size={size} color={color}/>
+
           ),
+          headerShown: false,
         }}
       />
       <Tab.Screen
@@ -175,7 +178,7 @@ function RootNavigator() {
 }
 
 export default function App() {
-  return (
+
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer>
         <PortalProvider>
@@ -194,5 +197,6 @@ export default function App() {
         </PortalProvider>
       </NavigationContainer>
     </GestureHandlerRootView>
+
   );
 }
