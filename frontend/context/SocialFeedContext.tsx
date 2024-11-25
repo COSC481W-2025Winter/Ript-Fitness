@@ -178,7 +178,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
         }
 
         const formattedPosts = response.map((post) => {
-          console.log("[DEBUG] Processing post:", post);
+          //console.log("[DEBUG] Processing post:", post);
           console.log("[DEBUG] Post accountId:", post.accountId);
           //console.log("[DEBUG] Post userProfile:", post.userProfile);
 

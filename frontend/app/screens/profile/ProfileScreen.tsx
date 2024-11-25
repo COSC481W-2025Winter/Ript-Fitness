@@ -1,5 +1,5 @@
 import React, { Component, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
-import { View, Text, Image, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, RefreshControl, Modal, TouchableWithoutFeedback, Alert } from 'react-native';
+import { View, Text, Image, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, RefreshControl, Modal, TouchableWithoutFeedback, Alert, Platform } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { ScrollView } from 'react-native-gesture-handler';
 import { DrawerActions, NavigationContainer, useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -13,6 +13,7 @@ import { ProfileContext } from '@/context/ProfileContext';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as FileSystem from 'expo-file-system';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -676,13 +677,16 @@ const handleAcceptFriendRequest = async (id: any) => {
   if (adding.indexOf(id) == -1) {
     setAdding((prevNumbers) => [...prevNumbers, id]);
   try {
-    const response = await fetch(`${httpRequests.getBaseURL()}/friends/addFriend/${id}`, {
+    const response = await fetch(`${httpRequests.getBaseURL()}/friendRequest/sendRequest`, {
       method: 'POST', // Set method to POST
       headers: {
         'Content-Type': 'application/json', // Set content type to JSON
         "Authorization": `Bearer ${context?.data.token}`,
       },
-      body: "", // Convert the data to a JSON string
+      body: JSON.stringify({
+        "accountIdOfToAccount": id,
+        "status": "ACCEPTED"
+    }), // Convert the data to a JSON string
     }); // Use endpoint or replace with BASE_URL if needed
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
@@ -690,7 +694,7 @@ const handleAcceptFriendRequest = async (id: any) => {
     const json = await response.text() //.json(); // Parse the response as JSON
     //return json; // Return the JSON data directly
   } catch (error) {
-    console.error('GET request failed:', error);
+    console.error('00012 GET request failed:', error);
     throw error; // Throw the error for further handling if needed
   }
   setAdding((prev) => {
@@ -855,7 +859,7 @@ const handlePressOutside = () => {
 const ProfileScreen: React.FC = () => {
 const navigation = useNavigation<ProfileScreenNavigationProp>();
 const ProfContext = useContext(ProfileContext)
-
+const insets = useSafeAreaInsets();
 return (
   <Drawer.Navigator
   screenOptions={{
@@ -867,6 +871,13 @@ return (
           headerShown: true,
           headerTitleAlign: 'center', // Center the header title
           headerTitle:"",
+
+          headerStyle: {
+            paddingTop: Platform.OS === "ios" ? 20 : 0, // Add paddingTop for iOS
+            height: Platform.OS === "ios" ? 80 : 60,    // Adjust header height if necessary
+            backgroundColor: 'white',                  // Ensure consistent background
+            // You can add more styling properties as needed
+          },
           headerRight: () => <View style={{marginRight:15}}><TouchableOpacity onPress={() => {ProfContext?.setRequestsOpen(!ProfContext?.requestsOpen)}}><Ionicons name="notifications-outline" size={24}></Ionicons>{ ProfContext && ProfContext?.requestingFriends?.length > 0 ? <View style={styles.pendingFriend}></View> : <></>}</TouchableOpacity></View>/*() => (
             <TouchableOpacity
               onPress={() => navigation.dispatch(DrawerActions.openDrawer())}

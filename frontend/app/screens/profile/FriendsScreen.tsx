@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, TextInput, FlatList, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, FlatList, Image, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { GlobalContext } from '@/context/GlobalContext';
 import { httpRequests } from '@/api/httpRequests';
@@ -54,7 +54,9 @@ const context = useContext(GlobalContext)
   )};
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {paddingTop: Platform.OS === "ios" ? 30 : 0, // Add paddingTop for iOS
+      height: Platform.OS === "ios" ? 80 : 60,    // Adjust header height if necessary
+      backgroundColor: 'white', }]}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
