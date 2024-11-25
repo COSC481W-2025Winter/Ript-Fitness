@@ -33,9 +33,13 @@ export default function SocialFeed() {
   const createPostSheetRef = useRef<CreatePostSheetRef>(null);
   const commentsSheetRef = useRef<CommentsSheetRef>(null);
   const { posts, loading, error, fetchPosts, toggleLike } = useSocialFeed();
-  const {
-    data: { token },
-  } = useContext(GlobalContext);
+
+  const context = useContext(GlobalContext)
+
+  const token: string = context?.data?.token ?? '';
+
+
+
 
   const [page, setPage] = useState(0);
   const pageSize = 10;
@@ -148,7 +152,7 @@ export default function SocialFeed() {
       console.log("[DEBUG] Processing post for display:", {
         id: item.id,
         accountId: item.accountId,
-        userProfile: item.userProfile,
+        //userProfile: item.userProfile,
       });
 
       const username = item.userProfile?.username || item.accountId;

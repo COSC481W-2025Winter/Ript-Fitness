@@ -3,7 +3,7 @@ import "react-native-gesture-handler";
 import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PortalProvider } from "@gorhom/portal";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import {
   createStackNavigator,
@@ -62,6 +62,12 @@ const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 
 function MainApp() {
+  const context = useContext(GlobalContext)
+
+  if (context?.additionalLoadingRequired) {
+    return (<SplashScreen/>)
+  }
+
   return (
     <Tab.Navigator
       initialRouteName="Social"
@@ -128,20 +134,18 @@ function MainApp() {
 }
 
 function RootNavigator() {
-  const context = useContext(GlobalContext);
+  const context = useContext(GlobalContext)
+  const isLoading = context?.isLoaded
+  const [verifiedToken, setVerifiedToken] = useState(false)
+  const [temp, setTemp] = useState(true)
+  let user = (context?.data.token != '')
 
-  const isLoading = context.isLoaded;
-  const user = context.data.token != "";
-  //console.log('RootNavigator - user:', user);
-  //console.log('RootNavigator - isLoading:', isLoading);
-
-  if (isLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
+  if (context?.isLoaded != true) {
+    return (<SplashScreen/>)
+  } else {
+    user = (context?.data.token != '')
   }
+
 
   return (
     <Stack.Navigator
@@ -179,6 +183,7 @@ function RootNavigator() {
 
 export default function App() {
 
+  return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer>
         <PortalProvider>
@@ -186,17 +191,19 @@ export default function App() {
             <StreakProvider>
               <NotesProvider>
                 <SocialFeedProvider>
+                  <WorkoutProvider>
                   <>
                     <StatusBar barStyle="default" />
                     <RootNavigator />
                   </>
+                  </WorkoutProvider>
                 </SocialFeedProvider>
               </NotesProvider>
             </StreakProvider>
           </GlobalProvider>
         </PortalProvider>
       </NavigationContainer>
-    </GestureHandlerRootView>
+    </GestureHandlerRootView>)
 
-  );
+  
 }

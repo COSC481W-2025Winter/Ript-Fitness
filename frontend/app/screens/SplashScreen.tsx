@@ -9,23 +9,34 @@ import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler'
 import { GlobalContext } from '@/context/GlobalContext';
 
 export default function SplashScreen() {
+    const [isLoading, setLoading] = useState(false)
     const [isLoaded, setLoaded] = useState(false)
-    const myGlobalContext = useContext(GlobalContext)
-    myGlobalContext?.loadInitialData()
+    const context = useContext(GlobalContext)
+    const [isLoading2, setLoading2] = useState(false)
+    const [isLoaded2, setLoaded2] = useState(false)
 
-    useEffect(() => {
-        const loadData = async () => {
-        console.log("Eff")
-        console.log(myGlobalContext)
-          if (myGlobalContext)
-            setLoaded(myGlobalContext.isLoaded);
-        };
-    
-        loadData();
-      }, [myGlobalContext?.isLoaded]);
+    console.log(context?.additionalLoadingRequired)
 
-if (!isLoaded) {
-    return (<ThemedView style={styles.view}><ThemedText>Loading...</ThemedText></ThemedView>);
+    if (!isLoading && !isLoaded && context) {
+      setLoading(true)
+      context.loadInitialData()
+      setLoaded(true)
+      setLoading(false)
+    }
+
+    if (!isLoading2 && !isLoaded2 && context?.additionalLoadingRequired) {
+      setLoading2(true)
+      context.loadAdditionalData();
+      setLoaded2(true)
+      setLoading2(false)
+    }
+
+if (!context?.isLoaded || context?.additionalLoadingRequired) {
+    return (<ThemedView style={styles.view}><Image 
+      style={[styles.logo]}
+       resizeMode="contain"
+      source={require('@/assets/images/Ript_logo.png')}
+  /></ThemedView>);
 } else {
   return (
     <></>
@@ -35,6 +46,12 @@ if (!isLoaded) {
 
 const styles = StyleSheet.create({
   view: {
-    height:'100%',
+    flex:1,
+    alignContent:"center",
+    alignItems:"center",
+    justifyContent:"center",
+  },
+  logo: {
+    width:"80%",
   },
 });

@@ -30,22 +30,18 @@ export const StreakProvider: React.FC<StreakProviderProps> = ({ children }) => {
   const fetchStreak = async () => {
     const token = context?.data.token;
     //context.setToken("");
-    console.log('Attempting to fetch streak with token:', token ? 'Token exists' : 'No token');
     setLoading(true);
     setError(null);
 
     if (!token) {
       setStreak(0);
       setLoading(false);
-      console.log("Streak was set to 0... no token found");
       return;
     }
 
     try {
       const data: StreakData = await httpRequests.get('/streak/getStreak', token, {});
-      console.log('Received streak data:', data);
       setStreak(data.currentSt);
-      console.log('Streak updated to:', data.currentSt);
     } catch (err) {
       console.error('Error fetching streak:', err);
       console.error('Full error details:', {
@@ -63,7 +59,6 @@ export const StreakProvider: React.FC<StreakProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
-    console.log('StreakProvider useEffect triggered');
     fetchStreak().catch((err) => {
       console.error('Unhandled error in fetchStreak:', err);
       setError('Failed to fetch streak. Please try again.');

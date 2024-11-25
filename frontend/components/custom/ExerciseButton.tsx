@@ -14,7 +14,6 @@ export type ExerciseButtonProps = ViewProps & {
     children?: React.ReactNode;
     darkColor?: string;
     sideButtons?: any;
-    id?: string;
     onLongPress?: any;
     onPressOut?: any;
     isActive?: any
@@ -61,8 +60,8 @@ export function ExerciseButton({ leftColor, descColor, title, desc, children, si
   
 
   {isExpanded && (<View style={styles.sideButtonsView}>
-  {sideButtons?.map((button: {id: string, icon: string, func: any, style:any}) => (
-      <TouchableOpacity style={styles.sideButton} key={button.id} onPress={() => button.func(id)}>
+  {sideButtons?.map((button: {id: string, icon: string, func: any, style:any}, index : number) => (
+      <TouchableOpacity style={styles.sideButton} key={index} onPress={() => button.func(id)}>
     
       <Ionicons name={button.icon as any} style={button.style} size={20} color="#000000" />
     

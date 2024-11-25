@@ -7,7 +7,8 @@ import CustomTextInput from '@/components/custom/CustomTextInput';
 import { GlobalContext } from '@/context/GlobalContext';
 import { httpRequests } from '@/api/httpRequests';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../App';
+import { RootStackParamList } from '@/App';
+
 
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 

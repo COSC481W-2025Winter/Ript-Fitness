@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, TouchableOpacity, View, FlatList, ScrollView, Dimensions, Modal, Text, KeyboardAvoidingView } from 'react-native';
+import { Image, StyleSheet, Platform, TouchableOpacity, View, FlatList, ScrollView, Dimensions, ActivityIndicator, Modal, KeyboardAvoidingView } from 'react-native';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -15,28 +15,46 @@ import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flat
 import { isAndroid } from 'react-native-draggable-flatlist/lib/typescript/constants';
 import * as Haptics from 'expo-haptics';
 import React from 'react';
+import CustomTextInput from '@/components/custom/CustomTextInput';
+import { GlobalContext } from '@/context/GlobalContext';
 import CustomChip from '@/components/custom/CustomChip';
 import { WorkoutContext } from '@/context/WorkoutContext';
+import { Text } from 'react-native';
 
-type Exercise = {
-  sets: number;
-  reps: number[];
-  nameOfExercise: string;
-  weight: number[]; // Assuming weight is a number array
-  typeOfExercise: number;
-};
+
+function getColor(type : number) : string  {
+
+  if (type == 1) {
+    return ("#21BFBF")
+  } else if (type == 2) {
+    return ("#2493BF")
+  } else if (type == 3) {
+    return ("#2493BF")
+  }
+  return "#fff"
+}
 
 export function AddWorkoutScreen() {
   //Manage the add exercise modal visibility
 
   const context = useContext(WorkoutContext)
 
+  console.log("workout context: " , context)
+  const gblContext = useContext(GlobalContext)
+
   const navigation = useNavigation<WorkoutScreenNavigationProp >();
+  const { width } = Dimensions.get('window');
+  const [submitting, setSubmitting] = useState(false);
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [exerciseName, setExerciseName] = useState('');
   const [typeOfExercise, setTypeOfExercise] = useState<number | null>(null);
   const [sets, setSets] = useState<{ setNumber: number; reps: string}[]>([{ setNumber: 1, reps: ''}]);
 
+
+  useEffect(() => {
+    console.log('Exercises changed:', exercises);
+  }, [exercises]); // Re-run effect whenever exercises updates
+  
 
   const handleAddSet = () => {
     setSets((prevSets) => [
@@ -61,9 +79,9 @@ export function AddWorkoutScreen() {
     );
   };
 
-  const removeWorkout = (id : any) => {
-  const updatedWorkouts = workouts.filter(workout => workout.id !== id);
-  setWorkouts(updatedWorkouts);
+  const removeExercise = (delExercise : Exercise) => {
+  const updatedExercises = exercises.filter(exercise => exercise !== delExercise);
+  setExercises(updatedExercises);
   }
 
   //make modal appear to edit added workout
@@ -75,9 +93,105 @@ export function AddWorkoutScreen() {
   }
 
   //submit button will send users to My Workout page
-  const submitWorkout = () => {
+
+   const submitWorkout = async () => {
+    try {
+    setSubmitting(true)
+    let WorkoutExercises = [];
+
+    for (let i =0; i<Exercises.length; i++) {
+      const currentExercise = {
+        "sets": Exercises[i].sets,
+        "reps": Exercises[i].reps,
+        "nameOfExercise": Exercises[i].nameOfExercise,
+        "exerciseType": Exercises[i].exerciseType
+    }
+      try {
+        console.log("A " + JSON.stringify(currentExercise))
+      const response = await fetch(`${httpRequests.getBaseURL()}/exercises/addExercise`, {
+        method: 'POST', // Set method to POST
+        headers: {
+          'Content-Type': 'application/json', // Set content type to JSON
+          "Authorization": `Bearer ${gblContext?.data.token}`,
+        },
+        body: JSON.stringify(currentExercise), // Convert the data to a JSON string
+      }); // Use endpoint or replace with BASE_URL if needed
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      const json = await response.json() //.json(); // Parse the response as JSON
+      WorkoutExercises.push(json.exerciseId);
   
-  }
+      //return json; // Return the JSON data directly
+    } catch (error) {
+      setSubmitting(false)
+      console.error('GET request failed1:', error);
+      throw error; // Throw the error for further handling if needed
+    }
+      
+    }
+    console.log(WorkoutExercises)
+    const pushingWorkout = {name: text, exerciseIds: WorkoutExercises}
+    console.log(JSON.stringify(pushingWorkout))
+      const response = await fetch(`${httpRequests.getBaseURL()}/workouts/addWorkout`, {
+        method: 'POST', // Set method to POST
+        headers: {
+          'Content-Type': 'application/json', // Set content type to JSON
+          "Authorization": `Bearer ${gblContext?.data.token}`,
+        },
+        body: JSON.stringify(pushingWorkout), // Convert the data to a JSON string
+      }); // Use endpoint or replace with BASE_URL if needed
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      const json = await response.json() //.json(); // Parse the response as JSON
+      console.log(JSON.stringify(json))
+      setSubmitting(false)
+      //return json; // Return the JSON data directly
+    } catch (error) {
+      setSubmitting(false)
+      console.error('GET request failed2:', error);
+      throw error; // Throw the error for further handling if needed
+    }
+   }
+   
+const viewWorkoutDetails = (id : any) => {
+  navigation.navigate("ApiScreen", {})
+}
+
+const addWorkout = () => {
+  // User has to enter exercise name and choose the type
+  if (!exerciseName || typeOfExercise === null) {
+    alert("Exercise name and exercise type are required fields.");
+    return;
+  }        
+  const repNumbers = sets.map((set) => Number(set.reps));
+
+  const newExercise : Exercise = {
+    sets: sets.length,
+    reps: repNumbers,
+    nameOfExercise: exerciseName,
+    weight: [],
+    exerciseType: typeOfExercise!,
+    description: '',
+  };
+  console.log('New Exercise:', newExercise);
+
+  // Update the exercises state with the new exercise
+  setExercises((prev) => {
+    const updatedExercises = [...prev, newExercise];
+    console.log('Updated Exercises:', updatedExercises);  // Log updated exercises array
+    return updatedExercises;
+  });
+
+  //reset fields
+  //setExercises((prev) => [...prev, newExercise]);
+  context?.setVisible(false)
+  //setAddModalVisible(false);
+  setExerciseName('');
+  setSets([{ setNumber: 1, reps: '' }]);
+  setTypeOfExercise(null);
+}
 
   //Modal
   const modalComponent = (
@@ -189,38 +303,7 @@ export function AddWorkoutScreen() {
               {/* Save Button */}
               <TouchableOpacity 
                 style={styles.modalButton2} 
-                onPress={() => {
-                  // User has to enter exercise name and choose the type
-                  if (!exerciseName || typeOfExercise === null) {
-                    alert("Exercise name and exercise type are required fields.");
-                    return;
-                  }        
-                  const repNumbers = sets.map((set) => Number(set.reps));
-
-                  const newExercise = {
-                    sets: sets.length,
-                    reps: repNumbers,
-                    nameOfExercise: exerciseName,
-                    weight: [],
-                    typeOfExercise: typeOfExercise!, // Pass the integer value
-                  };
-                  console.log('New Exercise:', newExercise);
-
-                  // Update the exercises state with the new exercise
-                  setExercises((prev) => {
-                    const updatedExercises = [...prev, newExercise];
-                    console.log('Updated Exercises:', updatedExercises);  // Log updated exercises array
-                    return updatedExercises;
-                  });
-
-                  //reset fields
-                  setExercises((prev) => [...prev, newExercise]);
-                  context?.setVisible(false)
-                  //setAddModalVisible(false);
-                  setExerciseName('');
-                  setSets([{ setNumber: 1, reps: '' }]);
-                  setTypeOfExercise(null);
-                }}
+                onPress={addWorkout}
               >
                 <Text style={{ color: '#fff', fontSize: 15 }}>Save</Text>
               </TouchableOpacity>
@@ -230,16 +313,6 @@ export function AddWorkoutScreen() {
       </View>
     </Modal>
   );
-  const viewWorkoutDetails = (id : any) => {
-    navigation.navigate("ApiScreen", {})
-  }
-
-  const data = [
-    { id: '1', name: 'Item 1' },
-    { id: '2', name: 'Item 2' },
-    { id: '3', name: 'Item 3' },
-    // Add more items here
-  ];
 
   const sideButtons = [
     {id: '1', icon: 'pencil', func: editWorkout },
@@ -248,23 +321,20 @@ export function AddWorkoutScreen() {
 
   //Instead of Sets, display
   //Sets last time, Reps for time, weight last time
-  const [workouts, setWorkouts ]= useState([
-    { id: '1', name: 'Push-Ups', description: "5 Sets", values: ["10", "9", "8", "8", "9"], valueTypes: "Reps", color: "#21BFBF" },
-    { id: '2', name: 'Squats', description: "4 Sets", values: ["15", "14", "13", "12"], valueTypes: "Reps", color: "#2493BF" },
-    { id: '3', name: 'Lunges', description: "3 Sets", values: ["12", "10", "11"], valueTypes: "Reps", color: "#2493BF" },
-    
-    { id: '4', name: 'Bicep Curls', description: "5 Sets", values: ["10", "10", "9", "8", "10"], valueTypes: "Reps", color: "#21BFBF" },
-    { id: '5', name: 'Plank Hold', description: "3 Sets", values: ["60", "45", "50"], valueTypes: "sec", color: "#ECC275" },
-    { id: '6', name: 'Mountain Climbers', description: "4 Sets", values: ["30", "25", "28", "30"], valueTypes: "Reps", color: "#ECC275" },
-    
-    { id: '7', name: 'Burpees', description: "3 Sets", values: ["12", "10", "12"], valueTypes: "Reps", color: "#ECC275" },
-    { id: '8', name: 'Tricep Dips', description: "4 Sets", values: ["15", "14", "13", "15"], valueTypes: "Reps", color: "#21BFBF" },
-    { id: '9', name: 'Russian Twists', description: "5 Sets", values: ["20", "18", "20", "19", "18"], valueTypes: "Reps", color: "#ECC275" },
-    { id: '10', name: 'Jumping Jacks', description: "3 Sets", values: ["25", "30", "28"], valueTypes: "Reps", color: "#ECC275" }
-  ]);
-  
 
-  const renderLeftActions = (id: string, maxTheWidth: any) => {
+
+  interface Exercise {
+    sets: number;
+    reps: number[];
+    nameOfExercise: string;
+    description: string;
+    exerciseType: number;
+    weight: number[];
+  }
+
+  const Exercises : Exercise[] = [];
+
+  const renderLeftActions = (maxTheWidth: any) => {
     //console.log(maxTheWidth? "true" : "false")
     return (
       <View style={[styles.swipeContainer, maxTheWidth ? styles.maxWidth : undefined]}>
@@ -277,7 +347,7 @@ export function AddWorkoutScreen() {
   };
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
 
-  const handleLongPress = (id: string, drag: any) => {
+  const handleLongPress = (drag: any) => {
     // Trigger your renderCover logic here
     //console.log("f2")
     //renderCover(id);
@@ -313,9 +383,9 @@ export function AddWorkoutScreen() {
     console.log(JSON.stringify(response))
   }
 */
-  const renderItem = ({ item, drag, isActive }: RenderItemParams<typeof workouts[0]>) => (
+  const renderItem = ({ item, drag, isActive }: RenderItemParams<Exercise>) => (
     <Swipeable 
-    renderLeftActions={() => renderLeftActions(item.id, maxWidth)}
+    renderLeftActions={() => renderLeftActions(maxWidth)}
 
     onSwipeableWillOpen={() => setMaxWidth(true)}     // Swipe started, prevent drag
     onSwipeableWillClose={() => setMaxWidth(false)}
@@ -323,7 +393,7 @@ export function AddWorkoutScreen() {
 
 
     onSwipeableClose={() => handleSwipeableClose(drag)}       // Swipe ended, allow drag again
-    onSwipeableOpen={() => removeWorkout(item.id)}
+    onSwipeableOpen={() => removeExercise(item)}
     containerStyle={styles.test}
     enabled={(!isActive && !isOverlayVisible)}
   >
@@ -336,13 +406,12 @@ export function AddWorkoutScreen() {
         </View>
       )}
     <ExerciseButton
-      onLongPress={() => handleLongPress(item.id, drag)}
+      onLongPress={() => handleLongPress(drag)}
       onPressOut={() => handlePressOut(isActive)}
-      id={item.id}
-      leftColor={item.color}
-      descColor={item.color}
-      title={item.name}
-      desc={item.description}
+      leftColor={getColor(item.exerciseType)}
+      title={item.nameOfExercise}
+      descColor={getColor(item.exerciseType)}
+      desc={item.reps.length.toString() + " Sets"}
       //onLongPress={drag}  // Enable dragging when long-pressed
       isActive={isActive}
       style={styles.myWidth}
@@ -350,10 +419,10 @@ export function AddWorkoutScreen() {
     >
 
       
-      {item.values.map((value : any, index : any) => (
+      {item.reps.map((rep : any, index : any) => (
         <View key={index} style={styles.rowItem}>
-          <ThemedText style={styles.floatLeft}>{value}</ThemedText>
-          <ThemedText style={styles.floatRight}>{item.valueTypes}</ThemedText>
+          <ThemedText style={styles.floatLeft}>{rep}</ThemedText>
+          <ThemedText style={styles.floatRight}>{"Reps"}</ThemedText>
         </View>
       ))}
     </ExerciseButton>
@@ -361,33 +430,54 @@ export function AddWorkoutScreen() {
     </Swipeable>
   );
 
+
+  const [text, setText] = useState("")
   const [lastDragIndex, setLastDraggedIndex] = useState(null)
 
   const onDragEnd = (data : any) => {
-    setWorkouts(data)
+    setExercises(data)
   }
 
 
-  return (
-    <View style={styles.totalView}>
-      <View style={styles.flatListView}>
-        <DraggableFlatList
-        style={styles.flatList}
-          data={workouts}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          onDragEnd={({ data }) => onDragEnd(data)} // Update the order after dragging
-          ListFooterComponent={() => <View style={{ height: submitHeight }} />}
+  return (    <View style={styles.totalView}>
+
+
+
+
+    <View style={styles.flatListView}>
+    
+
+    <DraggableFlatList
+    style={styles.flatList}
+      data={exercises}
+      renderItem={renderItem}
+      keyExtractor={(item, index) => index.toString()}
+      onDragEnd={({ data }) => onDragEnd(data)} // Update the order after dragging
+      ListHeaderComponent={      <View style={{marginTop:10, alignSelf:"center"}}>
+      <CustomTextInput
+          onChangeText={setText}
+          placeholder="Workout Name"
+          placeholderTextColor="#999"
+          width={width*0.85}
+          style={{
+            borderWidth: 0,
+            fontSize: 16,
+            paddingLeft: 15,
+            borderRadius: 20,
+            backgroundColor: '#EDEDED',
+          }}
         />
-        <View style={styles.submitView}>
-          <TouchableOpacity onPress={() => navigation.navigate("ApiScreen", {})} activeOpacity={0.9} style={styles.button}><View style={styles.submitButtonView}><ThemedText style={styles.buttonText}>Submit </ThemedText></View></TouchableOpacity>
-        </View>
-      </View>
-    {/* Render Modal */}
-    {modalComponent}
+      
+      </View>}
+      ListFooterComponent={() => <View style={{ height: submitHeight }} />}
+    />
+    <View style={styles.submitView}>
+      <TouchableOpacity onPress={submitWorkout} style={styles.button}><View style={styles.submitButtonView}><ThemedText style={styles.buttonText}>{submitting ? <ActivityIndicator size="small" color="#ffffff" /> : "Submit"}</ThemedText>{submitting ? <></> : <Ionicons name="chevron-up" style={[styles.submitIcon]} size={20} color="white"/>}</View></TouchableOpacity>
     </View>
-  );
-}//
+  {modalComponent}
+  </View></View>)
+
+}
 
 const submitHeight = Dimensions.get("screen").height * 0.09;
 const styles = StyleSheet.create({

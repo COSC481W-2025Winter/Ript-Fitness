@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { WorkoutScreenNavigationProp } from '@/app/(tabs)/WorkoutStack';
+import { GlobalContext } from '@/context/GlobalContext';
 
 //https://ionic.io/ionicons
 // used this for icons npm install react-native-vector-icons
@@ -15,6 +16,7 @@ import { WorkoutScreenNavigationProp } from '@/app/(tabs)/WorkoutStack';
 export default function WorkoutApiScreen() { 
   
   const navigation = useNavigation<WorkoutScreenNavigationProp >();
+  const context = useContext(GlobalContext)
   // TouchableOpacity is what gives the fade effect
   // view is calling the container that helps the layout
     
@@ -22,7 +24,7 @@ export default function WorkoutApiScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.welcomeContainer}>
-        <Text style={styles.welcomeText}>Welcome, Steve!</Text>
+        <Text style={styles.welcomeText}>Welcome, {context?.userProfile.displayname}!</Text>
       </View>
       <View style={styles.lineBreak}></View>
       {/* My Workouts */}
@@ -45,7 +47,7 @@ export default function WorkoutApiScreen() {
       </TouchableOpacity>
       
       {/* Ript Workouts */}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ApiScreen', { })}  >
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('RiptWorkoutScreen', { })}  >
       <Image 
         style={styles.image}
         source={require('@/assets/images/secondary.png')}

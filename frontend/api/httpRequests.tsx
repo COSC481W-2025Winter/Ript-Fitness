@@ -68,6 +68,7 @@ export class httpRequests {
   ): Promise<Response> {
     try {
       let response;
+      console.log("rthrth" + token)
       if (token != "") {
         response = await fetch(`${BASE_URL}${endpoint}`, {
           method: "PUT",
