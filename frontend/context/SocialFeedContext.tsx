@@ -91,9 +91,10 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const context = useContext(GlobalContext)
 
-  const token: string = context?.data?.token ?? '';
+  const context = useContext(GlobalContext);
+  const currentUserID = context?.userProfile.id;
+  const token = context?.data.token;
 
   // Loading states for individual operations
   const [loadingStates, setLoadingStates] = useState<LoadingStates>({
@@ -178,9 +179,9 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
         }
 
         const formattedPosts = response.map((post) => {
-          //console.log("[DEBUG] Processing post:", post);
+          console.log("[DEBUG] Processing post:", post);
           console.log("[DEBUG] Post accountId:", post.accountId);
-          //console.log("[DEBUG] Post userProfile:", post.userProfile);
+          console.log("[DEBUG] Post userProfile:", post.userProfile);
 
           console.log("[DEBUG] comment:", post.socialPostComments);
 
@@ -189,7 +190,14 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
             id: String(post.id),
             accountId: post.accountId || "Unknown User",
             likes: Array.isArray(post.userIDsOfLikes)
-              ? post.userIDsOfLikes
+              ? post.userIDsOfLikes.filter(
+                  (id): id is string => id !== undefined
+                )
+              : [],
+            userIDsOfLikes: Array.isArray(post.userIDsOfLikes)
+              ? post.userIDsOfLikes.filter(
+                  (id): id is string => id !== undefined
+                )
               : [],
             comments: Array.isArray(post.socialPostComments)
               ? post.socialPostComments.map((comment: any) => ({
@@ -198,7 +206,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
                 }))
               : [],
             socialPostComments: Array.isArray(post.socialPostComments)
-              ? post.socialPostComments.map((comment : any) => ({
+              ? post.socialPostComments.map((comment) => ({
                   ...comment,
                   accountId: comment.accountId || "Unknown User",
                 }))
@@ -332,25 +340,47 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
       if (!post) return;
 
       setLoadingState("isTogglingLike", true);
-      const isLiked = post.likes.includes(token);
+      let isLiked = currentUserID
+        ? post.userIDsOfLikes.includes(currentUserID)
+        : false;
 
       // Optimistic update
       updatePost(postId, (post) => ({
         ...post,
-        likes: isLiked
-          ? post.likes.filter((id) => id !== token)
-          : [...post.likes, token],
+        userIDsOfLikes: isLiked
+          ? post.userIDsOfLikes.filter(
+              (id) => id !== currentUserID && id !== undefined
+            )
+          : [...post.userIDsOfLikes, currentUserID].filter(
+              (id): id is string => id !== undefined
+            ),
+        numberOfLikes: isLiked
+          ? post.numberOfLikes - 1
+          : post.numberOfLikes + 1,
       }));
 
       try {
-        await retry(() =>
-          httpRequests.put(`/socialPost/toggleLike/${postId}`, token, {})
-        );
+        if (isLiked) {
+          await retry(() =>
+            httpRequests.put(`/socialPost/deleteLike/${postId}`, token, {})
+          );
+        } else {
+          await retry(() =>
+            httpRequests.put(`/socialPost/addLike/${postId}`, token, {})
+          );
+        }
         clearError();
       } catch (err) {
         // Revert on error
+        // Revert on error
         updatePost(postId, (post) => ({
           ...post,
+          userIDsOfLikes: isLiked
+            ? [...post.userIDsOfLikes, currentUserID]
+            : post.userIDsOfLikes.filter((id) => id !== currentUserID),
+          numberOfLikes: isLiked
+            ? post.numberOfLikes + 1
+            : post.numberOfLikes - 1,
           likes: isLiked
             ? [...post.likes, token]
             : post.likes.filter((id) => id !== token),
@@ -360,7 +390,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
         setLoadingState("isTogglingLike", false);
       }
     },
-    [posts, token, updatePost, clearError]
+    [posts, token, updatePost, clearError, currentUserID]
   );
 
   // Add comment

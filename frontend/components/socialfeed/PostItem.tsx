@@ -15,6 +15,7 @@ type PostItemType = {
   };
   dateTimeCreated: string;
   likes: string[];
+  numberOfLikes: number;
   comments: Array<{
     id: string;
     content: string;
@@ -121,7 +122,7 @@ const PostItem = ({ item, liked, onLikePress, onCommentPress }: ItemProps) => {
               color={liked ? "#FF3B30" : "#B1B6C0"}
             />
           </TouchableOpacity>
-          <Text style={styles.likeCounter}>{item.likes.length}</Text>
+          <Text style={styles.likeCounter}>{item.numberOfLikes}</Text>
 
           <TouchableOpacity
             onPress={onCommentPress}
@@ -213,6 +214,7 @@ const styles = StyleSheet.create({
     padding: 7,
     fontSize: 16,
     fontWeight: "bold",
+    minWidth: 30,
   },
   commentCounter: {
     color: "black",

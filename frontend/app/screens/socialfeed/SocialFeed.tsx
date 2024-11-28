@@ -34,12 +34,9 @@ export default function SocialFeed() {
   const commentsSheetRef = useRef<CommentsSheetRef>(null);
   const { posts, loading, error, fetchPosts, toggleLike } = useSocialFeed();
 
-  const context = useContext(GlobalContext)
-
-  const token: string = context?.data?.token ?? '';
-
-
-
+  const context = useContext(GlobalContext);
+  const currentUserID = context?.userProfile.id;
+  const token = context?.data.token;
 
   const [page, setPage] = useState(0);
   const pageSize = 10;
@@ -177,6 +174,7 @@ export default function SocialFeed() {
             },
             dateTimeCreated: item.dateTimeCreated,
             likes: Array.isArray(item.likes) ? item.likes : [],
+            numberOfLikes: item.numberOfLikes,
             comments: Array.isArray(item.comments)
               ? item.comments.map((comment) => ({
                   ...comment,
@@ -184,7 +182,10 @@ export default function SocialFeed() {
                 }))
               : [],
           }}
-          liked={Array.isArray(item.likes) && item.likes.includes(token)}
+          liked={
+            Array.isArray(item.userIDsOfLikes) &&
+            item.userIDsOfLikes.includes(currentUserID)
+          }
           onLikePress={() => handleLike(item.id)}
           onCommentPress={() => {
             console.log(`Comment button pressed for post ID: ${item.id}`);

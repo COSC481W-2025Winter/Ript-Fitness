@@ -674,34 +674,40 @@ const handleAddFriend = () => {
 const handleAcceptFriendRequest = async (id: any) => {
     //Get Account ID
     //Send Request to Account ID
+    console.log(id)
+    console.log(adding.indexOf(id))
   if (adding.indexOf(id) == -1) {
     setAdding((prevNumbers) => [...prevNumbers, id]);
   try {
+    const myBody = {
+      accountIdOfToAccount: id,
+      status: "ACCEPTED"
+  }
     const response = await fetch(`${httpRequests.getBaseURL()}/friendRequest/sendRequest`, {
-      method: 'POST', // Set method to POST
+      method: 'PUT', // Set method to POST
       headers: {
         'Content-Type': 'application/json', // Set content type to JSON
         "Authorization": `Bearer ${context?.data.token}`,
       },
-      body: JSON.stringify({
-        "accountIdOfToAccount": id,
-        "status": "ACCEPTED"
-    }), // Convert the data to a JSON string
+      body: JSON.stringify(myBody), // Convert the data to a JSON string
     }); // Use endpoint or replace with BASE_URL if needed
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
     }
     const json = await response.text() //.json(); // Parse the response as JSON
+    console.log(json)
     //return json; // Return the JSON data directly
   } catch (error) {
     console.error('00012 GET request failed:', error);
     throw error; // Throw the error for further handling if needed
+  } finally {
+    setAdding((prev) => {
+      const updated = [...prev];
+      updated.splice(prev.indexOf(id), 1); // Remove the item
+      return updated; // Return the updated array
+    });
   }
-  setAdding((prev) => {
-    const updated = [...prev];
-    updated.splice(prev.indexOf(id), 1); // Remove the item
-    return updated; // Return the updated array
-  });
+
   }
 }
 
