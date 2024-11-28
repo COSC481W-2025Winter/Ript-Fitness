@@ -39,9 +39,9 @@ public class WorkoutsController {
         return ResponseEntity.ok(workoutDto);
     }
     
-    @GetMapping("/getUsersWorkouts")
-    public ResponseEntity<List<WorkoutsDto>> getUsersWorkouts() {
-        List<WorkoutsDto> userWorkouts = workoutsService.getUsersWorkouts();
+    @GetMapping("/getUsersWorkouts/{startIndex}/{endIndex}")
+    public ResponseEntity<List<WorkoutsDto>> getUsersWorkouts(@PathVariable Integer startIndex, @PathVariable Integer endIndex) {
+        List<WorkoutsDto> userWorkouts = workoutsService.getUsersWorkouts(startIndex, endIndex);
         return ResponseEntity.ok(userWorkouts);
     }
 

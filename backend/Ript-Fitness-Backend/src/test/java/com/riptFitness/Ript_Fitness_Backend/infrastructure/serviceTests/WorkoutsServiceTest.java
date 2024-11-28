@@ -214,7 +214,26 @@ public class WorkoutsServiceTest {
         when(workoutsRepository.findByAccountId(1L)).thenReturn(expectedWorkouts);
 
         // Call the service method
-        List<WorkoutsDto> actualWorkouts = workoutsService.getUsersWorkouts();
+        List<WorkoutsDto> actualWorkouts = workoutsService.getUsersWorkouts(0,2);
+
+        // Assert that the returned list matches the expected list
+        assertEquals(expectedWorkouts.size(), actualWorkouts.size());
+        assertEquals(expectedWorkouts.get(0).name, actualWorkouts.get(0).getName());
+        assertEquals(expectedWorkouts.get(1).name, actualWorkouts.get(1).getName());
+    }
+    
+    @Test
+    public void testGetUsersWorkoutsIndexLessThanSize() {
+        // Mock the user account retrieval
+        when(accountsService.getLoggedInUserId()).thenReturn(1L);
+        when(accountsRepository.findById(1L)).thenReturn(Optional.of(account));
+
+        // Mock the user's workouts retrieval
+        List<Workouts> expectedWorkouts = Arrays.asList(workout, workout2);
+        when(workoutsRepository.findByAccountId(1L)).thenReturn(expectedWorkouts);
+
+        // Call the service method
+        List<WorkoutsDto> actualWorkouts = workoutsService.getUsersWorkouts(0,1);
 
         // Assert that the returned list matches the expected list
         assertEquals(expectedWorkouts.size(), actualWorkouts.size());
@@ -230,7 +249,7 @@ public class WorkoutsServiceTest {
 
         // Assert that a RuntimeException is thrown when the account is not found
         RuntimeException thrown = assertThrows(RuntimeException.class, 
-            () -> workoutsService.getUsersWorkouts());
+            () -> workoutsService.getUsersWorkouts(0,2));
         
         assertEquals("Account not found", thrown.getMessage());
     }
