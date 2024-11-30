@@ -29,8 +29,8 @@ public interface AccountsRepository extends JpaRepository <AccountsModel, Long> 
     List<String> findAllEncodedEmails();
     
 	// Query that gets the ID based off of the username that is entered in the login page from the accounts_model table in DB
-    @Query(value = "SELECT id FROM accounts_model WHERE username = :username", nativeQuery = true)
-    Optional<Long> findIdByUsername(@Param("username") String username);
+	@Query(value = "SELECT id FROM accounts_model WHERE BINARY username = :username", nativeQuery = true)
+	Optional<Long> findIdByUsername(@Param("username") String username);
     
     // Query that resets 'lastLogin' in the database every time that a login has been made (UPDATE) based off of username.
     @Modifying // Modifying the database instead of creating something new
