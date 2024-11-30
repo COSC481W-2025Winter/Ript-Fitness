@@ -128,7 +128,7 @@ const updatePotentialFriends = (newFriends: FriendObject[]) => {
       <TouchableOpacity 
         style={styles.addButton} 
         onPress={() => sendFriendRequest(item.id)}>
-        <Text style={styles.addButtonText}>{adding.indexOf(item.id) != -1 ? "Sending...": (context?.friends.some((friend) => friend.id === item.id) ? "Already Friends": "Send Request") }</Text>
+        <Text style={styles.addButtonText}>{adding.indexOf(item.id) != -1 ? "Sending...": (context?.friends.some((friend) => friend.id === item.id) ? "Friends": "Send Request") }</Text>
       </TouchableOpacity>
     </View>
   );}
@@ -136,8 +136,8 @@ const updatePotentialFriends = (newFriends: FriendObject[]) => {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={[styles.header, {paddingTop: Platform.OS === "ios" ? 30 : 0, // Add paddingTop for iOS
-            height: Platform.OS === "ios" ? 80 : 60,    // Adjust header height if necessary
+      <View style={[styles.header, {marginTop: Platform.OS === "ios" ? '10%' : 0, // Add paddingTop for iOS
+            // height: Platform.OS === "ios" ? 80 : 60,    // Adjust header height if necessary
             backgroundColor: 'white', }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="black" />
@@ -148,7 +148,7 @@ const updatePotentialFriends = (newFriends: FriendObject[]) => {
       {/* Search Bar */}
       <TextInput
         style={styles.searchBar}
-        placeholder="Search Potential Friends"
+        placeholder="Search"
         value={search}
         onChangeText={setSearch}
         onEndEditing={searchForFriends}
@@ -159,7 +159,7 @@ const updatePotentialFriends = (newFriends: FriendObject[]) => {
 
 
       {loading ? (
-  <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />
+  <ActivityIndicator size="large" style={styles.loader} />
 ) : filteredPotentialFriends.length > 0 ? (
   <FlatList
     data={filteredPotentialFriends}
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     color: '#888', 
 },
   addButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#21BFBF',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 6,

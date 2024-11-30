@@ -139,11 +139,14 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
         const text = await response.text();
 
         let errorMessage = "";
-        if (text.includes('Message:')) {
+        if (text.includes('Username')) {
           const startIndex = text.indexOf('Message:') + 'Message:'.length;
           setIsUsernameValid(false);
           errorMessage = text.substring(startIndex).trim();
           setusernameErrorMessage(errorMessage);
+        } else if (text.includes('Email')) {
+          setIsEmailValid(false);
+          setemailErrorMessage("This email is already associated with an account.");
         } else {
           setErrorMessage("Signup failed. Please check your inputs.");
         }

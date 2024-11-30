@@ -202,7 +202,7 @@ export default function SocialFeed() {
         <View style={styles.footer}>
           <ActivityIndicator
             size="large"
-            color="#21BFBF"
+            // color="#21BFBF"
             accessibilityLabel="Loading posts"
           />
         </View>
@@ -220,7 +220,7 @@ export default function SocialFeed() {
 
           <FlatList
             ListHeaderComponent={() => (
-              <View style={{ marginTop: StatusBar.currentHeight || 0 }} />
+              <View style={{ marginTop: StatusBar.currentHeight || 10 }} />
             )}
             data={posts}
             renderItem={renderItem}

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { httpRequests } from '@/api/httpRequests';
 import { GlobalContext } from '@/context/GlobalContext';
@@ -149,15 +149,16 @@ const styles = StyleSheet.create({
       padding: 16,
       borderBottomWidth: 1,
       borderBottomColor: '#ddd',
+      marginTop: Platform.OS === "ios" ? '10%' : 0
     },
-    title: { fontSize: 20, fontWeight: 'bold' },
+    title: { fontSize: 18, fontWeight: 'bold' },
     saveButton: {
-      backgroundColor: '#E0F7FA',
+      backgroundColor: '#21BFBF',
       paddingHorizontal: 16,
       paddingVertical: 6,
       borderRadius: 20,
     },
-    saveButtonText: { color: '#00796B', fontWeight: 'bold' },
+    saveButtonText: { color: '#fff', fontWeight: 'bold' },
     instructions: {
       margin: 16,
       color: '#666',
