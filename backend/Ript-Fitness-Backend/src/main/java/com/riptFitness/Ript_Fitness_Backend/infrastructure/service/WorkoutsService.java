@@ -47,7 +47,7 @@ public class WorkoutsService {
         // Create a new Workouts entity and set its properties
         Workouts newWorkout = new Workouts();
         newWorkout.setName(workoutsDto.getName());
-        newWorkout.setAccount(account);
+        newWorkout.setAccount(account); 
 
         List<ExerciseModel> exercises = new ArrayList<>();
 
@@ -110,6 +110,10 @@ public class WorkoutsService {
 	    }
 		
 		int workoutsSize = workouts.size();
+		if(startIndex < 0 || startIndex > workoutsSize) {
+			throw new RuntimeException("Start index out of bounds. Start index = "+ startIndex);
+		}
+		
 		if(endIndex >= workoutsSize) {
 			return WorkoutsMapper.INSTANCE.toListWorkoutsDto(workouts).subList(startIndex, workoutsSize);
 		}
