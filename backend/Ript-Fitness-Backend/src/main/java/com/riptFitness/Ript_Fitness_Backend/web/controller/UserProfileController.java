@@ -112,11 +112,21 @@ public class UserProfileController {
             @RequestParam int startIndex,
             @RequestParam int endIndex) {
         try {
-            List<UserDto> userProfiles = userProfileService.searchUserProfilesByUsername(searchTerm, startIndex, endIndex);
-            userProfiles.forEach(user -> user.setProfilePicture(userProfileService.getProfilePicture(user.getUsername())));
+            // Get the current user's username from the security context
+            String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+            // Call the service method and exclude the current user
+            List<UserDto> userProfiles = userProfileService.searchUserProfilesByUsername(
+                searchTerm, startIndex, endIndex, currentUsername
+            );
+            // Add profile pictures for each user
+            userProfiles.forEach(user -> 
+                user.setProfilePicture(userProfileService.getProfilePicture(user.getUsername()))
+            );
             return ResponseEntity.ok(userProfiles);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }
     }
+
+
 }

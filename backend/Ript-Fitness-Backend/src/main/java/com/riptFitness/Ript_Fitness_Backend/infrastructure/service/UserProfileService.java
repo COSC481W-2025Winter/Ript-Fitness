@@ -243,7 +243,8 @@ public class UserProfileService {
     }
     
     //search profiles by username
-    public List<UserDto> searchUserProfilesByUsername(String searchTerm, int startIndex, int endIndex) {
+    public List<UserDto> searchUserProfilesByUsername(
+            String searchTerm, int startIndex, int endIndex, String currentUsername) {
         // Validate start and end indices
         if (endIndex <= startIndex) {
             throw new IllegalArgumentException("End index must be greater than start index.");
@@ -260,17 +261,14 @@ public class UserProfileService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
-        // Query the repository
-        List<UserProfile> userProfiles = userRepository.findByUsernameContainingIgnoreCase(searchTerm, pageable);
-
-        // Return an empty list if no results are found
-        if (userProfiles.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        // Map the result to DTOs and return
+        // Call the repository to retrieve results excluding the current user
+        List<UserProfile> userProfiles = userRepository.findByUsernameContainingIgnoreCaseAndNotUsername(
+            searchTerm, currentUsername, pageable
+        );
+        // Map results to DTOs
         return userProfiles.stream()
                 .map(UserProfileMapper.INSTANCE::toUserDto)
                 .collect(Collectors.toList());
     }
+
 }
