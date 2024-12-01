@@ -10,6 +10,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.List;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,6 +59,14 @@ public class UserProfileControllerTests {
 
     @BeforeEach
     public void setUp() {
+        // Mock SecurityContextHolder
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn("testUser"); // Set the username to "testUser"
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        // Mock userDto setup
         userDto = new UserDto();
         userDto.firstName = "Tom";
         userDto.lastName = "Van";
@@ -63,6 +75,7 @@ public class UserProfileControllerTests {
 
         when(jwtUtil.extractUsername(any(String.class))).thenReturn("testUser");
     }
+
 
     @Test
     public void testGetUserProfile() throws Exception {
@@ -157,15 +170,8 @@ public class UserProfileControllerTests {
     }
 
     @Test
-    public void testDeletePrivatePhoto() throws Exception {
-        mockMvc.perform(delete("/userProfile/photo/1"))
-                .andExpect(status().isOk());
-
-        verify(userProfileService, times(1)).deletePrivatePhoto(eq(1L));
-    }
-
-    @Test
     void testSearchUserProfiles() throws Exception {
+        // Mock data for test
         UserDto user1 = new UserDto();
         user1.id = 1L;
         user1.firstName = "John";
@@ -182,17 +188,23 @@ public class UserProfileControllerTests {
 
         List<UserDto> mockProfiles = List.of(user1, user2);
 
-        when(userProfileService.searchUserProfilesByUsername(eq("test"), eq(0), eq(10)))
+        // Mock the service to return the expected profiles
+        when(userProfileService.searchUserProfilesByUsername(eq("test"), eq(0), eq(10), anyString()))
                 .thenReturn(mockProfiles);
 
+        // Perform the request
         mockMvc.perform(get("/userProfile/search")
                 .param("searchTerm", "test")
                 .param("startIndex", "0")
-                .param("endIndex", "10"))
+                .param("endIndex", "10")
+                .header("Authorization", token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].username").value("testUser"));
+                .andExpect(jsonPath("$.length()").value(2)) // Expect 2 results
+                .andExpect(jsonPath("$[0].username").value("testUser"))
+                .andExpect(jsonPath("$[1].username").value("TestUser2"));
 
-        verify(userProfileService, times(1)).searchUserProfilesByUsername(eq("test"), eq(0), eq(10));
+        // Verify the service method was called with the correct parameters
+        verify(userProfileService, times(1)).searchUserProfilesByUsername(eq("test"), eq(0), eq(10), anyString());
     }
+
 }
