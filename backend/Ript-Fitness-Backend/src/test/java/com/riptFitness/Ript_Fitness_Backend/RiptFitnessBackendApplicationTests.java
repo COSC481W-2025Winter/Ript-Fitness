@@ -6,10 +6,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.JwtUtil;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AzureBlobService;
 
 @ActiveProfiles("test")
 @SpringBootTest
 class RiptFitnessBackendApplicationTests {
+	@MockBean
+    private AzureBlobService azureBlobService;
 
 	@MockBean
 	private JwtUtil jwtUtil;
