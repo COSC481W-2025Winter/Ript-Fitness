@@ -500,7 +500,7 @@ return (
       </View>
     ) : (
       <>
-        <Text style={styles.title}>My Workouts</Text>
+        <Text style={styles.title}></Text>
         <FlatList
           data={context?.workouts}
           keyExtractor={(item, index) =>
