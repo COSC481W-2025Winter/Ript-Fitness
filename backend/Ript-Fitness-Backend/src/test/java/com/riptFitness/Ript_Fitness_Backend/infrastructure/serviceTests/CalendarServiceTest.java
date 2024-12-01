@@ -49,13 +49,10 @@ public class CalendarServiceTest {
     private AccountsModel account;
     private UserProfile userProfile;
     private Calendar calendarEntry;
-    private LocalDate testDate;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-
-        testDate = LocalDate.of(2024, 11, 22); // Example date for testing
 
         // Mock account and user profile
         account = new AccountsModel();
@@ -67,7 +64,7 @@ public class CalendarServiceTest {
         userProfile.setRestResetDate(LocalDate.now());
 
         // Mock a calendar entry
-        calendarEntry = new Calendar(account, testDate, 1); // Activity type 1 = Workout
+        calendarEntry = new Calendar(account, LocalDate.now(), 1); // Activity type 1 = Workout
 
         // Mock repository responses
         when(accountsService.getLoggedInUserId()).thenReturn(1L);
@@ -77,19 +74,19 @@ public class CalendarServiceTest {
 
     @Test
     public void testLogWorkoutDay() {
-        when(calendarRepository.findByAccountIdAndDate(1L, testDate)).thenReturn(Optional.empty());
+        when(calendarRepository.findByAccountIdAndDate(1L, LocalDate.now())).thenReturn(Optional.empty());
 
-        calendarService.logWorkoutDay(testDate);
+        calendarService.logWorkoutDay();
 
         verify(calendarRepository, times(1)).save(any(Calendar.class)); // Verify save is called once
     }
 
     @Test
     public void testLogWorkoutDayAlreadyLogged() {
-        when(calendarRepository.findByAccountIdAndDate(1L, testDate)).thenReturn(Optional.of(calendarEntry));
+        when(calendarRepository.findByAccountIdAndDate(1L, LocalDate.now())).thenReturn(Optional.of(calendarEntry));
 
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            calendarService.logWorkoutDay(testDate);
+            calendarService.logWorkoutDay();
         });
 
         assertEquals("Workout already logged for this date.", exception.getMessage());
@@ -97,9 +94,9 @@ public class CalendarServiceTest {
 
     @Test
     public void testLogRestDay() {
-        when(calendarRepository.findByAccountIdAndDate(1L, testDate)).thenReturn(Optional.empty());
+        when(calendarRepository.findByAccountIdAndDate(1L, LocalDate.now())).thenReturn(Optional.empty());
 
-        calendarService.logRestDay(testDate);
+        calendarService.logRestDay();
 
         verify(calendarRepository, times(1)).save(any(Calendar.class)); // Verify save is called once
         assertEquals(2, userProfile.getRestDaysLeft()); // Verify restDaysLeft is decremented
@@ -110,7 +107,7 @@ public class CalendarServiceTest {
         userProfile.setRestDaysLeft(0);
 
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            calendarService.logRestDay(testDate);
+            calendarService.logRestDay();
         });
 
         assertEquals("No rest days left for this week.", exception.getMessage());
@@ -118,10 +115,10 @@ public class CalendarServiceTest {
 
     @Test
     public void testLogRestDayAlreadyLogged() {
-        when(calendarRepository.findByAccountIdAndDate(1L, testDate)).thenReturn(Optional.of(calendarEntry));
+        when(calendarRepository.findByAccountIdAndDate(1L, LocalDate.now())).thenReturn(Optional.of(calendarEntry));
 
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            calendarService.logRestDay(testDate);
+            calendarService.logRestDay();
         });
 
         assertEquals("Rest day already logged for this date.", exception.getMessage());
@@ -137,7 +134,7 @@ public class CalendarServiceTest {
 
         assertNotNull(calendarDtos);
         assertEquals(1, calendarDtos.size());
-        assertEquals(testDate, calendarDtos.get(0).getDate());
+        assertEquals(LocalDate.now(), calendarDtos.get(0).getDate());
         assertEquals(1, calendarDtos.get(0).getActivityType()); // Check if activity type is workout
     }
 }

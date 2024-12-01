@@ -1,5 +1,6 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
+import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -24,25 +25,28 @@ public class UserProfileService {
 
     private final UserProfileRepository userRepository;
     private final PhotoRepository photoRepository;
+    private final AzureBlobService azureBlobService;
 
     // Dependency injection constructor
-    public UserProfileService(UserProfileRepository userRepository, PhotoRepository photoRepository) {
+    public UserProfileService(UserProfileRepository userRepository, PhotoRepository photoRepository, AzureBlobService azureBlobService) {
         this.userRepository = userRepository;
         this.photoRepository = photoRepository;
+        this.azureBlobService = azureBlobService;
     }
 
     // Adds a new user profile with default values
     public UserDto addUser(UserDto userDto, String username) {
         UserProfile userToBeAdded = UserProfileMapper.INSTANCE.toUser(userDto);
         userToBeAdded.setUsername(username);
-        initializeDefaultValues(userToBeAdded); 
+        initializeDefaultValues(userToBeAdded, username); 
         
         userToBeAdded = userRepository.save(userToBeAdded);
         return UserProfileMapper.INSTANCE.toUserDto(userToBeAdded);
     }
 
     // Initialize default values for the UserProfile
-    private void initializeDefaultValues(UserProfile userProfile) {
+    private void initializeDefaultValues(UserProfile userProfile, String username) {
+    	userProfile.setDisplayname(username);
         userProfile.setRestDays(3);
         userProfile.setRestDaysLeft(3);
         System.out.println(getNextSunday().toString());
@@ -59,8 +63,17 @@ public class UserProfileService {
     public UserDto getUserByUsername(String username) {
         return userRepository.findByUsername(username)
             .map(user -> {
+                if (LocalDate.now().isAfter(user.getRestResetDate())) {
+                    LocalDate today = LocalDate.now();
+                    int todayDayOfWeek = today.getDayOfWeek().getValue();
+                    int daysUntilSunday = 7 - todayDayOfWeek;
+
+                    user.setRestResetDate(today.plusDays(daysUntilSunday));
+                    user.setRestDaysLeft(user.getRestDays());
+                    userRepository.save(user);
+                }
                 UserDto userDto = UserProfileMapper.INSTANCE.toUserDto(user);
-                userDto.setProfilePicture(user.getProfilePicture()); // Include profile picture
+                userDto.setProfilePicture(user.getProfilePicture());
                 return userDto;
             })
             .orElseThrow(() -> new RuntimeException("User not found with username = " + username));
@@ -110,7 +123,7 @@ public class UserProfileService {
         }
     }
 
-
+    
     // Soft-deletes user profile by username
     public UserDto softDeleteUserByUsername(String username) {
         UserProfile userToBeDeleted = userRepository.findByUsername(username)
@@ -211,38 +224,75 @@ public class UserProfileService {
         UserProfile user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // Generate a unique photo name
+        String photoName = "photo_" + System.currentTimeMillis();
+
+        // Upload the photo to Azure Blob Storage
+        String photoUrl = azureBlobService.uploadPhoto(username, photo, photoName);
+
+        // Save the photo metadata in the database
         Photo newPhoto = new Photo();
         newPhoto.setUserProfile(user);
-        newPhoto.setPhoto(photo);
+        newPhoto.setPhoto(photoUrl); // Store the URL in the `photo` field
         newPhoto.setUploadTimestamp(LocalDateTime.now());
         photoRepository.save(newPhoto);
     }
 
-    public List<Photo> getPrivatePhotos(String username, int startIndex, int endIndex) {
+
+    public List<String> getPrivatePhotos(String username, int startIndex, int endIndex) {
         if (endIndex <= startIndex) {
             throw new IllegalArgumentException("End index must be greater than start index.");
         }
 
         UserProfile user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        List<Photo> allPhotos = photoRepository.findByUserProfile_Id(user.getId());
+        List<String> allPhotos = azureBlobService.listPhotos(username, startIndex, endIndex);
 
         // Paginate results
         int toIndex = Math.min(endIndex, allPhotos.size());
         if (startIndex >= allPhotos.size()) {
             return Collections.emptyList(); // No results in range
         }
-        return allPhotos.subList(startIndex, toIndex);
+        // Generate SAS URLs for the photos in the range
+        return allPhotos.subList(startIndex, toIndex).stream()
+                .peek(photo -> {
+                    String blobName = photo; // Assuming `photo` contains the blob name
+
+                    String sasUrl = azureBlobService.generateSasUrl(blobName);
+                    photo  = sasUrl; // Assuming `Photo` has a `photoUrl` field for the SAS URL
+                })
+                .collect(Collectors.toList());
     }
-    
+
     // Delete private photo
-    public void deletePrivatePhoto(Long photoId) {
-        photoRepository.deleteById(photoId);
+    public void deletePrivatePhoto(String username, String photoUrl) {
+        UserProfile user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Extract blobName from the URL
+        String blobName;
+        try {
+            blobName = azureBlobService.extractBlobNameFromUrl(photoUrl, username);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Invalid photo URL", e);
+        }
+
+        // Delete from Azure Blob Storage
+        azureBlobService.deletePhoto(blobName);
+
+        // Delete photo metadata from the database
+        photoRepository.findByUserProfile_Id(user.getId())
+            .stream()
+            .filter(photo -> photoUrl.equals(photo.getPhoto()))
+            .findFirst()
+            .ifPresent(photoRepository::delete);
     }
-    
+
+  
     //search profiles by username
-    public List<UserDto> searchUserProfilesByUsername(String searchTerm, int startIndex, int endIndex) {
+    public List<UserDto> searchUserProfilesByUsername(
+            String searchTerm, int startIndex, int endIndex, String currentUsername) {
         // Validate start and end indices
         if (endIndex <= startIndex) {
             throw new IllegalArgumentException("End index must be greater than start index.");
@@ -259,17 +309,14 @@ public class UserProfileService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
-        // Query the repository
-        List<UserProfile> userProfiles = userRepository.findByUsernameContainingIgnoreCase(searchTerm, pageable);
-
-        // Return an empty list if no results are found
-        if (userProfiles.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        // Map the result to DTOs and return
+        // Call the repository to retrieve results excluding the current user
+        List<UserProfile> userProfiles = userRepository.findByUsernameContainingIgnoreCaseAndNotUsername(
+            searchTerm, currentUsername, pageable
+        );
+        // Map results to DTOs
         return userProfiles.stream()
                 .map(UserProfileMapper.INSTANCE::toUserDto)
                 .collect(Collectors.toList());
     }
+
 }
