@@ -94,14 +94,11 @@ public class UserProfile {
 		if (this.displayName == null || this.displayName.isEmpty()) {
 			this.displayName = this.username; // Default displayName to username
 		}
-	}
-	
-    @PrePersist
-    public void syncIdWithAccount() {
-        if (this.account != null) {
+		if (this.account != null) {
             this.id = this.account.getId(); // Ensure profileID matches accountID
         }
-    }
+	}
+	
 
     @PreUpdate
     public void updateIdWithAccount() {

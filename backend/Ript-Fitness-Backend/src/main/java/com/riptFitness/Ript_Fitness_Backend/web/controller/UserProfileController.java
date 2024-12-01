@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Photo;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AzureBlobService;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.UserProfileService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.UserDto;
 
@@ -91,19 +92,26 @@ public class UserProfileController {
     }
 
     @GetMapping("/photos")
-    public ResponseEntity<List<Photo>> getPrivatePhotos(
+    public ResponseEntity<List<String>> getPrivatePhotos(
             @RequestParam int startIndex,
             @RequestParam int endIndex) {
         String username = getUsernameFromContext();
-        List<Photo> photos = userProfileService.getPrivatePhotos(username, startIndex, endIndex);
+        List<String> photos = userProfileService.getPrivatePhotos(username, startIndex, endIndex);
         return ResponseEntity.ok(photos);
     }
 
-    @DeleteMapping("/photo/{photoName}")
-    public ResponseEntity<Void> deletePrivatePhoto(@PathVariable String photoName) {
+    @DeleteMapping("/deletePhoto")
+    public ResponseEntity<Void> deletePrivatePhoto(@RequestParam String photoUrl) {
         String username = getUsernameFromContext();
-        userProfileService.deletePrivatePhoto(username, photoName);
+        userProfileService.deletePrivatePhoto(username, photoUrl);
         return ResponseEntity.ok().build();
+    }
+    
+    @GetMapping("/getSasUrl")
+    public ResponseEntity<String> getSasUrl(@RequestParam String blobName) {
+    	AzureBlobService azureBlobService = new AzureBlobService();
+        String sasUrl = azureBlobService.generateSasUrl(blobName);
+        return ResponseEntity.ok(sasUrl);
     }
 
     @GetMapping("/search")

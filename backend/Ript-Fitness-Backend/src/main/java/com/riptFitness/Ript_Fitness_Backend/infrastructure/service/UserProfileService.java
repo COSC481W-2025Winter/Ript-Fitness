@@ -1,5 +1,6 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
+import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -232,54 +233,62 @@ public class UserProfileService {
         // Save the photo metadata in the database
         Photo newPhoto = new Photo();
         newPhoto.setUserProfile(user);
-        newPhoto.setPhoto(photoUrl.getBytes()); // Store the URL in the `photo` field
+        newPhoto.setPhoto(photoUrl); // Store the URL in the `photo` field
         newPhoto.setUploadTimestamp(LocalDateTime.now());
         photoRepository.save(newPhoto);
     }
 
 
-    public List<Photo> getPrivatePhotos(String username, int startIndex, int endIndex) {
+    public List<String> getPrivatePhotos(String username, int startIndex, int endIndex) {
         if (endIndex <= startIndex) {
             throw new IllegalArgumentException("End index must be greater than start index.");
         }
 
         UserProfile user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        List<Photo> allPhotos = photoRepository.findByUserProfile_Id(user.getId());
+        List<String> allPhotos = azureBlobService.listPhotos(username, startIndex, endIndex);
 
         // Paginate results
         int toIndex = Math.min(endIndex, allPhotos.size());
         if (startIndex >= allPhotos.size()) {
             return Collections.emptyList(); // No results in range
         }
-
-        // Convert the `photo` field from byte[] to the string URL
+        // Generate SAS URLs for the photos in the range
         return allPhotos.subList(startIndex, toIndex).stream()
                 .peek(photo -> {
-                    String photoUrl = new String(photo.getPhoto()); 
-                    photo.setPhoto(photoUrl.getBytes()); // Set the string back as bytes for consistency
+                    String blobName = photo; // Assuming `photo` contains the blob name
+
+                    String sasUrl = azureBlobService.generateSasUrl(blobName);
+                    photo  = sasUrl; // Assuming `Photo` has a `photoUrl` field for the SAS URL
                 })
                 .collect(Collectors.toList());
     }
-    
+
     // Delete private photo
-    public void deletePrivatePhoto(String username, String photoName) {
+    public void deletePrivatePhoto(String username, String photoUrl) {
         UserProfile user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String blobName = username + "/" + photoName;
+        // Extract blobName from the URL
+        String blobName;
+        try {
+            blobName = azureBlobService.extractBlobNameFromUrl(photoUrl, username);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Invalid photo URL", e);
+        }
 
         // Delete from Azure Blob Storage
-        azureBlobService.deletePhoto(username, photoName);
+        azureBlobService.deletePhoto(blobName);
 
         // Delete photo metadata from the database
         photoRepository.findByUserProfile_Id(user.getId())
             .stream()
-            .filter(photo -> new String(photo.getPhoto()).endsWith(photoName))
+            .filter(photo -> photoUrl.equals(photo.getPhoto()))
             .findFirst()
             .ifPresent(photoRepository::delete);
     }
+
   
     //search profiles by username
     public List<UserDto> searchUserProfilesByUsername(
