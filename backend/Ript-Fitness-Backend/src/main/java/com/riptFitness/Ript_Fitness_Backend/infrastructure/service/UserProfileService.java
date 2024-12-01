@@ -219,24 +219,40 @@ public class UserProfileService {
         return user.getProfilePicture();
     }
 
-    // Add private photo
-    public void addPrivatePhoto(String username, byte[] photo) {
+    public void addPrivatePhoto(String username, byte[] photo, String contentType) {
+        // Retrieve the user by username
         UserProfile user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Generate a unique photo name
-        String photoName = "photo_" + System.currentTimeMillis();
+        // Generate a unique photo name with extension
+        String fileExtension = getFileExtensionFromContentType(contentType);
+        String photoName = "photo_" + System.currentTimeMillis() + fileExtension;
 
         // Upload the photo to Azure Blob Storage
-        String photoUrl = azureBlobService.uploadPhoto(username, photo, photoName);
+        String photoUrl = azureBlobService.uploadPhoto(username, photo, photoName, contentType);
 
         // Save the photo metadata in the database
         Photo newPhoto = new Photo();
         newPhoto.setUserProfile(user);
-        newPhoto.setPhoto(photoUrl); // Store the URL in the `photo` field
+        newPhoto.setPhoto(photoUrl); // Store the URL
         newPhoto.setUploadTimestamp(LocalDateTime.now());
         photoRepository.save(newPhoto);
     }
+
+    // Utility method to determine the file extension from the content type
+    private String getFileExtensionFromContentType(String contentType) {
+        switch (contentType) {
+            case "image/jpeg":
+                return ".jpg";
+            case "image/png":
+                return ".png";
+            case "image/gif":
+                return ".gif";
+            default:
+                throw new IllegalArgumentException("Unsupported content type: " + contentType);
+        }
+    }
+
 
 
     public List<String> getPrivatePhotos(String username, int startIndex, int endIndex) {

@@ -258,6 +258,7 @@ public class UserProfileServiceTest {
    
     @Test
     void testAddPrivatePhoto() {
+        // Test data
         String username = "testUser";
         byte[] photoData = new byte[]{1, 2, 3};
         String photoName = "photo_1.jpg";
@@ -265,19 +266,26 @@ public class UserProfileServiceTest {
 
         UserProfile mockProfile = new UserProfile("John", "Doe", username, "Bio");
 
+        // Mock repository behavior
         when(userProfileRepository.findByUsername(eq(username))).thenReturn(Optional.of(mockProfile));
-        when(azureBlobService.uploadPhoto(eq(username), eq(photoData), anyString())).thenReturn(photoUrl);
+        when(azureBlobService.uploadPhoto(eq(username), eq(photoData), anyString(), eq("image/jpeg")))
+                .thenReturn(photoUrl);
 
-        userProfileService.addPrivatePhoto(username, photoData);
+        // Call the service
+        userProfileService.addPrivatePhoto(username, photoData, "image/jpeg");
 
+        // Capture the saved Photo entity
         ArgumentCaptor<Photo> photoCaptor = ArgumentCaptor.forClass(Photo.class);
         verify(photoRepository, times(1)).save(photoCaptor.capture());
 
+        // Validate the saved photo
         Photo savedPhoto = photoCaptor.getValue();
         assertNotNull(savedPhoto);
-        assertEquals(photoUrl, new String(savedPhoto.getPhoto())); // Ensure the photo URL was saved
+        assertEquals(photoUrl, savedPhoto.getPhoto()); // Ensure the photo URL was saved
         assertEquals(mockProfile, savedPhoto.getUserProfile());
+        assertNotNull(savedPhoto.getUploadTimestamp()); // Ensure timestamp is set
     }
+
     
     @Test
     void testGetPrivatePhotosWithPagination() {
