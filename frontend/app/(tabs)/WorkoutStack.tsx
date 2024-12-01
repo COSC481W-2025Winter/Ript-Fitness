@@ -25,6 +25,7 @@ export type WorkoutStackParamList = {
   MyWorkoutsScreen: {};
   MyNotesScreen: {};
   EditNoteScreen: { note:Note | null };
+  RiptWorkoutScreen: {};
 };
 
 export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamList>;

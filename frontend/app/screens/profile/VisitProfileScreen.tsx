@@ -13,7 +13,7 @@ import {
   Platform,
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { UserCheck, UserPlus } from "react-native-feather";
+import { User, UserCheck, UserMinus, UserPlus } from "react-native-feather";
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { FriendObject, GlobalContext } from '@/context/GlobalContext';
@@ -115,13 +115,15 @@ const VisitProfileScreen: React.FC = () => {
       </View>
     );
   }
-
+  const goBack = () => {
+    navigation.goBack()
+  }
   return (
     <View style={styles.container}>
       {/* Header with Back Button */}
       <View style={styles.header}>
   <TouchableOpacity
-    onPress={() => navigation.goBack()}
+    onPress={goBack}
     style={styles.backButton}
   >
     <Ionicons name="arrow-back" size={24} color="#000" />
@@ -147,36 +149,23 @@ const VisitProfileScreen: React.FC = () => {
           }}>
             
             <Text style={styles.bio}>
-  {context?.userProfile?.bio != null
-    ? `${(context?.userProfile?.bio.split('\n')[0] || '').slice(0, 50)} >`
+  {item.bio != null
+    ? `${(item.bio.split('\n')[0] || '').slice(0, 50)}`
     : ''}
+
+{item.bio && (item.bio.length > item.bio.split('\n')[0].length || item.bio.split('\n')[0].length > 50)  ? <Text style={{ color: '#757575', fontWeight: 600 }}>{'...View more'}</Text> : <></>}
 </Text>
+
 </TouchableOpacity></View>
 
         {/* Add Friend Button */}
-        <TouchableOpacity
-
-  <Text style={styles.addFriendButtonText}>
-    {addingFriend
-      ? 'Adding...'
-      : context?.friends.some(friend => friend.username === item.username)
-      ? 'Remove Friend'
-      : profContext?.sentFriendRequests.includes(item.username)
-      ? 'Request Pending'
-      : 'Add Friend'}
-  </Text>
-</TouchableOpacity>
-
-=======
-          // style={styles.addFriendButton}
-          /*style={[
-            styles.addFriendButton,
-            context?.friends.some(friend => friend.username === item.username)
-              ? styles.friendButton
-              : styles.addFriendButtonStyle,
-          ]}*/
-  style={[
+        <TouchableOpacity style={[
     styles.addFriendButton,
+            (context?.friends.some(friend => friend.username === item.username)
+            ? styles.friendButton
+            : styles.addFriendButtonStyle),
+
+
     (addingFriend || 
      context?.friends.some(friend => friend.username === item.username) || 
      profContext?.sentFriendRequests.includes(item.username)) && 
@@ -197,24 +186,35 @@ const VisitProfileScreen: React.FC = () => {
   }}
          disabled={addingFriend || profContext?.sentFriendRequests.includes(item.username)}
         >
-          {context?.friends.some(friend => friend.username === item.username) ? (
+
+  {context?.friends.some(friend => friend.username === item.username) ? (
           <UserCheck stroke={'#1D1B20'} strokeWidth={2.5} width={18} height={18} />
         ) : (
-          profContext?.sentFriendRequests.includes(item.username) ? <UserPlus stroke={'#fff'} strokeWidth={2.5} width={18} height={18} /> : <UserCheck stroke={'#1D1B20'} strokeWidth={2.5} width={18} height={18} />
+          profContext?.sentFriendRequests.includes(item.username) ?  <UserCheck stroke={'#1D1B20'} strokeWidth={2.5} width={18} height={18} /> :<UserPlus stroke={'#fff'} strokeWidth={2.5} width={18} height={18} /> 
         )}
           {/* <UserCheck stroke={'#1D1B20'} strokeWidth={2.5} width={18} height={18} /> */}
           <Text 
             // style={styles.addFriendButtonText}
             style={[
               styles.addFriendButtonText,
-              context?.friends.some(friend => friend.username === item.username)
+              (context?.friends.some(friend => friend.username === item.username) || profContext?.sentFriendRequests.includes(item.username))
                 ? styles.friendButtonText
                 : styles.addFriendButtonTextStyle,
             ]}
           >
-            {addingFriend ? 'Adding...' : (context?.friends.some(friend => friend.username === item.username) ? 'Friends' : 'Friend')}
+               {addingFriend
+      ? 'Adding...'
+      : context?.friends.some(friend => friend.username === item.username)
+      ? 'Friends'
+      : profContext?.sentFriendRequests.includes(item.username)
+      ? 'Requested'
+      : 'Add Friend'}
           </Text>
         </TouchableOpacity>
+
+
+ 
+
       </View>
 
       {true ? (
@@ -413,15 +413,9 @@ const styles = StyleSheet.create({
     margin: 7,
     textAlign:'center'
   },
-
-  
-    header: {
-      height: 60, 
-      alignItems: 'center',
-      justifyContent: 'center',
-      position: 'relative', // Ensure relative positioning
-
-    },
+  disabledButton: {
+    backgroundColor: "#EDEDED", // Light grey
+  },
     headerBorder: {
         borderBottomWidth:1,
         borderColor:'grey',
@@ -432,6 +426,7 @@ const styles = StyleSheet.create({
       position: 'absolute',
       left: 10, 
       padding: 10,
+      zIndex:10,
     },
     headerTitle: {
       fontSize: 18, 
