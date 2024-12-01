@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Photo;
-import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AzureBlobService;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.UserProfileService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.UserDto;
 
@@ -84,6 +83,7 @@ public class UserProfileController {
         return ResponseEntity.ok(profilePicture);
     }
 
+    // Private photo endpoints
     @PostMapping("/photo")
     public ResponseEntity<Void> addPrivatePhoto(@RequestBody byte[] photo) {
         String username = getUsernameFromContext();
@@ -91,50 +91,32 @@ public class UserProfileController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/photos")
-    public ResponseEntity<List<String>> getPrivatePhotos(
+    @GetMapping("/userProfile/photos")
+    public ResponseEntity<List<Photo>> getPrivatePhotos(
+            @RequestParam String username,
             @RequestParam int startIndex,
             @RequestParam int endIndex) {
-        String username = getUsernameFromContext();
-        List<String> photos = userProfileService.getPrivatePhotos(username, startIndex, endIndex);
+        List<Photo> photos = userProfileService.getPrivatePhotos(username, startIndex, endIndex);
         return ResponseEntity.ok(photos);
     }
 
-    @DeleteMapping("/deletePhoto")
-    public ResponseEntity<Void> deletePrivatePhoto(@RequestParam String photoUrl) {
-        String username = getUsernameFromContext();
-        userProfileService.deletePrivatePhoto(username, photoUrl);
+    @DeleteMapping("/photo/{photoId}")
+    public ResponseEntity<Void> deletePrivatePhoto(@PathVariable Long photoId) {
+        userProfileService.deletePrivatePhoto(photoId);
         return ResponseEntity.ok().build();
     }
     
-    @GetMapping("/getSasUrl")
-    public ResponseEntity<String> getSasUrl(@RequestParam String blobName) {
-    	AzureBlobService azureBlobService = new AzureBlobService();
-        String sasUrl = azureBlobService.generateSasUrl(blobName);
-        return ResponseEntity.ok(sasUrl);
-    }
-
     @GetMapping("/search")
     public ResponseEntity<?> searchUserProfiles(
             @RequestParam String searchTerm,
             @RequestParam int startIndex,
             @RequestParam int endIndex) {
         try {
-            // Get the current user's username from the security context
-            String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-            // Call the service method and exclude the current user
-            List<UserDto> userProfiles = userProfileService.searchUserProfilesByUsername(
-                searchTerm, startIndex, endIndex, currentUsername
-            );
-            // Add profile pictures for each user
-            userProfiles.forEach(user -> 
-                user.setProfilePicture(userProfileService.getProfilePicture(user.getUsername()))
-            );
+            List<UserDto> userProfiles = userProfileService.searchUserProfilesByUsername(searchTerm, startIndex, endIndex);
+            userProfiles.forEach(user -> user.setProfilePicture(userProfileService.getProfilePicture(user.getUsername())));
             return ResponseEntity.ok(userProfiles);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }
     }
-
-
 }

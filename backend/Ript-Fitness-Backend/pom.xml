@@ -143,11 +143,6 @@
 			<version>5.10.3</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.azure</groupId>
-			<artifactId>azure-storage-blob</artifactId>
-			<version>12.22.0</version>
-		</dependency>
 
 	</dependencies>
 

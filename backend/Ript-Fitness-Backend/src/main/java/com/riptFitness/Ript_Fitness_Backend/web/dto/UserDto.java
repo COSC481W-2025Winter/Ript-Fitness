@@ -47,9 +47,6 @@ public class UserDto {
 
     public void setUsername(String username) {
         this.username = username;
-        if (this.displayname == null || this.displayname.isEmpty()) {
-            this.displayname = username; // Default displayname to username
-        }
     }
 
     public String getDisplayname() {
@@ -115,10 +112,4 @@ public class UserDto {
     public void setProfilePicture(byte[] profilePicture) {
         this.profilePicture = profilePicture;
     }
-    public void setDefaults() {
-        if (this.displayname == null || this.displayname.isEmpty()) {
-            this.displayname = this.username; // can be called whenever
-        }
-    }
-
 }

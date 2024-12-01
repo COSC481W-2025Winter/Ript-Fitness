@@ -205,12 +205,10 @@ public class AccountsModel {
 		return userProfile;
 	}
 
-    public void setUserProfile(UserProfile userProfile) {
-        this.userProfile = userProfile;
-        if (userProfile != null) {
-            userProfile.setAccount(this);
-        }
-    }
+	public void setUserProfile(UserProfile userProfile) {
+		this.userProfile = userProfile;
+	}
+
 	public List<AccountsModel> getFriends() {
 		return friends;
 	}
