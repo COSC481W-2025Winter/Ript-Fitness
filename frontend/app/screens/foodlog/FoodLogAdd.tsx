@@ -473,12 +473,13 @@ const styles = StyleSheet.create({
       },
       input: {
         flex: 1,
-        borderWidth: 1,
-        borderColor: 'white',
-        padding: 3,
+        // borderWidth: 1,
+        // borderColor: 'white',
+        padding: 5,
         marginVertical: 2,
-        borderRadius: 2,
-        textAlign: 'center',
+        // borderRadius: 2,
+        textAlign: 'right',
+        // backgroundColor:'red'
       },
     //   inputInvalid: {
     //     borderColor: 'red',
@@ -519,8 +520,8 @@ const styles = StyleSheet.create({
       buttonRow: {
         flexDirection: 'row', // Align items in a row
         alignItems: 'center', // Vertically center the text and input
-        marginBottom: 10,
-        gap: 20,
+        justifyContent: 'center',
+        marginVertical: 10,
       }
 })
 

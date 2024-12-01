@@ -71,7 +71,7 @@ const context = useContext(GlobalContext)
       {/* Search Bar */}
       <TextInput
         style={styles.searchBar}
-        placeholder="Search Friends"
+        placeholder="Search"
         value={search}
         onChangeText={setSearch}
       />
@@ -94,7 +94,7 @@ const context = useContext(GlobalContext)
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: '#fff',  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',

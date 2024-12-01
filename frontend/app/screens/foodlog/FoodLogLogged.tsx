@@ -328,6 +328,7 @@ const styles = StyleSheet.create({
     },
     bottomContainer: {
         height: '100%',
+        backgroundColor: '#fff'
     }, 
     message: {
         textAlign: 'center', 

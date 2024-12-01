@@ -253,8 +253,8 @@ const SettingsScreen = ({ navigation }: any) => {
 
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  scrollContainer: { flexGrow: 1 },
+  container: { flex: 1, backgroundColor: '#fff', },
+  scrollContainer: { flexGrow: 1, },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -262,16 +262,17 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
+    marginTop: Platform.OS === "ios" ? '10%' : 0
   },
-  title: { fontSize: 20, fontWeight: 'bold' },
+  title: { fontSize: 18, fontWeight: 'bold' },
   saveButton: {
-    backgroundColor: '#E0F7FA',
+    backgroundColor: '#21BFBF',
     paddingHorizontal: 16,
     height:'100%',
     paddingVertical: 6,
     borderRadius: 20,
   },
-  saveButtonText: { color: '#00796B', fontWeight: 'bold' },
+  saveButtonText: { color: '#fff', fontWeight: 'bold' },
   profileImageContainer: {
     alignItems: 'center',
     marginVertical: 20,

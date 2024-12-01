@@ -321,6 +321,7 @@ const styles = StyleSheet.create({
     },
     whiteText: {
         color: "white",
+        paddingLeft: 5
     },
     rightArrow: {
         position: 'absolute',

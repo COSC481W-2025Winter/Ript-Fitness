@@ -197,16 +197,18 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
   },
   likeButton: {
-    padding: 7,
+    // padding: 7,
     borderRadius: 10,
   },
   commentButton: {
-    padding: 7,
+    paddingLeft: 7,
     borderRadius: 10,
   },
   likecomment: {
     flexDirection: "row",
     alignItems: "center",
+    // backgroundColor: 'red',
+
   },
   likeCounter: {
     color: "black",
