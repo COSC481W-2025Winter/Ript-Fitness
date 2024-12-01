@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.lang.reflect.Method;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -277,50 +278,64 @@ public class UserProfileServiceTest {
         assertEquals(photoUrl, new String(savedPhoto.getPhoto())); // Ensure the photo URL was saved
         assertEquals(mockProfile, savedPhoto.getUserProfile());
     }
-
+    
     @Test
     void testGetPrivatePhotosWithPagination() {
         String username = "testUser";
+
         UserProfile mockProfile = new UserProfile();
         mockProfile.setId(1L);
 
-        Photo photo1 = new Photo();
-        photo1.setId(1L);
-        photo1.setUserProfile(mockProfile);
-        photo1.setPhoto("123");
-        photo1.setUploadTimestamp(LocalDateTime.now());
-
-        Photo photo2 = new Photo();
-        photo2.setId(2L);
-        photo2.setUserProfile(mockProfile);
-        photo2.setPhoto("456");
-        photo2.setUploadTimestamp(LocalDateTime.now());
-
-        List<Photo> mockPhotos = List.of(photo1, photo2);
-
+        // Mock Azure Blob Service behavior
+        List<String> mockBlobPhotos = List.of("photo_1.jpg", "photo_2.jpg");
         when(userProfileRepository.findByUsername(eq(username))).thenReturn(Optional.of(mockProfile));
-        when(photoRepository.findByUserProfile_Id(eq(mockProfile.getId()))).thenReturn(mockPhotos);
+        when(azureBlobService.listPhotos(eq(username), eq(0), eq(2))).thenReturn(mockBlobPhotos);
 
-        //List<Photo> result = userProfileService.getPrivatePhotos(username, 0, 1);
+        // Invoke the service method
+        List<String> result = userProfileService.getPrivatePhotos(username, 0, 2);
 
-        //assertNotNull(result);
-        //assertEquals(1, result.size());
-        verify(photoRepository, times(1)).findByUserProfile_Id(mockProfile.getId());
+        // Assertions
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("photo_1.jpg", result.get(0));
+        assertEquals("photo_2.jpg", result.get(1));
+
+        // Verify interactions
+        verify(azureBlobService, times(1)).listPhotos(eq(username), eq(0), eq(2));
+        verify(userProfileRepository, times(1)).findByUsername(eq(username));
     }
+
     @Test
-    void testDeletePrivatePhoto() {
+    void testDeletePrivatePhoto() throws Exception {
         String username = "testUser";
-        String photoName = "photo_1.jpg";
+        String photoUrl = "https://mockstorage.blob.core.windows.net/container/testUser/photo_1.jpg";
 
         UserProfile mockProfile = new UserProfile();
         mockProfile.setId(1L);
 
+        Photo mockPhoto = new Photo();
+        mockPhoto.setPhoto(photoUrl);
+        mockPhoto.setUserProfile(mockProfile);
+
         when(userProfileRepository.findByUsername(eq(username))).thenReturn(Optional.of(mockProfile));
-        when(photoRepository.findByUserProfile_Id(eq(mockProfile.getId()))).thenReturn(List.of());
+        when(photoRepository.findByUserProfile_Id(eq(mockProfile.getId()))).thenReturn(List.of(mockPhoto));
 
-        userProfileService.deletePrivatePhoto(username, photoName);
+        // Use reflection to invoke extractBlobNameFromUrl
+        Method extractMethod = AzureBlobService.class.getDeclaredMethod("extractBlobNameFromUrl", String.class, String.class);
+        extractMethod.setAccessible(true);
+        String blobName = (String) extractMethod.invoke(azureBlobService, photoUrl, username);
 
+        doNothing().when(azureBlobService).deletePhoto(eq(blobName));
+
+        // Invoke the service method
+        userProfileService.deletePrivatePhoto(username, photoUrl);
+
+        // Verify interactions
+        verify(azureBlobService, times(1)).deletePhoto(eq(blobName));
         verify(photoRepository, times(1)).findByUserProfile_Id(eq(mockProfile.getId()));
-        verify(azureBlobService, times(1)).deletePhoto(eq(photoName));
+        verify(photoRepository, times(1)).delete(eq(mockPhoto));
     }
+
+
+
 }
