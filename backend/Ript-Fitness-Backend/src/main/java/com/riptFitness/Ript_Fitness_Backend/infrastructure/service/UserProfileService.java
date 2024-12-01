@@ -122,7 +122,7 @@ public class UserProfileService {
         }
     }
 
-
+    
     // Soft-deletes user profile by username
     public UserDto softDeleteUserByUsername(String username) {
         UserProfile userToBeDeleted = userRepository.findByUsername(username)
