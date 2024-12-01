@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle, View, Modal, TextInput } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle, View, Modal, TextInput, Platform } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 
@@ -149,6 +149,7 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
                   <TextInput
                   style={styles.modalTitleEdit}
                   value={tempName}
+                  autoFocus={true}
                   onChangeText={setTempName} // Set the name directly
                   keyboardType="default"
                 />
@@ -265,21 +266,25 @@ const styles = StyleSheet.create({
   },
   modalTitleEdit: {
     fontSize: 18,
-    backgroundColor: '#D9D9D9',
+    // backgroundColor: '#D9D9D9',
     width: '80%',
     borderRadius: 5,
-    textAlign: 'center',
-    color: 'black',
+    // textAlign: 'center',
+    color: '#B6B6B6',
     fontWeight: 'bold',
     marginBottom: 20,
   },
   repInputEdit: {
-    fontSize: 16,
+    // fontSize: 16,
+    fontSize: Platform.OS === "ios" ? 16 : 14,
     backgroundColor: '#D9D9D9',
     width: '20%',
     borderRadius: 5,
     textAlign: 'center',
     color: 'black',
+    maxHeight: 30,
+    textAlignVertical: 'center', 
+    paddingVertical: 0,
   },
   repInput: {
     fontSize: 16,
@@ -288,6 +293,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     textAlign: 'center',
     color: 'black',
+    textAlignVertical: 'center', 
+    paddingVertical: 0,
   },
   modalButtonsContainer: {
     flexDirection: 'row',

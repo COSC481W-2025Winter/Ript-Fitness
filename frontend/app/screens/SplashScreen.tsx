@@ -34,8 +34,8 @@ export default function SplashScreen() {
 if (!context?.isLoaded || context?.additionalLoadingRequired) {
     return (<ThemedView style={styles.view}><Image 
       style={[styles.logo]}
-       resizeMode="contain"
-      source={require('@/assets/images/Ript_logo.png')}
+      //  resizeMode="contain"
+      source={require('@/assets/images/splash-icon.png')}
   /></ThemedView>);
 } else {
   return (
@@ -50,8 +50,12 @@ const styles = StyleSheet.create({
     alignContent:"center",
     alignItems:"center",
     justifyContent:"center",
+    backgroundColor: '#21BFBF'
   },
   logo: {
-    width:"80%",
+    // width:"28%",
+    // height: '15%'
+    width: 100,
+    height: 118,
   },
 });

@@ -135,6 +135,7 @@ const updatePotentialFriends = (newFriends: FriendObject[]) => {
         <Text style={styles.friendUserName}>@{item.username}</Text>
       </View>
       </TouchableOpacity>
+
       <TouchableOpacity
   style={[
     styles.addButton,
@@ -160,14 +161,15 @@ const updatePotentialFriends = (newFriends: FriendObject[]) => {
   </Text>
 </TouchableOpacity>
 
+
     </View>
   );}
 
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={[styles.header, {paddingTop: Platform.OS === "ios" ? 30 : 0, // Add paddingTop for iOS
-            height: Platform.OS === "ios" ? 80 : 60,    // Adjust header height if necessary
+      <View style={[styles.header, {marginTop: Platform.OS === "ios" ? '10%' : 0, // Add paddingTop for iOS
+            // height: Platform.OS === "ios" ? 80 : 60,    // Adjust header height if necessary
             backgroundColor: 'white', }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="black" />
@@ -178,7 +180,7 @@ const updatePotentialFriends = (newFriends: FriendObject[]) => {
       {/* Search Bar */}
       <TextInput
         style={styles.searchBar}
-        placeholder="Search Potential Friends"
+        placeholder="Search"
         value={search}
         onChangeText={setSearch}
         onEndEditing={searchForFriends}
@@ -189,7 +191,7 @@ const updatePotentialFriends = (newFriends: FriendObject[]) => {
 
 
       {loading ? (
-  <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />
+  <ActivityIndicator size="large" style={styles.loader} />
 ) : filteredPotentialFriends.length > 0 ? (
   <FlatList
     data={filteredPotentialFriends}
@@ -258,19 +260,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#888', 
 },
-addButton: {
-  backgroundColor: '#40bcbc',
-  padding: 10,
-  borderRadius: 5,
-  alignItems: "center",
-},
+
 disabledButton: {
   backgroundColor: "#d3d3d3", // Light grey
 },
-addButtonText: {
-  color: "white",
-  fontWeight: "bold",
-},
+
+
+  addButton: {
+    backgroundColor: '#21BFBF',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  addButtonText: { color: '#fff', fontWeight: 'bold' },
+
 });
 
 export default FindFriendsScreen;

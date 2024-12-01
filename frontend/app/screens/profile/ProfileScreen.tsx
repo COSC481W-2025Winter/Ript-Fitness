@@ -133,6 +133,8 @@ function PhotosScreen() {
   const images: any = [
     { id: '1', img: require('../../../assets/images/profile/Profile.png') },
     { id: '2', img: require('../../../assets/images/profile/Profile.png') },
+    { id: '3', img: require('../../../assets/images/profile/Profile.png') },
+
   ];
 
   const handlePhoto = async () => {
@@ -163,28 +165,31 @@ function PhotosScreen() {
   };
 
   return (
-    <View style={{ width: '100%', flex: 1, backgroundColor: '#fff' }}>
-      <View style={styles.photosContainer}>
-        <FlatList
-          data={images}
-          keyExtractor={(item) => item.id}
-          numColumns={3} // Adjust the number of columns as needed
-          renderItem={({ item }) => <Image source={item.img} style={styles.photo} />}
-          contentContainerStyle={{
-            justifyContent: 'flex-start',
-            alignItems: 'flex-start', // Align items to the left
-            paddingTop: 10,
-            backgroundColor: '#fff',
-          }}
-          ListFooterComponent={
-            <TouchableOpacity style={styles.addPhotoButton} onPress={handlePhoto}>
-              <Ionicons name="add" size={30} color="#fff" />
-            </TouchableOpacity>
-          }
-          showsVerticalScrollIndicator={true}
-        />
-      </View>
-    </View>
+
+    <View style={{width:'100%', flex:1, backgroundColor:'#fff'}}>
+<View style={styles.photosContainer}>
+  <FlatList
+    data={images}
+    keyExtractor={(item) => item.id}
+    numColumns={3} // Adjust the number of columns as needed
+    renderItem={({ item }) => (
+      <Image source={item.img} style={styles.photo} />
+    )}
+    contentContainerStyle={{
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start', // Align items to the left
+      paddingTop: 10,
+      backgroundColor: "#fff",
+    }} 
+    ListFooterComponent={
+      <TouchableOpacity style={styles.addPhotoButton} onPress={handlePhoto}>
+      <Ionicons name="add" size={48} color="#BFBFBF" />
+    </TouchableOpacity>
+    }
+    showsVerticalScrollIndicator={true}
+  />
+</View>
+</View>
   );
 }
 
@@ -326,6 +331,7 @@ function PostsScreen() {
     } else {
       return null;
     }
+
   };
 
   // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -582,28 +588,31 @@ function ProgressScreen() {
           </TouchableOpacity>
         </View>
 
-        <Calendar />
+   
+    <Calendar/>
 
-        <View style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'center' }}>
-          <Text>Rest Days Remaining: {context?.userProfile.restDaysLeft}</Text>
-          <TouchableOpacity
-            style={{
-              marginLeft: 10,
-              backgroundColor: '#e3c067',
-              paddingHorizontal: 15,
-              paddingVertical: 8,
-              borderRadius: 5,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.25,
-              shadowRadius: 4,
-              elevation: 5, // Adds shadow on Android
-            }}
-            onPress={useRestDay}
-          >
-            <Text style={{ color: '#fff', fontWeight: 'bold' }}>Use Rest Day</Text>
-          </TouchableOpacity>
-        </View>
+    <View style={{ marginBottom: '10%', flexDirection: 'row', alignItems: 'center', }}>
+      <Text style={{ }} >{context?.userProfile.restDaysLeft} days available</Text>
+      <TouchableOpacity
+        style={{
+          marginLeft: 10,
+          backgroundColor: '#BFBFBF',
+          paddingHorizontal: 15,
+          paddingVertical: 10,
+          borderRadius: 7,
+          alignSelf: 'center'
+          // shadowColor: '#000',
+          // shadowOffset: { width: 0, height: 2 },
+          // shadowOpacity: 0.25,
+          // shadowRadius: 4,
+          // elevation: 5, // Adds shadow on Android
+        }}
+        onPress={useRestDay}
+      >
+        <Text style={{ color: '#40403F', }}>Use Rest Day</Text>
+      </TouchableOpacity>
+    </View>
+
 
         <View style={styles.links}>
           <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('GraphScreen')}>
@@ -802,6 +811,7 @@ const MainScreen = () => {
         </View>
       </Modal>
       <View style={styles.container}>
+
         <View style={styles.center}>
           {/* Profile Section */}
           <View style={styles.profileSection}>
@@ -823,7 +833,7 @@ const MainScreen = () => {
                 >
                   <Text style={styles.bio}>
                     {context?.userProfile?.bio != null
-                      ? `${(context?.userProfile?.bio.split('\n')[0] || '').slice(0, 50)} >`
+                      ? `${(context?.userProfile?.bio.split('\n')[0] || '').slice(0, 50)} ...View more`
                       : null}
                   </Text>
                 </TouchableOpacity>
@@ -836,11 +846,10 @@ const MainScreen = () => {
                   {context?.friends.length === 0 ? (
                     // Render "Add Friend" button when there are no friends
                     <View style={styles.addFriendContainer}>
-                      <TouchableOpacity style={styles.addFriendButton} onPress={handleAddFriend}>
-                        <Text>
-                          <Ionicons name="person-add" /> Add Friend
-                        </Text>
-                      </TouchableOpacity>
+    <TouchableOpacity style={styles.addFriendButton} onPress={handleAddFriend}>
+      <Ionicons name="search-outline" size={18} color={'#757575'} />
+      <Text style={{marginLeft: 3, color: '#757575'}} >Find Friends</Text>
+    </TouchableOpacity>
                     </View>
                   ) : (
                     // Render the FlatList if there are friends
@@ -875,6 +884,7 @@ const MainScreen = () => {
                     </View>
                   )}
                 </View>
+
               </View>
             </View>
           </View>
@@ -905,11 +915,13 @@ const ProfileScreen: React.FC = () => {
         options={({ navigation }) => ({
           headerShown: true,
           headerTitleAlign: 'center', // Center the header title
+
           headerTitle: context?.userProfile.username,
           headerStyle: {
-            paddingTop: Platform.OS === 'ios' ? 20 : 0, // Add paddingTop for iOS
-            height: Platform.OS === 'ios' ? 80 : 60, // Adjust header height if necessary
-            backgroundColor: 'white', // Ensure consistent background
+            // paddingTop: Platform.OS === "ios" ? 20 : 0, // Add paddingTop for iOS
+            height: Platform.OS === "ios" ? 80 : 60,    // Adjust header height if necessary
+            backgroundColor: 'white',                  // Ensure consistent background
+
             // You can add more styling properties as needed
           },
           headerRight: () => (
@@ -1029,12 +1041,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#888',
   },
-  addFriendContainer: {},
+  addFriendContainer: {
+    marginBottom: 5
+  },
   addFriendButton: {
-    backgroundColor: '#ececed',
-    paddingVertical: 8,
-    paddingHorizontal: 8,
-    borderRadius: 10,
+    backgroundColor:"#ececed",
+    paddingVertical:8,
+    paddingHorizontal:8,
+    borderRadius:7,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   addFriendButtonOverlay: {
     margin: 0,
@@ -1066,7 +1082,6 @@ const styles = StyleSheet.create({
   },
   postsContainer: {
     flex: 1,
-    // backgroundColor:"red",
     padding: 0,
     margin: 0,
   },
@@ -1136,40 +1151,40 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   postItem: {
-    marginBottom: 10,
-    width: '80%',
-    minHeight: 80,
-    backgroundColor: '#eee',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    flexDirection: 'row',
+    marginBottom:10,
+    width:"90%",
+    minHeight:80,
+    backgroundColor:"#eee",
+    borderWidth:1,
+    borderColor:"#ddd",
+    borderRadius:10,
+    flexDirection:"row",
   },
   photosContainer: {
     flex: 1, // Allows FlatList to take up full height and be scrollable
     padding: 0,
-    margin: 0,
-    alignItems: 'center',
+    margin:0,
+    // alignItems:'left',
   },
   addPhotoButton: {
-    width: 100, // Adjust as needed for your layout
-    height: 100,
-    borderRadius: 10,
-    margin: 9,
-    backgroundColor: '#40bcbc', // Attractive green color
+    width: 128, // Adjust as needed for your layout
+    height: 128,
+    // borderRadius: 10,
+    margin:1,
+    backgroundColor: '#ededed', // gray
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5, // Adds shadow on Android
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 4 },
+    // shadowOpacity: 0.3,
+    // shadowRadius: 4,
+    // elevation: 5, // Adds shadow on Android
   },
   photo: {
-    width: 100, // Adjust as needed for your layout
-    height: 100,
-    borderRadius: 10,
-    margin: 9,
+    width: 128, // Adjust as needed for your layout
+    height: 128,
+    // borderRadius: 10,
+    margin:1,
   },
   bg: {
     flex: 1,
@@ -1193,14 +1208,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: { fontSize: 24, fontWeight: 'bold' },
-  profileSection: { alignItems: 'center', marginTop: 20 },
+  profileSection: { alignItems: 'center', marginTop: 20, },
   avatar: { width: 100, height: 100, borderRadius: 50 },
   name: { fontSize: 20, fontWeight: 'bold', marginTop: 10 },
-  bio: { fontSize: 13, fontWeight: 'bold', marginVertical: 0 },
-  friendsContainer: {},
-  friendsSection: { flexDirection: 'row', marginTop: 10 },
-  friendsLabel: { marginRight: 10, fontSize: 16 },
-  friendAvatar: { width: 40, height: 40, borderRadius: 20, marginHorizontal: 5 },
+  bio: { fontSize: 13, marginTop: 3, textAlign: 'center' },
+  friendsContainer: { },
+  friendsSection: { flexDirection: 'row', marginTop: 10},
+  friendsLabel: { marginRight: 10, fontSize: 16, },
+  friendAvatar: { width: 40, height: 40, borderRadius: 20, marginHorizontal: 5, borderWidth: 1.5, borderColor: '#fff' },
   moreFriends: {
     width: 40,
     height: 40,
@@ -1211,12 +1226,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  nav: { height: '10%', width: '100%', marginTop: 5, marginBottom: 5, backgroundColor: '#fff', flex: 1 },
-  moreFriendsText: { fontWeight: 'bold' },
-  friendsList: { alignContent: 'center' },
-  calendar: { paddingTop: 20, paddingBottom: 20, alignItems: 'center', width: '100%', backgroundColor: 'white', height: '100%' },
-  calendarHeader: { flexDirection: 'row', alignItems: 'center', paddingBottom: '2%' },
-  minWidth: { minWidth: '50%', alignItems: 'center' },
+
+  nav: { height:"10%", width:"100%", marginTop:5,marginBottom:5, backgroundColor:"#fff", flex:1},
+  moreFriendsText: { color: '#757575' },
+  friendsList: {alignContent:'center'},
+  calendar: { paddingTop: 20, paddingBottom:20, alignItems: 'center' , width:'100%', backgroundColor:"white", height:"100%"},
+  calendarHeader: { flexDirection: 'row', alignItems: 'center' , paddingBottom:'2%'},
+  minWidth: { minWidth:'50%', alignItems:'center'},
+
   month: { marginHorizontal: 10, fontSize: 18, fontWeight: 'bold' },
   daysRow: {},
   calendarContainer: {
@@ -1250,8 +1267,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 16,
+    borderTopWidth: 1,
     borderBottomWidth: 1,
     borderColor: '#ccc',
+    // backgroundColor: '#ededed'
   },
   linkText: { fontSize: 18, paddingLeft: '5%' },
   linkIcon: {

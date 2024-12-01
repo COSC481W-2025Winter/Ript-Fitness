@@ -256,7 +256,7 @@ const FoodLogSavedPage = () => {
 
     return cached ? (
         <View style={styles.bottomContainer}>
-            <CustomSearchBar></CustomSearchBar>
+            <CustomSearchBar/>
             <FlatList 
                 data={foodDetails}
                 renderItem={renderItem}
@@ -318,6 +318,7 @@ const styles = StyleSheet.create({
     },
     bottomContainer: {
         height: '100%',
+        backgroundColor: '#fff',
     }, 
     message: {
         textAlign: 'center', 

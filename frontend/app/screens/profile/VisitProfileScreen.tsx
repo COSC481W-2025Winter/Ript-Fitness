@@ -10,8 +10,10 @@ import {
   StyleSheet,
   ActivityIndicator,
   RefreshControl,
+  Platform,
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { UserCheck, UserPlus } from "react-native-feather";
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { FriendObject, GlobalContext } from '@/context/GlobalContext';
@@ -109,7 +111,7 @@ const VisitProfileScreen: React.FC = () => {
     // Show a loading indicator while fetching the profile
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#40bcbc" />
+        <ActivityIndicator size="large" />
       </View>
     );
   }
@@ -153,6 +155,26 @@ const VisitProfileScreen: React.FC = () => {
 
         {/* Add Friend Button */}
         <TouchableOpacity
+
+  <Text style={styles.addFriendButtonText}>
+    {addingFriend
+      ? 'Adding...'
+      : context?.friends.some(friend => friend.username === item.username)
+      ? 'Remove Friend'
+      : profContext?.sentFriendRequests.includes(item.username)
+      ? 'Request Pending'
+      : 'Add Friend'}
+  </Text>
+</TouchableOpacity>
+
+=======
+          // style={styles.addFriendButton}
+          /*style={[
+            styles.addFriendButton,
+            context?.friends.some(friend => friend.username === item.username)
+              ? styles.friendButton
+              : styles.addFriendButtonStyle,
+          ]}*/
   style={[
     styles.addFriendButton,
     (addingFriend || 
@@ -160,7 +182,7 @@ const VisitProfileScreen: React.FC = () => {
      profContext?.sentFriendRequests.includes(item.username)) && 
     styles.disabledButton
   ]}
-  onPress={() => {
+            onPress={() => {
     if (addingFriend) {
       // Do nothing or show a loading indicator
     } else if (context?.friends.some(friend => friend.username === item.username)) {
@@ -173,19 +195,26 @@ const VisitProfileScreen: React.FC = () => {
       handleAddFriend();
     }
   }}
-  disabled={addingFriend || profContext?.sentFriendRequests.includes(item.username)}
->
-  <Text style={styles.addFriendButtonText}>
-    {addingFriend
-      ? 'Adding...'
-      : context?.friends.some(friend => friend.username === item.username)
-      ? 'Remove Friend'
-      : profContext?.sentFriendRequests.includes(item.username)
-      ? 'Request Pending'
-      : 'Add Friend'}
-  </Text>
-</TouchableOpacity>
-
+         disabled={addingFriend || profContext?.sentFriendRequests.includes(item.username)}
+        >
+          {context?.friends.some(friend => friend.username === item.username) ? (
+          <UserCheck stroke={'#1D1B20'} strokeWidth={2.5} width={18} height={18} />
+        ) : (
+          profContext?.sentFriendRequests.includes(item.username) ? <UserPlus stroke={'#fff'} strokeWidth={2.5} width={18} height={18} /> : <UserCheck stroke={'#1D1B20'} strokeWidth={2.5} width={18} height={18} />
+        )}
+          {/* <UserCheck stroke={'#1D1B20'} strokeWidth={2.5} width={18} height={18} /> */}
+          <Text 
+            // style={styles.addFriendButtonText}
+            style={[
+              styles.addFriendButtonText,
+              context?.friends.some(friend => friend.username === item.username)
+                ? styles.friendButtonText
+                : styles.addFriendButtonTextStyle,
+            ]}
+          >
+            {addingFriend ? 'Adding...' : (context?.friends.some(friend => friend.username === item.username) ? 'Friends' : 'Friend')}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {true ? (
@@ -278,7 +307,7 @@ const PostsScreen: React.FC<any> = ({
     if (loadingMore) {
       return (
         <View style={{ paddingVertical: 20 }}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" />
         </View>
       );
     } else {
@@ -367,6 +396,16 @@ const styles = StyleSheet.create({
     color: "#999",
     margin: 7,
     textAlign:'center'
+},
+  header: {
+    paddingTop: 10,
+    paddingHorizontal: 16,
+    paddingBottom: 10,
+    backgroundColor: '#fff',
+    // Positioning the header at the top
+    position: 'relative',
+    zIndex: 10,
+    marginTop: Platform.OS === "ios" ? '10%' : 0
   },
   emptyEmoji: {
     fontSize: 48,
@@ -428,17 +467,31 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   addFriendButton: {
-    backgroundColor: '#40bcbc',
-    padding: 10,
-    borderRadius: 5,
+    flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 15,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 7,
+    marginBottom: 10,
   },
-  disabledButton: {
-    backgroundColor: '#d3d3d3', // Light grey for disabled state
+  addFriendButtonStyle: {
+    backgroundColor: '#21BFBF',
+  },
+  friendButton: {
+    backgroundColor: '#EDEDED', 
+  },
+  friendButtonText: {
+    color: '#1D1B20'
+  },
+  addFriendButtonTextStyle: {
+    color: '#fff'
   },
   addFriendButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: '#1D1B20',
+    fontWeight: 600,
+    fontSize: 14,
+    marginLeft: 5,
   },
   tabContainer: {
     flex: 1,
@@ -451,7 +504,7 @@ const styles = StyleSheet.create({
   },
   postItem: {
     marginBottom: 10,
-    width: '80%',
+    width: '90%',
     minHeight: 80,
     backgroundColor: '#eee',
     borderWidth: 1,

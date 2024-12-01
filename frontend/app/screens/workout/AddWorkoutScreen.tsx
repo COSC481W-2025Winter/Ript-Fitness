@@ -20,6 +20,7 @@ import { GlobalContext } from '@/context/GlobalContext';
 import CustomChip from '@/components/custom/CustomChip';
 import { WorkoutContext } from '@/context/WorkoutContext';
 import { Text } from 'react-native';
+import CustomSearchBar from '@/components/custom/CustomSearchBar';
 
 
 function getColor(type : number) : string  {
@@ -285,12 +286,13 @@ const addWorkout = () => {
                         flexDirection: 'row', 
                         alignItems: 'flex-end', 
                         marginTop: 10, 
+                        paddingBottom: Platform.OS === "ios" ? 10 : 15
                         // marginLeft: 5, 
                       }} 
                       onPress={handleRemoveSet}
                     >
                       <Ionicons name="trash-outline" size={20} color="#F22E2E" />
-                      <Text style={{ fontSize: 14, color: '#F22E2E', marginLeft: 3 }}>Delete Set</Text>
+                      <Text style={{ fontSize: 14, color: '#F22E2E', marginLeft: 3, }}>Delete Set</Text>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -457,7 +459,7 @@ const addWorkout = () => {
       keyExtractor={(item, index) => item.listID.toString()}
       onDragEnd={({ data }) => onDragEnd(data)} // Update the order after dragging
       ListHeaderComponent={      <View style={{marginTop:10, alignSelf:"center"}}>
-      <CustomTextInput
+      {/* <CustomTextInput
           onChangeText={setText}
           placeholder="Workout Name"
           placeholderTextColor="#999"
@@ -469,7 +471,8 @@ const addWorkout = () => {
             borderRadius: 20,
             backgroundColor: '#EDEDED',
           }}
-        />
+        /> */}
+        <CustomSearchBar />
       
       </View>}
       ListFooterComponent={() => <View style={{ height: submitHeight }} />}
@@ -668,10 +671,15 @@ test: {
   },
   repInput: {
     fontSize: 16,
+    // fontSize: Platform.OS === "ios" ? 16 : 14,
     backgroundColor: '#D9D9D9',
     width: '15%',
     borderRadius: 5,
     textAlign: 'center',
+    maxHeight: 30,
+    textAlignVertical: 'center', 
+    paddingVertical: 0,
+
   },
   modalButtonsContainer: {
     flexDirection: 'row',
