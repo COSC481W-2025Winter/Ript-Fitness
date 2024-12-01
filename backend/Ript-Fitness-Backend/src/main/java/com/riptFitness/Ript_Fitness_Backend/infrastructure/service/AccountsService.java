@@ -179,6 +179,7 @@ public class AccountsService {
 		UserProfile user = new UserProfile(); 
 		user.setUsername(username);
 		user.setAccount(accountsModel);
+		user.setDisplayname(username);
 		user.setFirstName("");
 		user.setLastName("");
 		userProfileRepository.save(user);

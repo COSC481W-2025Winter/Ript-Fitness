@@ -73,4 +73,11 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
     @Query("SELECT u FROM UserProfile u WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :searchTerm, '%')) AND u.isDeleted = false")
     List<UserProfile> findByUsernameContainingIgnoreCase(@Param("searchTerm") String searchTerm, Pageable pageable);
 
+    @Query("SELECT u FROM UserProfile u WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+    	       "AND u.username != :currentUsername AND u.isDeleted = false")
+    	List<UserProfile> findByUsernameContainingIgnoreCaseAndNotUsername(
+    	        @Param("searchTerm") String searchTerm,
+    	        @Param("currentUsername") String currentUsername,
+    	        Pageable pageable);
+
 }
