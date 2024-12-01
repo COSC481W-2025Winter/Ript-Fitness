@@ -91,7 +91,7 @@ public class UserProfileController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/userProfile/photos")
+    @GetMapping("/photos")
     public ResponseEntity<List<Photo>> getPrivatePhotos(
             @RequestParam String username,
             @RequestParam int startIndex,
