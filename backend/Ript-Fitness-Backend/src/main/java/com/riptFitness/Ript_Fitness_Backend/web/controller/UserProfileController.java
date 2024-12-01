@@ -83,7 +83,6 @@ public class UserProfileController {
         return ResponseEntity.ok(profilePicture);
     }
 
-    // Private photo endpoints
     @PostMapping("/photo")
     public ResponseEntity<Void> addPrivatePhoto(@RequestBody byte[] photo) {
         String username = getUsernameFromContext();
@@ -95,17 +94,18 @@ public class UserProfileController {
     public ResponseEntity<List<Photo>> getPrivatePhotos(
             @RequestParam int startIndex,
             @RequestParam int endIndex) {
-        String username = getUsernameFromContext(); //gets username from authentication
+        String username = getUsernameFromContext();
         List<Photo> photos = userProfileService.getPrivatePhotos(username, startIndex, endIndex);
         return ResponseEntity.ok(photos);
     }
 
-    @DeleteMapping("/photo/{photoId}")
-    public ResponseEntity<Void> deletePrivatePhoto(@PathVariable Long photoId) {
-        userProfileService.deletePrivatePhoto(photoId);
+    @DeleteMapping("/photo/{photoName}")
+    public ResponseEntity<Void> deletePrivatePhoto(@PathVariable String photoName) {
+        String username = getUsernameFromContext();
+        userProfileService.deletePrivatePhoto(username, photoName);
         return ResponseEntity.ok().build();
     }
-    
+
     @GetMapping("/search")
     public ResponseEntity<?> searchUserProfiles(
             @RequestParam String searchTerm,

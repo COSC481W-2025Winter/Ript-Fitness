@@ -24,11 +24,13 @@ public class UserProfileService {
 
     private final UserProfileRepository userRepository;
     private final PhotoRepository photoRepository;
+    private final AzureBlobService azureBlobService;
 
     // Dependency injection constructor
-    public UserProfileService(UserProfileRepository userRepository, PhotoRepository photoRepository) {
+    public UserProfileService(UserProfileRepository userRepository, PhotoRepository photoRepository, AzureBlobService azureBlobService) {
         this.userRepository = userRepository;
         this.photoRepository = photoRepository;
+        this.azureBlobService = azureBlobService;
     }
 
     // Adds a new user profile with default values
@@ -212,12 +214,20 @@ public class UserProfileService {
         UserProfile user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // Generate a unique photo name
+        String photoName = "photo_" + System.currentTimeMillis();
+
+        // Upload the photo to Azure Blob Storage
+        String photoUrl = azureBlobService.uploadPhoto(username, photo, photoName);
+
+        // Save the photo metadata in the database
         Photo newPhoto = new Photo();
         newPhoto.setUserProfile(user);
-        newPhoto.setPhoto(photo);
+        newPhoto.setPhoto(photoUrl.getBytes()); // Store the URL in the `photo` field
         newPhoto.setUploadTimestamp(LocalDateTime.now());
         photoRepository.save(newPhoto);
     }
+
 
     public List<Photo> getPrivatePhotos(String username, int startIndex, int endIndex) {
         if (endIndex <= startIndex) {
@@ -234,12 +244,32 @@ public class UserProfileService {
         if (startIndex >= allPhotos.size()) {
             return Collections.emptyList(); // No results in range
         }
-        return allPhotos.subList(startIndex, toIndex);
+
+        // Convert the `photo` field from byte[] to the string URL
+        return allPhotos.subList(startIndex, toIndex).stream()
+                .peek(photo -> {
+                    String photoUrl = new String(photo.getPhoto()); 
+                    photo.setPhoto(photoUrl.getBytes()); // Set the string back as bytes for consistency
+                })
+                .collect(Collectors.toList());
     }
     
     // Delete private photo
-    public void deletePrivatePhoto(Long photoId) {
-        photoRepository.deleteById(photoId);
+    public void deletePrivatePhoto(String username, String photoName) {
+        UserProfile user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String blobName = username + "/" + photoName;
+
+        // Delete from Azure Blob Storage
+        azureBlobService.deletePhoto(username, photoName);
+
+        // Delete photo metadata from the database
+        photoRepository.findByUserProfile_Id(user.getId())
+            .stream()
+            .filter(photo -> new String(photo.getPhoto()).endsWith(photoName))
+            .findFirst()
+            .ifPresent(photoRepository::delete);
     }
     
     //search profiles by username

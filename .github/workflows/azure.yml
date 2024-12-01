@@ -45,6 +45,8 @@ jobs:
         echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> backend/Ript-Fitness-Backend/.env
         echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> backend/Ript-Fitness-Backend/.env
         echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> backend/Ript-Fitness-Backend/.env
+        echo "BLOB_CONNECTION_STRING=${{ secrets.BLOB_CONNECTION_STRING }}" >> backend/Ript-Fitness-Backend/.env
+        echo "BLOB_CONTAINER_NAME=${{ secrets.BLOB_CONTAINER_NAME }}" >> backend/Ript-Fitness-Backend/.env
         
         
     # Build the Spring Boot application
