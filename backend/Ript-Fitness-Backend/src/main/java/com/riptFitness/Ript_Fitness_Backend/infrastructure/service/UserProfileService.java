@@ -35,14 +35,15 @@ public class UserProfileService {
     public UserDto addUser(UserDto userDto, String username) {
         UserProfile userToBeAdded = UserProfileMapper.INSTANCE.toUser(userDto);
         userToBeAdded.setUsername(username);
-        initializeDefaultValues(userToBeAdded); 
+        initializeDefaultValues(userToBeAdded, username); 
         
         userToBeAdded = userRepository.save(userToBeAdded);
         return UserProfileMapper.INSTANCE.toUserDto(userToBeAdded);
     }
 
     // Initialize default values for the UserProfile
-    private void initializeDefaultValues(UserProfile userProfile) {
+    private void initializeDefaultValues(UserProfile userProfile, String username) {
+    	userProfile.setDisplayname(username);
         userProfile.setRestDays(3);
         userProfile.setRestDaysLeft(3);
         System.out.println(getNextSunday().toString());

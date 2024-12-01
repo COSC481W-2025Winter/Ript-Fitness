@@ -13,15 +13,16 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.JoinColumn;
 
 @Entity
 public class UserProfile {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
     private String firstName;
 
     private String lastName;
@@ -90,7 +91,27 @@ public class UserProfile {
         this.restResetDate = today.plusDays(daysUntilSunday); 
         this.restResetDayOfWeek = 7;  
     }
+	@PrePersist
+	public void ensureDefaults() {
+		if (this.displayName == null || this.displayName.isEmpty()) {
+			this.displayName = this.username; // Default displayName to username
+		}
+	}
+	
+    @PrePersist
+    public void syncIdWithAccount() {
+        if (this.account != null) {
+            this.id = this.account.getId(); // Ensure profileID matches accountID
+        }
+    }
 
+    @PreUpdate
+    public void updateIdWithAccount() {
+        if (this.account != null) {
+            this.id = this.account.getId(); // Maintain sync during updates
+        }
+    }
+	
     // Getters and Setters
     public Long getId() {
         return id;
