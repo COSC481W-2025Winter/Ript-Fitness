@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Photo;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AzureBlobService;
@@ -85,11 +86,26 @@ public class UserProfileController {
     }
 
     @PostMapping("/photo")
-    public ResponseEntity<Void> addPrivatePhoto(@RequestBody byte[] photo) {
-        String username = getUsernameFromContext();
-        userProfileService.addPrivatePhoto(username, photo);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Void> addPrivatePhoto(@RequestParam("file") MultipartFile file) {
+        try {
+            // Retrieve the username from the security context
+            String username = getUsernameFromContext();
+
+            // Validate the uploaded file
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().build(); // File is empty
+            }
+
+            // Call the service method to process the photo
+            userProfileService.addPrivatePhoto(username, file.getBytes(), file.getContentType());
+
+            return ResponseEntity.ok().build(); // Successfully uploaded
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
+
 
     @GetMapping("/photos")
     public ResponseEntity<List<String>> getPrivatePhotos(

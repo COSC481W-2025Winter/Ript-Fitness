@@ -6,6 +6,7 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.models.BlobHttpHeaders;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobListDetails;
 import com.azure.storage.blob.models.BlobProperties;
@@ -55,17 +56,24 @@ public class AzureBlobService {
                 .buildClient();
     }
 
-    public String uploadPhoto(String username, byte[] photoBytes, String photoName) {
+    public String uploadPhoto(String username, byte[] photoBytes, String photoName, String contentType) {
         String blobName = username + "/" + photoName;
         BlobClient blobClient = getContainerClient().getBlobClient(blobName);
+
         try (InputStream photoStream = new ByteArrayInputStream(photoBytes)) {
+            // Upload the photo
             blobClient.upload(photoStream, photoBytes.length, true);
+
+            // Set Content-Type for the uploaded blob
+            blobClient.setHttpHeaders(new BlobHttpHeaders().setContentType(contentType));
         } catch (Exception e) {
-            throw new RuntimeException("Error uploading photo to Azure Blob Storage", e);
+            throw new RuntimeException("Error uploading photo to Azure Blob Storage: " + blobName, e);
         }
-        // Return blobName instead of the full URL
-        return blobName;
+
+        // Return the full URL of the uploaded blob
+        return blobClient.getBlobUrl();
     }
+
 
     public List<String> listPhotos(String username, int startIndex, int endIndex) {
         List<String> photoUrls = new ArrayList<>();

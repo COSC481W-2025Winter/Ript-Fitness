@@ -22,6 +22,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -158,15 +159,26 @@ public class UserProfileControllerTests {
 
     @Test
     public void testAddPrivatePhoto() throws Exception {
+        // Mocked photo data
         byte[] photo = new byte[]{1, 2, 3};
 
-        mockMvc.perform(post("/userProfile/photo")
-                .header("Authorization", token)
-                .content(photo)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM))
-                .andExpect(status().isOk());
+        // Create a MockMultipartFile for the request
+        MockMultipartFile mockFile = new MockMultipartFile(
+            "file",                      // Form field name
+            "photo.jpg",                 // Original file name
+            MediaType.IMAGE_JPEG_VALUE,  // Content type
+            photo                        // File content
+        );
 
-        verify(userProfileService, times(1)).addPrivatePhoto(anyString(), eq(photo));
+        // Perform the request
+        mockMvc.perform(multipart("/userProfile/photo") // Use multipart for file uploads
+                .file(mockFile)                        // Attach the mock file
+                .header("Authorization", "Bearer " + token)) // Add authorization header
+                .andExpect(status().isOk());                // Assert 200 OK response
+
+        // Verify the service method was called
+        verify(userProfileService, times(1))
+                .addPrivatePhoto(anyString(), eq(photo), eq(MediaType.IMAGE_JPEG_VALUE));
     }
 
     @Test
