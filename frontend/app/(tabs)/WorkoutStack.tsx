@@ -60,7 +60,9 @@ export default function WorkoutStack() {
       <Stack.Screen
         name="StartWorkoutScreen"
         component={StartWorkoutScreen}
-        options={{}}
+        options={{
+          title: 'Live Workouts', 
+        }}
       />
       <Stack.Screen
         name="MyWorkoutsScreen"

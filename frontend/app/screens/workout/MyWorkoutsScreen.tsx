@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
 });
 return (
   <View style={styles.container}>
-    <Text style={styles.title}>My Workouts</Text>
+    <Text style={styles.title}></Text>
     <FlatList
       data={context?.workouts}
       keyExtractor={(item, index) =>
