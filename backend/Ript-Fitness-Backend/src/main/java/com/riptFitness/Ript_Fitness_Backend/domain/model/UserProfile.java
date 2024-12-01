@@ -60,7 +60,7 @@ public class UserProfile {
     
     @Column(name = "profile_picture", columnDefinition = "LONGBLOB")
     private byte[] profilePicture;
-
+    
     // Default Constructor
     public UserProfile() {
         this.restDays = 3;

@@ -254,7 +254,7 @@ public class UserProfileServiceTest {
         verify(userProfileRepository, times(1)).findByUsernameContainingIgnoreCaseAndNotUsername(eq(searchTerm), eq(currentUsername), eq(pageable));
     }
 
-    
+   
     @Test
     void testAddPrivatePhoto() {
         String username = "testUser";

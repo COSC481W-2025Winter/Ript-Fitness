@@ -62,8 +62,17 @@ public class UserProfileService {
     public UserDto getUserByUsername(String username) {
         return userRepository.findByUsername(username)
             .map(user -> {
+                if (LocalDate.now().isAfter(user.getRestResetDate())) {
+                    LocalDate today = LocalDate.now();
+                    int todayDayOfWeek = today.getDayOfWeek().getValue();
+                    int daysUntilSunday = 7 - todayDayOfWeek;
+
+                    user.setRestResetDate(today.plusDays(daysUntilSunday));
+                    user.setRestDaysLeft(user.getRestDays());
+                    userRepository.save(user);
+                }
                 UserDto userDto = UserProfileMapper.INSTANCE.toUserDto(user);
-                userDto.setProfilePicture(user.getProfilePicture()); // Include profile picture
+                userDto.setProfilePicture(user.getProfilePicture());
                 return userDto;
             })
             .orElseThrow(() -> new RuntimeException("User not found with username = " + username));
@@ -271,7 +280,7 @@ public class UserProfileService {
             .findFirst()
             .ifPresent(photoRepository::delete);
     }
-    
+  
     //search profiles by username
     public List<UserDto> searchUserProfilesByUsername(
             String searchTerm, int startIndex, int endIndex, String currentUsername) {
