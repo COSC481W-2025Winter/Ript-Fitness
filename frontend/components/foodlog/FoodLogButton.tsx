@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle, View, Modal, TextInput, Platform } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle, View, Modal, TextInput, Platform, KeyboardAvoidingView } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 
@@ -143,86 +143,94 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
         onRequestClose={closeWithoutSaving}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              {isFoodEditMode ? (
-                  <TextInput
-                  style={styles.modalTitleEdit}
-                  value={tempName}
-                  autoFocus={true}
-                  onChangeText={setTempName} // Set the name directly
-                  keyboardType="default"
-                />
-              ) : ( 
-                <Text style={styles.modalTitle}>{tempName}</Text>
-              )}
-             
-              <TouchableOpacity onPress={closeWithoutSaving}>
-                <Ionicons name="close-circle-outline" size={30} color="#747474" />
-              </TouchableOpacity>
-            </View>
 
-            {/* Map through stateMappings for numerical values */}
-            {['Calories', 'Protein', 'Carbs', 'Fat', 'Servings'].map((label, index) => {
-              // Define state mappings for numerical fields only
-              const stateMappings: [
-                number,
-                React.Dispatch<React.SetStateAction<number>>
-              ][] = [
-                [tempCalories, setTempCalories],
-                [tempProtein, setTempProtein],
-                [tempCarbs, setTempCarbs],
-                [tempFat, setTempFat],
-                [tempMultiplier, setTempMultiplier],
-              ];
+          <KeyboardAvoidingView
+            style={styles.modalContentContainer}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+          >
 
-              const [value, setValue] = stateMappings[index]; // Deconstruct state and setter
-
-              return (
-                <View
-                  key={label}
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginBottom: 10,
-                    width: '90%',
-                    alignSelf: 'center',
-                  }}
-                >
-                  <Text style={{ fontSize: 16 }}>{label}</Text>
-                  {isFoodEditMode ? (
+            <View style={styles.modalContent}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                {isFoodEditMode ? (
                     <TextInput
-                      style={styles.repInputEdit}
-                      value={value.toString()} // Ensure the value is a string
-                      onChangeText={(text) => {
-                        const numericValue = parseFloat(text) || 0; // Parse text to a number or default to 0
-                        setValue(numericValue); // Update the corresponding state
-                      }}
-                      keyboardType="numeric"
-                    />
-                  ) : (
-                    <Text style={styles.repInput}>{value}{(index == 1 || index == 2 || index == 3) ? 'g' : ''}</Text>
-                  )}
-                </View>
-              );
-            })}
-
-            <View style={styles.modalButtonsContainer}>
-              <TouchableOpacity style={styles.modalButton1} onPress={foodSaveAndAddToDay}>
-                <Text style={{ color: '#21BFBF', fontSize: 15 }}>Log Today</Text>
-              </TouchableOpacity>
-              {isFoodEditMode ? (
-                <TouchableOpacity style={styles.modalButton2} onPress={saveChanges}>
-                  <Text style={{ color: '#fff', fontSize: 15 }}>Save</Text>
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity style={styles.modalButton2} onPress={toggleEditMode}>
-                  <Text style={{ color: '#fff', fontSize: 15 }}>Edit</Text>
-                </TouchableOpacity>
-              ) }
+                    style={styles.modalTitleEdit}
+                    value={tempName}
+                    autoFocus={true}
+                    onChangeText={setTempName} // Set the name directly
+                    keyboardType="default"
+                  />
+                ) : ( 
+                  <Text style={styles.modalTitle}>{tempName}</Text>
+                )}
               
+                <TouchableOpacity onPress={closeWithoutSaving}>
+                  <Ionicons name="close-circle-outline" size={30} color="#747474" />
+                </TouchableOpacity>
+              </View>
+
+              {/* Map through stateMappings for numerical values */}
+              {['Calories', 'Protein', 'Carbs', 'Fat', 'Servings'].map((label, index) => {
+                // Define state mappings for numerical fields only
+                const stateMappings: [
+                  number,
+                  React.Dispatch<React.SetStateAction<number>>
+                ][] = [
+                  [tempCalories, setTempCalories],
+                  [tempProtein, setTempProtein],
+                  [tempCarbs, setTempCarbs],
+                  [tempFat, setTempFat],
+                  [tempMultiplier, setTempMultiplier],
+                ];
+
+                const [value, setValue] = stateMappings[index]; // Deconstruct state and setter
+
+                return (
+                  <View
+                    key={label}
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      marginBottom: 10,
+                      width: '90%',
+                      alignSelf: 'center',
+                    }}
+                  >
+                    <Text style={{ fontSize: 16 }}>{label}</Text>
+                    {isFoodEditMode ? (
+                      <TextInput
+                        style={styles.repInputEdit}
+                        value={value.toString()} // Ensure the value is a string
+                        onChangeText={(text) => {
+                          const numericValue = parseFloat(text) || 0; // Parse text to a number or default to 0
+                          setValue(numericValue); // Update the corresponding state
+                        }}
+                        keyboardType="numeric"
+                      />
+                    ) : (
+                      <Text style={styles.repInput}>{value}{(index == 1 || index == 2 || index == 3) ? 'g' : ''}</Text>
+                    )}
+                  </View>
+                );
+              })}
+
+              <View style={styles.modalButtonsContainer}>
+                <TouchableOpacity style={styles.modalButton1} onPress={foodSaveAndAddToDay}>
+                  <Text style={{ color: '#21BFBF', fontSize: 15 }}>Log Today</Text>
+                </TouchableOpacity>
+                {isFoodEditMode ? (
+                  <TouchableOpacity style={styles.modalButton2} onPress={saveChanges}>
+                    <Text style={{ color: '#fff', fontSize: 15 }}>Save</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity style={styles.modalButton2} onPress={toggleEditMode}>
+                    <Text style={{ color: '#fff', fontSize: 15 }}>Edit</Text>
+                  </TouchableOpacity>
+                ) }
+                
+              </View>
             </View>
-          </View>
+          </KeyboardAvoidingView>
         </View>
       </Modal>
     </View>
@@ -252,6 +260,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  modalContentContainer: {
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   modalContent: {
     width: '80%',

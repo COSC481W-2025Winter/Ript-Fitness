@@ -327,12 +327,12 @@ const styles = StyleSheet.create({
         padding: 30,
     }, 
     swipeDeleteButton: {
-        backgroundColor: 'red',
+        backgroundColor: '#F22E2E',
         justifyContent: 'center',
         alignItems: 'center',
         width: 80,
         height: '100%',
-        borderRadius: 10,
+        // borderRadius: 10,
       },
       deleteText: {
         color: 'white',

@@ -73,8 +73,7 @@ export default function WorkoutStack() {
               style={[styles.leftButton, styles.button, styles.buttonSize]}
             >
               <TabBarIcon
-                style={styles.leftArrow}
-                name="arrow-down"
+                name="arrow-back-outline"
                 size={30}
                 color="#454343"
               />
@@ -94,8 +93,7 @@ export default function WorkoutStack() {
               style={[styles.leftButton, styles.button, styles.buttonSize]}
             >
               <TabBarIcon
-                style={styles.leftArrow}
-                name="arrow-down"
+                name="arrow-back-outline"
                 size={30}
                 color="#454343"
               />
@@ -115,8 +113,7 @@ export default function WorkoutStack() {
               style={[styles.leftButton, styles.button, styles.buttonSize]}
             >
               <TabBarIcon
-                style={styles.leftArrow}
-                name="arrow-down"
+                name="arrow-back-outline"
                 size={30}
                 color="#454343"
               />
@@ -136,8 +133,7 @@ export default function WorkoutStack() {
               style={[styles.leftButton, styles.button, styles.buttonSize]}
             >
               <TabBarIcon
-                style={styles.leftArrow}
-                name="arrow-down"
+                name="arrow-back-outline"
                 size={30}
                 color="#454343"
               />
@@ -157,8 +153,7 @@ export default function WorkoutStack() {
               style={[styles.leftButton, styles.button, styles.buttonSize]}
             >
               <TabBarIcon
-                style={styles.leftArrow}
-                name="arrow-down"
+                name="arrow-back-outline"
                 size={30}
                 color="#454343"
               />
@@ -186,8 +181,7 @@ export default function WorkoutStack() {
               style={[styles.leftButton, styles.button, styles.buttonSize]}
             >
               <TabBarIcon
-                style={styles.leftArrow}
-                name="arrow-down"
+                name="arrow-back-outline"
                 size={30}
                 color="#454343"
               />
@@ -235,8 +229,5 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  leftArrow: {
-    transform: [{ rotate: '90deg' }],
   },
 });
