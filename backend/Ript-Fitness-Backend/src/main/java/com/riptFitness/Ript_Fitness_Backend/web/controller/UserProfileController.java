@@ -93,9 +93,9 @@ public class UserProfileController {
 
     @GetMapping("/photos")
     public ResponseEntity<List<Photo>> getPrivatePhotos(
-            @RequestParam String username,
             @RequestParam int startIndex,
             @RequestParam int endIndex) {
+        String username = getUsernameFromContext(); //gets username from authentication
         List<Photo> photos = userProfileService.getPrivatePhotos(username, startIndex, endIndex);
         return ResponseEntity.ok(photos);
     }
