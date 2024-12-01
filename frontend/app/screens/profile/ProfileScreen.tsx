@@ -833,8 +833,9 @@ const MainScreen = () => {
                 >
                   <Text style={styles.bio}>
                     {context?.userProfile?.bio != null
-                      ? `${(context?.userProfile?.bio.split('\n')[0] || '').slice(0, 50)} ...View more`
+                      ? `${(context?.userProfile?.bio.split('\n')[0] || '').slice(0, 50)}`
                       : null}
+                      {context?.userProfile.bio && (context?.userProfile.bio.length > context?.userProfile.bio.split('\n')[0].length || context?.userProfile.bio.split('\n')[0].length > 50)  ? <Text style={{ color: '#757575', fontWeight: 600 }}>{'...View more'}</Text> : <></>}
                   </Text>
                 </TouchableOpacity>
               </View>
