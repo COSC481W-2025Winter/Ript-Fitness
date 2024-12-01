@@ -31,8 +31,7 @@ public class CalendarService {
     @Autowired
     private UserProfileRepository userProfileRepository;
 
-    public void logWorkoutDay() { 
-        LocalDate date = LocalDate.now(); 
+    public void logWorkoutDay(LocalDate date) {
         Long accountId = accountsService.getLoggedInUserId();
 
         AccountsModel account = accountsRepository.findById(accountId)
@@ -42,26 +41,26 @@ public class CalendarService {
         if (existingEntry.isPresent()) {
             throw new IllegalStateException("Workout already logged for this date.");
         }
-
+        
         // Retrieve the user's profile to update rest days
         UserProfile userProfile = userProfileRepository.findUserProfileByAccountId(accountId)
             .orElseThrow(() -> new IllegalStateException("User profile not found for account ID: " + accountId));
-
-        if (LocalDate.now().isAfter(userProfile.getRestResetDate())) {
+        
+        if (LocalDate.now().isAfter(userProfile.getRestResetDate().plusDays(1))) {
             LocalDate today = LocalDate.now();
             int todayDayOfWeek = today.getDayOfWeek().getValue();
             int daysUntilSunday = 7 - todayDayOfWeek;
-
+            
             userProfile.setRestResetDate(today.plusDays(daysUntilSunday));
             userProfile.setRestDaysLeft(userProfile.getRestDays());
         }
+
 
         Calendar workoutEntry = new Calendar(account, date, 1); // Activity type 1 for workout
         calendarRepository.save(workoutEntry);
     }
 
-    public void logRestDay() { 
-        LocalDate date = LocalDate.now();
+    public void logRestDay(LocalDate date) {
         Long accountId = accountsService.getLoggedInUserId();
 
         AccountsModel account = accountsRepository.findById(accountId)
@@ -76,23 +75,26 @@ public class CalendarService {
         if (existingEntry.isPresent()) {
             throw new IllegalStateException("Rest day already logged for this date.");
         }
-
+        
         if (LocalDate.now().isAfter(userProfile.getRestResetDate())) {
             LocalDate today = LocalDate.now();
             int todayDayOfWeek = today.getDayOfWeek().getValue();
             int daysUntilSunday = 7 - todayDayOfWeek;
-
+            
             userProfile.setRestResetDate(today.plusDays(daysUntilSunday));
             userProfile.setRestDaysLeft(userProfile.getRestDays());
         }
 
+
         // Check if there are remaining rest days
         if (userProfile.getRestDaysLeft() > 0) {
-            userProfile.setRestDaysLeft(userProfile.getRestDaysLeft() - 1);
+            userProfile.setRestDaysLeft(userProfile.getRestDaysLeft() - 1); 
         } else {
             throw new IllegalStateException("No rest days left for this week.");
         }
 
+        
+        
         // Save the updated user profile
         userProfileRepository.save(userProfile);
 

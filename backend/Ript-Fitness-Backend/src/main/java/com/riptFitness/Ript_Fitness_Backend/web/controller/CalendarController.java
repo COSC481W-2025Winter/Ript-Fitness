@@ -19,13 +19,13 @@ public class CalendarController {
     private CalendarService calendarService;
 
     @PostMapping("/logWorkout")
-    public void logWorkout() { // Removed date parameter
-        calendarService.logWorkoutDay();
+    public void logWorkout(@RequestParam String date) {
+        calendarService.logWorkoutDay(LocalDate.parse(date));
     }
 
     @PostMapping("/logRestDay")
-    public void logRestDay() { // Removed date parameter
-        calendarService.logRestDay();
+    public void logRestDay(@RequestParam String date) {
+        calendarService.logRestDay(LocalDate.parse(date));
     }
 
     @GetMapping("/getMonth")
