@@ -45,6 +45,7 @@ export default function WorkoutStack() {
         component={WorkoutApiScreen}
         options={{
           title: '',
+          headerLeft: () => <></>,
           headerRight: () => <StreakCounter />,
         }}
       />
@@ -130,7 +131,7 @@ export default function WorkoutStack() {
           title: '',
           headerLeft: () => (
             <TouchableOpacity
-              onPress={() => navigation.navigate('MyNotesScreen', {})}
+              onPress={() => navigation.goBack()}
               style={[styles.leftButton, styles.button, styles.buttonSize]}
             >
               <TabBarIcon

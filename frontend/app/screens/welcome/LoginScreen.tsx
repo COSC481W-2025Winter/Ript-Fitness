@@ -82,10 +82,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   };
 
   const navigateToMainApp = () => {
+    try {
     navigation.reset({
       index: 0,
       routes: [{ name: "Home" }],
     });
+  } catch {
+
+  }
   };
 
   return (
