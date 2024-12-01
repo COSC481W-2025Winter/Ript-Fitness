@@ -159,7 +159,7 @@ export function AddWorkoutScreen() {
 const viewWorkoutDetails = (id : any) => {
   navigation.navigate("ApiScreen", {})
 }
-
+const [listID, setlistID] = useState(0) 
 const addWorkout = () => {
   // User has to enter exercise name and choose the type
   if (!exerciseName || typeOfExercise === null) {
@@ -167,8 +167,10 @@ const addWorkout = () => {
     return;
   }        
   const repNumbers = sets.map((set) => Number(set.reps));
-
+  setlistID(listID + 1)
+  console.log("listID:" + (listID + 1))
   const newExercise : Exercise = {
+    listID: listID + 1,
     sets: sets.length,
     reps: repNumbers,
     nameOfExercise: exerciseName,
@@ -313,8 +315,8 @@ const addWorkout = () => {
           </View>
         </KeyboardAvoidingView>
       </View>
-    </Modal>
-  );
+    </Modal> 
+    );
 
   const sideButtons = [
     {id: '1', icon: 'pencil', func: editWorkout },
@@ -326,6 +328,7 @@ const addWorkout = () => {
 
 
   interface Exercise {
+    listID: number;
     sets: number;
     reps: number[];
     nameOfExercise: string;
@@ -453,7 +456,7 @@ const addWorkout = () => {
     style={styles.flatList}
       data={exercises}
       renderItem={renderItem}
-      keyExtractor={(item, index) => index.toString()}
+      keyExtractor={(item, index) => item.listID.toString()}
       onDragEnd={({ data }) => onDragEnd(data)} // Update the order after dragging
       ListHeaderComponent={      <View style={{marginTop:10, alignSelf:"center"}}>
       {/* <CustomTextInput

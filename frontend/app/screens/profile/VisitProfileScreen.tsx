@@ -13,12 +13,13 @@ import {
   Platform,
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { UserCheck, UserPlus } from "react-native-feather";
+import { User, UserCheck, UserMinus, UserPlus } from "react-native-feather";
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { FriendObject, GlobalContext } from '@/context/GlobalContext';
 import { httpRequests } from '@/api/httpRequests';
 import { ProfileScreenNavigationProp } from '@/app/(tabs)/ProfileStack';
+import { ProfileContext } from '@/context/ProfileContext';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -32,12 +33,14 @@ interface Post {
 
 const VisitProfileScreen: React.FC = () => {
   const context = useContext(GlobalContext);
+  const profContext = useContext(ProfileContext)
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const route = useRoute();
 
   // Assume that the other user's profile data is passed via navigation params
   const { item } = route.params as any;
 
+  console.log(item)
 
   const [addingFriend, setAddingFriend] = useState(false);
   const [DeletingFriend, setDeletingFriend] = useState(false);
@@ -112,18 +115,22 @@ const VisitProfileScreen: React.FC = () => {
       </View>
     );
   }
-
+  const goBack = () => {
+    navigation.goBack()
+  }
   return (
     <View style={styles.container}>
       {/* Header with Back Button */}
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
-      </View>
+  <TouchableOpacity
+    onPress={goBack}
+    style={styles.backButton}
+  >
+    <Ionicons name="arrow-back" size={24} color="#000" />
+  </TouchableOpacity>
+  <Text style={styles.headerTitle}>{item.username}</Text>
+</View>
+<View style={styles.headerBorder}></View>
 
       {/* Profile Section */}
       <View style={styles.profileSection}>
@@ -139,42 +146,75 @@ const VisitProfileScreen: React.FC = () => {
             } else {
               console.error('User profile is undefined.');
             }
-          }}
-          
-        
-        
-        ><Text style={styles.bio}>{item.bio && item.bio?.slice(0, 50)+' >'}</Text></TouchableOpacity></View>
+          }}>
+            
+            <Text style={styles.bio}>
+  {item.bio != null
+    ? `${(item.bio.split('\n')[0] || '').slice(0, 50)}`
+    : ''}
+
+{item.bio && (item.bio.length > item.bio.split('\n')[0].length || item.bio.split('\n')[0].length > 50)  ? <Text style={{ color: '#757575', fontWeight: 600 }}>{'...View more'}</Text> : <></>}
+</Text>
+
+</TouchableOpacity></View>
 
         {/* Add Friend Button */}
-        <TouchableOpacity
-          // style={styles.addFriendButton}
-          style={[
-            styles.addFriendButton,
-            context?.friends.some(friend => friend.username === item.username)
-              ? styles.friendButton
-              : styles.addFriendButtonStyle,
-          ]}
-          onPress={handleAddFriend}
-          disabled={addingFriend}
+        <TouchableOpacity style={[
+    styles.addFriendButton,
+            (context?.friends.some(friend => friend.username === item.username)
+            ? styles.friendButton
+            : styles.addFriendButtonStyle),
+
+
+    (addingFriend || 
+     context?.friends.some(friend => friend.username === item.username) || 
+     profContext?.sentFriendRequests.includes(item.username)) && 
+    styles.disabledButton
+  ]}
+            onPress={() => {
+    if (addingFriend) {
+      // Do nothing or show a loading indicator
+    } else if (context?.friends.some(friend => friend.username === item.username)) {
+      // Remove friend action
+      handleDeleteFriend();
+    } else if (profContext?.sentFriendRequests.includes(item.username)) {
+      // Do nothing, request is pending
+    } else {
+      // Add friend action
+      handleAddFriend();
+    }
+  }}
+         disabled={addingFriend || profContext?.sentFriendRequests.includes(item.username)}
         >
-          {context?.friends.some(friend => friend.username === item.username) ? (
+
+  {context?.friends.some(friend => friend.username === item.username) ? (
           <UserCheck stroke={'#1D1B20'} strokeWidth={2.5} width={18} height={18} />
         ) : (
-          <UserPlus stroke={'#fff'} strokeWidth={2.5} width={18} height={18} /> // Replace with your "Add Friend" icon
+          profContext?.sentFriendRequests.includes(item.username) ?  <UserCheck stroke={'#1D1B20'} strokeWidth={2.5} width={18} height={18} /> :<UserPlus stroke={'#fff'} strokeWidth={2.5} width={18} height={18} /> 
         )}
           {/* <UserCheck stroke={'#1D1B20'} strokeWidth={2.5} width={18} height={18} /> */}
           <Text 
             // style={styles.addFriendButtonText}
             style={[
               styles.addFriendButtonText,
-              context?.friends.some(friend => friend.username === item.username)
+              (context?.friends.some(friend => friend.username === item.username) || profContext?.sentFriendRequests.includes(item.username))
                 ? styles.friendButtonText
                 : styles.addFriendButtonTextStyle,
             ]}
           >
-            {addingFriend ? 'Adding...' : (context?.friends.some(friend => friend.username === item.username) ? 'Friends' : 'Friend')}
+               {addingFriend
+      ? 'Adding...'
+      : context?.friends.some(friend => friend.username === item.username)
+      ? 'Friends'
+      : profContext?.sentFriendRequests.includes(item.username)
+      ? 'Requested'
+      : 'Add Friend'}
           </Text>
         </TouchableOpacity>
+
+
+ 
+
       </View>
 
       {true ? (
@@ -197,7 +237,11 @@ const PostsScreen: React.FC<any> = ({
   const [loadingMore, setLoadingMore] = useState(false);
   const [currentEndIndex, setCurrentEndIndex] = useState(9);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
+  const [initialLoadDone, setInitialLoadDone] = useState(false)
+
     const context = useContext(GlobalContext)
+
+
   const fetchPosts = async (
     startIndex: number,
     endIndex: number,
@@ -230,8 +274,10 @@ const PostsScreen: React.FC<any> = ({
         setAllPostsLoaded(true);
       }
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      //console.error('Error fetching posts:', error);
       setAllPostsLoaded(true);
+    } finally {
+        setInitialLoadDone(true)
     }
   };
 
@@ -273,8 +319,8 @@ const PostsScreen: React.FC<any> = ({
     <View style={styles.postItem}>
       <Image
         source={
-          userProfile.image
-            ? { uri: userProfile.image }
+            userProfile.profilePicture
+            ? { uri: `data:image/png;base64,${userProfile.profilePicture}` }
             : require('../../../assets/images/profile/Profile.png')
         }
         style={styles.postAvatar}
@@ -308,7 +354,7 @@ const PostsScreen: React.FC<any> = ({
 
   return (
     <View style={styles.postView}>
-      <FlatList
+        {posts.length > 0 && initialLoadDone ?       <FlatList
         data={posts}
         keyExtractor={(item, index) => index.toString()}
         renderItem={renderPostItem}
@@ -324,7 +370,9 @@ const PostsScreen: React.FC<any> = ({
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
-      />
+      /> : initialLoadDone ? <View style ={{flex:1, justifyContent:'center', backgroundColor:'#fff'}}><Text style={styles.emptyText}>No posts available</Text>
+                  <Text style={styles.emptyEmoji}>😔</Text></View> : <ActivityIndicator size="large" color="#40bcbc" />}
+
     </View>
   );
 };
@@ -334,6 +382,7 @@ const styles = StyleSheet.create({
         flexDirection:'row'
       },
   container: {
+    paddingTop:5,
     flex: 1,
     backgroundColor: '#fff',
   },
@@ -342,6 +391,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  emptyText: {
+    fontSize: 20,
+    color: "#999",
+    margin: 7,
+    textAlign:'center'
+},
   header: {
     paddingTop: 10,
     paddingHorizontal: 16,
@@ -352,9 +407,36 @@ const styles = StyleSheet.create({
     zIndex: 10,
     marginTop: Platform.OS === "ios" ? '10%' : 0
   },
-  backButton: {
-    // Style for the back button
+  emptyEmoji: {
+    fontSize: 48,
+    color: "#999",
+    margin: 7,
+    textAlign:'center'
   },
+  disabledButton: {
+    backgroundColor: "#EDEDED", // Light grey
+  },
+    headerBorder: {
+        borderBottomWidth:1,
+        borderColor:'grey',
+        opacity:0.5,
+        marginBottom:5,
+    },
+    backButton: {
+      position: 'absolute',
+      left: 10, 
+      padding: 10,
+      zIndex:10,
+    },
+    headerTitle: {
+      fontSize: 18, 
+      fontWeight: 'bold',
+      textAlign: 'center',
+    },
+
+  
+
+
   profileSection: {
     alignItems: 'center',
     marginTop: 10,
