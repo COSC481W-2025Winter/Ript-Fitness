@@ -187,6 +187,8 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
 
   const [userProfile, setMyUserProfile] = useState<ProfileObject>(defaultUserProfile);
 
+  const [privatePhotos, setPrivatePhotos] = useState<String[]>([]);
+
 
     const [friends, setFriends] = useState<FriendObject[]>([]);
 

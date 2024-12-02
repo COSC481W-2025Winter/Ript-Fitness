@@ -99,16 +99,14 @@ export function AddWorkoutScreen() {
     try {
     setSubmitting(true)
     let WorkoutExercises = [];
-
-    for (let i =0; i<Exercises.length; i++) {
+    for (let i =0; i<exercises.length; i++) {
       const currentExercise = {
-        "sets": Exercises[i].sets,
-        "reps": Exercises[i].reps,
-        "nameOfExercise": Exercises[i].nameOfExercise,
-        "exerciseType": Exercises[i].exerciseType
+        "sets": exercises[i].sets,
+        "reps": exercises[i].reps,
+        "nameOfExercise": exercises[i].nameOfExercise,
+        "exerciseType": exercises[i].exerciseType
     }
       try {
-        console.log("A " + JSON.stringify(currentExercise))
       const response = await fetch(`${httpRequests.getBaseURL()}/exercises/addExercise`, {
         method: 'POST', // Set method to POST
         headers: {
@@ -121,6 +119,7 @@ export function AddWorkoutScreen() {
         throw new Error(`Error: ${response.status}`);
       }
       const json = await response.json() //.json(); // Parse the response as JSON
+      console.log("EID: " + json.exerciseId)
       WorkoutExercises.push(json.exerciseId);
   
       //return json; // Return the JSON data directly
@@ -337,7 +336,6 @@ const addWorkout = () => {
     weight: number[];
   }
 
-  const Exercises : Exercise[] = [];
 
   const renderLeftActions = (maxTheWidth: any) => {
     //console.log(maxTheWidth? "true" : "false")
@@ -472,7 +470,19 @@ const addWorkout = () => {
             backgroundColor: '#EDEDED',
           }}
         /> */}
-        <CustomSearchBar />
+        {/*<CustomSearchBar />*/}
+
+        <View style={styles.searchContainer}>
+     {/*<Ionicons name="search-outline" size={20} color="#747474" style={styles.iconStyle} />*/}
+      <TextInput
+        placeholder="Workout Name"
+        placeholderTextColor={'#747474'}
+        style={styles.inputStyle}
+        onChangeText={setText}
+        // value={searchQuery}
+        // onChangeText={setSearchQuery} // Update the query as user types
+      />
+    </View>
       
       </View>}
       ListFooterComponent={() => <View style={{ height: submitHeight }} />}
@@ -487,6 +497,21 @@ const addWorkout = () => {
 
 const submitHeight = Dimensions.get("screen").height * 0.09;
 const styles = StyleSheet.create({
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+
+    // borderWidth: 1,
+    borderRadius: 30,
+    padding: 10,
+    // borderColor: 'grey',
+    width: '90%',
+    // maxHeight: 70,
+    backgroundColor: '#EDEDED',
+    alignSelf: 'center',
+    marginVertical: 15,
+
+  },
   viewButton: {
     transform: [{ rotate: '90deg' }],
   },
@@ -497,6 +522,10 @@ const styles = StyleSheet.create({
     position: 'relative', // Ensure the overlay is positioned over the button
     zIndex:10,
     // backgroundColor:'green',
+  },
+  inputStyle: {
+    flex: 1, // Ensures the input takes up the remaining space
+    // color: '#747474',
   },
   dragOverlay: {
     position: 'absolute',
