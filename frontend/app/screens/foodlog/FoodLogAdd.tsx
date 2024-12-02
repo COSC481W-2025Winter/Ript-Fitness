@@ -494,26 +494,23 @@ const styles = StyleSheet.create({
         flexDirection: 'row', // Align items in a row
         alignItems: 'center', // Vertically center the text and input
         marginTop: 10, 
-        padding: 5,
+        padding: 7,
         gap: 20,
         borderTopColor: 'black', 
         borderBottomColor: 'black',
-        borderRightColor: 'white',
-        borderLeftColor: 'white',
-        borderWidth: 2, 
+        borderBottomWidth: 1,
+        borderTopWidth: 1,
         width: '90%',
         alignSelf: 'center',
       },
       row: {
         flexDirection: 'row', // Align items in a row
         alignItems: 'center', // Vertically center the text and input
-        padding: 5, 
+        padding: 7, 
         gap: 20,
-        borderTopColor: 'white', 
+        // borderTopColor: 'white', 
         borderBottomColor: 'black',
-        borderRightColor: 'white',
-        borderLeftColor: 'white',
-        borderWidth: 2, 
+        borderBottomWidth: 1, 
         width: '90%',
         alignSelf: 'center',
       }, 

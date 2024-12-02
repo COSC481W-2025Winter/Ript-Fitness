@@ -1067,11 +1067,13 @@ const styles = StyleSheet.create({
   },
   drawerContent: {
     flex: 1,
-    paddingTop: 50,
+    paddingTop: 70,
     backgroundColor: '#fff',
   },
   drawerItem: {
-    padding: 20,
+    padding: 10,
+    // borderTopWidth: 1,
+    // borderTopColor: '#ddd',
   },
   drawerItemText: {
     fontSize: 18,
@@ -1080,6 +1082,9 @@ const styles = StyleSheet.create({
   drawerItemTextContainer: {
     alignItems: 'center',
     flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    paddingBottom: 10
   },
   postsContainer: {
     flex: 1,
