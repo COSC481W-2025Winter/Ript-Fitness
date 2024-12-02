@@ -31,17 +31,16 @@ export interface SocialPost {
   numberOfLikes: number;
   userIDsOfLikes: string[];
   userProfile: {
+    id?: string;
     username?: string;
+    profilePicture?: string;
   } | null;
 }
 
-// Define friend-related interfaces
 export interface Friend {
   username: string;
   accountId: string;
 }
-
-// Define loading states interface
 interface LoadingStates {
   isAddingPost: boolean;
   isDeletingPost: boolean;
@@ -212,7 +211,10 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
                 }))
               : [],
             dateTimeCreated: post.dateTimeCreated || new Date().toISOString(),
-            userProfile: post.userProfile || { username: post.accountId },
+            userProfile: post.userProfile || {
+              username: post.accountId,
+              profilePicture: null,
+            },
           };
         });
 

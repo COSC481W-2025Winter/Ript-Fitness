@@ -62,21 +62,13 @@ export default function SocialFeed() {
   };
 
   const handleLoadMore = useCallback(async () => {
-    if (
-      loading ||
-      !hasMorePosts ||
-      isFetchingRef.current ||
-      posts.length < page * pageSize ||
-      posts.length === 0
-    ) {
+    if (loading || !hasMorePosts || isFetchingRef.current || isRefreshing) {
       console.log("[DEBUG] Skipping load more:", {
         loading,
         hasMorePosts,
         isFetching: isFetchingRef.current,
-        currentPostCount: posts.length,
-        expectedMinimum: page * pageSize,
+        isRefreshing,
       });
-      setHasMorePosts(false);
       return;
     }
 
@@ -92,12 +84,10 @@ export default function SocialFeed() {
         currentPostCount: posts.length,
       });
 
-      const currentLength = posts.length;
+      const fetchedPosts = await fetchPosts(startIndex, endIndex);
 
-      await fetchPosts(startIndex, endIndex);
-
-      if (posts.length === currentLength) {
-        console.log("[DEBUG] No new posts received, reached end");
+      if (fetchedPosts.length < pageSize) {
+        console.log("[DEBUG] No more posts to load.");
         setHasMorePosts(false);
       } else {
         setPage(nextPage);
@@ -108,12 +98,12 @@ export default function SocialFeed() {
         setHasMorePosts(false);
       } else {
         console.error("Error loading posts:", error);
-        throw error;
+        // Optionally, set an error state or notify the user
       }
     } finally {
       isFetchingRef.current = false;
     }
-  }, [loading, hasMorePosts, page, posts.length, fetchPosts]);
+  }, [loading, hasMorePosts, page, posts.length, fetchPosts, isRefreshing]);
 
   const onRefresh = useCallback(async () => {
     if (isRefreshing) return;
@@ -149,10 +139,15 @@ export default function SocialFeed() {
       console.log("[DEBUG] Processing post for display:", {
         id: item.id,
         accountId: item.accountId,
-        //userProfile: item.userProfile,
+        username: item.userProfile?.username,
+        userProfile: item.userProfile,
       });
 
       const username = item.userProfile?.username || item.accountId;
+
+      const profilePictureSource = item.userProfile?.profilePicture
+        ? { uri: `data:image/png;base64,${item.userProfile.profilePicture}` }
+        : ProfileImage;
 
       console.log("[DEBUG] Resolved username:", {
         id: item.id,
@@ -170,7 +165,8 @@ export default function SocialFeed() {
             content: item.content,
             user: {
               name: username !== "Unknown User" ? username : item.accountId,
-              profilePicture: ProfileImage,
+              profilePicture: profilePictureSource,
+              id: item.accountId,
             },
             dateTimeCreated: item.dateTimeCreated,
             likes: Array.isArray(item.likes) ? item.likes : [],
@@ -181,6 +177,7 @@ export default function SocialFeed() {
                   timestamp: comment.dateTimeCreated,
                 }))
               : [],
+            userProfile: item.userProfile,
           }}
           liked={
             Array.isArray(item.userIDsOfLikes) &&

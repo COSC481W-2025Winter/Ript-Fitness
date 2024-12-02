@@ -2,6 +2,10 @@ import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { useContext } from "react";
+import { GlobalContext } from "@/context/GlobalContext";
+import { ProfileStackParamList } from "@/app/(tabs)/ProfileStack";
+import { httpRequests } from "@/api/httpRequests";
 
 type PostItemType = {
   id: string;
@@ -11,7 +15,8 @@ type PostItemType = {
   caption?: string;
   user: {
     name: string;
-    profilePicture: any; // Using any for the ProfileImage type
+    profilePicture: any;
+    id?: string;
   };
   dateTimeCreated: string;
   likes: string[];
@@ -25,6 +30,7 @@ type PostItemType = {
   }>;
   // Add userProfile for debugging
   userProfile?: {
+    id?: string;
     username?: string;
   } | null;
 };
@@ -65,12 +71,25 @@ const formatTimestamp = (dateTimeCreated: string): string => {
 
 const PostItem = ({ item, liked, onLikePress, onCommentPress }: ItemProps) => {
   const navigation = useNavigation<NavigationProp<any>>();
+  const context = useContext(GlobalContext);
 
   console.log("[DEBUG] PostItem received:", {
     id: item.id,
     user: item.user,
     rawName: item.user.name,
   });
+
+  const handleUsernamePress = () => {
+    const userProfile = item.userProfile;
+
+    if (!userProfile || !userProfile.id) {
+      console.log("Navigation failed: No userProfile available", { item });
+      return;
+    }
+
+    // Navigate to VisitProfileScreen directly with userProfile data
+    navigation.navigate("VisitProfileScreen", { item: userProfile });
+  };
 
   const handlePostPress = () => {
     if (item.type === "text") {
@@ -89,7 +108,7 @@ const PostItem = ({ item, liked, onLikePress, onCommentPress }: ItemProps) => {
   return (
     <View style={styles.item}>
       {/* Header */}
-      <TouchableOpacity onPress={handlePostPress}>
+      <TouchableOpacity onPress={handleUsernamePress}>
         <View style={styles.header}>
           <Image style={styles.profile} source={item.user.profilePicture} />
           <Text style={styles.username}>{item.user.name}</Text>
