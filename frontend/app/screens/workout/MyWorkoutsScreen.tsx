@@ -8,6 +8,7 @@ import {
   StyleSheet,
   TextInput,
   Alert,
+  ActivityIndicator, // Import ActivityIndicator
 } from "react-native";
 import { GlobalContext } from "@/context/GlobalContext";
 import { Workout, Exercise } from "@/context/GlobalContext";
@@ -22,12 +23,16 @@ export default function MyWorkoutsScreen() {
   const [isEditing, setIsEditing] = useState(false);
   const [workoutName, setWorkoutName] = useState<string>("");
   const [updatedExercises, setUpdatedExercises] = useState<Exercise[]>([]);
-
+  const [loading, setLoading] = useState<boolean>(true); // State for loading
 
   useEffect(() => {
-    context?.fetchWorkouts();
+    const fetchData = async () => {
+      setLoading(true); // Show loading indicator
+      await context?.fetchWorkouts();
+      setLoading(false); // Hide loading indicator
+    };
+    fetchData();
   }, []);
-
 
   const openModal = (workout: Workout) => {
     setSelectedWorkout(workout);
@@ -448,6 +453,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     textAlign: "center",
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f4f4f4", // Match background with container
+  },
   setValue: {
     fontSize: 16,
     color: "#555",
@@ -479,48 +490,57 @@ const styles = StyleSheet.create({
   },
  
 });
+
 return (
   <View style={styles.container}>
-    <Text style={styles.title}>My Workouts</Text>
-    <FlatList
-      data={context?.workouts}
-      keyExtractor={(item, index) =>
-        item.id ? `workout-${item.id}-${index}` : `workout-${index}`
-      }
-      renderItem={({ item }) => (
-        <View style={styles.workoutItem}>
-          <Text style={styles.workoutName}>{item.name}</Text>
-          <View style={styles.buttonGroup}>
-            <TouchableOpacity
-              style={styles.viewButton}
-              onPress={() => openModal(item)}
-            >
-              <Text style={styles.buttonText}>View</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() =>
-                Alert.alert(
-                  "Confirm Delete",
-                  `Are you sure you want to delete the workout "${item.name}"?`,
-                  [
-                    { text: "Cancel", style: "cancel" },
-                    {
-                      text: "Delete",
-                      style: "destructive",
-                      onPress: () => deleteWorkout(item.name),
-                    },
-                  ]
-                )
-              }
-            >
-              <Text style={styles.buttonText}>Delete</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-    />
-
+    {loading ? ( // Show ActivityIndicator if loading is true
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#4CAF50" />
+        <Text>Loading Workouts...</Text>
+      </View>
+    ) : (
+      <>
+        <Text style={styles.title}></Text>
+        <FlatList
+          data={context?.workouts}
+          keyExtractor={(item, index) =>
+            item.id ? `workout-${item.id}-${index}` : `workout-${index}`
+          }
+          renderItem={({ item }) => (
+            <View style={styles.workoutItem}>
+              <Text style={styles.workoutName}>{item.name}</Text>
+              <View style={styles.buttonGroup}>
+                <TouchableOpacity
+                  style={styles.viewButton}
+                  onPress={() => openModal(item)}
+                >
+                  <Text style={styles.buttonText}>View</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() =>
+                    Alert.alert(
+                      "Confirm Delete",
+                      `Are you sure you want to delete the workout "${item.name}"?`,
+                      [
+                        { text: "Cancel", style: "cancel" },
+                        {
+                          text: "Delete",
+                          style: "destructive",
+                          onPress: () => deleteWorkout(item.name),
+                        },
+                      ]
+                    )
+                  }
+                >
+                  <Text style={styles.buttonText}>Delete</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+        />
+      </>
+    )}
 
     <Modal
       visible={isModalVisible}
@@ -692,6 +712,3 @@ return (
     </Modal>
   </View>
 )};
-
-
-
