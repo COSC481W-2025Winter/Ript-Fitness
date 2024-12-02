@@ -50,13 +50,24 @@ function getDateRange() {
   // Return the results
   return { startYear, startMonth, endYear, endMonth };
 }
+const printImageDimensions = (uri : any) => {
+  Image.getSize(
+    uri,
+    (width, height) => {
+      console.log(`Image Dimensions: ${width} x ${height}`);
+    },
+    (error) => {
+      console.error('Error getting image dimensions:', error);
+    }
+  );
+};
 
 const uploadPhoto = async () => {
   try {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Permission Denied', 'We need access to your photo library.');
-      return;
+      return null;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -68,36 +79,73 @@ const uploadPhoto = async () => {
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const imageUri = result.assets[0].uri;
 
-      console.log('myURI: ', imageUri);
-      const resizedUri = await resizeImage(imageUri, 250);
+      console.log('Selected Image URI: ', imageUri);
 
-      const base64 = await FileSystem.readAsStringAsync(resizedUri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
+      printImageDimensions(imageUri)
+      // Create FormData object
+      const resizedUri = await resizeImage(imageUri, 1080)
 
-      return base64;
+      printImageDimensions(resizedUri)
+
+      const timestamp = Date.now(); // Current timestamp in milliseconds
+      const dynamicFileName = `photo-${timestamp}.jpg`;
+
+      const formData = new FormData();
+
+      formData.append('file', {
+        uri: resizedUri,
+        name: dynamicFileName, // You can use a dynamic name if needed
+        type: 'image/jpeg', // Adjust based on the selected file's format
+      } as any);
+
+      return formData;
     }
   } catch (error) {
-    console.error('Error picking or resizing image:', error);
+    console.error('Error picking image:', error);
   }
+
+  return null; // Return null if an error occurs or no image is selected
 };
+
 
 const resizeImage = async (uri: string, maxDimension: number): Promise<string> => {
   try {
+    // Get original image dimensions
+    const { width: originalWidth, height: originalHeight } = await new Promise<{width: number, height: number}>((resolve, reject) => {
+      Image.getSize(
+        uri,
+        (width, height) => resolve({ width, height }),
+        (error) => reject(error)
+      );
+    });
+
+    // Calculate the scaling factor to maintain aspect ratio
+    let newWidth;
+    let newHeight;
+
+    if (originalWidth > originalHeight) {
+      newWidth = maxDimension;
+      newHeight = Math.round((originalHeight / originalWidth) * maxDimension);
+    } else {
+      newHeight = maxDimension;
+      newWidth = Math.round((originalWidth / originalHeight) * maxDimension);
+    }
+
+    console.log('Resized Dimensions:', newWidth, 'x', newHeight);
+
+    // Resize and compress the image
     const result = await ImageManipulator.manipulateAsync(
       uri,
-      [{ resize: { width: maxDimension } }], // Resize only width to maintain aspect ratio
-      { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
+      [{ resize: { width: newWidth, height: newHeight } }],
+      { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
     );
 
-    console.log('Resized Image URI:', result.uri);
     return result.uri;
   } catch (error) {
     console.error('Error resizing image:', error);
     throw error;
   }
 };
-
 const ProfileTabs = () => {
   return (
     <Tab.Navigator
@@ -130,32 +178,107 @@ const ProfileTabs = () => {
 
 function PhotosScreen() {
   const context = useContext(GlobalContext);
-  const images: any = [
-    { id: '1', img: require('../../../assets/images/profile/Profile.png') },
-    { id: '2', img: require('../../../assets/images/profile/Profile.png') },
-    { id: '3', img: require('../../../assets/images/profile/Profile.png') },
+  const navigation = useNavigation<ProfileScreenNavigationProp>()
 
-  ];
 
-  const handlePhoto = async () => {
-    const base64Image = await uploadPhoto();
-    if (base64Image) {
-      try {
-        console.log(`${httpRequests.getBaseURL()}/userProfile/photo`);
-        const response = await fetch(`${httpRequests.getBaseURL()}/userProfile/photo`, {
-          method: 'POST', // Set method to POST
+
+
+
+  const [requested, setRequested] = useState(false);
+  const [returned, setReturned] = useState(false);
+
+  const [photos, setPhotos] = useState<string[]>([]);
+
+  const profContext = useContext(ProfileContext);
+
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const [photosPerLoad, setPhotosPerLoad] = useState(9);
+
+  const [allPhotosLoaded, setAllPhotosLoaded] = useState(false);
+
+  let [currentEndIndex, setCurrentEndIndex] = useState(photosPerLoad);
+
+
+  const refreshPhotos = async () => {
+    setRefreshing(true);
+    setLoadingMore(false);
+    setAllPhotosLoaded(false);
+    await setCurrentEndIndex(photosPerLoad);
+    await fetchPhotosList(0, photosPerLoad);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 0);
+  }
+
+
+  const fetchPhotosList = async (startIndex: number, endIndex: number, clear: boolean = true) => {
+    try {
+      const response = await fetch(
+        `${httpRequests.getBaseURL()}/userProfile/photos?startIndex=${startIndex}&endIndex=${endIndex}`,
+        {
+          method: 'GET', // Set method to POST
           headers: {
             'Content-Type': 'application/json', // Set content type to JSON
             Authorization: `Bearer ${context?.data.token}`,
           },
-          body: JSON.stringify(base64Image), // Convert the data to a JSON string
+          body: '', // Convert the data to a JSON string
+        }
+      ); // Use endpoint or replace with BASE_URL if needed
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      const json = await response.json(); //.json(); // Parse the response as JSON
+      if (clear) {
+        setPhotos(json);
+      } else {
+        setPhotos((prevPosts) => [...prevPosts, ...json]);
+      }
+      setReturned(true);
+      return json; // Return the JSON data directly
+    } catch (error) {
+      setReturned(true);
+      setLoadingMore(false);
+      setAllPhotosLoaded(true);
+      // If access denied
+      // Send to login page
+
+      //console.error('GET request failed:', error);
+      //throw error; // Throw the error for further handling if needed
+    }
+  };
+
+  if (!requested) {
+    setRequested(true);
+    refreshPhotos();
+    //fetchPostList(0, currentEndIndex);
+  }
+
+  const handlePhoto = async () => {
+    const formData = await uploadPhoto();
+    if (formData) {
+      try {
+        setPhotos((prevPhotos) => [
+          ...prevPhotos,
+          "Loading",
+        ]);
+        console.log(`${httpRequests.getBaseURL()}/userProfile/photo`);
+        const response = await fetch(`${httpRequests.getBaseURL()}/userProfile/photo`, {
+          method: 'POST', // Set method to POST
+          headers: {
+            Authorization: `Bearer ${context?.data.token}`,
+          },
+          body: formData, // Convert the data to a JSON string
         }); // Use endpoint or replace with BASE_URL if needed
         if (!response.ok) {
           const text = await response.text();
           console.log(text);
           throw new Error(`Error: ${response.status}`);
         }
-        const json = await response.json();
+        const json = await response.text();
+        await refreshPhotos();
         console.log(json);
       } catch (error) {
         console.error(error);
@@ -163,31 +286,94 @@ function PhotosScreen() {
       // setSelectedImage(base64Image);
     }
   };
+  console.log(photos)
+
+  const handleDeleteImage = async (uri : any) => {
+    // Find the photo to delete
+    const photoToDelete = photos.find((photo) => photo === uri);
+    if (!photoToDelete) {
+      console.error('Photo not found');
+      return;
+    }
+
+    try {
+      // Construct the endpoint URL
+
+      const endpoint = `${httpRequests.getBaseURL()}/userProfile/deletePhoto?photoUrl=${photoToDelete}`;
+      // Send the DELETE request
+      const response = await fetch(endpoint, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${context?.data.token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        console.error('Error deleting photo:', text);
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      // Update the state to remove the deleted photo
+      setPhotos((prevPhotos) => prevPhotos.filter((photo) => photo !== uri));
+
+      console.log('Photo deleted successfully');
+    } catch (error) {
+      console.error('Error deleting photo:', error);
+    }
+  };
+
+  const photosWithAddButton = [
+    ...photos.map((uri) => ({ uri })), // Convert each URI to an object
+    { isAddButton: true },             // Add button placeholder
+  ];
+
+  const renderItem = ({ item } : any) => {
+    if (item.isAddButton) {
+      // Render the add button
+      return (
+        <TouchableOpacity style={styles.addPhotoButton} onPress={handlePhoto}>
+          <Ionicons name="add" size={48} color="#BFBFBF" />
+        </TouchableOpacity>
+      );
+
+    } else if (item.uri == 'Loading') {
+      // Render the loading indicator
+      return (
+        <View style={[styles.photo, {justifyContent:'center'}]}>
+          <ActivityIndicator size="large" color="#40bcbc" />
+        </View>
+      );
+    } else {
+      // Render the photo
+      return <TouchableOpacity onPress={() =>
+        navigation.navigate('ImageFullScreen', {
+          imageUri: item.uri,
+          onDelete: () => handleDeleteImage(item.uri),
+        })
+      }><Image source={{ uri: item.uri }} style={styles.photo} /></TouchableOpacity>;
+    }
+  };
+
+  
 
   return (
 
     <View style={{width:'100%', flex:1, backgroundColor:'#fff'}}>
 <View style={styles.photosContainer}>
-  <FlatList
-    data={images}
-    keyExtractor={(item) => item.id}
-    numColumns={3} // Adjust the number of columns as needed
-    renderItem={({ item }) => (
-      <Image source={item.img} style={styles.photo} />
-    )}
-    contentContainerStyle={{
-      justifyContent: 'flex-start',
-      alignItems: 'flex-start', // Align items to the left
-      paddingTop: 10,
-      backgroundColor: "#fff",
-    }} 
-    ListFooterComponent={
-      <TouchableOpacity style={styles.addPhotoButton} onPress={handlePhoto}>
-      <Ionicons name="add" size={48} color="#BFBFBF" />
-    </TouchableOpacity>
-    }
-    showsVerticalScrollIndicator={true}
-  />
+<FlatList
+  data={photosWithAddButton}
+  keyExtractor={(item, index) => index.toString()}
+  numColumns={3} // Adjust the number of columns as needed
+  renderItem={renderItem}
+  contentContainerStyle={{
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start', // Align items to the left
+    paddingTop: 10,
+    backgroundColor: '#fff',
+  }}
+  showsVerticalScrollIndicator={true}
+/>
 </View>
 </View>
   );
@@ -221,8 +407,8 @@ function PostsScreen() {
     userProfile: ProfileObject;
     userIdsOfLikes: number[];
   }
-
-  const onRefresh = React.useCallback(async () => {
+  const refreshPosts = async () => {
+    console.log("refreshing")
     setRefreshing(true);
     setLoadingMore(false);
     setAllPostsLoaded(false);
@@ -231,7 +417,15 @@ function PostsScreen() {
     setTimeout(() => {
       setRefreshing(false);
     }, 0);
-  }, []);
+  }
+  const onRefresh = React.useCallback(refreshPosts, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshPosts()
+      return () => {};
+    }, [])
+  );
 
   const fetchPostList = async (startIndex: number, endIndex: number, clear: boolean = true) => {
     try {
@@ -271,7 +465,7 @@ function PostsScreen() {
 
   if (!requested) {
     setRequested(true);
-    fetchPostList(0, currentEndIndex);
+    //fetchPostList(0, currentEndIndex);
   }
 
   const formatTimestamp = (timestamp: string): string => {
