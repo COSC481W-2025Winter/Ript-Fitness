@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Button, StyleSheet, Text, Alert, TouchableOpacity } from 'react-native';
+import { View, TextInput, Button, StyleSheet, Text, Alert, TouchableOpacity, Keyboard } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useNotes } from '@/components/MyNotes/NotesContext';
 import { Note as NoteType } from '@/components/MyNotes/NotesContext';
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#2C2C2C',
-    width: '30%',
+    width: '50%',
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',

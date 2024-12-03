@@ -341,7 +341,7 @@ function PhotosScreen() {
       // Render the loading indicator
       return (
         <View style={[styles.photo, {justifyContent:'center'}]}>
-          <ActivityIndicator size="large" color="#40bcbc" />
+          <ActivityIndicator size="large" />
         </View>
       );
     } else {
@@ -519,7 +519,7 @@ function PostsScreen() {
     if (!returned || loadingMore) {
       return (
         <View style={{ paddingVertical: 20 }}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" />
         </View>
       );
     } else {
@@ -550,7 +550,7 @@ function PostsScreen() {
           //columnWrapperStyle={{ padding: 0, margin: 0 }}
         />
       ) : (
-        <ActivityIndicator size="large" color="#40bcbc" />
+        <ActivityIndicator size="large" />
       )}
     </View>
   );
@@ -652,7 +652,7 @@ function ProgressScreen() {
         }
       }
       if (loadedStartDate > myDate) {
-        return <ActivityIndicator size="large" color="#00ff00" />;
+        return <ActivityIndicator size="large" />;
       }
     }
 
@@ -790,10 +790,10 @@ function ProgressScreen() {
       <TouchableOpacity
         style={{
           marginLeft: 10,
-          backgroundColor: '#BFBFBF',
+          backgroundColor: '#21BFBF',
           paddingHorizontal: 15,
           paddingVertical: 10,
-          borderRadius: 7,
+          borderRadius: 20,
           alignSelf: 'center'
           // shadowColor: '#000',
           // shadowOffset: { width: 0, height: 2 },
@@ -803,7 +803,7 @@ function ProgressScreen() {
         }}
         onPress={useRestDay}
       >
-        <Text style={{ color: '#40403F', }}>Use Rest Day</Text>
+        <Text style={{ color: '#FFF', }}>Use Rest Day</Text>
       </TouchableOpacity>
     </View>
 
@@ -823,6 +823,10 @@ function CustomDrawerContent({ navigation }: any) {
   const drawerNav = async (navigation: any) => {
     navigation.closeDrawer();
     navigation.navigate('SettingsScreen');
+  };
+  const aboutUs = async (navigation: any) => {
+    navigation.closeDrawer();
+    navigation.navigate('RiptTeamScreen');
   };
 
   const context = useContext(GlobalContext);
@@ -853,6 +857,18 @@ function CustomDrawerContent({ navigation }: any) {
         <View style={styles.drawerItemTextContainer}>
           <Ionicons name="log-out-outline" size={24} color={'#1E1E1E'} />
           <Text style={styles.drawerItemText}>Logout</Text>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.drawerItem}
+        onPress={() => {
+          // Navigate to Ript team page
+          aboutUs(navigation);
+        }}
+      >
+        <View style={styles.drawerItemTextContainer}>
+          <Ionicons name="people-outline" size={24} color={'#1E1E1E'} />
+          <Text style={styles.drawerItemText}>Our Story</Text>
         </View>
       </TouchableOpacity>
     </View>
