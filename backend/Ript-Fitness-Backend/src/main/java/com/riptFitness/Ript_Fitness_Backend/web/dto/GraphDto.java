@@ -11,4 +11,5 @@ public class GraphDto {
 	public String title;
 	public List<LocalDateTime> xAxis;
 	public List<Double> yAxis;
+	public boolean isDeleted;
 }
