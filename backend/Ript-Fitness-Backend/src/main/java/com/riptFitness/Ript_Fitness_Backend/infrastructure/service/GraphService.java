@@ -85,7 +85,7 @@ public class GraphService {
 		Graph graphToBeEdited = optionalGraphToBeEdited.get();
 		
 		if(index < 0 || index >= graphToBeEdited.xAxis.size())
-			throw new RuntimeException("The index provided in the path variable, " + index + ", is not a valid index. It is either less than 0 or greater than or equal to the size of the Lists of axis'. Size of each axis = " + graphToBeEdited.xAxis.size());
+			throw new RuntimeException("The index provided in the path variable, " + index + ", is not a valid index. It is either less than 0 or greater than or equal to the size of the Lists of axis'. Size of each axis = " + graphToBeEdited.xAxis.size() + ".");
 		
 		graphToBeEdited.xAxis.remove(index);
 		graphToBeEdited.yAxis.remove(index);
@@ -96,7 +96,7 @@ public class GraphService {
 	}
 	
 	public GraphDto deleteGraph(Long graphId) {
-		Graph graphToBeDeleted = graphRepository.findById(graphId).orElseThrow(() -> new RuntimeException("There is no row in the Graph database table with ID = " + graphId));
+		Graph graphToBeDeleted = graphRepository.findById(graphId).orElseThrow(() -> new RuntimeException("There is no row in the Graph database table with ID = " + graphId + "."));
 		
 		if(graphToBeDeleted.account.getId() != accountsService.getLoggedInUserId())
 			throw new RuntimeException("The Graph with ID = " + graphId + " does not belong to the currently logged in user. Please check the ID of the graph and try again.");
