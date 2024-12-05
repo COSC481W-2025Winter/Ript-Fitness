@@ -191,8 +191,8 @@ const updateWater = async () => {
                         style={styles.leftArrow}
                         onPress={() => navigation.navigate('ApiScreen')}
                 />
-                     <Ionicons name={"calendar-clear-outline"} size={24} color={"white"}></Ionicons>
-                    <Text style={styles.whiteText} onPress={() => newDay()}>Today</Text>
+                     {/* <Ionicons name={"calendar-clear-outline"} size={24} color={"white"}></Ionicons> */}
+                    <Text style={styles.whiteText} onPress={() => newDay()}>Start New Logging Day</Text>
                     <Ionicons 
                         name={"chevron-forward-outline"} 
                         color={"white"}
@@ -320,7 +320,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     whiteText: {
-        color: "white",
+        backgroundColor: 'white',
+        padding: 5,
+        color: "#21BFBF",
         paddingLeft: 5
     },
     rightArrow: {
