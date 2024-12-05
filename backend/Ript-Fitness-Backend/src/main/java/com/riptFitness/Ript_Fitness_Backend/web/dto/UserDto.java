@@ -1,6 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.web.dto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class UserDto {
     public Long id;
@@ -14,7 +15,9 @@ public class UserDto {
     public Integer restDaysLeft;
     public LocalDate restResetDate;
     public Integer restResetDayOfWeek;
-    public byte[] profilePicture; // Added field for profile picture
+    public byte[] profilePicture; 
+    private LocalDateTime accountCreatedDate; 
+
 
     // Getters and Setters
     public Long getId() {
@@ -119,6 +122,14 @@ public class UserDto {
         if (this.displayname == null || this.displayname.isEmpty()) {
             this.displayname = this.username; // can be called whenever
         }
+    }
+    
+    public LocalDateTime getAccountCreatedDate() {
+        return accountCreatedDate;
+    }
+
+    public void setAccountCreatedDate(LocalDateTime accountCreatedDate) {
+        this.accountCreatedDate = accountCreatedDate;
     }
 
 }

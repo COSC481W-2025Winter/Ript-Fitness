@@ -1,6 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -39,6 +40,9 @@ public class UserProfile {
     @Column(unique = true, nullable = false)
     private String username;
 
+    @Column
+    private LocalDateTime accountCreatedDate; // New field
+    
     @OneToOne
     @JoinColumn(name = "account_id", referencedColumnName = "id") 
     @JsonBackReference
@@ -234,5 +238,13 @@ public class UserProfile {
 
     public void setProfilePicture(byte[] profilePicture) {
         this.profilePicture = profilePicture;
+    }
+    
+    public LocalDateTime getAccountCreatedDate() {
+        return accountCreatedDate;
+    }
+
+    public void setAccountCreatedDate(LocalDateTime accountCreatedDate) {
+        this.accountCreatedDate = accountCreatedDate;
     }
 }
