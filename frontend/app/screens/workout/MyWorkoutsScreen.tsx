@@ -170,7 +170,7 @@ export default function MyWorkoutsScreen() {
   const fetchWorkoutById = async (workoutName: string): Promise<number | undefined> => {
     try {
       const response = await fetch(
-        `http://ript-fitness-app.azurewebsites.net/workouts/getUsersWorkouts`,
+        `http://ript-fitness-app.azurewebsites.net/workouts/getUsersWorkouts/0/10000`,
         {
           method: "GET",
           headers: {
