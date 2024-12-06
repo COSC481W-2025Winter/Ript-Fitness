@@ -545,7 +545,7 @@ const RiptWorkouts: Workout[] = [
   },
   {
     id: 12,
-    name: "Micheal's Motion",
+    name: "Michael's Motion",
     level: "Advanced",
     time: 60,
     exercises: [
