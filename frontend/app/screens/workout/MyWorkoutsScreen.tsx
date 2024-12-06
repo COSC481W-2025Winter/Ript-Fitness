@@ -204,7 +204,45 @@ export default function MyWorkoutsScreen() {
 
 
 
+  const logWorkout = async () => {
+    if (!selectedWorkout) {
+      Alert.alert("Error", "No workout selected to log.");
+      return;
+    }
 
+    try {
+      const response = await fetch(
+        "https://ript-fitness-app.azurewebsites.net/calendar/logWorkout",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${context?.data.token}`,
+          },
+          body: JSON.stringify({ workoutId: selectedWorkout.id }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        if (errorMessage.includes("Workout already logged for this date")) {
+          Alert.alert(
+            "Duplicate Log",
+            "This workout has already been logged for today."
+          );
+          return;
+        }
+        throw new Error(`Failed to log workout: ${errorMessage}`);
+      }
+    } catch (error) {
+      console.error("Error logging workout:", error.message || error);
+      Alert.alert(
+        "Error",
+        "Failed to log workout. Please check your network or try again later."
+      );
+    }
+  };
+  
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -67,7 +67,7 @@ export interface Workout {
 
 
 export interface Exercise {
-  exerciseId: number | null;
+  exerciseId: number | null ;
   nameOfExercise: string;
   sets: number;
   reps: number[];
