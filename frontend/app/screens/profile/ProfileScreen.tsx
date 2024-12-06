@@ -423,6 +423,7 @@ function PostsScreen() {
   useFocusEffect(
     useCallback(() => {
       refreshPosts()
+      context?.reloadFriends();
       return () => {};
     }, [])
   );

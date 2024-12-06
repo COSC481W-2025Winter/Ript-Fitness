@@ -1,8 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { View, Text, TextInput, FlatList, Image, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { GlobalContext } from '@/context/GlobalContext';
 import { httpRequests } from '@/api/httpRequests';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 const FriendsScreen = ({ navigation }: any) => {
@@ -13,6 +14,13 @@ const context = useContext(GlobalContext)
     friend.username.toLowerCase().includes(search.toLowerCase())
   );
 
+
+  useFocusEffect(
+    useCallback(() => {
+      context?.reloadFriends();
+      return () => {};
+    }, [])
+  );
   const deleteFriend = async (id: string) => {
     try {
         context?.removeFriend(id)

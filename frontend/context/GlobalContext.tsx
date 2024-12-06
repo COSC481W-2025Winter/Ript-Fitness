@@ -249,7 +249,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
   const clearContext = () => {
     setMyUserProfile(defaultUserProfile);
     setFriends([])
-
+    clearCalendar();
   };
 
   const clearCalendar =() => {
