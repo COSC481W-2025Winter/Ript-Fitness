@@ -8,6 +8,8 @@ import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.CalendarServi
 import com.riptFitness.Ript_Fitness_Backend.web.dto.CalendarDto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
@@ -31,9 +33,9 @@ public class CalendarController {
     @GetMapping("/getMonth")
     public List<CalendarDto> getMonth(@RequestParam String startYear, @RequestParam String startMonth,
                                        @RequestParam String endYear, @RequestParam String endMonth) {
-        LocalDate startDate = LocalDate.of(Integer.parseInt(startYear), Integer.parseInt(startMonth), 1);
-        LocalDate endDate = LocalDate.of(Integer.parseInt(endYear), Integer.parseInt(endMonth), 1)
-                                     .with(TemporalAdjusters.lastDayOfMonth());
+    	LocalDateTime startDate = LocalDate.of(Integer.parseInt(startYear), Integer.parseInt(startMonth), 1).atStartOfDay(); //time at start of day
+    	LocalDateTime endDate = LocalDate.of(Integer.parseInt(endYear), Integer.parseInt(endMonth), 1)
+                                     .with(TemporalAdjusters.lastDayOfMonth()).atTime(LocalTime.MAX); //Time at end of day
         return calendarService.getMonth(startDate, endDate);
     }
 

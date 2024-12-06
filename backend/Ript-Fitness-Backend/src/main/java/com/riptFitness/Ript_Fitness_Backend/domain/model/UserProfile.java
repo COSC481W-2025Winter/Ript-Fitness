@@ -1,6 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -39,6 +40,12 @@ public class UserProfile {
     @Column(unique = true, nullable = false)
     private String username;
 
+    @Column
+    private LocalDateTime accountCreatedDate; 
+    
+    @Column(name = "time_zone", nullable = false)
+    private String timeZone = "Etc/GMT+5"; //Eastern US. EasternUS is typically GMT-5, but it should be reversed in this format for some reason.
+    
     @OneToOne
     @JoinColumn(name = "account_id", referencedColumnName = "id") 
     @JsonBackReference
@@ -53,7 +60,7 @@ public class UserProfile {
     private Integer restDaysLeft; 
 
     @Column(name = "rest_reset_date")
-    private LocalDate restResetDate; 
+    private LocalDateTime restResetDate; 
 
     @Column(name = "rest_reset_day_of_week")
     private Integer restResetDayOfWeek = 7; // Sunday (default reset day)
@@ -65,7 +72,7 @@ public class UserProfile {
     public UserProfile() {
         this.restDays = 3;
         this.restDaysLeft = 3;  
-        LocalDate today = LocalDate.now();
+        LocalDateTime today = LocalDateTime.now();
         int todayDayOfWeek = today.getDayOfWeek().getValue();
         int daysUntilSunday = 7 - todayDayOfWeek;
         
@@ -82,7 +89,7 @@ public class UserProfile {
         this.restDays = 3; 
         this.restDaysLeft = 3;  
         
-        LocalDate today = LocalDate.now();
+        LocalDateTime today = LocalDateTime.now();
         int todayDayOfWeek = today.getDayOfWeek().getValue();
         int daysUntilSunday = 7 - todayDayOfWeek;
         
@@ -212,11 +219,11 @@ public class UserProfile {
         this.restDaysLeft = restDaysLeft;
     }
 
-    public LocalDate getRestResetDate() {
+    public LocalDateTime getRestResetDate() {
         return restResetDate;
     }
 
-    public void setRestResetDate(LocalDate restResetDate) {
+    public void setRestResetDate(LocalDateTime restResetDate) {
         this.restResetDate = restResetDate;
     }
 
@@ -234,5 +241,20 @@ public class UserProfile {
 
     public void setProfilePicture(byte[] profilePicture) {
         this.profilePicture = profilePicture;
+    }
+    
+    public LocalDateTime getAccountCreatedDate() {
+        return accountCreatedDate;
+    }
+
+    public void setAccountCreatedDate(LocalDateTime accountCreatedDate) {
+        this.accountCreatedDate = accountCreatedDate;
+    }
+    public String getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
     }
 }
