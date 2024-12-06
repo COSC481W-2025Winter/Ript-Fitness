@@ -1,893 +1,893 @@
 [
-{
-  "workoutsId": null,
-  "name": "Shoulder Showdown",
-  "isDeleted": false,
-  "exerciseIds": [],
-  "exercises": [
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Seated Overhead Dumbbell Press",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [8],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Rear Delt Cable Fly",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [8],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Dumbbell Lateral Raise",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Bent Over Rear Delt Fly",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [6],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Standing Dumbbell Press",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Dumbbell Shoulder Shrug",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    }
+  {
+    "workoutsId": null,
+    "name": "Shoulder Showdown",
+    "isDeleted": false,
+    "exerciseIds": [0],
+    "exercises": [
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Seated Overhead Dumbbell Press",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [8],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Rear Delt Cable Fly",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [8],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Dumbbell Lateral Raise",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Bent Over Rear Delt Fly",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [6],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Standing Dumbbell Press",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Dumbbell Shoulder Shrug",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      }
+    ]
+  },
+  {
+    "workoutsId": null,
+    "name": "Quad Squad Leg Day",
+    "isDeleted": false,
+    "exerciseIds": [0],
+    "exercises": [
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Walking Lunge",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [12],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Front Squat",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [8],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Romanian Deadlift",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Leg Extension Machine",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Leg Curl Machine",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [12],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Calf Raise",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      }
+    ]
+  },
+  {
+    "workoutsId": null,
+    "name": "Flex Friday",
+    "isDeleted": false,
+    "exerciseIds": [0],
+    "exercises": [
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Barbell Bicep Curl",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [8],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Alternating Incline Curl",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [6],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Preacher Curl",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Skullcrusher",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [8],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Tricep Dips",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [8],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Rope Tricep Pulldown",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      }
+    ]
+  },
+  {
+    "workoutsId": null,
+    "name": "Chest Quest",
+    "isDeleted": false,
+    "exerciseIds": [0],
+    "exercises": [
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [12],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Bench Press",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Lying Pectoral Fly",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [8],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Incline Dumbbell Bench Press",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Cable Chest Crossover",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [6],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Hammer Strength Machine Press",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      }
+    ]
+  },
+  {
+    "workoutsId": null,
+    "name": "BACK in Action",
+    "isDeleted": false,
+    "exerciseIds": [0],
+    "exercises": [
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Bent Over Row",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Lat Pull Down",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [12],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Seated Row",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [8],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Inverted Row",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [12],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Straight Arm Cable Pulldown",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      }
+    ]
+  },
+  {
+    "workoutsId": null,
+    "name": "Push Powerhouse",
+    "isDeleted": false,
+    "exerciseIds": [0],
+    "exercises": [
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [8],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Bench Press",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [8],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Incline Dumbbell Bench Press",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Pushups",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [8],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Dumbbell Overhead Press",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Dumbbell Lateral Raise",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Tricep Pushdown",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Dumbbell Tricep Kickback",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [12],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Hanging Leg Raise",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [12],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Decline Bench Reverse Sit-up",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Flutter Kicks",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      }
+    ]
+  },
+  {
+    "workoutsId": null,
+    "name": "Pull Day Pump",
+    "isDeleted": false,
+    "exerciseIds": [0],
+    "exercises": [
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [8],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Pullup",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [8],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Bentover Row",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [8],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Lat Pulldown",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [8],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Seated Cable Row",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Standing Shrug",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Bicep Curl",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Hammer Curl",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      }
+    ]
+  },
+  {
+    "workoutsId": null,
+    "name": "Glute Gains Leg Day",
+    "isDeleted": false,
+    "exerciseIds": [0],
+    "exercises": [
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [8],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Back Squat",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [8],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Deadlift",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [8],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Dumbbell Lunge",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Barbell Glute Bridge",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Elevated Standing Calf Raise",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Seated Calf Raise",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [15],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Horizontal Cable Woodchop",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [15],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Side Plank With Lateral",
+        "description": "15 reps each side",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      }
+    ]
+  },
+  {
+    "workoutsId": null,
+    "name": "Pec-tacular Push",
+    "isDeleted": false,
+    "exerciseIds": [0],
+    "exercises": [
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [12],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Cable Chest Fly",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [12],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Dumbbell Chest Fly",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [12],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Dumbbell Squat Front Raise",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [15],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Dumbbell Overhead Press",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [15],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Dumbbell Skullcrusher",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [15],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Bench Tricep Dip",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      }
+    ]
+  },
+  {
+    "workoutsId": null,
+    "name": "Pull Party",
+    "isDeleted": false,
+    "exerciseIds": [0],
+    "exercises": [
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [12],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Chinup",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [12],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Single Arm Dumbbell Row",
+        "description": "12 reps each arm",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [12],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Lat Pulldown",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [15],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Cable Rope Bicep Curl",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [12],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Bent Over Rear Delt Fly",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [12],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Weighted Crunches",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [12],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Weighted Russian Twists",
+        "description": "12 reps each side",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      }
+    ]
+  },
+  {
+    "workoutsId": null,
+    "name": "Leg Day Legends",
+    "isDeleted": false,
+    "exerciseIds": [0],
+    "exercises": [
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [6],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Front Squat",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [15],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Goblet Squat",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 4,
+        "reps": [15],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Lying Hamstring Curl",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [12],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Single-leg Calf Raise",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [15],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Split Squat",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [10],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Hanging Knee Tuck Ups",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      },
+      {
+        "exerciseId": null,
+        "sets": 3,
+        "reps": [15],
+        "isDeleted": false,
+        "weight": [0],
+        "nameOfExercise": "Plank Hip Dips",
+        "description": "",
+        "exerciseType": 0,
+        "accountReferenceId": null
+      }
+    ]
+  }
   ]
-},
-{
-  "workoutsId": null,
-  "name": "Quad Squad Leg Day",
-  "isDeleted": false,
-  "exerciseIds": [],
-  "exercises": [
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Walking Lunge",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [12],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Front Squat",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [8],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Romanian Deadlift",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Leg Extension Machine",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Leg Curl Machine",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [12],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Calf Raise",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    }
-  ]
-},
-{
-  "workoutsId": null,
-  "name": "Flex Friday",
-  "isDeleted": false,
-  "exerciseIds": [],
-  "exercises": [
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Barbell Bicep Curl",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [8],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Alternating Incline Curl",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [6],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Preacher Curl",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Skullcrusher",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [8],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Tricep Dips",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [8],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Rope Tricep Pulldown",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    }
-  ]
-},
-{
-  "workoutsId": null,
-  "name": "Chest Quest",
-  "isDeleted": false,
-  "exerciseIds": [],
-  "exercises": [
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [12],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Bench Press",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Lying Pectoral Fly",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [8],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Incline Dumbbell Bench Press",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Cable Chest Crossover",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [6],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Hammer Strength Machine Press",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    }
-  ]
-},
-{
-  "workoutsId": null,
-  "name": "BACK in Action",
-  "isDeleted": false,
-  "exerciseIds": [],
-  "exercises": [
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Bent Over Row",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Lat Pull Down",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [12],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Seated Row",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [8],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Inverted Row",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [12],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Straight Arm Cable Pulldown",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    }
-  ]
-},
-{
-  "workoutsId": null,
-  "name": "Push Powerhouse",
-  "isDeleted": false,
-  "exerciseIds": [],
-  "exercises": [
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [8],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Bench Press",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [8],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Incline Dumbbell Bench Press",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Pushups",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [8],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Dumbbell Overhead Press",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Dumbbell Lateral Raise",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Tricep Pushdown",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Dumbbell Tricep Kickback",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [12],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Hanging Leg Raise",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [12],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Decline Bench Reverse Sit-up",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Flutter Kicks",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    }
-  ]
-},
-{
-  "workoutsId": null,
-  "name": "Pull Day Pump",
-  "isDeleted": false,
-  "exerciseIds": [],
-  "exercises": [
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [8],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Pullup",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [8],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Bentover Row",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [8],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Lat Pulldown",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [8],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Seated Cable Row",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Standing Shrug",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Bicep Curl",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Hammer Curl",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    }
-  ]
-},
-{
-  "workoutsId": null,
-  "name": "Glute Gains Leg Day",
-  "isDeleted": false,
-  "exerciseIds": [],
-  "exercises": [
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [8],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Back Squat",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [8],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Deadlift",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [8],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Dumbbell Lunge",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Barbell Glute Bridge",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Elevated Standing Calf Raise",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Seated Calf Raise",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [15],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Horizontal Cable Woodchop",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [15],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Side Plank With Lateral",
-      "description": "15 reps each side",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    }
-  ]
-},
-{
-  "workoutsId": null,
-  "name": "Pec-tacular Push",
-  "isDeleted": false,
-  "exerciseIds": [],
-  "exercises": [
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [12],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Cable Chest Fly",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [12],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Dumbbell Chest Fly",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [12],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Dumbbell Squat Front Raise",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [15],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Dumbbell Overhead Press",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [15],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Dumbbell Skullcrusher",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [15],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Bench Tricep Dip",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    }
-  ]
-},
-{
-  "workoutsId": null,
-  "name": "Pull Party",
-  "isDeleted": false,
-  "exerciseIds": [],
-  "exercises": [
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [12],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Chinup",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [12],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Single Arm Dumbbell Row",
-      "description": "12 reps each arm",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [12],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Lat Pulldown",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [15],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Cable Rope Bicep Curl",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [12],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Bent Over Rear Delt Fly",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [12],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Weighted Crunches",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [12],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Weighted Russian Twists",
-      "description": "12 reps each side",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    }
-  ]
-},
-{
-  "workoutsId": null,
-  "name": "Leg Day Legends",
-  "isDeleted": false,
-  "exerciseIds": [],
-  "exercises": [
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [6],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Front Squat",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [15],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Goblet Squat",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 4,
-      "reps": [15],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Lying Hamstring Curl",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [12],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Single-leg Calf Raise",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [15],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Split Squat",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [10],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Hanging Knee Tuck Ups",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    },
-    {
-      "exerciseId": null,
-      "sets": 3,
-      "reps": [15],
-      "isDeleted": false,
-      "weight": [],
-      "nameOfExercise": "Plank Hip Dips",
-      "description": "",
-      "exerciseType": 0,
-      "accountReferenceId": null
-    }
-  ]
-}
-]
