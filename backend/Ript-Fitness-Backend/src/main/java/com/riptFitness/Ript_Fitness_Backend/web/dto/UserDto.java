@@ -13,7 +13,7 @@ public class UserDto {
     public boolean isDeleted = false;
     public Integer restDays;
     public Integer restDaysLeft;
-    public LocalDate restResetDate;
+    public LocalDateTime restResetDate;
     public Integer restResetDayOfWeek;
     public byte[] profilePicture; 
     private LocalDateTime accountCreatedDate; 
@@ -95,11 +95,11 @@ public class UserDto {
         this.restDaysLeft = restDaysLeft;
     }
 
-    public LocalDate getRestResetDate() {
+    public LocalDateTime getRestResetDate() {
         return restResetDate;
     }
 
-    public void setRestResetDate(LocalDate restResetDate) {
+    public void setRestResetDate(LocalDateTime restResetDate) {
         this.restResetDate = restResetDate;
     }
 

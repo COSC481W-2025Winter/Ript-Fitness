@@ -1,22 +1,22 @@
 package com.riptFitness.Ript_Fitness_Backend.web.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class CalendarDto {
 
-    private LocalDate date;   // The date of the calendar entry
+    private LocalDateTime date;   // The date of the calendar entry
     private int activityType; // 1 = WORKOUT, 2 = REST, 3 = MISSED, etc.
 
-    public CalendarDto(LocalDate date, int activityType) {
-        this.date = date;
+    public CalendarDto(LocalDateTime localDateTime, int activityType) {
+        this.date = localDateTime;
         this.activityType = activityType;
     }
 
-    public LocalDate getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 

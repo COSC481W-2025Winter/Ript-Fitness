@@ -72,21 +72,38 @@ public class UserProfileService {
 	// Retrieves user profile by username
 	public UserDto getUserByUsername(String username) {
 		return userRepository.findByUsername(username).map(user -> {
-			if (LocalDate.now().isAfter(user.getRestResetDate())) {
-				LocalDate today = LocalDate.now();
-				int todayDayOfWeek = today.getDayOfWeek().getValue();
-				int daysUntilSunday = 7 - todayDayOfWeek;
-
-				user.setRestResetDate(today.plusDays(daysUntilSunday));
-				user.setRestDaysLeft(user.getRestDays());
-				userRepository.save(user);
-			}
+			updateRestDays(user); //update rest days for the user before returning
 			UserDto userDto = UserProfileMapper.INSTANCE.toUserDto(user);
 			userDto.setProfilePicture(user.getProfilePicture());
 			return userDto;
 		}).orElseThrow(() -> new RuntimeException("User not found with username = " + username));
 	}
+	
+	private void updateRestDays(UserProfile userProfile) {
+		ZonedDateTime zonedDateTime = LocalDateTime.now().atZone(ZoneId.of("GMT")).withZoneSameInstant(ZoneId.of(userProfile.getTimeZone()));
+		
+		
+        if (zonedDateTime.toLocalDate().isAfter(
+        		userProfile.getRestResetDate()
+        		.atZone(ZoneId.of("GMT"))
+        		.withZoneSameInstant(ZoneId.of(userProfile.getTimeZone()))
+        		.toLocalDate())) {
+            
+        	
+        	int todayDayOfWeek = zonedDateTime.getDayOfWeek().getValue();
+            int daysUntilSunday = 7 - todayDayOfWeek;
 
+            //Set next reset date based on days until sunday for the user's timezone
+            userProfile.setRestResetDate(zonedDateTime.plusDays(daysUntilSunday).toLocalDateTime());
+            userProfile.setRestDaysLeft(userProfile.getRestDays());
+            userRepository.save(userProfile);
+        }
+	}
+
+	
+	
+	
+	
 	// Edits user profile by username
 	public UserDto updateUserByUsername(String username, UserDto userDto) {
 		UserProfile userToBeEdited = userRepository.findByUsername(username)
@@ -163,7 +180,7 @@ public class UserProfileService {
 	}
 
 	// Log a rest day for a user
-	public void logRestDay(String username) {
+	public void DepricatedlogRestDay(String username) {
 		UserProfile userProfile = userRepository.findByUsername(username)
 				.orElseThrow(() -> new RuntimeException("User not found with username = " + username));
 
@@ -179,13 +196,13 @@ public class UserProfileService {
 		// Check the last logged date in the Calendar
 		Optional<Calendar> lastLoggedEntryOpt = calendarRepository
 				.findTopByAccountIdOrderByDateDesc(userProfile.getAccount().getId());
+		
 		if (lastLoggedEntryOpt.isPresent()) {
 			Calendar lastLoggedEntry = lastLoggedEntryOpt.get();
 
 			// Convert last logged date to the timezone it was logged in
-			LocalDateTime lastLoggedDateInUserZone = lastLoggedEntry.getDate().atStartOfDay(ZoneId.of("GMT"))// From GMT
-					.withZoneSameInstant(ZoneId.of(lastLoggedEntry.getTimeZoneWhenLogged())) // Convert to the timezone
-					.toLocalDateTime();
+			ZonedDateTime lastLoggedDateInUserZone = lastLoggedEntry.getDate()
+					.atZone(ZoneId.of(lastLoggedEntry.getTimeZoneWhenLogged()));
 
 			// Convert the current time to the user's current timezone
 			LocalDateTime currentDateInUserZone = nowInGMT.atZone(ZoneId.of("GMT")) // From GMT
@@ -201,7 +218,7 @@ public class UserProfileService {
 		// Proceed to log the rest day
 		Calendar restDayEntry = new Calendar();
 		restDayEntry.setAccount(userProfile.getAccount());
-		restDayEntry.setDate(nowInGMT.toLocalDate()); // Store date in GMT
+		restDayEntry.setDate(LocalDateTime.now()); // Store date in GMT
 		restDayEntry.setActivityType(2); // 2 for rest day
 		restDayEntry.setTimeZoneWhenLogged(userTimeZone); // Store the user's current timezone
 
@@ -218,10 +235,10 @@ public class UserProfileService {
 	}
 
 	// Calculates the next Sunday for resetting the rest day logic
-	private LocalDate getNextSunday(String userTimeZone) {
+	private LocalDateTime getNextSunday(String userTimeZone) {
 		// Get the current date in the user's timezone
 		ZonedDateTime nowInUserZone = ZonedDateTime.now(ZoneId.of(userTimeZone));
-		LocalDate todayInUserZone = nowInUserZone.toLocalDate();
+		LocalDateTime todayInUserZone = nowInUserZone.toLocalDateTime();
 
 		// Calculate the number of days until the next Sunday
 		int todayDayOfWeek = todayInUserZone.getDayOfWeek().getValue();
@@ -234,8 +251,8 @@ public class UserProfileService {
 	// Updates restResetDate if it's older than 7 days
 	@Transactional
 	public void updateRestResetDateIfNeeded(UserProfile userProfile) {
-		LocalDate currentRestResetDate = userProfile.getRestResetDate();
-		LocalDate today = LocalDate.now();
+		LocalDateTime currentRestResetDate = userProfile.getRestResetDate();
+		LocalDateTime today = LocalDateTime.now();
 
 		String userTimeZone = userProfile.getTimeZone(); // Retrieve user's timezone
 		if (currentRestResetDate.isBefore(today.minusDays(7))) {

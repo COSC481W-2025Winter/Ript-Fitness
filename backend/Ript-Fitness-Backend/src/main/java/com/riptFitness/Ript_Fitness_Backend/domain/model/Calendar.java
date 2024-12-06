@@ -2,6 +2,7 @@ package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "calendar_entries")
@@ -16,7 +17,7 @@ public class Calendar {
     private AccountsModel account;
 
     @Column(name = "date", nullable = false)
-    private LocalDate date;
+    private LocalDateTime date;
 
     @Column(name = "activity_type", nullable = false)
     private int activityType;
@@ -28,7 +29,7 @@ public class Calendar {
     public Calendar() {}
 
     // Parameterized Constructor
-    public Calendar(AccountsModel account, LocalDate date, int activityType) {
+    public Calendar(AccountsModel account, LocalDateTime date, int activityType) {
         this.account = account;
         this.date = date;
         this.activityType = activityType;
@@ -51,11 +52,11 @@ public class Calendar {
         this.account = account;
     }
 
-    public LocalDate getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 

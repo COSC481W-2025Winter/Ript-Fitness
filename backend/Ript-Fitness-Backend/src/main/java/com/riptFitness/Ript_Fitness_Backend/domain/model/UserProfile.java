@@ -44,7 +44,7 @@ public class UserProfile {
     private LocalDateTime accountCreatedDate; 
     
     @Column(name = "time_zone", nullable = false)
-    private String timeZone = "GMT"; 
+    private String timeZone = "Etc/GMT+5"; //Eastern US. EasternUS is typically GMT-5, but it should be reversed in this format for some reason.
     
     @OneToOne
     @JoinColumn(name = "account_id", referencedColumnName = "id") 
@@ -60,7 +60,7 @@ public class UserProfile {
     private Integer restDaysLeft; 
 
     @Column(name = "rest_reset_date")
-    private LocalDate restResetDate; 
+    private LocalDateTime restResetDate; 
 
     @Column(name = "rest_reset_day_of_week")
     private Integer restResetDayOfWeek = 7; // Sunday (default reset day)
@@ -72,7 +72,7 @@ public class UserProfile {
     public UserProfile() {
         this.restDays = 3;
         this.restDaysLeft = 3;  
-        LocalDate today = LocalDate.now();
+        LocalDateTime today = LocalDateTime.now();
         int todayDayOfWeek = today.getDayOfWeek().getValue();
         int daysUntilSunday = 7 - todayDayOfWeek;
         
@@ -89,7 +89,7 @@ public class UserProfile {
         this.restDays = 3; 
         this.restDaysLeft = 3;  
         
-        LocalDate today = LocalDate.now();
+        LocalDateTime today = LocalDateTime.now();
         int todayDayOfWeek = today.getDayOfWeek().getValue();
         int daysUntilSunday = 7 - todayDayOfWeek;
         
@@ -219,11 +219,11 @@ public class UserProfile {
         this.restDaysLeft = restDaysLeft;
     }
 
-    public LocalDate getRestResetDate() {
+    public LocalDateTime getRestResetDate() {
         return restResetDate;
     }
 
-    public void setRestResetDate(LocalDate restResetDate) {
+    public void setRestResetDate(LocalDateTime restResetDate) {
         this.restResetDate = restResetDate;
     }
 
