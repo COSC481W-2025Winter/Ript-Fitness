@@ -1,51 +1,165 @@
-import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Ionicons } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { View, StyleSheet, TouchableOpacity, Text, Platform, Image } from "react-native";
+import { useEffect, useState } from "react";
+import { View, StyleSheet, TouchableOpacity, Text, Platform, Image, SafeAreaView } from "react-native";
+import { FlatList } from "react-native-gesture-handler";
 
 const Tab = createMaterialTopTabNavigator();
 
-function FrontendScreen() {
+    
+const data = [
+  {
+    id: 1,
+    name: "Evan Snowgold",
+    imageSrc: require('@/assets/images/team_photos/placeholder.png'),
+    title: "Lead Developer"
+  },
+  {
+    id: 2,
+    name: "Rob Hewison",
+    imageSrc: require('@/assets/images/team_photos/rob.jpg'),
+    title: "Developer"
+  },
+  {
+    id: 3,
+    name: "Natalie Hoang",
+    imageSrc: require('@/assets/images/team_photos/natalie.jpg'),
+    title: "Developer"
+  },
+  {
+    id: 4,
+    name: "Michael Shahine",
+    imageSrc: require('@/assets/images/team_photos/michael.jpg'),
+    title: "Developer"
+  },
+  {
+    id: 5,
+    name: "Ciara Wheeler",
+    imageSrc: require('@/assets/images/team_photos/ciara.jpg'),
+    title: "Developer"
+  },
+  {
+    id: 6,
+    name: "Christopher Pichler",
+    imageSrc: require('@/assets/images/team_photos/christopher_p.png'),
+    title: "Lead Developer"
+  },
+  {
+    id: 7,
+    name: "Tom Van den Bulck",
+    imageSrc: require('@/assets/images/team_photos/tom.jpg'),
+    title: "Co-Lead Developer"
+  },
+  {
+    id: 8,
+    name: "Nathan Halash",
+    imageSrc: require('@/assets/images/team_photos/nathan.jpg'),
+    title: "Developer"
+  },
+  {
+    id: 9,
+    name: "Christopher Martus",
+    imageSrc: require('@/assets/images/team_photos/christopher_m.jpg'),
+    title: "Developer"
+  },
+  {
+    id: 10,
+    name: "Christina Trotta",
+    imageSrc: require('@/assets/images/team_photos/tina.jpg'),
+    title: "Database Developer"
+  },
+];
+
+interface TeamMember {
+  id: number;
+  name: string;
+  imageSrc: any; 
+  title: string;
+}
+
+interface TeamScreenProps {
+  filteredData: TeamMember[];
+}
+
+
+function TeamScreen({ filteredData }: TeamScreenProps) {
+
   return (
-    <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <ThemedText>Front-end</ThemedText>
+    <ThemedView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }} />
+      <FlatList
+        data={filteredData} // Pass filtered data
+        numColumns={2}
+        columnWrapperStyle={{ justifyContent: "space-evenly" }}
+        contentContainerStyle={{ paddingBottom: '25%' }}
+        renderItem={({ item }) => (
+          <View style={{ alignItems: "center", marginVertical: 10 }}>
+            <Image
+              source={item.imageSrc} 
+              style={{ height: 150, width: 150, borderRadius: 100 }}
+            />
+            <Text style={{marginTop: 3, fontWeight: 'bold', fontSize: 15}}>{item.name}</Text>
+            <Text style={{fontSize: 13}}>{item.title}</Text>
+          </View>
+        )}
+      />
     </ThemedView>
   );
 }
 
-function BackendScreen() {
+
+function FrontendScreen() {
+  const frontendMembers = data.filter((item) => item.id <= 5);
+
   return (
-    <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <ThemedText>Back-end</ThemedText>
-    </ThemedView>
+    <TeamScreen filteredData={frontendMembers} />
+  );
+}
+
+function BackendScreen() {
+  const backendMembers = data.filter((item) => item.id > 5);
+
+  return (
+    <TeamScreen filteredData={backendMembers} />
   );
 }
 
 const RiptTeamScreen = ({ navigation }: any) => {
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="black" />
-        </TouchableOpacity>
-        {/* <Text style={styles.title}>Ript Team</Text> */}
+    <View style={{flex: 1,}}>
+      <View style={styles.entireContainer}>
+        {/* Header */}
+        {/* <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={24} color="black" />
+          </TouchableOpacity>
+        </View> */}
+        {/* Top half */}
+        <View style={styles.topContainer}>
+            <View style={{width: '100%', paddingHorizontal: 12,}}>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Ionicons name="arrow-back" size={24} color="black" />
+              </TouchableOpacity>
+              <Text style={styles.heading}>Ript Fitness Team</Text>
+            </View>
+            <Image
+              style={styles.mainImage} 
+              source={require('@/assets/images/team-photo-1.jpg')}/>
+        </View>
+        <View style={{ height: 500 }}>
+          <Tab.Navigator
+            screenOptions={{
+              tabBarLabelStyle: { fontSize: 14, fontWeight: 'bold', color: 'black' },
+              tabBarStyle: { backgroundColor: '#fff' },
+              tabBarIndicatorStyle: { backgroundColor: '#21BFBF', height: 3, },
+            }}
+          >
+            <Tab.Screen name="Front-end" component={FrontendScreen} />
+            <Tab.Screen name="Back-end" component={BackendScreen} />
+          </Tab.Navigator>
+        </View>
       </View>
-      <View>
-        <Text style={styles.heading}>Meet the{"\n"} Ript Fitness Team</Text>
-        <Image />
-      </View>
-      <Tab.Navigator
-      screenOptions={{
-        tabBarLabelStyle: { fontSize: 14, fontWeight: 'bold', color: 'black' },
-        tabBarStyle: { backgroundColor: '#fff' },
-        tabBarIndicatorStyle: { backgroundColor: '#21BFBF', height: 3, },
-      }}
-    >
-      {/* <Tab.Screen name="Home" component={HomeScreen} /> */}
-      <Tab.Screen name="Front-end" component={FrontendScreen} />
-      <Tab.Screen name="Back-end" component={BackendScreen} />
-    </Tab.Navigator>
     </View>
   );
 };
@@ -53,18 +167,25 @@ const RiptTeamScreen = ({ navigation }: any) => {
 export default RiptTeamScreen;
 
 const styles = StyleSheet.create({
-  container: {
+  entireContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    // backgroundColor: 'blue',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
     padding: 12,
-    // borderBottomWidth: 1,
+    borderBottomWidth: 1,
     borderBottomColor: '#ddd',
-    marginTop: Platform.OS === "ios" ? '10%' : 0
+    marginTop: Platform.OS === "ios" ? '10%' : 0,
+    // backgroundColor: 'green'
+  },
+  topContainer: {
+    height: '40%',
+    alignItems: 'center',
+    // justifyContent: 'space-evenly',    
+    marginTop: Platform.OS === "ios" ? '12%' : 0,
   },
   title: { 
     fontSize: 18, 
@@ -72,9 +193,15 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   heading: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: 'bold',
-    alignSelf: 'center',
     textAlign: 'center',
-  }
+    // color: '#21BFBF',
+    paddingBottom: 15,
+  },
+  mainImage: {
+    width: '80%',
+    height: '65%',
+    borderRadius: 10,
+  },
 });

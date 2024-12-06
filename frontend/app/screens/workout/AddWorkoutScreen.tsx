@@ -21,6 +21,7 @@ import CustomChip from '@/components/custom/CustomChip';
 import { WorkoutContext } from '@/context/WorkoutContext';
 import { Text } from 'react-native';
 import CustomSearchBar from '@/components/custom/CustomSearchBar';
+import { center } from '@shopify/react-native-skia';
 
 
 function getColor(type : number) : string  {
@@ -30,7 +31,7 @@ function getColor(type : number) : string  {
   } else if (type == 2) {
     return ("#2493BF")
   } else if (type == 3) {
-    return ("#2493BF")
+    return ("#ECC275")
   }
   return "#fff"
 }
@@ -103,6 +104,7 @@ export function AddWorkoutScreen() {
       const currentExercise = {
         "sets": exercises[i].sets,
         "reps": exercises[i].reps,
+        "weight": exercises[i].weight,
         "nameOfExercise": exercises[i].nameOfExercise,
         "exerciseType": exercises[i].exerciseType
     }
@@ -172,6 +174,7 @@ const addWorkout = () => {
     return;
   }        
   const repNumbers = sets.map((set) => Number(set.reps));
+  const weightNumbers = sets.map(() => 0);  //setting weight to 0 for each set
   setlistID(listID + 1)
   console.log("listID:" + (listID + 1))
   const newExercise : Exercise = {
@@ -179,7 +182,7 @@ const addWorkout = () => {
     sets: sets.length,
     reps: repNumbers,
     nameOfExercise: exerciseName,
-    weight: [],
+    weight: weightNumbers,
     exerciseType: typeOfExercise!,
     description: '',
   };
@@ -325,7 +328,7 @@ const addWorkout = () => {
 
   const sideButtons = [
     {id: '1', icon: 'pencil', func: editWorkout },
-    {id: '2', icon: 'arrow-forward', func: viewWorkoutDetails },
+    // {id: '2', icon: 'arrow-forward', func: viewWorkoutDetails },
   ];
 
   //Instead of Sets, display
@@ -433,6 +436,31 @@ const addWorkout = () => {
 
   return (    
     <View style={styles.totalView}>
+      {/* Workout Name Input */}
+      <View style={{marginTop:10, alignSelf:"center", }}>
+        <View style={styles.workoutNameContainer}>
+          <TextInput
+            placeholder="Workout Name"
+            placeholderTextColor={'#B6B6B6'}
+            autoCapitalize='words'
+            style={styles.inputStyle}
+            onChangeText={setText}
+            onBlur={Keyboard.dismiss}
+            autoFocus={true}
+          />
+        </View>
+      </View>
+      
+      {/* Message/directions for the user */}
+      <View style={{justifyContent: 'center', alignContent: 'center', alignSelf: 'center'}}>
+          {exercises.length === 0 && (
+            <Text style={styles.helperText} numberOfLines={2}>
+              Use the '+' button to add {"\n"} an exercise to your workout.
+            </Text>
+          )}
+      </View>
+
+      {/* Exercise tabs */}
       <View style={styles.flatListView}>
         <DraggableFlatList
           style={styles.flatList}
@@ -440,26 +468,36 @@ const addWorkout = () => {
           renderItem={renderItem}
           keyExtractor={(item, index) => item.listID.toString()}
           onDragEnd={({ data }) => onDragEnd(data)} // Update the order after dragging
-          ListHeaderComponent={
-            <View style={{marginTop:10, alignSelf:"center", }}>
-              <View style={styles.searchContainer}>
-                <TextInput
-                  placeholder="Workout Name"
-                  placeholderTextColor={'#B6B6B6'}
-                  autoCapitalize='words'
-                  style={styles.inputStyle}
-                  onChangeText={setText}
-                  onBlur={Keyboard.dismiss}
-                />
-              </View>
-            </View>
-          }
+          // ListHeaderComponent={
+          //   <View style={{marginTop:10, alignSelf:"center", }}>
+          //     <View style={styles.searchContainer}>
+          //       <TextInput
+          //         placeholder="Workout Name"
+          //         placeholderTextColor={'#B6B6B6'}
+          //         autoCapitalize='words'
+          //         style={styles.inputStyle}
+          //         onChangeText={setText}
+          //         onBlur={Keyboard.dismiss}
+          //         autoFocus={true}
+          //       />
+          //     </View>
+          //   </View>
+          // }
           ListFooterComponent={() => <View style={{ height: submitHeight }} />}
         />
-        <View style={styles.submitView}>
+        {modalComponent}
+      </View>
+
+      
+      {/* Create Workout Button */}
+      <View style={styles.submitView}>
           <TouchableOpacity 
             onPress={submitWorkout} 
-            style={styles.button}
+            style={[
+              styles.button,
+              exercises.length === 0 && styles.buttonDisabled
+            ]}
+            disabled={exercises.length === 0}
           >
             <View style={styles.submitButtonView}>
               <ThemedText 
@@ -469,28 +507,21 @@ const addWorkout = () => {
             </View>
           </TouchableOpacity>
         </View>
-        {modalComponent}
-      </View>
     </View>
-  )
-
+  );
 }
 
 const submitHeight = Dimensions.get("screen").height * 0.09;
 const styles = StyleSheet.create({
-  searchContainer: {
+  workoutNameContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-
-    // borderWidth: 1,
-    borderRadius: 30,
+    // alignItems: 'center',
     padding: 10,
-    // borderColor: 'grey',
     width: '90%',
-    // maxHeight: 70,
-    alignSelf: 'center',
-    marginTop: 10,
-
+    // borderRadius: 3,
+    // alignSelf: 'center',
+    // marginTop: 10,
+    // backgroundColor: 'blue'
   },
   maxWidth: {
     width:'100%',
@@ -555,7 +586,9 @@ test: {
   },
   flatListView:{
     width:'100%',
-    justifyContent: 'space-between'
+    height: '100%',
+    // justifyContent: 'space-between',
+    // backgroundColor: 'pink',
   },
   myWidth: {
     width:'100%',
@@ -586,13 +619,24 @@ test: {
   },
   flatList: {
     //paddingBottom:'100%',
+    height: '90%',
     width:'100%',
+    // backgroundColor: 'red'
   },
   floatLeft: {
     alignSelf:'flex-start',
   },
   floatRight: {
     alignSelf:'flex-end',
+  },
+  helperText: {
+    color: '#666', // grey color
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: '60%'
+    // backgroundColor: 'green'
+    // marginVertical: 10,
+    // paddingTop: 10
   },
   submitView: {
     width:'100%',
@@ -603,6 +647,7 @@ test: {
     height:submitHeight,
     bottom:0,
     padding:10,
+    // backgroundColor: 'gray',
   },
   stepContainer: {
     gap: 8,
@@ -618,11 +663,15 @@ test: {
   button: {
     height:50,
     width:'90%',
-    backgroundColor:'#302c2c',  //submit button color
+    backgroundColor:'#2493BF',  //submit button color
     borderRadius:10,
     textAlign:'center',
     justifyContent:'center',
     alignItems:'center',
+  },
+  buttonDisabled: {
+    // backgroundColor:'#D9D9D9',
+    opacity: 0.5,
   },
   buttonText: {
     textAlign:'center',

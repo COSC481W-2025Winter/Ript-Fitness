@@ -95,6 +95,7 @@ const EditNoteScreen = () => {
       <TextInput
           style={[styles.input, {width: '100%'}]}
           placeholder="Title"
+          placeholderTextColor={'#DAD19D'}
           value={note.title}
           onChangeText={handleChangeTitle}
           maxLength={25}
@@ -103,6 +104,7 @@ const EditNoteScreen = () => {
       <TextInput
         style={[styles.input, styles.textArea, {fontSize: 18 }]}
         placeholder="Note"
+        placeholderTextColor={'#DAD19D'}
         value={note.text}
         onChangeText={handleChangeDescription}
         multiline

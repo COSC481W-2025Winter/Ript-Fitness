@@ -832,33 +832,35 @@ function CustomDrawerContent({ navigation }: any) {
   const context = useContext(GlobalContext);
   return (
     <View style={styles.drawerContent}>
-      <TouchableOpacity
-        style={styles.drawerItem}
-        onPress={() => {
-          // Navigate to Settings screen or handle accordingly
-          drawerNav(navigation);
-          // navigation.navigate('SettingsScreen');
-        }}
-      >
-        <View style={styles.drawerItemTextContainer}>
-          <Ionicons name="settings-outline" size={24} color={'#1E1E1E'} />
-          <Text style={styles.drawerItemText}>Account Settings</Text>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.drawerItem}
-        onPress={() => {
-          // Handle logout logic here
-          navigation.closeDrawer();
-          context?.setToken('');
-          // Perform logout actions
-        }}
-      >
-        <View style={styles.drawerItemTextContainer}>
-          <Ionicons name="log-out-outline" size={24} color={'#1E1E1E'} />
-          <Text style={styles.drawerItemText}>Logout</Text>
-        </View>
-      </TouchableOpacity>
+      <View>
+        <TouchableOpacity
+          style={styles.drawerItem}
+          onPress={() => {
+            // Navigate to Settings screen or handle accordingly
+            drawerNav(navigation);
+            // navigation.navigate('SettingsScreen');
+          }}
+        >
+          <View style={styles.drawerItemTextContainer}>
+            <Ionicons name="settings-outline" size={24} color={'#1E1E1E'} />
+            <Text style={styles.drawerItemText}>Account Settings</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.drawerItem}
+          onPress={() => {
+            // Handle logout logic here
+            navigation.closeDrawer();
+            context?.setToken('');
+            // Perform logout actions
+          }}
+        >
+          <View style={styles.drawerItemTextContainer}>
+            <Ionicons name="log-out-outline" size={24} color={'#1E1E1E'} />
+            <Text style={styles.drawerItemText}>Logout</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
       <TouchableOpacity
         style={styles.drawerItem}
         onPress={() => {
@@ -866,9 +868,9 @@ function CustomDrawerContent({ navigation }: any) {
           aboutUs(navigation);
         }}
       >
-        <View style={styles.drawerItemTextContainer}>
+        <View style={[styles.drawerItemTextContainer, {borderTopWidth: 1, paddingTop: 10, borderBottomWidth: 0}]}>
           <Ionicons name="people-outline" size={24} color={'#1E1E1E'} />
-          <Text style={styles.drawerItemText}>Our Story</Text>
+          <Text style={styles.drawerItemText}>Ript Fitness Team</Text>
         </View>
       </TouchableOpacity>
     </View>
@@ -1279,6 +1281,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 70,
     backgroundColor: '#fff',
+    justifyContent: 'space-between'
   },
   drawerItem: {
     padding: 10,
@@ -1294,6 +1297,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
+    borderTopColor: '#ddd',
     paddingBottom: 10
   },
   postsContainer: {
