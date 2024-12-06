@@ -179,61 +179,6 @@ public class UserProfileService {
 		userRepository.save(userProfile);
 	}
 
-	// Log a rest day for a user
-	public void DepricatedlogRestDay(String username) {
-		UserProfile userProfile = userRepository.findByUsername(username)
-				.orElseThrow(() -> new RuntimeException("User not found with username = " + username));
-
-		// Retrieve the user's preferred timezone
-		String userTimeZone = userProfile.getTimeZone();
-
-		// Current time in GMT
-		LocalDateTime nowInGMT = LocalDateTime.now();
-
-		// Ensure the restResetDate is updated if necessary
-		updateRestResetDateIfNeeded(userProfile);
-
-		// Check the last logged date in the Calendar
-		Optional<Calendar> lastLoggedEntryOpt = calendarRepository
-				.findTopByAccountIdOrderByDateDesc(userProfile.getAccount().getId());
-		
-		if (lastLoggedEntryOpt.isPresent()) {
-			Calendar lastLoggedEntry = lastLoggedEntryOpt.get();
-
-			// Convert last logged date to the timezone it was logged in
-			ZonedDateTime lastLoggedDateInUserZone = lastLoggedEntry.getDate()
-					.atZone(ZoneId.of(lastLoggedEntry.getTimeZoneWhenLogged()));
-
-			// Convert the current time to the user's current timezone
-			LocalDateTime currentDateInUserZone = nowInGMT.atZone(ZoneId.of("GMT")) // From GMT
-					.withZoneSameInstant(ZoneId.of(userTimeZone)) // Convert to the user's current timezone
-					.toLocalDateTime();
-
-			// Check if the last logged date and the current date are one day apart
-			if (!currentDateInUserZone.toLocalDate().minusDays(1).isEqual(lastLoggedDateInUserZone.toLocalDate())) {
-				throw new RuntimeException("Rest day cannot be logged yet.");
-			}
-		}
-
-		// Proceed to log the rest day
-		Calendar restDayEntry = new Calendar();
-		restDayEntry.setAccount(userProfile.getAccount());
-		restDayEntry.setDate(LocalDateTime.now()); // Store date in GMT
-		restDayEntry.setActivityType(2); // 2 for rest day
-		restDayEntry.setTimeZoneWhenLogged(userTimeZone); // Store the user's current timezone
-
-		calendarRepository.save(restDayEntry);
-
-		// Update remaining rest days
-		Integer restDaysLeft = userProfile.getRestDaysLeft();
-		if (restDaysLeft != null && restDaysLeft > 0) {
-			userProfile.setRestDaysLeft(restDaysLeft - 1);
-			userRepository.save(userProfile);
-		} else {
-			throw new RuntimeException("No remaining rest days available for this week.");
-		}
-	}
-
 	// Calculates the next Sunday for resetting the rest day logic
 	private LocalDateTime getNextSunday(String userTimeZone) {
 		// Get the current date in the user's timezone
