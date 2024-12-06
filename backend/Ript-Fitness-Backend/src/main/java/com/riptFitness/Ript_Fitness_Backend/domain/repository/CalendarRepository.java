@@ -22,4 +22,6 @@ public interface CalendarRepository extends JpaRepository<Calendar, Long> {
         @Param("accountId") Long accountId,
         @Param("date") LocalDate date
     );
+    
+    Optional<Calendar> findTopByAccountIdOrderByDateDesc(Long accountId);
 }

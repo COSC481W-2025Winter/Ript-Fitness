@@ -20,6 +20,9 @@ public class Calendar {
 
     @Column(name = "activity_type", nullable = false)
     private int activityType;
+    
+    @Column(name = "time_zone_when_logged", nullable = false)
+    private String timeZoneWhenLogged; // Timezone when the event was logged
 
     // Default Constructor
     public Calendar() {}
@@ -62,5 +65,13 @@ public class Calendar {
 
     public void setActivityType(int activityType) {
         this.activityType = activityType;
+    }
+    
+    public String getTimeZoneWhenLogged() {
+        return timeZoneWhenLogged;
+    }
+
+    public void setTimeZoneWhenLogged(String timeZoneWhenLogged) {
+        this.timeZoneWhenLogged = timeZoneWhenLogged;
     }
 }

@@ -41,7 +41,10 @@ public class UserProfile {
     private String username;
 
     @Column
-    private LocalDateTime accountCreatedDate; // New field
+    private LocalDateTime accountCreatedDate; 
+    
+    @Column(name = "time_zone", nullable = false)
+    private String timeZone = "GMT"; 
     
     @OneToOne
     @JoinColumn(name = "account_id", referencedColumnName = "id") 
@@ -246,5 +249,12 @@ public class UserProfile {
 
     public void setAccountCreatedDate(LocalDateTime accountCreatedDate) {
         this.accountCreatedDate = accountCreatedDate;
+    }
+    public String getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
     }
 }
