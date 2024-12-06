@@ -5,6 +5,7 @@ import { Swipeable } from 'react-native-gesture-handler';
 import { GlobalContext } from "@/context/GlobalContext"; // Access global context
 import { useNavigation } from "@react-navigation/native"; // Navigation
 import { WorkoutScreenNavigationProp } from '@/app/(tabs)/WorkoutStack';
+import StreakHeader from '@/components/StreakHeader';
 
 
 
@@ -323,14 +324,37 @@ const confirmDeleteExercise = (exerciseIndex: number) => {
         {/* Render each set for the exercise */}
         <View style={styles.inputRow}>
           <Text style={[styles.exerciseSets, styles.leftColumn]}>Set</Text>
-          <Text style={[styles.exerciseSets, styles.leftColumn]}>   Weight</Text>
-          <Text style={[styles.exerciseSets, styles.leftColumn]}>Reps</Text>
+          <Text style={[styles.exerciseSets, styles.leftColumn]}>    Reps</Text>
+          <Text style={[styles.exerciseSets, styles.leftColumn]}>Weight</Text>
         </View>
         
         {Array.from({ length: item.sets }).map((_, setIndex) => (
           <View key={setIndex} style={styles.setContainer}>
             <View style={styles.inputRow}>
             <Text style={[styles.setLabel, styles.leftColumn]}>{setIndex + 1}</Text>
+
+             {/* Input for reps */}
+             <View style={[styles.setInputContainer, styles.rightColumn]}>
+                {/* <Text style={[styles.inputLabel, styles.rightColumn]}>Reps</Text> */}
+                <TextInput
+                  style={styles.input}
+                  placeholder="reps"
+                  value={item.reps[setIndex]?.toString() || ""}
+                  onChangeText={(text) => {
+                    const updatedReps = [...item.reps];
+                    updatedReps[setIndex] = parseInt(text) || 0;
+                    setExercises(
+                      exercises.map((exercise, i) =>
+                        i === index
+                          ? { ...exercise, reps: updatedReps }
+                          : exercise
+                      )
+                    );
+                  }}
+                  keyboardType="numeric"
+                />
+              </View>
+
               {/* Input for weight */}
               <View style={[styles.setInputContainer, styles.rightColumn]}>
                 {/* <Text style={[styles.inputLabel, styles.rightColumn]}>Weight</Text> */}
@@ -352,29 +376,7 @@ const confirmDeleteExercise = (exerciseIndex: number) => {
                   keyboardType="numeric"
                 />
               </View>
- 
-              {/* Input for reps */}
-              <View style={[styles.setInputContainer, styles.rightColumn]}>
-                {/* <Text style={[styles.inputLabel, styles.rightColumn]}>Reps</Text> */}
-                <TextInput
-                  style={styles.input}
-                  placeholder="reps"
-                  value={item.reps[setIndex]?.toString() || ""}
-                  onChangeText={(text) => {
-                    const updatedReps = [...item.reps];
-                    updatedReps[setIndex] = parseInt(text) || 0;
-                    setExercises(
-                      exercises.map((exercise, i) =>
-                        i === index
-                          ? { ...exercise, reps: updatedReps }
-                          : exercise
-                      )
-                    );
-                  }}
-                  keyboardType="numeric"
-                />
-              </View>
- 
+
               {/* Delete set button */}
               <TouchableOpacity
                 onPress={() => confirmDeleteSet(index, setIndex)} // Pass both exercise index and set index
@@ -586,7 +588,7 @@ const styles = StyleSheet.create({
     // borderColor: "gray",
     // borderWidth: 1,
     // paddingHorizontal: 10,
-    marginBottom: 5,
+    marginBottom: 2,
     borderRadius: 8,
     width: '80%',
     fontWeight: 'bold',
@@ -628,6 +630,7 @@ const styles = StyleSheet.create({
  
 return (
   <View style={styles.container}>
+    <StreakHeader></StreakHeader>
     {/* Notes button */}
     <View style={styles.topRow}>
     <View style={styles.namesRow}>
@@ -705,11 +708,11 @@ return (
 
 
     {/* Exercise list */}
-    <FlatList
-      data={exercises}
-      keyExtractor={(_, index) => index.toString()} // Use the index as the unique key
-      renderItem={renderExercise} // Use the updated renderExercise function
-    />
+      <FlatList
+        data={exercises}
+        keyExtractor={(_, index) => index.toString()} // Use the index as the unique key
+        renderItem={renderExercise} // Use the updated renderExercise function
+      />
 
 
     {/* Submit button */}
