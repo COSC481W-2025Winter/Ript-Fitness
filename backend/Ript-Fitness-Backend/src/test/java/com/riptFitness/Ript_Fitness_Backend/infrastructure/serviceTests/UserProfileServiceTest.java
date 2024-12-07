@@ -48,48 +48,53 @@ public class UserProfileServiceTest {
 
 	@BeforeEach
 	public void setUp() {
-		MockitoAnnotations.openMocks(this);
+	    MockitoAnnotations.openMocks(this);
 
-		userDto = new UserDto();
-		userDto.setFirstName("Tom");
-		userDto.setLastName("Van");
-		userDto.setDeleted(false);
+	    userDto = new UserDto();
+	    userDto.setFirstName("Tom");
+	    userDto.setLastName("Van");
+	    userDto.setDeleted(false);
+	    userDto.setTimeZone("America/New_York"); 
 
-		userProfile = new UserProfile();
-		userProfile.setId(1L);
-		userProfile.setFirstName("Tom");
-		userProfile.setLastName("Van");
-		userProfile.setDeleted(false);
-		userProfile.setRestDays(3);
-		userProfile.setRestDaysLeft(3);
-		userProfile.setRestResetDate(LocalDateTime.now());
+	    userProfile = new UserProfile();
+	    userProfile.setId(1L);
+	    userProfile.setFirstName("Tom");
+	    userProfile.setLastName("Van");
+	    userProfile.setDeleted(false);
+	    userProfile.setRestDays(3);
+	    userProfile.setRestDaysLeft(3);
+	    userProfile.setRestResetDate(LocalDateTime.now());
+	    userProfile.setTimeZone("America/New_York"); 
 
-		when(userProfileMapper.toUser(any(UserDto.class))).thenReturn(userProfile);
-		when(userProfileMapper.toUserDto(any(UserProfile.class))).thenReturn(userDto);
+	    when(userProfileMapper.toUser(any(UserDto.class))).thenReturn(userProfile);
+	    when(userProfileMapper.toUserDto(any(UserProfile.class))).thenReturn(userDto);
 	}
 
 	@Test
 	public void testAddUser() {
-		when(userProfileRepository.save(any(UserProfile.class))).thenReturn(userProfile);
+	    when(userProfileRepository.save(any(UserProfile.class))).thenReturn(userProfile);
 
-		UserDto savedUser = userProfileService.addUser(userDto, "tom.van");
+	    UserDto savedUser = userProfileService.addUser(userDto, "tom.van");
 
-		assertNotNull(savedUser);
-		assertEquals("Tom", savedUser.getFirstName());
-		assertEquals("Van", savedUser.getLastName());
+	    assertNotNull(savedUser);
+	    assertEquals("Tom", savedUser.getFirstName());
+	    assertEquals("Van", savedUser.getLastName());
+	    assertEquals("America/New_York", savedUser.getTimeZone()); 
 	}
 
 	@Test
 	public void testGetUserByUsername() {
-		when(userProfileRepository.findByUsername(any(String.class))).thenReturn(Optional.of(userProfile));
+	    userProfile.setTimeZone("America/New_York"); 
+	    when(userProfileRepository.findByUsername(any(String.class))).thenReturn(Optional.of(userProfile));
 
-		UserDto foundUser = userProfileService.getUserByUsername("tom.van");
+	    UserDto foundUser = userProfileService.getUserByUsername("tom.van");
 
-		assertNotNull(foundUser);
-		assertEquals("Tom", foundUser.getFirstName());
-		assertEquals("Van", foundUser.getLastName());
+	    assertNotNull(foundUser);
+	    assertEquals("Tom", foundUser.getFirstName());
+	    assertEquals("Van", foundUser.getLastName());
+	    assertEquals("America/New_York", foundUser.getTimeZone()); 
 	}
-
+	
 	@Test
 	public void testGetUserNotFoundByUsername() {
 		when(userProfileRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
@@ -144,13 +149,17 @@ public class UserProfileServiceTest {
 
 	@Test
 	public void testLogRestDaySuccess() {
-		userProfile.setRestDaysLeft(2);
-		userProfile.setRestResetDate(LocalDateTime.now().minusDays(8)); // Ensure the reset date is outdated
-		when(userProfileRepository.findByUsername(any(String.class))).thenReturn(Optional.of(userProfile));
+	    userProfile.setRestDaysLeft(2);
+	    userProfile.setRestResetDate(LocalDateTime.now().minusDays(8)); // Ensure the reset date is outdated
+	    userProfile.setTimeZone("America/New_York"); // Set timezone
 
-		userProfileService.updateRestResetDateIfNeeded(userProfile);
-		verify(userProfileRepository, times(1)).save(userProfile);
-		assertEquals(userProfile.getRestDays(), userProfile.getRestDaysLeft());
+	    when(userProfileRepository.findByUsername(any(String.class))).thenReturn(Optional.of(userProfile));
+
+	    userProfileService.updateRestResetDateIfNeeded(userProfile);
+
+	    verify(userProfileRepository, times(1)).save(userProfile);
+	    assertEquals(userProfile.getRestDays(), userProfile.getRestDaysLeft());
+	    assertEquals("America/New_York", userProfile.getTimeZone()); // Assert timezone remains unchanged
 	}
 
 	@Test
