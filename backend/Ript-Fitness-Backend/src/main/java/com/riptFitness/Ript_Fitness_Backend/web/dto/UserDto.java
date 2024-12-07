@@ -1,6 +1,5 @@
 package com.riptFitness.Ript_Fitness_Backend.web.dto;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class UserDto {

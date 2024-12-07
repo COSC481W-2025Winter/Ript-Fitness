@@ -101,10 +101,6 @@ public class UserProfileService {
             userRepository.save(userProfile);
         }
 	}
-
-	
-	
-	
 	
 	// Edits user profile by username
 	public UserDto updateUserByUsername(String username, UserDto userDto) {
@@ -157,7 +153,6 @@ public class UserProfileService {
 	        }
 	    }
 	}
-
 
 	// Soft-deletes user profile by username
 	public UserDto softDeleteUserByUsername(String username) {
