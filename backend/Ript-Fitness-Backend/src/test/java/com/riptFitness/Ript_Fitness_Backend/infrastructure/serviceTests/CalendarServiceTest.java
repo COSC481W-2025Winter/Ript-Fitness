@@ -66,7 +66,7 @@ public class CalendarServiceTest {
 		userProfile.setTimeZone("Etc/GMT+5"); // Set a default time zone
 
 		// Mock a calendar entry
-		calendarEntry = new Calendar(account, LocalDateTime.now(), 1); // Activity type 1 = Workout
+		calendarEntry = new Calendar(account, LocalDateTime.now(), 1, "Etc/GMT+5"); // Activity type 1 = Workout
 		calendarEntry.setTimeZoneWhenLogged("Etc/GMT+5"); // Set the time zone for calendar entries
 
 		// Mock repository responses
@@ -78,18 +78,18 @@ public class CalendarServiceTest {
 	@Test
 	public void testLogWorkoutDay() {
 		when(calendarRepository.findTopByAccountIdOrderByDateDesc(1L)).thenReturn(Optional.empty());
-		calendarService.logWorkoutDay();
+		calendarService.logWorkoutDay("Etc/GMT+5");
 		verify(calendarRepository, times(1)).save(any(Calendar.class));
 	}
 
 	@Test
 	public void testLogWorkoutDayAlreadyLogged() {
-		Calendar existingEntry = new Calendar(account, LocalDateTime.now(), 1); // Activity type 1 = Workout
+		Calendar existingEntry = new Calendar(account, LocalDateTime.now(), 1, "Etc/GMT+5"); // Activity type 1 = Workout
 		existingEntry.setTimeZoneWhenLogged("Etc/GMT+5"); // Set a valid time zone
 		when(calendarRepository.findTopByAccountIdOrderByDateDesc(1L)).thenReturn(Optional.of(existingEntry));
 
 		IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-			calendarService.logWorkoutDay();
+			calendarService.logWorkoutDay("Etc/GMT+5");
 		});
 
 		assertEquals("Rest day already logged for this date.", exception.getMessage());
@@ -101,7 +101,7 @@ public class CalendarServiceTest {
 		when(calendarRepository.findTopByAccountIdOrderByDateDesc(1L)).thenReturn(Optional.empty());
 		when(userProfileRepository.findUserProfileByAccountId(1L)).thenReturn(Optional.of(userProfile));
 
-		calendarService.logRestDay();
+		calendarService.logRestDay("Etc/GMT+5");
 
 		verify(calendarRepository, times(1)).save(any(Calendar.class));
 		assertEquals(1, userProfile.getRestDaysLeft());
@@ -113,7 +113,7 @@ public class CalendarServiceTest {
 		when(userProfileRepository.findUserProfileByAccountId(1L)).thenReturn(Optional.of(userProfile));
 
 		IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-			calendarService.logRestDay();
+			calendarService.logRestDay("Etc/GMT+5");
 		});
 
 		assertEquals("No rest days left for this week.", exception.getMessage());
@@ -121,12 +121,12 @@ public class CalendarServiceTest {
 
 	@Test
 	public void testLogRestDayAlreadyLogged() {
-		Calendar existingEntry = new Calendar(account, LocalDateTime.now(), 2); // Activity type 2 = Rest day
+		Calendar existingEntry = new Calendar(account, LocalDateTime.now(), 2, "Etc/GMT+5"); // Activity type 2 = Rest day
 		existingEntry.setTimeZoneWhenLogged("Etc/GMT+5"); // Ensure the time zone is set
 		when(calendarRepository.findTopByAccountIdOrderByDateDesc(1L)).thenReturn(Optional.of(existingEntry));
 
 		IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-			calendarService.logRestDay();
+			calendarService.logRestDay("Etc/GMT+5");
 		});
 
 		assertEquals("Rest day already logged for this date.", exception.getMessage());

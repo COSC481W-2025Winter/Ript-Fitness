@@ -29,10 +29,11 @@ public class Calendar {
     public Calendar() {}
 
     // Parameterized Constructor
-    public Calendar(AccountsModel account, LocalDateTime date, int activityType) {
+    public Calendar(AccountsModel account, LocalDateTime date, int activityType, String timeZoneWhenLogged) {
         this.account = account;
         this.date = date;
         this.activityType = activityType;
+        this.timeZoneWhenLogged = timeZoneWhenLogged;
     }
 
     // Getters and Setters
