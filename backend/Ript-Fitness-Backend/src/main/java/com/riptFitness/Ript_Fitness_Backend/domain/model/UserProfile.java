@@ -44,7 +44,7 @@ public class UserProfile {
     private LocalDateTime accountCreatedDate; 
     
     @Column(name = "time_zone", nullable = false)
-    private String timeZone = "America_NewYork"; //Eastern US.
+    private String timeZone = "America/New_York"; //Eastern US.
     
     @OneToOne
     @JoinColumn(name = "account_id", referencedColumnName = "id") 
