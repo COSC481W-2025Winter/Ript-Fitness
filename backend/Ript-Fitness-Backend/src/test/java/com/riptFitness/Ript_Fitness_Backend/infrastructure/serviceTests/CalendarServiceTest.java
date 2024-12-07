@@ -92,7 +92,7 @@ public class CalendarServiceTest {
 			calendarService.logWorkoutDay("Etc/GMT+5");
 		});
 
-		assertEquals("Rest day already logged for this date.", exception.getMessage());
+		assertEquals("Something was already logged for this day.", exception.getMessage());
 	}
 
 	@Test
@@ -129,20 +129,29 @@ public class CalendarServiceTest {
 			calendarService.logRestDay("Etc/GMT+5");
 		});
 
-		assertEquals("Rest day already logged for this date.", exception.getMessage());
+		assertEquals("Something was already logged for this day.", exception.getMessage());
 	}
 
 	@Test
 	public void testGetMonth() {
-		when(calendarRepository.findByAccountIdAndDateBetween(1L, LocalDateTime.of(2024, 11, 1, 0, 0),
-				LocalDateTime.of(2024, 11, 30, 23, 59))).thenReturn(List.of(calendarEntry));
+	    LocalDateTime startDate = LocalDateTime.of(2023, 12, 1, 0, 0);
+	    LocalDateTime endDate = LocalDateTime.of(2023, 12, 31, 23, 59);
 
-		List<CalendarDto> calendarDtos = calendarService.getMonth(LocalDateTime.of(2024, 11, 1, 0, 0),
-				LocalDateTime.of(2024, 11, 30, 23, 59));
+	    Calendar calendarEntry = new Calendar();
+	    calendarEntry.setDate(LocalDateTime.of(2023, 12, 5, 12, 0));
+	    calendarEntry.setActivityType(1);
+	    calendarEntry.setTimeZoneWhenLogged("America/New_York");
 
-		assertNotNull(calendarDtos);
-		assertEquals(1, calendarDtos.size());
-		assertEquals(calendarEntry.getDate(), calendarDtos.get(0).getDate());
-		assertEquals(1, calendarDtos.get(0).getActivityType());
+	    when(calendarRepository.findByAccountIdAndDateBetween(anyLong(), eq(startDate), eq(endDate)))
+	        .thenReturn(List.of(calendarEntry));
+
+	    List<CalendarDto> result = calendarService.getMonth(startDate, endDate);
+
+	    assertNotNull(result);
+	    assertEquals(1, result.size());
+	    assertEquals("America/New_York", result.get(0).getTimeZoneWhenLogged());
+	    assertEquals(1, result.get(0).getActivityType());
+	    assertEquals(LocalDateTime.of(2023, 12, 5, 12, 0), result.get(0).getDate());
 	}
+
 }
