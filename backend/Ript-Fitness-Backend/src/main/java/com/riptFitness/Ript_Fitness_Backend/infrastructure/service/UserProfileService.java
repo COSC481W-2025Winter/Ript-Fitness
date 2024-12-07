@@ -274,19 +274,8 @@ public class UserProfileService {
 				.orElseThrow(() -> new RuntimeException("User not found"));
 
 		List<String> allPhotos = azureBlobService.listPhotos(username, startIndex, endIndex);
-
-		// Paginate results
-		int toIndex = Math.min(endIndex, allPhotos.size());
-		if (startIndex >= allPhotos.size()) {
-			return Collections.emptyList(); // No results in range
-		}
-		// Generate SAS URLs for the photos in the range
-		return allPhotos.subList(startIndex, toIndex).stream().peek(photo -> {
-			String blobName = photo; // Assuming `photo` contains the blob name
-
-			String sasUrl = azureBlobService.generateSasUrl(blobName);
-			photo = sasUrl; // Assuming `Photo` has a `photoUrl` field for the SAS URL
-		}).collect(Collectors.toList());
+		
+		return allPhotos;
 	}
 
 	// Delete private photo

@@ -27,6 +27,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -76,31 +77,31 @@ public class AzureBlobService {
 
 
     public List<String> listPhotos(String username, int startIndex, int endIndex) {
-        List<String> photoUrls = new ArrayList<>();
-        int currentIndex = 0;
-
-        // Specify to include metadata but exclude deleted blobs
+        List<String> allUserPhotos = new ArrayList<>();
         BlobListDetails details = new BlobListDetails().setRetrieveDeletedBlobs(true);
         ListBlobsOptions options = new ListBlobsOptions().setDetails(details);
 
         for (BlobItem blobItem : getContainerClient().listBlobs(options, null)) {
-            // Skip deleted blobs
-            if (blobItem.isDeleted()) {
-                continue;
+            if (!blobItem.isDeleted() && blobItem.getName().startsWith(username + "/")) {
+                allUserPhotos.add(blobItem.getName());
             }
+        }
 
-            String blobName = blobItem.getName();
-            if (blobName.startsWith(username + "/")) {
-                if (currentIndex >= startIndex && currentIndex < endIndex) {
-                    String sasUrl = generateSasUrl(blobName);
-                    photoUrls.add(sasUrl);
-                }
-                currentIndex++;
-                if (currentIndex >= endIndex) break;
-            }
+        // Reverse the list to get the newest (or lexicographically last) first
+        Collections.reverse(allUserPhotos);
+
+        // Now slice according to startIndex and endIndex
+        int fromIndex = Math.min(startIndex, allUserPhotos.size());
+        int toIndex = Math.min(endIndex, allUserPhotos.size());
+
+        List<String> slicedNames = allUserPhotos.subList(fromIndex, toIndex);
+        List<String> photoUrls = new ArrayList<>();
+        for (String blobName : slicedNames) {
+            photoUrls.add(generateSasUrl(blobName));
         }
         return photoUrls;
     }
+
 
 
 
