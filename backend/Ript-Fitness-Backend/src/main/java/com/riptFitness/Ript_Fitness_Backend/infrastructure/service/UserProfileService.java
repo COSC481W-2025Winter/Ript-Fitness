@@ -1,6 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
 import java.net.MalformedURLException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -71,13 +72,14 @@ public class UserProfileService {
 
 	// Retrieves user profile by username
 	public UserDto getUserByUsername(String username) {
-		return userRepository.findByUsername(username).map(user -> {
-			updateRestDays(user); //update rest days for the user before returning
-			UserDto userDto = UserProfileMapper.INSTANCE.toUserDto(user);
-			userDto.setProfilePicture(user.getProfilePicture());
-			return userDto;
-		}).orElseThrow(() -> new RuntimeException("User not found with username = " + username));
+	    return userRepository.findByUsername(username).map(user -> {
+	        updateRestDays(user);
+	        UserDto userDto = UserProfileMapper.INSTANCE.toUserDto(user);
+	        userDto.setTimeZone(user.getTimeZone()); 
+	        return userDto;
+	    }).orElseThrow(() -> new RuntimeException("User not found with username = " + username));
 	}
+
 	
 	private void updateRestDays(UserProfile userProfile) {
 		ZonedDateTime zonedDateTime = LocalDateTime.now().atZone(ZoneId.of("GMT")).withZoneSameInstant(ZoneId.of(userProfile.getTimeZone()));
@@ -119,34 +121,43 @@ public class UserProfileService {
 
 	// Update the profile fields based on UserDto, including profile picture
 	private void updateProfileFields(UserProfile userProfile, UserDto userDto) {
-		if (userDto.getFirstName() != null) {
-			userProfile.setFirstName(userDto.getFirstName());
-		}
-		if (userDto.getLastName() != null) {
-			userProfile.setLastName(userDto.getLastName());
-		}
-		if (userDto.getDisplayname() != null) {
-			userProfile.setDisplayName(userDto.getDisplayname());
-		}
-		if (userDto.getBio() != null) {
-			userProfile.setBio(userDto.getBio());
-		}
-		if (userDto.getRestDays() != null) {
-			userProfile.setRestDays(userDto.getRestDays());
-		}
-		if (userDto.getRestDaysLeft() != null) {
-			userProfile.setRestDaysLeft(userDto.getRestDaysLeft());
-		}
-		if (userDto.getRestResetDate() != null) {
-			userProfile.setRestResetDate(userDto.getRestResetDate());
-		}
-		if (userDto.getRestResetDayOfWeek() != null) {
-			userProfile.setRestResetDayOfWeek(userDto.getRestResetDayOfWeek());
-		}
-		if (userDto.getProfilePicture() != null) {
-			userProfile.setProfilePicture(userDto.getProfilePicture()); // Update profile picture
-		}
+	    if (userDto.getFirstName() != null) {
+	        userProfile.setFirstName(userDto.getFirstName());
+	    }
+	    if (userDto.getLastName() != null) {
+	        userProfile.setLastName(userDto.getLastName());
+	    }
+	    if (userDto.getDisplayname() != null) {
+	        userProfile.setDisplayName(userDto.getDisplayname());
+	    }
+	    if (userDto.getBio() != null) {
+	        userProfile.setBio(userDto.getBio());
+	    }
+	    if (userDto.getRestDays() != null) {
+	        userProfile.setRestDays(userDto.getRestDays());
+	    }
+	    if (userDto.getRestDaysLeft() != null) {
+	        userProfile.setRestDaysLeft(userDto.getRestDaysLeft());
+	    }
+	    if (userDto.getRestResetDate() != null) {
+	        userProfile.setRestResetDate(userDto.getRestResetDate());
+	    }
+	    if (userDto.getRestResetDayOfWeek() != null) {
+	        userProfile.setRestResetDayOfWeek(userDto.getRestResetDayOfWeek());
+	    }
+	    if (userDto.getProfilePicture() != null) {
+	        userProfile.setProfilePicture(userDto.getProfilePicture());
+	    }
+	    if (userDto.getTimeZone() != null) {
+	        try {
+	            ZoneId.of(userDto.getTimeZone());
+	            userProfile.setTimeZone(userDto.getTimeZone());
+	        } catch (DateTimeException e) {
+	            throw new RuntimeException("Invalid timeZone: " + userDto.getTimeZone());
+	        }
+	    }
 	}
+
 
 	// Soft-deletes user profile by username
 	public UserDto softDeleteUserByUsername(String username) {

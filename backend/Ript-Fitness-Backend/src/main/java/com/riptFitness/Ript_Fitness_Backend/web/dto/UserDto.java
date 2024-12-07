@@ -17,6 +17,7 @@ public class UserDto {
     public Integer restResetDayOfWeek;
     public byte[] profilePicture; 
     private LocalDateTime accountCreatedDate; 
+    private String timeZone; 
 
 
     // Getters and Setters
@@ -130,6 +131,14 @@ public class UserDto {
 
     public void setAccountCreatedDate(LocalDateTime accountCreatedDate) {
         this.accountCreatedDate = accountCreatedDate;
+    }
+    
+    public String getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
     }
 
 }
