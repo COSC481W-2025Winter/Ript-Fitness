@@ -34,8 +34,16 @@ public class CalendarService {
 
     @Autowired
     private UserProfileRepository userProfileRepository;
+    
+    private void validateTimeZone(String timeZone) {
+        // Convert the array to a list and check if it contains the timeZone
+        if (!java.util.Arrays.asList(java.util.TimeZone.getAvailableIDs()).contains(timeZone)) {
+            throw new IllegalArgumentException("Invalid time zone: " + timeZone);
+        }
+    }
 
-    public void logWorkoutDay() { 
+
+    public void logWorkoutDay(String timezone) { 
         Long accountId = accountsService.getLoggedInUserId();
 
         AccountsModel account = accountsRepository.findById(accountId)
@@ -45,11 +53,12 @@ public class CalendarService {
         UserProfile userProfile = userProfileRepository.findUserProfileByAccountId(accountId)
             .orElseThrow(() -> new IllegalStateException("User profile not found for account ID: " + accountId));
 
-
+        validateTimeZone(timezone);
+        
         LocalDateTime localNow = LocalDateTime.now(); //Now in GMT
         
         //Get the user's zone ID. Default to Eastern US
-        ZoneId userZoneId = userProfile.getTimeZone() != null 
+        ZoneId userZoneId = (userProfile.getTimeZone() != null && !userProfile.getTimeZone().equals(""))
         	    ? ZoneId.of(userProfile.getTimeZone()) 
         	    : ZoneId.of("Etc/GMT+5");
         
@@ -82,11 +91,11 @@ public class CalendarService {
 		//Removed resetting rest days here. No need to do it if it's added to getUserProfile
 
 
-        Calendar workoutEntry = new Calendar(account, localNow, 1); // Activity type 1 for workout
+        Calendar workoutEntry = new Calendar(account, localNow, 1, timezone); // Activity type 1 for workout
         calendarRepository.save(workoutEntry);
     }
 
-    public void logRestDay() { 
+    public void logRestDay(String timezone) { 
         Long accountId = accountsService.getLoggedInUserId();
 
         AccountsModel account = accountsRepository.findById(accountId)
@@ -96,11 +105,12 @@ public class CalendarService {
         UserProfile userProfile = userProfileRepository.findUserProfileByAccountId(accountId)
             .orElseThrow(() -> new IllegalStateException("User profile not found for account ID: " + accountId));
 
+        validateTimeZone(timezone);
 
         LocalDateTime localNow = LocalDateTime.now(); //Now in GMT
         
         //Get the user's zone ID. Default to Eastern US
-        ZoneId userZoneId = userProfile.getTimeZone() != null 
+        ZoneId userZoneId = (userProfile.getTimeZone() != null && !userProfile.getTimeZone().equals(""))
         	    ? ZoneId.of(userProfile.getTimeZone()) 
         	    : ZoneId.of("Etc/GMT+5");
         
@@ -152,7 +162,7 @@ public class CalendarService {
         userProfileRepository.save(userProfile);
 
         // Log the rest day in the calendar
-        Calendar restDayEntry = new Calendar(account, localNow, 2); // Activity type 2 for rest day
+        Calendar restDayEntry = new Calendar(account, localNow, 2, timezone); // Activity type 2 for rest day
         calendarRepository.save(restDayEntry);
     }
 

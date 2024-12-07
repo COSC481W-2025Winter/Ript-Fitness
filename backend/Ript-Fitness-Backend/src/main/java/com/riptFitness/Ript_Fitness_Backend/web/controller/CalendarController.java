@@ -21,13 +21,15 @@ public class CalendarController {
     private CalendarService calendarService;
 
     @PostMapping("/logWorkout")
-    public void logWorkout() { // Removed date parameter
-        calendarService.logWorkoutDay();
+    public void logWorkout(@RequestParam String timeZone) {
+        // Validate the timeZone string (optional)
+        calendarService.logWorkoutDay(timeZone);
     }
 
     @PostMapping("/logRestDay")
-    public void logRestDay() { // Removed date parameter
-        calendarService.logRestDay();
+    public void logRestDay(@RequestParam String timeZone) {
+        // Validate the timeZone string (optional)
+        calendarService.logRestDay(timeZone);
     }
 
     @GetMapping("/getMonth")
