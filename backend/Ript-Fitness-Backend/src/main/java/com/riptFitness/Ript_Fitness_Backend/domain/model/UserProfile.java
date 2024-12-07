@@ -44,7 +44,7 @@ public class UserProfile {
     private LocalDateTime accountCreatedDate; 
     
     @Column(name = "time_zone", nullable = false)
-    private String timeZone = "Etc/GMT+5"; //Eastern US. EasternUS is typically GMT-5, but it should be reversed in this format for some reason.
+    private String timeZone = "America_NewYork"; //Eastern US.
     
     @OneToOne
     @JoinColumn(name = "account_id", referencedColumnName = "id") 
