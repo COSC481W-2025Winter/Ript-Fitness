@@ -61,17 +61,22 @@ public class CalendarControllerTest {
 
 	@Test
 	public void testGetMonth() throws Exception {
-		// Use LocalDateTime instead of LocalDate for CalendarDto
-		CalendarDto calendarDto = new CalendarDto(LocalDateTime.parse("2024-11-01T00:00:00"), 1);
+	    CalendarDto calendarDto = new CalendarDto(LocalDateTime.parse("2024-11-01T00:00:00"), 1, "America/New_York");
 
-		// Mock the getMonth method of the CalendarService
-		when(calendarService.getMonth(any(LocalDateTime.class), any(LocalDateTime.class)))
-				.thenReturn(List.of(calendarDto));
+	    when(calendarService.getMonth(any(LocalDateTime.class), any(LocalDateTime.class)))
+	            .thenReturn(List.of(calendarDto));
 
-		mockMvc.perform(get("/calendar/getMonth").param("startYear", "2024").param("startMonth", "11")
-				.param("endYear", "2024").param("endMonth", "11").header("Authorization", "Bearer test-token")
-				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-				.andExpect(jsonPath("$[0].date").value("2024-11-01T00:00:00")) // Check the date value
-				.andExpect(jsonPath("$[0].activityType").value(1)); // Check the activityType value
+	    mockMvc.perform(get("/calendar/getMonth")
+	            .param("startYear", "2024")
+	            .param("startMonth", "11")
+	            .param("endYear", "2024")
+	            .param("endMonth", "11")
+	            .header("Authorization", "Bearer test-token")
+	            .contentType(MediaType.APPLICATION_JSON))
+	            .andExpect(status().isOk())
+	            .andExpect(jsonPath("$[0].date").value("2024-11-01T00:00:00")) // Check the date value
+	            .andExpect(jsonPath("$[0].activityType").value(1)) // Check the activityType value
+	            .andExpect(jsonPath("$[0].timeZoneWhenLogged").value("America/New_York")); // Check the new timezone field
 	}
+
 }
