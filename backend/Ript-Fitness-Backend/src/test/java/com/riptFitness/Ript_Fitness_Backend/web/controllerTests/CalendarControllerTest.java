@@ -49,13 +49,13 @@ public class CalendarControllerTest {
 
 	@Test
 	public void testLogWorkoutDay() throws Exception {
-		mockMvc.perform(post("/calendar/logWorkout").header("Authorization", "Bearer test-token")
+		mockMvc.perform(post("/calendar/logWorkout?timeZone=Etc/GMT%2B5").header("Authorization", "Bearer test-token")
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
 	}
 
 	@Test
 	public void testLogRestDay() throws Exception {
-		mockMvc.perform(post("/calendar/logRestDay").header("Authorization", "Bearer test-token")
+		mockMvc.perform(post("/calendar/logRestDay?timeZone=Etc/GMT%2B5").header("Authorization", "Bearer test-token")
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
 	}
 
