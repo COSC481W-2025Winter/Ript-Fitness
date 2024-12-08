@@ -613,18 +613,6 @@ function PostsScreen() {
     }
   }
 
-  const formatTimestamp = (timestamp: string): string => {
-    const date = new Date(timestamp);
-    return date.toLocaleString(undefined, {
-      year: 'numeric',
-      month: 'numeric',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true, // converts to 12 hour format
-    });
-  };
-
   const waitForLikeHandlersEmpty = async (): Promise<void> =>  {
     return new Promise((resolve) => {
       const checkIfEmpty = () => {
@@ -684,7 +672,7 @@ function PostsScreen() {
             <Ionicons name="heart" size={24} color={post.userIDsOfLikes.includes(Number(context?.userProfile.id)) ? "#FF3B30" : "#B1B6C0"} />
             <Text style={styles.likeCounter}>{post.userIDsOfLikes.length}</Text>
           </TouchableOpacity>
-          <Text style={styles.dateText}>{formatTimestamp(post.dateTimeCreated)}</Text>
+          <Text style={styles.dateText}>{TimeZone.convertToTimeZone(post.dateTimeCreated, TimeZone.get())}</Text>
         </View>
       </View>
     </View>
