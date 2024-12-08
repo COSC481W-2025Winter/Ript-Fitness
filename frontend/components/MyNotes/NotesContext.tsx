@@ -1,4 +1,5 @@
 import { httpRequests } from '@/api/httpRequests';
+import TimeZone from '@/api/timeZone';
 import { GlobalContext } from '@/context/GlobalContext';
 import React, { createContext, useContext, useState } from 'react';
 
@@ -16,6 +17,7 @@ interface NotesContextType {
   updateNote: (updatedNote: Note) => void;
   deleteNote: (noteId: string) => void;
   fetchNotes: () => Promise<void>;
+  // loading: boolean;
 }
 
 const NotesContext = createContext<NotesContextType | undefined>(undefined);
@@ -23,9 +25,12 @@ const NotesContext = createContext<NotesContextType | undefined>(undefined);
 export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const context = useContext(GlobalContext);
   const [notes, setNotes] = useState<Note[]>([]);
-
+  // const [loading, setLoading] = useState<boolean>(false);
+  const userTimeZone = TimeZone.get(); // Get the user's timezone
+  
   // Fetch notes for use4r
   const fetchNotes = async () => {
+    // setLoading(true);
     try {
       // console.log('Fetching notes...');
       const response = await fetch(`${httpRequests.getBaseURL()}/note/getAllNotesFromLoggedInUser`, {
@@ -36,21 +41,18 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         },
       });
       const data = await response.json();
-      // console.log('Fetched notes:', data); 
+      console.log('Fetched notes:', data); 
       if (response.ok) {
         // Map the response 
         const mappedNotes = data.map((note: any) => {
-          const createdDate = note.createdAt || note.date || new Date().toISOString();  
+          const createdDate = note.updatedAt;
+          // console.log('date created: ', createdDate);
           // Format the date in 'month/day/year' format
-          const formattedDate = new Date(createdDate).toLocaleDateString('en-US', {
-            month: '2-digit', 
-            day: '2-digit', 
-            year: 'numeric'
-          });
+          const formattedDateTime = TimeZone.convertToTimeZone(createdDate, userTimeZone);
           return {
             id: note.noteId.toString(), 
             title: note.title,
-            date: formattedDate, 
+            date: formattedDateTime, 
             text: note.description,
           };
         });
@@ -62,6 +64,9 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch (error) {
       console.error('Error fetching notes:', error);
     }
+    // finally {
+    //   setLoading(false);
+    // }
   };
 
   // Add a new note
@@ -137,6 +142,7 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   return (
+    // <NotesContext.Provider value={{ notes, addNote, updateNote, deleteNote, fetchNotes, loading }}>
     <NotesContext.Provider value={{ notes, addNote, updateNote, deleteNote, fetchNotes }}>
       {children}
     </NotesContext.Provider>

@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 type MyNotesScreenNavigationProp = StackNavigationProp<WorkoutStackParamList, 'MyNotesScreen'>;
 
 export default function MyNotesScreen() {
+  // const { notes, fetchNotes, loading } = useNotes();
   const { notes, fetchNotes } = useNotes();
   const [searchText, setSearchText] = useState("");
   const { width } = Dimensions.get("window");
@@ -20,7 +21,7 @@ export default function MyNotesScreen() {
 
   useEffect(() => {
     fetchNotes(); // Fetch notes on screen load
-  }, [fetchNotes]);
+  }, []);
 
   const filteredNotes = notes.filter((note) =>
     note.title.toLowerCase().includes(searchText.toLowerCase())
@@ -28,6 +29,56 @@ export default function MyNotesScreen() {
 
 
   return (
+    // <View style={styles.container}>
+    //   {/* <View style={{ paddingVertical: 15 }}>
+    //     <CustomSearchBar />
+    //   </View> */}
+    //   <View style={styles.searchContainer}>
+    //     <Ionicons
+    //       name="search-outline"
+    //       size={20}
+    //       color="#747474"
+    //       style={styles.iconContainer}
+    //     />
+    //     <CustomTextInput
+    //       placeholder="Search"
+    //       placeholderTextColor="#999"
+    //       width={width * 0.85}
+    //       value={searchText}
+    //       onChangeText={setSearchText}
+    //       style={{
+    //         borderWidth: 0,
+    //         fontSize: 16,
+    //         paddingLeft: 30,
+    //         borderRadius: 25,
+    //         backgroundColor: "#EDEDED",
+    //       }}
+    //     />
+    //   </View>
+    //   <ScrollView
+    //     showsVerticalScrollIndicator={false}
+    //     contentContainerStyle={{ alignItems: "center", width: "100%" }}
+    //     style={styles.scroll}
+    //   >
+    //     {loading ? (
+    //       <Text>Loading...</Text> // Show loading text while fetching
+    //     ) : notes.length === 0 ? (
+    //       <Text>Notes will be displayed here</Text> // Show when no notes are found
+    //     ) : (
+    //       <View style={styles.notesContainer}>
+    //         {notes.map((note) => (
+    //           <Note
+    //             key={note.id}
+    //             title={note.title}
+    //             date={note.date}
+    //             text={note.text}
+    //             onPress={() => navigation.navigate("EditNoteScreen", { note })}
+    //           />
+    //         ))}
+    //       </View>
+    //     )}
+    //   </ScrollView>
+    // </View>
     <View style={styles.container}>      
       <View style={styles.searchContainer}>
         <Ionicons
