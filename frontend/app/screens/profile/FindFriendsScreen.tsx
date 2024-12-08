@@ -218,14 +218,18 @@ const updatePotentialFriends = (newFriends: FriendObject[]) => {
 };
 
 const styles = StyleSheet.create({
+
+
   emptyStateContainer: {
-    flex: 1, // Make the container fill the entire available space
-    justifyContent: "center", // Center the content vertically
-    alignItems: "center", // Center the content horizontally
-    marginBottom:'25%'
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   emptyStateText: {
-    textAlign: "center",
+    fontSize: 16,
+    color: '#888',
+    textAlign: 'center',
+    paddingHorizontal: 16,
   },
   container: { flex: 1, backgroundColor: '#fff' },
   header: {

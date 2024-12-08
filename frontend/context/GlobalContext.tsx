@@ -480,6 +480,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         body: "", // Convert the data to a JSON string
       }); // Use endpoint or replace with BASE_URL if needed
       if (!response.ok) {
+        setToken("")
         throw new Error(`Error: ${response.status}`);
       }
       const friendNames = await response.json()
@@ -495,6 +496,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
                 body: JSON.stringify(friendNames), // Convert the data to a JSON string
               }); // Use endpoint or replace with BASE_URL if needed
               if (!response.ok) {
+                setToken("")
                 throw new Error(`Error: ${response.status}`);
               }
               const json = await response.json()
@@ -502,17 +504,11 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
               updateFriends(json)
           
             } catch (error) {
-              // If access denied
-              // Send to login page
-              setToken("")
               console.error('0004 GET request failed:', error);
               throw error; // Throw the error for further handling if needed
             }
   
     } catch (error) {
-      // If access denied
-      // Send to login page
-      setToken("")
       console.error('0003 GET request failed:', error);
       throw error; // Throw the error for further handling if needed
     }
@@ -529,6 +525,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         body: "", // Convert the data to a JSON string
       }); // Use endpoint or replace with BASE_URL if needed
       if (!response.ok) {
+        setToken("")
         throw new Error(`Error: ${response.status}`);
       }
       console.log("loading...")
@@ -536,9 +533,6 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
       console.log(json)
       updateUserProfile(json)
     } catch (error) {
-      // If access denied
-      // Send to login page
-      setToken("")
       console.error('0002 GET request failed:', error);
       throw error; // Throw the error for further handling if needed
     }
