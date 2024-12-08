@@ -672,6 +672,14 @@ const PostsScreen: React.FC<any> = ({
             paddingTop: 10,
             backgroundColor: '#fff',
           }}
+          ListEmptyComponent={
+            returned ? (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>No posts available</Text>
+                <Text style={styles.emptyEmoji}>😔</Text>
+              </View>
+            ) : null
+          }
           showsVerticalScrollIndicator={true}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           onEndReached={handleLoadMore}
@@ -702,12 +710,21 @@ const styles = StyleSheet.create({
   },
   friendsContainer: { },
   friendsSection: { flexDirection: 'row', marginTop: 10},
+  emptyContainer: {
+    alignItems: "center",
+    marginTop: 50,
+    flex:1
+  },
   emptyText: {
     fontSize: 20,
     color: "#999",
     margin: 7,
-    textAlign:'center'
-},
+  },
+  emptyEmoji: {
+    fontSize: 48,
+    color: "#999",
+    margin: 7,
+  },
   header: {
     paddingTop: 10,
     paddingHorizontal: 16,
@@ -717,12 +734,6 @@ const styles = StyleSheet.create({
     position: 'relative',
     zIndex: 10,
     marginTop: Platform.OS === "ios" ? '10%' : 0
-  },
-  emptyEmoji: {
-    fontSize: 48,
-    color: "#999",
-    margin: 7,
-    textAlign:'center'
   },
   disabledButton: {
     backgroundColor: "#EDEDED", // Light grey
@@ -806,7 +817,7 @@ const styles = StyleSheet.create({
   },
   postView: {
     flex: 1,
-    backgroundColor: '#eee',
+    backgroundColor: '#fff',
   },
   postItem: {
     marginBottom: 10,

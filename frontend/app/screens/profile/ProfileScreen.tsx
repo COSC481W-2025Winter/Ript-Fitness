@@ -721,6 +721,14 @@ function PostsScreen() {
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={renderFooter}
+          ListEmptyComponent={
+            returned ? (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>No posts available</Text>
+                <Text style={styles.emptyEmoji}>😔</Text>
+              </View>
+            ) : null
+          }
           //columnWrapperStyle={{ padding: 0, margin: 0 }}
         />
       ) : (
@@ -1517,6 +1525,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingBottom: 10,
   },
+  emptyContainer: {
+    alignItems: "center",
+    marginTop: 50,
+    flex:1
+  },
+  emptyText: {
+    fontSize: 20,
+    color: "#999",
+    margin: 7,
+  },
+  emptyEmoji: {
+    fontSize: 48,
+    color: "#999",
+    margin: 7,
+  },
   textView: {
     justifyContent: 'center',
     alignContent: 'center',
@@ -1678,7 +1701,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
   },
   postView: {
-    backgroundColor: '#eee',
+    backgroundColor: '#fff',
     flex: 1, // Allows FlatList to take up full height and be scrollable
     padding: 0,
     margin: 0,
