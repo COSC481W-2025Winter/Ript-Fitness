@@ -17,7 +17,7 @@ interface NotesContextType {
   updateNote: (updatedNote: Note) => void;
   deleteNote: (noteId: number) => void;
   fetchNotes: () => Promise<void>;
-  // loading: boolean;
+  loading: boolean;
 }
 
 const NotesContext = createContext<NotesContextType | undefined>(undefined);
@@ -25,12 +25,12 @@ const NotesContext = createContext<NotesContextType | undefined>(undefined);
 export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const context = useContext(GlobalContext);
   const [notes, setNotes] = useState<Note[]>([]);
-  // const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const userTimeZone = TimeZone.get(); // Get the user's timezone
   
-  // Fetch notes for use4r
+  // Fetch notes for user
   const fetchNotes = async () => {
-    // setLoading(true);
+    setLoading(true);
     try {
       // console.log('Fetching notes...');
       const response = await fetch(`${httpRequests.getBaseURL()}/note/getAllNotesFromLoggedInUser`, {
@@ -47,7 +47,6 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const mappedNotes = data.map((note: any) => {
           const createdDate = note.updatedAt;
           // console.log('date created: ', createdDate);
-          // Format the date in 'month/day/year' format
           const formattedDateTime = TimeZone.convertToTimeZone(createdDate, userTimeZone);
           return {
             noteId: note.noteId.toString(), 
@@ -64,9 +63,9 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch (error) {
       console.error('Error fetching notes:', error);
     }
-    // finally {
-    //   setLoading(false);
-    // }
+    finally {
+      setLoading(false);
+    }
   };
 
   // Add a new note
@@ -150,8 +149,7 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   return (
-    // <NotesContext.Provider value={{ notes, addNote, updateNote, deleteNote, fetchNotes, loading }}>
-    <NotesContext.Provider value={{ notes, addNote, updateNote, deleteNote, fetchNotes }}>
+    <NotesContext.Provider value={{ notes, addNote, updateNote, deleteNote, fetchNotes, loading }}>
       {children}
     </NotesContext.Provider>
   );
