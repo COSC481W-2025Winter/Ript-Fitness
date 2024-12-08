@@ -7,7 +7,7 @@ import { ProfileStackParamList } from '@/app/(tabs)/ProfileStack';
 
 
 
-const FullBioScreen: React.FC<FullBioScreenProps> = ({ route }) => {
+const FullBioScreen: React.FC<any> = ({ route }) => {
     const { userProfile } = route.params;
   const context = useContext(GlobalContext);
   const navigation = useNavigation();

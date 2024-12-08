@@ -19,7 +19,7 @@ public interface WorkoutDataRepository extends JpaRepository<WorkoutData, Long> 
 
 	// Looks for all workoutData with the Id of the current user and returns a list of
 	// all that user's workout data
-	@Query("SELECT i FROM WorkoutData i WHERE i.account.id = :currentUserId AND i.isDeleted = false")
+	@Query("SELECT i FROM WorkoutData i WHERE i.account.id = :currentUserId AND i.isDeleted = false ORDER BY i.dataId DESC")
 	List<WorkoutData> findByAccountId(@Param("currentUserId") Long currentUserId);
 
 	List<WorkoutData> findByAccountIdAndExerciseName(Long currentUserId, String exerciseName);
