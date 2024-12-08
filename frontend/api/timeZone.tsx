@@ -14,8 +14,9 @@ export default class TimeZone {
     return timeZone || "GMT";
   }
   public static convertToTimeZone(gmtTime: string, timeZone: string): string {
-    console.log(gmtTime);
-  
+    if (!gmtTime || gmtTime == undefined || gmtTime == "") {
+      return "";
+    }
     // If the input is like "2024-12-07T20:39:41.09189"
     // we need to make it ISO 8601 friendly: truncate to 3 decimal places and add 'Z'
     let isoString = gmtTime;

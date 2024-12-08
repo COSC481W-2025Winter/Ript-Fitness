@@ -6,9 +6,10 @@ import { useNotes } from "@/components/MyNotes/NotesContext";
 import { useNavigation } from "@react-navigation/native";
 import { Note as NoteType } from '@/components/MyNotes/NotesContext';
 import { StackNavigationProp } from "@react-navigation/stack";
-import { WorkoutStackParamList } from "../(tabs)/WorkoutStack";
+import { WorkoutStackParamList } from "@/app/(tabs)/WorkoutStack"
 import CustomSearchBar from "@/components/custom/CustomSearchBar";
 import { useEffect, useState } from "react";
+import TimeZone from "@/api/timeZone";
 
 type MyNotesScreenNavigationProp = StackNavigationProp<WorkoutStackParamList, 'MyNotesScreen'>;
 
@@ -22,6 +23,7 @@ export default function MyNotesScreen() {
   useEffect(() => {
     fetchNotes(); // Fetch notes on screen load
   }, []);
+
 
   const filteredNotes = notes.filter((note) =>
     note.title.toLowerCase().includes(searchText.toLowerCase())
@@ -109,10 +111,10 @@ export default function MyNotesScreen() {
           <View style={styles.notesContainer}>
           {filteredNotes.map((note) => (
             <Note 
-              key={note.id} 
+              key={note.noteId} 
               title={note.title} 
-              date={note.date} 
-              text={note.text} 
+              date={note.updatedAt}
+              text={note.description} 
               onPress={() => navigation.navigate("EditNoteScreen", { note })}
             />
           ))}

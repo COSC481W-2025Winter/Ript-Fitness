@@ -5,17 +5,17 @@ import React, { createContext, useContext, useState } from 'react';
 
 //Defines Note object
 export interface Note {
-  id: string;
+  noteId: number;
   title: string;
-  date: string;
-  text: string;
+  description: string;
+  updatedAt: string;
 }
 
 interface NotesContextType {
   notes: Note[];
   addNote: (note: Note) => void;
   updateNote: (updatedNote: Note) => void;
-  deleteNote: (noteId: string) => void;
+  deleteNote: (noteId: number) => void;
   fetchNotes: () => Promise<void>;
   // loading: boolean;
 }
@@ -50,10 +50,10 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           // Format the date in 'month/day/year' format
           const formattedDateTime = TimeZone.convertToTimeZone(createdDate, userTimeZone);
           return {
-            id: note.noteId.toString(), 
+            noteId: note.noteId.toString(), 
             title: note.title,
-            date: formattedDateTime, 
-            text: note.description,
+            updatedAt: formattedDateTime, 
+            description: note.description,
           };
         });
   
@@ -80,12 +80,13 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         },
         body: JSON.stringify({
           title: note.title,
-          description: note.text,
+          description: note.description,
         }),
       });
       const data = await response.json();
       if (response.ok) {
-        setNotes(prevNotes => [note, ...prevNotes]);
+        const newNote = {...data, updatedAt: TimeZone.convertToTimeZone(data.updatedAt, TimeZone.get()) }
+        setNotes(prevNotes => [newNote, ...prevNotes]);
       } else {
         console.error('Failed to add note:', data);
       }
@@ -97,7 +98,7 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Edit an existing note
   const updateNote = async (updatedNote: Note) => {
     try {
-      const response = await fetch(`${httpRequests.getBaseURL()}/note/editNote/${updatedNote.id}`, {
+      const response = await fetch(`${httpRequests.getBaseURL()}/note/editNote/${updatedNote.noteId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -105,16 +106,23 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         },
         body: JSON.stringify({
           title: updatedNote.title,
-          description: updatedNote.text,
+          description: updatedNote.description,
         }),
       });
-      const data = await response.json();
       if (response.ok) {
-        setNotes(prevNotes =>
-          prevNotes.map(note => (note.id === updatedNote.id ? updatedNote : note))
-        );
+        const data = await response.json();
+        console.log(data)
+        const newNote = {...data, updatedAt: TimeZone.convertToTimeZone(data.updatedAt, TimeZone.get()) }
+        console.log(newNote)
+        setNotes(prevNotes => {
+          // Filter out the old note with the same noteId, if it exists
+          const filteredNotes = prevNotes.filter(note => note.noteId != newNote.noteId);
+          
+          // Add the new note at the beginning of the filtered list
+          return [newNote, ...filteredNotes];
+        });
       } else {
-        console.error('Failed to update note:', data);
+        console.error('Failed to update note:', await response.text());
       }
     } catch (error) {
       console.error('Error updating note:', error);
@@ -122,7 +130,7 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   // Delete a note
-  const deleteNote = async (noteId: string) => {
+  const deleteNote = async (noteId: number) => {
     try {
       const response = await fetch(`${httpRequests.getBaseURL()}/note/deleteNote/${noteId}`, {
         method: 'DELETE',
@@ -132,7 +140,7 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         },
       });
       if (response.ok) {
-        setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId));
+        setNotes(prevNotes => prevNotes.filter(note => note.noteId !== noteId));
       } else {
         console.error('Failed to delete note');
       }

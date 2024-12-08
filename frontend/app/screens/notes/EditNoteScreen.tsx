@@ -4,7 +4,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { useNotes } from '@/components/MyNotes/NotesContext';
 import { Note as NoteType } from '@/components/MyNotes/NotesContext';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { WorkoutStackParamList } from '../(tabs)/WorkoutStack';
+import { WorkoutStackParamList } from '@/app/(tabs)/WorkoutStack';
 import { RouteProp } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
 
@@ -16,13 +16,14 @@ const EditNoteScreen = () => {
   const { params } = useRoute<EditNoteRouteProp>(); // Use the correctly typed params
   const navigation = useNavigation<EditNoteScreenNavigationProp>();
   const { addNote, updateNote, deleteNote } = useNotes();
+
   
   // Default note structure
   const [note, setNote] = useState<NoteType>({
-    id: '',  // Empty ID for a new note
+    noteId: -1,  // Empty ID for a new note
     title: '',
-    text: '',
-    date: '', 
+    description: '',
+    updatedAt: '', 
   });
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -37,7 +38,7 @@ const EditNoteScreen = () => {
   }, [params]);
 
   const handleSave = async () => {
-    if (note.title.trim() === '' || note.text.trim() === '') {
+    if (note.title.trim() === '' || note.description.trim() === '') {
       Alert.alert('Error', 'Note cannot be empty');
       return;
     }
@@ -69,7 +70,7 @@ const EditNoteScreen = () => {
   const handleChangeDescription = (text: string) => {
     setNote((prevNote) => ({
       ...prevNote,
-      text, 
+      description: text, 
     }));
   };
 
@@ -82,7 +83,7 @@ const EditNoteScreen = () => {
         {
           text: 'Delete',
           onPress: async () => {
-            await deleteNote(note.id);  
+            await deleteNote(note.noteId);  
             navigation.goBack(); 
           },
         },
@@ -105,7 +106,7 @@ const EditNoteScreen = () => {
         style={[styles.input, styles.textArea, {fontSize: 18 }]}
         placeholder="Note"
         placeholderTextColor={'#DAD19D'}
-        value={note.text}
+        value={note.description}
         onChangeText={handleChangeDescription}
         multiline
       />
