@@ -124,13 +124,40 @@ const PostItem = ({ item, liked, onLikePress, onCommentPress }: ItemProps) => {
 
   return (
     <View style={styles.item}>
-      <TouchableOpacity onPress={handleUsernamePress}>
-        <View style={styles.header}>
+      <View style={styles.headerContainer}>
+        <TouchableOpacity onPress={handleUsernamePress} style={styles.header}>
           <Image style={styles.profile} source={item.user.profilePicture} />
           <Text style={styles.username}>{item.user.name}</Text>
+        </TouchableOpacity>
+        {/* MENU SECTION - Moved to top right */}
+        <View style={styles.menuContainer}>
+          <Menu>
+            <MenuTrigger customStyles={menuTriggerStyles}>
+              <MaterialCommunityIcons
+                name="dots-horizontal"
+                color="#B1B6C0"
+                size={23}
+              />
+            </MenuTrigger>
+            <MenuOptions customStyles={menuOptionsStyles}>
+              {isOwner ? (
+                <MenuOption
+                  onSelect={handleDeletePost}
+                  customStyles={menuOptionStyles}
+                >
+                  <Text style={styles.deleteText}>Delete Post</Text>
+                </MenuOption>
+              ) : (
+                <MenuOption disabled customStyles={menuOptionStyles}>
+                  <Text style={{ color: "#999" }}>No options available</Text>
+                </MenuOption>
+              )}
+            </MenuOptions>
+          </Menu>
         </View>
-      </TouchableOpacity>
+      </View>
 
+      {/* Rest of the post content */}
       {item.type === "text" && item.content && (
         <Text style={styles.contentText}>{item.content}</Text>
       )}
@@ -167,32 +194,9 @@ const PostItem = ({ item, liked, onLikePress, onCommentPress }: ItemProps) => {
           >
             <Ionicons name="chatbubble" color="#B1B6C0" size={23} />
           </TouchableOpacity>
-          <Text style={styles.commentCounter}>{item.comments.length}</Text>
-
-          {/* MENU SECTION */}
-          <Menu>
-            <MenuTrigger customStyles={menuTriggerStyles}>
-              <MaterialCommunityIcons
-                name="dots-horizontal"
-                color="#B1B6C0"
-                size={23}
-              />
-            </MenuTrigger>
-            <MenuOptions customStyles={menuOptionsStyles}>
-              {isOwner ? (
-                <MenuOption
-                  onSelect={handleDeletePost}
-                  customStyles={menuOptionStyles}
-                >
-                  <Text style={styles.deleteText}>Delete Post</Text>
-                </MenuOption>
-              ) : (
-                <MenuOption disabled customStyles={menuOptionStyles}>
-                  <Text style={{ color: "#999" }}>No options available</Text>
-                </MenuOption>
-              )}
-            </MenuOptions>
-          </Menu>
+          <Text style={styles.commentCounter}>
+            {item.comments.filter((comment) => !comment.isDeleted).length}
+          </Text>
         </View>
         <Text style={styles.timestamp}>{item.dateTimeCreated}</Text>
       </View>
@@ -202,7 +206,8 @@ const PostItem = ({ item, liked, onLikePress, onCommentPress }: ItemProps) => {
 
 const menuTriggerStyles = {
   triggerWrapper: {
-    padding: 5,
+    // transform: [{ translateX: -20 }],
+    marginLeft: -40,
   },
 };
 
@@ -263,6 +268,12 @@ const styles = StyleSheet.create({
     textAlign: "left",
     marginLeft: 7,
   },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
   contentText: {
     fontSize: 16,
     marginTop: 5,
@@ -320,6 +331,9 @@ const styles = StyleSheet.create({
     color: "red",
     padding: 10,
     fontSize: 16,
+  },
+  menuContainer: {
+    marginRight: -10, // Adjust this value to fine-tune
   },
 });
 

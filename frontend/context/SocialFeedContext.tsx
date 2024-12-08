@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import { httpRequests } from "@/api/httpRequests";
 import { GlobalContext } from "./GlobalContext";
-import TimeZone from "@/api/TimeZone";
+import TimeZone from "@/api/timeZone";
 
 // Define the structure of a comment on a post
 export interface SocialPostComment {
@@ -22,6 +22,7 @@ export interface SocialPostComment {
     username?: string;
     profilePicture?: string;
   };
+  isDeleted: boolean;
 }
 
 // Define the structure of a social post
@@ -208,6 +209,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
                     comment.dateTimeCreated,
                     TimeZone.get()
                   ),
+                  isDeleted: comment.isDeleted || false,
                 }))
               : [],
             socialPostComments: Array.isArray(post.socialPostComments)
@@ -220,6 +222,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
                     comment.dateTimeCreated,
                     TimeZone.get()
                   ),
+                  isDeleted: comment.isDeleted || false,
                 }))
               : [],
             dateTimeCreated: TimeZone.convertToTimeZone(
@@ -297,7 +300,10 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
           comments: Array.isArray(newPost.socialPostComments)
             ? newPost.socialPostComments
             : [],
-          dateTimeCreated: newPost.dateTimeCreated || new Date().toISOString(),
+          dateTimeCreated: TimeZone.convertToTimeZone(
+            newPost.dateTimeCreated,
+            TimeZone.get()
+          ),
         };
 
         setPosts((prevPosts) => [formattedPost, ...prevPosts]);
@@ -502,22 +508,72 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
       }
 
       setLoadingState("isDeletingComment", true);
+
       try {
+        // Optimistic update (with comment count update)
+        setPosts((prevPosts) =>
+          prevPosts.map((post) => {
+            if (post.comments.some((comment) => comment.id === commentId)) {
+              const updatedComments = post.comments.map((comment) =>
+                comment.id === commentId
+                  ? { ...comment, isDeleted: true }
+                  : comment
+              );
+
+              const updatedSocialPostComments = post.socialPostComments.map(
+                (comment) =>
+                  comment.id === commentId
+                    ? { ...comment, isDeleted: true }
+                    : comment
+              );
+
+              return {
+                ...post,
+                comments: updatedComments.filter(
+                  (comment) => !comment.isDeleted
+                ), // Filter deleted comments
+                socialPostComments: updatedSocialPostComments.filter(
+                  (comment) => !comment.isDeleted
+                ),
+              };
+            } else {
+              return post;
+            }
+          })
+        );
+
         const response = await retry(() =>
           httpRequests.put(`/socialPost/deleteComment/${commentId}`, token, {})
         );
 
-        if (response.ok) {
+        if (!response.ok) {
+          // Revert the optimistic update if the server request fails
           setPosts((prevPosts) =>
-            prevPosts.map((post) => ({
-              ...post,
-              comments: post.comments.filter(
-                (comment) => comment.id !== commentId
-              ),
-            }))
+            prevPosts.map((post) => {
+              const updatedComments = post.comments.map((comment) =>
+                comment.id === commentId
+                  ? { ...comment, isDeleted: false }
+                  : comment
+              );
+              const updatedSocialPostComments = post.socialPostComments.map(
+                (comment) =>
+                  comment.id === commentId
+                    ? { ...comment, isDeleted: false }
+                    : comment
+              );
+              return {
+                ...post,
+                comments: updatedComments,
+                socialPostComments: updatedSocialPostComments,
+              };
+            })
           );
-          clearError();
+          throw new Error(
+            `Failed to delete comment: ${response.status} ${response.statusText}`
+          );
         }
+
+        clearError();
       } catch (err: any) {
         console.error(`Error deleting comment with ID ${commentId}:`, err);
         setError("Failed to delete comment. Please try again.");
@@ -525,7 +581,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
         setLoadingState("isDeletingComment", false);
       }
     },
-    [token, clearError]
+    [token, clearError, setPosts]
   );
 
   // Initial friends fetch

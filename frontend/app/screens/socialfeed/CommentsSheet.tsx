@@ -149,7 +149,8 @@ const CommentsSheet = forwardRef<CommentsSheetRef, CommentsSheetProps>(
 
     // Get current post and it's comments
     const currentPost = posts.find((post) => post.id === currentPostId);
-    const comments = currentPost?.comments || [];
+    const comments =
+      currentPost?.comments.filter((comment) => !comment.isDeleted) || [];
 
     // Expose methods for external control
     useImperativeHandle(ref, () => ({
