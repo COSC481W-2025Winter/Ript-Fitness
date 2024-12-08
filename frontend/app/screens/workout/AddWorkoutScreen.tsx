@@ -455,7 +455,7 @@ const addWorkout = () => {
       <View style={{justifyContent: 'center', alignContent: 'center', alignSelf: 'center'}}>
           {exercises.length === 0 && (
             <Text style={styles.helperText} numberOfLines={2}>
-              Use the '+' button to add {"\n"} an exercise to your workout.
+              Use the '+' button to add {"\n"} an exercise to your workout
             </Text>
           )}
       </View>
@@ -533,7 +533,7 @@ const styles = StyleSheet.create({
   inputStyle: {
     flex: 1, // Ensures the input takes up the remaining space
     // color: '#747474',
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: 'bold',
   },
   dragOverlay: {
@@ -630,7 +630,7 @@ test: {
     alignSelf:'flex-end',
   },
   helperText: {
-    color: '#666', // grey color
+    color: '#888', // grey color
     fontSize: 16,
     textAlign: 'center',
     marginTop: '60%'

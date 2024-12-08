@@ -80,7 +80,7 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       });
       const data = await response.json();
       if (response.ok) {
-        setNotes(prevNotes => [...prevNotes, note]);
+        setNotes(prevNotes => [note, ...prevNotes]);
       } else {
         console.error('Failed to add note:', data);
       }

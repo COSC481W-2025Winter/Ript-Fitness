@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ddd',
   },
   label: { fontSize: 16, fontWeight: '500', color: '#333' },
-  input: { fontSize: 16, color: '#333', paddingRight: 15, },
+  input: { fontSize: 16, color: '#333', paddingRight: 15, flex: 1, textAlign: 'right', },
 });
 
 export default SettingsScreen;

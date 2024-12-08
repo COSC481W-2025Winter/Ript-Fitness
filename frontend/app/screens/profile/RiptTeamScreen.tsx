@@ -12,7 +12,7 @@ const data = [
   {
     id: 1,
     name: "Evan Snowgold",
-    imageSrc: require('@/assets/images/team_photos/placeholder.png'),
+    imageSrc: require('@/assets/images/team_photos/evan.jpg'),
     title: "Lead Developer"
   },
   {
