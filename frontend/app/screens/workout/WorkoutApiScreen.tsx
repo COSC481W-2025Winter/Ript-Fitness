@@ -12,24 +12,6 @@ import { GlobalContext } from '@/context/GlobalContext';
 // https://www.youtube.com/watch?v=q2s6VTHl2kE went off this video 
 // https://reactnativeelements.com/docs/1.2.0/icon
  
-// declare module 'react-native-check-box' {
-//   import React from 'react';
-//   import { ViewStyle, TextStyle } from 'react-native';
-
-//   interface CheckBoxProps {
-//     isChecked: boolean;
-//     onClick: () => void;
-//     leftText?: string;
-//     leftTextStyle?: TextStyle;
-//     rightText?: string;
-//     rightTextStyle?: TextStyle;
-//     style?: ViewStyle;
-//     checkedImage?: React.ReactNode;
-//     unCheckedImage?: React.ReactNode;
-//   }
-
-//   export default class CheckBox extends React.Component<CheckBoxProps> {}
-// }
 
 export default function WorkoutApiScreen() { 
   
