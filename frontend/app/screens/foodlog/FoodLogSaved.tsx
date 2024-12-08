@@ -248,19 +248,9 @@ const FoodLogSavedPage = () => {
             };
     };
 
-    const handleSearch = (text: string) => {
-        setSearchText(text);
-        if (text === "") {
-            // Reset to all food details if search is empty
-            setFilteredFoodDetails(foodDetails);
-        } else {
-            // Filter based on search text
-            const filteredData = foodDetails.filter((food) =>
-                food.name.toLowerCase().includes(text.toLowerCase())
-            );
-            setFilteredFoodDetails(filteredData);
-        }
-    };
+    const filteredFoods = foodDetails.filter((food: any) =>
+        food.name.toLowerCase().includes(searchText.toLowerCase())
+      );
 
 
     const renderItem = ({ item }:{item: Food}) => (
@@ -297,7 +287,7 @@ const FoodLogSavedPage = () => {
                 placeholderTextColor="#999"
                 // width={width * 0.85}
                 value={searchText}
-                onChangeText={handleSearch}
+                onChangeText={setSearchText}
                 style={{
                     borderWidth: 0,
                     fontSize: 16,
@@ -308,7 +298,7 @@ const FoodLogSavedPage = () => {
         />
         </View>
             <FlatList 
-                data={filteredFoodDetails}
+                data={filteredFoods}
                 renderItem={renderItem}
                 keyExtractor={(item) => `${item.id}`}
                 refreshing={refreshing} // Add refreshing prop
@@ -329,7 +319,7 @@ const FoodLogSavedPage = () => {
                 placeholderTextColor="#999"
                 // width={width * 0.85}
                 value={searchText}
-                onChangeText={handleSearch}
+                onChangeText={setSearchText}
                 style={{
                     borderWidth: 0,
                     fontSize: 16,
@@ -355,7 +345,7 @@ const FoodLogSavedPage = () => {
                 placeholderTextColor="#999"
                 // width={width * 0.85}
                 value={searchText}
-                onChangeText={handleSearch}
+                onChangeText={setSearchText}
                 style={{
                     borderWidth: 0,
                     fontSize: 16,
@@ -381,7 +371,7 @@ const FoodLogSavedPage = () => {
                 placeholderTextColor="#999"
                 // width={width * 0.85}
                 value={searchText}
-                onChangeText={handleSearch}
+                onChangeText={setSearchText}
                 style={{
                     borderWidth: 0,
                     fontSize: 16,
