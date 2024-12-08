@@ -20,6 +20,7 @@ import { FriendObject, GlobalContext } from '@/context/GlobalContext';
 import { httpRequests } from '@/api/httpRequests';
 import { ProfileScreenNavigationProp } from '@/app/(tabs)/ProfileStack';
 import { ProfileContext } from '@/context/ProfileContext';
+import DEFAULT_PROFILE_PICTURE from '@/assets/base64/defaultPicture';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -40,10 +41,76 @@ const VisitProfileScreen: React.FC = () => {
   // Assume that the other user's profile data is passed via navigation params
   const { item } = route.params as any;
 
-  console.log(item)
 
   const [addingFriend, setAddingFriend] = useState(false);
   const [DeletingFriend, setDeletingFriend] = useState(false);
+  const [friends, setFriends] = useState<FriendObject[]>([]);
+  const [loaded, setLoaded] = useState(false)
+
+  const updateFriends = (newFriends: FriendObject[]) => {
+    setFriends((prevFriends) => 
+      newFriends.map((newFriend, index) => {
+        const prevFriend = prevFriends[index] || {}; // Get the corresponding previous friend or an empty object
+        return {
+          ...prevFriend,
+          ...newFriend,
+          profilePicture: (newFriend.profilePicture == undefined || newFriend.profilePicture == "")
+            ? DEFAULT_PROFILE_PICTURE
+            : newFriend.profilePicture,
+        };
+      })
+    );
+  };
+
+  const reloadFriends = async () => {
+    try {
+      const response = await fetch(`${httpRequests.getBaseURL()}/friends/getFriendsList/${item.id}`, {
+        method: 'GET', // Set method to POST
+        headers: {
+          'Content-Type': 'application/json', // Set content type to JSON
+          "Authorization": `Bearer ${context?.data.token}`,
+        },
+        body: "", // Convert the data to a JSON string
+      }); // Use endpoint or replace with BASE_URL if needed
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      const friendNames = await response.json()
+      console.log(friendNames)
+            try {
+  
+  
+              const response = await fetch(`${httpRequests.getBaseURL()}/userProfile/getUserProfilesFromList`, {
+                method: 'POST', // Set method to POST
+                headers: {
+                  'Content-Type': 'application/json', // Set content type to JSON
+                  "Authorization": `Bearer ${context?.data.token}`,
+                },
+                body: JSON.stringify(friendNames), // Convert the data to a JSON string
+              }); // Use endpoint or replace with BASE_URL if needed
+              if (!response.ok) {
+                throw new Error(`Error: ${response.status}`);
+              }
+              const json = await response.json()
+              console.log("foo " + JSON.stringify(json))
+              updateFriends(json)
+          
+            } catch (error) {
+              // If access denied
+              // Send to login page
+              //setToken("")
+              console.error('0004 GET request failed:', error);
+              throw error; // Throw the error for further handling if needed
+            }
+  
+    } catch (error) {
+      // If access denied
+      // Send to login page
+      //setToken("")
+      console.error('0003 GET request failed:', error);
+      throw error; // Throw the error for further handling if needed
+    }
+  }
 
   const handleAddFriend = async () => {
     if (addingFriend) return;
@@ -52,7 +119,7 @@ const VisitProfileScreen: React.FC = () => {
     try {
         context?.addFriend(item)
       const response = await fetch(
-        `${httpRequests.getBaseURL()}/friends/addFriend/${item.profileID}`,
+        `${httpRequests.getBaseURL()}/friends/addFriend/${item.id}`,
         {
           method: 'POST',
           headers: {
@@ -82,7 +149,7 @@ const VisitProfileScreen: React.FC = () => {
     try {
     context?.removeFriend(item)
       const response = await fetch(
-        `${httpRequests.getBaseURL()}/friends/deleteFriend/${item.profileID}`,
+        `${httpRequests.getBaseURL()}/friends/deleteFriend/${item.id}`,
         {
           method: 'DELETE',
           headers: {
@@ -117,6 +184,15 @@ const VisitProfileScreen: React.FC = () => {
   }
   const goBack = () => {
     navigation.goBack()
+  }
+
+  const load = async () => {
+    await reloadFriends();
+    setLoaded(true);
+  }
+
+  if (!loaded) {
+    load();
   }
   return (
     <View style={styles.container}>
@@ -156,7 +232,50 @@ const VisitProfileScreen: React.FC = () => {
 {item.bio && (item.bio.length > item.bio.split('\n')[0].length || item.bio.split('\n')[0].length > 50)  ? <Text style={{ color: '#757575', fontWeight: 600 }}>{'...View more'}</Text> : <></>}
 </Text>
 
-</TouchableOpacity></View>
+</TouchableOpacity>
+
+</View>
+<View style={styles.friendsContainer}>
+<View style={styles.friendsSection}>
+<View style={styles.friendsList}>
+                  {friends.length === 0 ? (
+                    // Render "Add Friend" button when there are no friends
+                    (loaded? <></> : <View><ActivityIndicator size="small" /></View>)
+                  ) : (
+                    // Render the FlatList if there are friends
+                    <View>
+                      <TouchableOpacity
+                        style={styles.addFriendButtonOverlay}
+                        onPress={() => navigation.navigate('VisitFriendsScreen', {friends : friends})}
+                      >
+                        <FlatList
+                          horizontal
+                          data={friends.slice(0, 4)} // Display only the first 4 friends
+                          keyExtractor={(_, index) => index.toString()} // Use index as the key
+                          renderItem={({ item, index }) => (
+                            <Image
+                              source={{ uri: `data:image/png;base64,${item.profilePicture}` }}
+                              style={[styles.friendAvatar, { zIndex: 5 - index }]}
+                            />
+                          )}
+                          ListFooterComponent={
+                            friends.length > 4 ? (
+                              <View style={[styles.moreFriends, { marginLeft: -15 }]}>
+                                <Text style={styles.moreFriendsText}>
+                                  +{friends.length - 4}
+                                </Text>
+                              </View>
+                            ) : null
+                          }
+                          showsHorizontalScrollIndicator={false}
+                          ItemSeparatorComponent={() => <View style={{ width: 0, marginLeft: -15 }} />}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </View>
+                </View>
+                </View>
 
         {/* Add Friend Button */}
         <TouchableOpacity style={[
@@ -391,6 +510,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  friendsContainer: { },
+  friendsSection: { flexDirection: 'row', marginTop: 10},
   emptyText: {
     fontSize: 20,
     color: "#999",
@@ -541,6 +662,26 @@ const styles = StyleSheet.create({
   },
   dateText: {
     marginRight: 15,
+  },
+  addFriendContainer: {
+    marginBottom: 5
+  },
+  addFriendButtonOverlay: {
+    margin: 0,
+    padding: 0,
+  },
+  moreFriendsText: { color: '#757575' },
+  friendsList: {alignContent:'center'},
+  friendAvatar: { width: 40, height: 40, borderRadius: 20, marginHorizontal: 5, borderWidth: 1.5, borderColor: '#fff' },
+  moreFriends: {
+    width: 40,
+    height: 40,
+    zIndex: 0,
+    marginBottom: 10,
+    borderRadius: 20,
+    backgroundColor: '#e9e8e9',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
