@@ -62,94 +62,87 @@ public class UserProfileController {
 		deletedUserObject.setProfilePicture(userProfileService.getProfilePicture(username));
 		return ResponseEntity.ok(deletedUserObject);
 	}
-	
-    @PostMapping("/getUserProfilesFromList")
-    public ResponseEntity<List<UserDto>> getUserProfilesFromList(@RequestBody List<String> usernames) {
-        List<UserDto> userProfiles = userProfileService.getUserProfilesFromListOfUsernames(usernames);
-        userProfiles.forEach(user -> user.setProfilePicture(userProfileService.getProfilePicture(user.getUsername())));
-        return ResponseEntity.ok(userProfiles);
-    }
-    // Profile picture endpoints
-    @PutMapping("/profilePicture")
-    public ResponseEntity<Void> updateProfilePicture(@RequestBody byte[] profilePicture) {
-        String username = getUsernameFromContext();
-        userProfileService.updateProfilePicture(username, profilePicture);
-        return ResponseEntity.ok().build();
-    }
 
-    @GetMapping("/profilePicture")
-    public ResponseEntity<byte[]> getProfilePicture() {
-        String username = getUsernameFromContext();
-        byte[] profilePicture = userProfileService.getProfilePicture(username);
-        return ResponseEntity.ok(profilePicture);
-    }
+	@PostMapping("/getUserProfilesFromList")
+	public ResponseEntity<List<UserDto>> getUserProfilesFromList(@RequestBody List<String> usernames) {
+		List<UserDto> userProfiles = userProfileService.getUserProfilesFromListOfUsernames(usernames);
+		userProfiles.forEach(user -> user.setProfilePicture(userProfileService.getProfilePicture(user.getUsername())));
+		return ResponseEntity.ok(userProfiles);
+	}
 
-    @PostMapping("/photo")
-    public ResponseEntity<Void> addPrivatePhoto(@RequestParam("file") MultipartFile file) {
-        try {
-            // Retrieve the username from the security context
-            String username = getUsernameFromContext();
+	// Profile picture endpoints
+	@PutMapping("/profilePicture")
+	public ResponseEntity<Void> updateProfilePicture(@RequestBody byte[] profilePicture) {
+		String username = getUsernameFromContext();
+		userProfileService.updateProfilePicture(username, profilePicture);
+		return ResponseEntity.ok().build();
+	}
 
-            // Validate the uploaded file
-            if (file.isEmpty()) {
-                return ResponseEntity.badRequest().build(); // File is empty
-            }
+	@GetMapping("/profilePicture")
+	public ResponseEntity<byte[]> getProfilePicture() {
+		String username = getUsernameFromContext();
+		byte[] profilePicture = userProfileService.getProfilePicture(username);
+		return ResponseEntity.ok(profilePicture);
+	}
 
-            // Call the service method to process the photo
-            userProfileService.addPrivatePhoto(username, file.getBytes(), file.getContentType());
+	@PostMapping("/photo")
+	public ResponseEntity<Void> addPrivatePhoto(@RequestParam("file") MultipartFile file) {
+		try {
+			// Retrieve the username from the security context
+			String username = getUsernameFromContext();
 
-            return ResponseEntity.ok().build(); // Successfully uploaded
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+			// Validate the uploaded file
+			if (file.isEmpty()) {
+				return ResponseEntity.badRequest().build(); // File is empty
+			}
 
+			// Call the service method to process the photo
+			userProfileService.addPrivatePhoto(username, file.getBytes(), file.getContentType());
 
-    @GetMapping("/photos")
-    public ResponseEntity<List<String>> getPrivatePhotos(
-            @RequestParam int startIndex,
-            @RequestParam int endIndex) {
-        String username = getUsernameFromContext();
-        List<String> photos = userProfileService.getPrivatePhotos(username, startIndex, endIndex);
-        return ResponseEntity.ok(photos);
-    }
+			return ResponseEntity.ok().build(); // Successfully uploaded
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 
-    @DeleteMapping("/deletePhoto")
-    public ResponseEntity<Void> deletePrivatePhoto(@RequestParam String photoUrl) {
-        String username = getUsernameFromContext();
-        userProfileService.deletePrivatePhoto(username, photoUrl);
-        return ResponseEntity.ok().build();
-    }
-    
-    @GetMapping("/getSasUrl")
-    public ResponseEntity<String> getSasUrl(@RequestParam String blobName) {
-    	AzureBlobService azureBlobService = new AzureBlobService();
-        String sasUrl = azureBlobService.generateSasUrl(blobName);
-        return ResponseEntity.ok(sasUrl);
-    }
+	@GetMapping("/photos")
+	public ResponseEntity<List<String>> getPrivatePhotos(@RequestParam int startIndex, @RequestParam int endIndex) {
+		String username = getUsernameFromContext();
+		List<String> photos = userProfileService.getPrivatePhotos(username, startIndex, endIndex);
+		return ResponseEntity.ok(photos);
+	}
 
-    @GetMapping("/search")
-    public ResponseEntity<?> searchUserProfiles(
-            @RequestParam String searchTerm,
-            @RequestParam int startIndex,
-            @RequestParam int endIndex) {
-        try {
-            // Get the current user's username from the security context
-            String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-            // Call the service method and exclude the current user
-            List<UserDto> userProfiles = userProfileService.searchUserProfilesByUsername(
-                searchTerm, startIndex, endIndex, currentUsername
-            );
-            // Add profile pictures for each user
-            userProfiles.forEach(user -> 
-                user.setProfilePicture(userProfileService.getProfilePicture(user.getUsername()))
-            );
-            return ResponseEntity.ok(userProfiles);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-        }
-    }
+	@DeleteMapping("/deletePhoto")
+	public ResponseEntity<Void> deletePrivatePhoto(@RequestParam String photoUrl) {
+		String username = getUsernameFromContext();
+		userProfileService.deletePrivatePhoto(username, photoUrl);
+		return ResponseEntity.ok().build();
+	}
 
+	@GetMapping("/getSasUrl")
+	public ResponseEntity<String> getSasUrl(@RequestParam String blobName) {
+		AzureBlobService azureBlobService = new AzureBlobService();
+		String sasUrl = azureBlobService.generateSasUrl(blobName);
+		return ResponseEntity.ok(sasUrl);
+	}
+
+	@GetMapping("/search")
+	public ResponseEntity<?> searchUserProfiles(@RequestParam String searchTerm, @RequestParam int startIndex,
+			@RequestParam int endIndex) {
+		try {
+			// Get the current user's username from the security context
+			String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+			// Call the service method and exclude the current user
+			List<UserDto> userProfiles = userProfileService.searchUserProfilesByUsername(searchTerm, startIndex,
+					endIndex, currentUsername);
+			// Add profile pictures for each user
+			userProfiles
+					.forEach(user -> user.setProfilePicture(userProfileService.getProfilePicture(user.getUsername())));
+			return ResponseEntity.ok(userProfiles);
+		} catch (IllegalArgumentException ex) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+		}
+	}
 
 }

@@ -17,28 +17,29 @@ import java.util.List;
 @RequestMapping("/calendar")
 public class CalendarController {
 
-    @Autowired
-    private CalendarService calendarService;
+	@Autowired
+	private CalendarService calendarService;
 
-    @PostMapping("/logWorkout")
-    public void logWorkout(@RequestParam String timeZone) {
-        // Validate the timeZone string (optional)
-        calendarService.logWorkoutDay(timeZone);
-    }
+	@PostMapping("/logWorkout")
+	public void logWorkout(@RequestParam String timeZone) {
+		// Validate the timeZone string (optional)
+		calendarService.logWorkoutDay(timeZone);
+	}
 
-    @PostMapping("/logRestDay")
-    public void logRestDay(@RequestParam String timeZone) {
-        // Validate the timeZone string (optional)
-        calendarService.logRestDay(timeZone);
-    }
+	@PostMapping("/logRestDay")
+	public void logRestDay(@RequestParam String timeZone) {
+		// Validate the timeZone string (optional)
+		calendarService.logRestDay(timeZone);
+	}
 
-    @GetMapping("/getMonth")
-    public List<CalendarDto> getMonth(@RequestParam String startYear, @RequestParam String startMonth,
-                                       @RequestParam String endYear, @RequestParam String endMonth) {
-    	LocalDateTime startDate = LocalDate.of(Integer.parseInt(startYear), Integer.parseInt(startMonth), 1).atStartOfDay(); //time at start of day
-    	LocalDateTime endDate = LocalDate.of(Integer.parseInt(endYear), Integer.parseInt(endMonth), 1)
-                                     .with(TemporalAdjusters.lastDayOfMonth()).atTime(LocalTime.MAX); //Time at end of day
-        return calendarService.getMonth(startDate, endDate);
-    }
+	@GetMapping("/getMonth")
+	public List<CalendarDto> getMonth(@RequestParam String startYear, @RequestParam String startMonth,
+			@RequestParam String endYear, @RequestParam String endMonth) {
+		LocalDateTime startDate = LocalDate.of(Integer.parseInt(startYear), Integer.parseInt(startMonth), 1)
+				.atStartOfDay(); // time at start of day
+		LocalDateTime endDate = LocalDate.of(Integer.parseInt(endYear), Integer.parseInt(endMonth), 1)
+				.with(TemporalAdjusters.lastDayOfMonth()).atTime(LocalTime.MAX); // Time at end of day
+		return calendarService.getMonth(startDate, endDate);
+	}
 
 }

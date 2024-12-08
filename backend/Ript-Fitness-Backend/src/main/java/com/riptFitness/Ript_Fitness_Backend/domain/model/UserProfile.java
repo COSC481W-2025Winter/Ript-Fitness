@@ -19,242 +19,244 @@ import jakarta.persistence.JoinColumn;
 @Entity
 public class UserProfile {
 
-    @Id
-    private Long id;
-    
-    private String firstName;
+	@Id
+	private Long id;
 
-    private String lastName;
+	private String firstName;
 
-    public String displayName;
-    
-    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SocialPost> socialPosts;
+	private String lastName;
 
-    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SocialPostComment> comments;
+	public String displayName;
 
-    @Column
-    private String bio;
+	@OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<SocialPost> socialPosts;
 
-    @Column(unique = true, nullable = false)
-    private String username;
+	@OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<SocialPostComment> comments;
 
-    @Column
-    private LocalDateTime accountCreatedDate; 
-    
-    @Column(name = "time_zone", nullable = false)
-    private String timeZone = "America/New_York"; //Eastern US.
-    
-    @OneToOne
-    @JoinColumn(name = "account_id", referencedColumnName = "id") 
-    @JsonBackReference
-    private AccountsModel account;
+	@Column
+	private String bio;
 
-    private boolean isDeleted = false;
+	@Column(unique = true, nullable = false)
+	private String username;
 
-    @Column(name = "rest_days")
-    private Integer restDays = 3; 
+	@Column
+	private LocalDateTime accountCreatedDate;
 
-    @Column(name = "rest_days_left")
-    private Integer restDaysLeft; 
+	@Column(name = "time_zone", nullable = false)
+	private String timeZone = "America/New_York"; // Eastern US.
 
-    @Column(name = "rest_reset_date")
-    private LocalDateTime restResetDate; 
+	@OneToOne
+	@JoinColumn(name = "account_id", referencedColumnName = "id")
+	@JsonBackReference
+	private AccountsModel account;
 
-    @Column(name = "rest_reset_day_of_week")
-    private Integer restResetDayOfWeek = 7; // Sunday (default reset day)
-    
-    @Column(name = "profile_picture", columnDefinition = "LONGBLOB")
-    private byte[] profilePicture;
-    
-    // Default Constructor
-    public UserProfile() {
-        this.restDays = 3;
-        this.restDaysLeft = 3;  
-        LocalDateTime today = LocalDateTime.now();
-        int todayDayOfWeek = today.getDayOfWeek().getValue();
-        int daysUntilSunday = 7 - todayDayOfWeek;
-        
-        this.restResetDate = today.plusDays(daysUntilSunday);  
-        this.restResetDayOfWeek = 7;     
-    }
-    // Parameterized Constructor
-    public UserProfile(String firstName, String lastName, String username, String bio) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.username = username;
-        this.bio = bio;
-        this.displayName = username;
-        this.restDays = 3; 
-        this.restDaysLeft = 3;  
-        
-        LocalDateTime today = LocalDateTime.now();
-        int todayDayOfWeek = today.getDayOfWeek().getValue();
-        int daysUntilSunday = 7 - todayDayOfWeek;
-        
-        this.restResetDate = today.plusDays(daysUntilSunday); 
-        this.restResetDayOfWeek = 7;  
-    }
+	private boolean isDeleted = false;
+
+	@Column(name = "rest_days")
+	private Integer restDays = 3;
+
+	@Column(name = "rest_days_left")
+	private Integer restDaysLeft;
+
+	@Column(name = "rest_reset_date")
+	private LocalDateTime restResetDate;
+
+	@Column(name = "rest_reset_day_of_week")
+	private Integer restResetDayOfWeek = 7; // Sunday (default reset day)
+
+	@Column(name = "profile_picture", columnDefinition = "LONGBLOB")
+	private byte[] profilePicture;
+
+	// Default Constructor
+	public UserProfile() {
+		this.restDays = 3;
+		this.restDaysLeft = 3;
+		LocalDateTime today = LocalDateTime.now();
+		int todayDayOfWeek = today.getDayOfWeek().getValue();
+		int daysUntilSunday = 7 - todayDayOfWeek;
+
+		this.restResetDate = today.plusDays(daysUntilSunday);
+		this.restResetDayOfWeek = 7;
+	}
+
+	// Parameterized Constructor
+	public UserProfile(String firstName, String lastName, String username, String bio) {
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.username = username;
+		this.bio = bio;
+		this.displayName = username;
+		this.restDays = 3;
+		this.restDaysLeft = 3;
+
+		LocalDateTime today = LocalDateTime.now();
+		int todayDayOfWeek = today.getDayOfWeek().getValue();
+		int daysUntilSunday = 7 - todayDayOfWeek;
+
+		this.restResetDate = today.plusDays(daysUntilSunday);
+		this.restResetDayOfWeek = 7;
+	}
+
 	@PrePersist
 	public void ensureDefaults() {
 		if (this.displayName == null || this.displayName.isEmpty()) {
 			this.displayName = this.username; // Default displayName to username
 		}
 		if (this.account != null) {
-            this.id = this.account.getId(); // Ensure profileID matches accountID
-        }
+			this.id = this.account.getId(); // Ensure profileID matches accountID
+		}
 	}
-	
 
-    @PreUpdate
-    public void updateIdWithAccount() {
-        if (this.account != null) {
-            this.id = this.account.getId(); // Maintain sync during updates
-        }
-    }
-	
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
+	@PreUpdate
+	public void updateIdWithAccount() {
+		if (this.account != null) {
+			this.id = this.account.getId(); // Maintain sync during updates
+		}
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	// Getters and Setters
+	public Long getId() {
+		return id;
+	}
 
-    public String getFirstName() {
-        return firstName;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+	public String getFirstName() {
+		return firstName;
+	}
 
-    public String getLastName() {
-        return lastName;
-    }
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+	public String getLastName() {
+		return lastName;
+	}
 
-    public String getDisplayname() {
-        return displayName;
-    }
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
 
-    public void setDisplayname(String displayname) {
-        this.displayName = displayname;
-    }
+	public String getDisplayname() {
+		return displayName;
+	}
 
-    public List<SocialPost> getSocialPosts() {
-        return socialPosts;
-    }
+	public void setDisplayname(String displayname) {
+		this.displayName = displayname;
+	}
 
-    public void setSocialPosts(List<SocialPost> socialPosts) {
-        this.socialPosts = socialPosts;
-    }
+	public List<SocialPost> getSocialPosts() {
+		return socialPosts;
+	}
 
-    public List<SocialPostComment> getComments() {
-        return comments;
-    }
+	public void setSocialPosts(List<SocialPost> socialPosts) {
+		this.socialPosts = socialPosts;
+	}
 
-    public void setComments(List<SocialPostComment> comments) {
-        this.comments = comments;
-    }
+	public List<SocialPostComment> getComments() {
+		return comments;
+	}
 
-    public String getBio() {
-        return bio;
-    }
+	public void setComments(List<SocialPostComment> comments) {
+		this.comments = comments;
+	}
 
-    public void setBio(String bio) {
-        this.bio = bio;
-    }
+	public String getBio() {
+		return bio;
+	}
 
-    public String getUsername() {
-        return username;
-    }
+	public void setBio(String bio) {
+		this.bio = bio;
+	}
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+	public String getUsername() {
+		return username;
+	}
 
-    public String getDisplayName() {
-    	return displayName;
-    }
-    
-    public void setDisplayName(String displayName) {
-    	this.displayName = displayName;
-    }
-    
-    public AccountsModel getAccount() {
-        return account;
-    }
+	public void setUsername(String username) {
+		this.username = username;
+	}
 
-    public void setAccount(AccountsModel account) {
-        this.account = account;
-    }
+	public String getDisplayName() {
+		return displayName;
+	}
 
-    public boolean isDeleted() {
-        return isDeleted;
-    }
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
 
-    public void setDeleted(boolean isDeleted) {
-        this.isDeleted = isDeleted;
-    }
+	public AccountsModel getAccount() {
+		return account;
+	}
 
-    public Integer getRestDays() {
-        return restDays != null ? restDays : 3;  
-    }
+	public void setAccount(AccountsModel account) {
+		this.account = account;
+	}
 
-    public void setRestDays(Integer restDays) {
-        this.restDays = restDays;
-    }
+	public boolean isDeleted() {
+		return isDeleted;
+	}
 
-    public Integer getRestDaysLeft() {
-        return restDaysLeft;
-    }
+	public void setDeleted(boolean isDeleted) {
+		this.isDeleted = isDeleted;
+	}
 
-    public void setRestDaysLeft(Integer restDaysLeft) {
-        this.restDaysLeft = restDaysLeft;
-    }
+	public Integer getRestDays() {
+		return restDays != null ? restDays : 3;
+	}
 
-    public LocalDateTime getRestResetDate() {
-        return restResetDate;
-    }
+	public void setRestDays(Integer restDays) {
+		this.restDays = restDays;
+	}
 
-    public void setRestResetDate(LocalDateTime restResetDate) {
-        this.restResetDate = restResetDate;
-    }
+	public Integer getRestDaysLeft() {
+		return restDaysLeft;
+	}
 
-    public Integer getRestResetDayOfWeek() {
-        return restResetDayOfWeek;
-    }
+	public void setRestDaysLeft(Integer restDaysLeft) {
+		this.restDaysLeft = restDaysLeft;
+	}
 
-    public void setRestResetDayOfWeek(Integer restResetDayOfWeek) {
-        this.restResetDayOfWeek = restResetDayOfWeek;
-    }
-    
-    public byte[] getProfilePicture() {
-        return profilePicture;
-    }
+	public LocalDateTime getRestResetDate() {
+		return restResetDate;
+	}
 
-    public void setProfilePicture(byte[] profilePicture) {
-        this.profilePicture = profilePicture;
-    }
-    
-    public LocalDateTime getAccountCreatedDate() {
-        return accountCreatedDate;
-    }
+	public void setRestResetDate(LocalDateTime restResetDate) {
+		this.restResetDate = restResetDate;
+	}
 
-    public void setAccountCreatedDate(LocalDateTime accountCreatedDate) {
-        this.accountCreatedDate = accountCreatedDate;
-    }
-    public String getTimeZone() {
-        return timeZone;
-    }
+	public Integer getRestResetDayOfWeek() {
+		return restResetDayOfWeek;
+	}
 
-    public void setTimeZone(String timeZone) {
-        this.timeZone = timeZone;
-    }
+	public void setRestResetDayOfWeek(Integer restResetDayOfWeek) {
+		this.restResetDayOfWeek = restResetDayOfWeek;
+	}
+
+	public byte[] getProfilePicture() {
+		return profilePicture;
+	}
+
+	public void setProfilePicture(byte[] profilePicture) {
+		this.profilePicture = profilePicture;
+	}
+
+	public LocalDateTime getAccountCreatedDate() {
+		return accountCreatedDate;
+	}
+
+	public void setAccountCreatedDate(LocalDateTime accountCreatedDate) {
+		this.accountCreatedDate = accountCreatedDate;
+	}
+
+	public String getTimeZone() {
+		return timeZone;
+	}
+
+	public void setTimeZone(String timeZone) {
+		this.timeZone = timeZone;
+	}
 }
