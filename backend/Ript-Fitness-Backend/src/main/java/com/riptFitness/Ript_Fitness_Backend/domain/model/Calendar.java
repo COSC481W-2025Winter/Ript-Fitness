@@ -8,72 +8,73 @@ import java.time.LocalDateTime;
 @Table(name = "calendar_entries")
 public class Calendar {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false)
-    private AccountsModel account;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "account_id", nullable = false)
+	private AccountsModel account;
 
-    @Column(name = "date", nullable = false)
-    private LocalDateTime date;
+	@Column(name = "date", nullable = false)
+	private LocalDateTime date;
 
-    @Column(name = "activity_type", nullable = false)
-    private int activityType;
-    
-    @Column(name = "time_zone_when_logged", nullable = false)
-    private String timeZoneWhenLogged; // Timezone when the event was logged
+	@Column(name = "activity_type", nullable = false)
+	private int activityType;
 
-    // Default Constructor
-    public Calendar() {}
+	@Column(name = "time_zone_when_logged", nullable = false)
+	private String timeZoneWhenLogged; // Timezone when the event was logged
 
-    // Parameterized Constructor
-    public Calendar(AccountsModel account, LocalDateTime date, int activityType, String timeZoneWhenLogged) {
-        this.account = account;
-        this.date = date;
-        this.activityType = activityType;
-        this.timeZoneWhenLogged = timeZoneWhenLogged;
-    }
+	// Default Constructor
+	public Calendar() {
+	}
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
+	// Parameterized Constructor
+	public Calendar(AccountsModel account, LocalDateTime date, int activityType, String timeZoneWhenLogged) {
+		this.account = account;
+		this.date = date;
+		this.activityType = activityType;
+		this.timeZoneWhenLogged = timeZoneWhenLogged;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	// Getters and Setters
+	public Long getId() {
+		return id;
+	}
 
-    public AccountsModel getAccount() {
-        return account;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public void setAccount(AccountsModel account) {
-        this.account = account;
-    }
+	public AccountsModel getAccount() {
+		return account;
+	}
 
-    public LocalDateTime getDate() {
-        return date;
-    }
+	public void setAccount(AccountsModel account) {
+		this.account = account;
+	}
 
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
+	public LocalDateTime getDate() {
+		return date;
+	}
 
-    public int getActivityType() {
-        return activityType;
-    }
+	public void setDate(LocalDateTime date) {
+		this.date = date;
+	}
 
-    public void setActivityType(int activityType) {
-        this.activityType = activityType;
-    }
-    
-    public String getTimeZoneWhenLogged() {
-        return timeZoneWhenLogged;
-    }
+	public int getActivityType() {
+		return activityType;
+	}
 
-    public void setTimeZoneWhenLogged(String timeZoneWhenLogged) {
-        this.timeZoneWhenLogged = timeZoneWhenLogged;
-    }
+	public void setActivityType(int activityType) {
+		this.activityType = activityType;
+	}
+
+	public String getTimeZoneWhenLogged() {
+		return timeZoneWhenLogged;
+	}
+
+	public void setTimeZoneWhenLogged(String timeZoneWhenLogged) {
+		this.timeZoneWhenLogged = timeZoneWhenLogged;
+	}
 }

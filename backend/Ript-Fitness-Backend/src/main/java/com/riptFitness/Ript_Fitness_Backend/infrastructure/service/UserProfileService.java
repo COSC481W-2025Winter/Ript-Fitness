@@ -40,7 +40,7 @@ public class UserProfileService {
 		this.userRepository = userRepository;
 		this.photoRepository = photoRepository;
 		this.azureBlobService = azureBlobService;
-		this.calendarRepository = calendarRepository; 
+		this.calendarRepository = calendarRepository;
 	}
 
 	// Adds a new user profile with default values
@@ -72,36 +72,31 @@ public class UserProfileService {
 
 	// Retrieves user profile by username
 	public UserDto getUserByUsername(String username) {
-	    return userRepository.findByUsername(username).map(user -> {
-	        updateRestDays(user);
-	        UserDto userDto = UserProfileMapper.INSTANCE.toUserDto(user);
-	        userDto.setTimeZone(user.getTimeZone()); 
-	        return userDto;
-	    }).orElseThrow(() -> new RuntimeException("User not found with username = " + username));
+		return userRepository.findByUsername(username).map(user -> {
+			updateRestDays(user);
+			UserDto userDto = UserProfileMapper.INSTANCE.toUserDto(user);
+			userDto.setTimeZone(user.getTimeZone());
+			return userDto;
+		}).orElseThrow(() -> new RuntimeException("User not found with username = " + username));
 	}
 
-	
 	private void updateRestDays(UserProfile userProfile) {
-		ZonedDateTime zonedDateTime = LocalDateTime.now().atZone(ZoneId.of("GMT")).withZoneSameInstant(ZoneId.of(userProfile.getTimeZone()));
-		
-		
-        if (zonedDateTime.toLocalDate().isAfter(
-        		userProfile.getRestResetDate()
-        		.atZone(ZoneId.of("GMT"))
-        		.withZoneSameInstant(ZoneId.of(userProfile.getTimeZone()))
-        		.toLocalDate())) {
-            
-        	
-        	int todayDayOfWeek = zonedDateTime.getDayOfWeek().getValue();
-            int daysUntilSunday = 7 - todayDayOfWeek;
+		ZonedDateTime zonedDateTime = LocalDateTime.now().atZone(ZoneId.of("GMT"))
+				.withZoneSameInstant(ZoneId.of(userProfile.getTimeZone()));
 
-            //Set next reset date based on days until sunday for the user's timezone
-            userProfile.setRestResetDate(zonedDateTime.plusDays(daysUntilSunday).toLocalDateTime());
-            userProfile.setRestDaysLeft(userProfile.getRestDays());
-            userRepository.save(userProfile);
-        }
+		if (zonedDateTime.toLocalDate().isAfter(userProfile.getRestResetDate().atZone(ZoneId.of("GMT"))
+				.withZoneSameInstant(ZoneId.of(userProfile.getTimeZone())).toLocalDate())) {
+
+			int todayDayOfWeek = zonedDateTime.getDayOfWeek().getValue();
+			int daysUntilSunday = 7 - todayDayOfWeek;
+
+			// Set next reset date based on days until sunday for the user's timezone
+			userProfile.setRestResetDate(zonedDateTime.plusDays(daysUntilSunday).toLocalDateTime());
+			userProfile.setRestDaysLeft(userProfile.getRestDays());
+			userRepository.save(userProfile);
+		}
 	}
-	
+
 	// Edits user profile by username
 	public UserDto updateUserByUsername(String username, UserDto userDto) {
 		UserProfile userToBeEdited = userRepository.findByUsername(username)
@@ -117,41 +112,41 @@ public class UserProfileService {
 
 	// Update the profile fields based on UserDto, including profile picture
 	private void updateProfileFields(UserProfile userProfile, UserDto userDto) {
-	    if (userDto.getFirstName() != null) {
-	        userProfile.setFirstName(userDto.getFirstName());
-	    }
-	    if (userDto.getLastName() != null) {
-	        userProfile.setLastName(userDto.getLastName());
-	    }
-	    if (userDto.getDisplayname() != null) {
-	        userProfile.setDisplayName(userDto.getDisplayname());
-	    }
-	    if (userDto.getBio() != null) {
-	        userProfile.setBio(userDto.getBio());
-	    }
-	    if (userDto.getRestDays() != null) {
-	        userProfile.setRestDays(userDto.getRestDays());
-	    }
-	    if (userDto.getRestDaysLeft() != null) {
-	        userProfile.setRestDaysLeft(userDto.getRestDaysLeft());
-	    }
-	    if (userDto.getRestResetDate() != null) {
-	        userProfile.setRestResetDate(userDto.getRestResetDate());
-	    }
-	    if (userDto.getRestResetDayOfWeek() != null) {
-	        userProfile.setRestResetDayOfWeek(userDto.getRestResetDayOfWeek());
-	    }
-	    if (userDto.getProfilePicture() != null) {
-	        userProfile.setProfilePicture(userDto.getProfilePicture());
-	    }
-	    if (userDto.getTimeZone() != null) {
-	        try {
-	            ZoneId.of(userDto.getTimeZone());
-	            userProfile.setTimeZone(userDto.getTimeZone());
-	        } catch (DateTimeException e) {
-	            throw new RuntimeException("Invalid timeZone: " + userDto.getTimeZone());
-	        }
-	    }
+		if (userDto.getFirstName() != null) {
+			userProfile.setFirstName(userDto.getFirstName());
+		}
+		if (userDto.getLastName() != null) {
+			userProfile.setLastName(userDto.getLastName());
+		}
+		if (userDto.getDisplayname() != null) {
+			userProfile.setDisplayName(userDto.getDisplayname());
+		}
+		if (userDto.getBio() != null) {
+			userProfile.setBio(userDto.getBio());
+		}
+		if (userDto.getRestDays() != null) {
+			userProfile.setRestDays(userDto.getRestDays());
+		}
+		if (userDto.getRestDaysLeft() != null) {
+			userProfile.setRestDaysLeft(userDto.getRestDaysLeft());
+		}
+		if (userDto.getRestResetDate() != null) {
+			userProfile.setRestResetDate(userDto.getRestResetDate());
+		}
+		if (userDto.getRestResetDayOfWeek() != null) {
+			userProfile.setRestResetDayOfWeek(userDto.getRestResetDayOfWeek());
+		}
+		if (userDto.getProfilePicture() != null) {
+			userProfile.setProfilePicture(userDto.getProfilePicture());
+		}
+		if (userDto.getTimeZone() != null) {
+			try {
+				ZoneId.of(userDto.getTimeZone());
+				userProfile.setTimeZone(userDto.getTimeZone());
+			} catch (DateTimeException e) {
+				throw new RuntimeException("Invalid timeZone: " + userDto.getTimeZone());
+			}
+		}
 	}
 
 	// Soft-deletes user profile by username
@@ -280,7 +275,7 @@ public class UserProfileService {
 				.orElseThrow(() -> new RuntimeException("User not found"));
 
 		List<String> allPhotos = azureBlobService.listPhotos(username, startIndex, endIndex);
-		
+
 		return allPhotos;
 	}
 
