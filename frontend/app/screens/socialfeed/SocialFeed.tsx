@@ -35,6 +35,7 @@ export default function SocialFeed() {
   const { posts, loading, error, fetchPosts, toggleLike } = useSocialFeed();
 
   const context = useContext(GlobalContext);
+  const currentUserProfilePicture = context?.userProfile.profilePicture;
   const currentUserID = context?.userProfile.id;
   const token = context?.data.token;
 
@@ -98,7 +99,6 @@ export default function SocialFeed() {
         setHasMorePosts(false);
       } else {
         console.error("Error loading posts:", error);
-        // Optionally, set an error state or notify the user
       }
     } finally {
       isFetchingRef.current = false;
@@ -136,13 +136,9 @@ export default function SocialFeed() {
 
   const renderItem = useCallback(
     ({ item }: { item: SocialPost }) => {
-      console.log("[DEBUG] Processing post for display:", {
-        id: item.id,
-        accountId: item.accountId,
-        username: item.userProfile?.username,
-        userProfile: item.userProfile,
-      });
-
+      if (item.isDeleted) {
+        return null; // This fixed the bug where it was rending a deleted post before
+      }
       const username = item.userProfile?.username || item.accountId;
 
       const profilePictureSource = item.userProfile?.profilePicture
@@ -164,7 +160,7 @@ export default function SocialFeed() {
             type: "text",
             content: item.content,
             user: {
-              name: username !== "Unknown User" ? username : item.accountId,
+              name: username,
               profilePicture: profilePictureSource,
               id: item.accountId,
             },
@@ -246,8 +242,14 @@ export default function SocialFeed() {
             <Ionicons name="add" size={24} color="white" />
           </TouchableOpacity>
 
-          <CreatePostSheet ref={createPostSheetRef} />
-          <CommentsSheet ref={commentsSheetRef} />
+          <CreatePostSheet
+            ref={createPostSheetRef}
+            userProfilePicture={currentUserProfilePicture}
+          />
+          <CommentsSheet
+            ref={commentsSheetRef}
+            userProfilePicture={currentUserProfilePicture}
+          />
         </SafeAreaView>
       </PortalProvider>
     </GestureHandlerRootView>

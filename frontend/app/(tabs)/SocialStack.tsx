@@ -9,7 +9,6 @@ import {
 } from "@react-navigation/stack";
 import { SocialProvider } from "@/context/SocialContext";
 import SocialFeed from "../screens/socialfeed/SocialFeed";
-import CommentsScreen from "../screens/socialfeed/CommentsScreen";
 import TextPostScreen from "../screens/socialfeed/TextPostScreen";
 import ImagePostScreen from "../screens/socialfeed/ImagePostScreen";
 import VisitProfileScreen from "../screens/profile/VisitProfileScreen";
@@ -119,4 +118,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SocialStack; // Ensure SocialStack is exported as default
+export default SocialStack;

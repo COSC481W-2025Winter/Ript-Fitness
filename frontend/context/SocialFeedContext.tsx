@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { httpRequests } from "@/api/httpRequests";
 import { GlobalContext } from "./GlobalContext";
+import TimeZone from "@/api/TimeZone";
 
 // Define the structure of a comment on a post
 export interface SocialPostComment {
@@ -15,7 +16,12 @@ export interface SocialPostComment {
   content: string;
   postId: string;
   accountId: string;
+  username?: string;
   dateTimeCreated: string;
+  userProfile?: {
+    username?: string;
+    profilePicture?: string;
+  };
 }
 
 // Define the structure of a social post
@@ -178,16 +184,10 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
         }
 
         const formattedPosts = response.map((post) => {
-          console.log("[DEBUG] Processing post:", post);
-          console.log("[DEBUG] Post accountId:", post.accountId);
-          console.log("[DEBUG] Post userProfile:", post.userProfile);
-
-          console.log("[DEBUG] comment:", post.socialPostComments);
-
           return {
             ...post,
             id: String(post.id),
-            accountId: post.accountId || "Unknown User",
+            accountId: post.accountId || "-1",
             likes: Array.isArray(post.userIDsOfLikes)
               ? post.userIDsOfLikes.filter(
                   (id): id is string => id !== undefined
@@ -201,16 +201,31 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
             comments: Array.isArray(post.socialPostComments)
               ? post.socialPostComments.map((comment: any) => ({
                   ...comment,
-                  accountId: comment.accountId || "Unknown User",
+                  accountId: comment.accountId,
+                  username: comment.userProfile?.username || "Anonymous",
+                  userProfile: comment.userProfile,
+                  dateTimeCreated: TimeZone.convertToTimeZone(
+                    comment.dateTimeCreated,
+                    TimeZone.get()
+                  ),
                 }))
               : [],
             socialPostComments: Array.isArray(post.socialPostComments)
-              ? post.socialPostComments.map((comment) => ({
+              ? post.socialPostComments.map((comment: any) => ({
                   ...comment,
-                  accountId: comment.accountId || "Unknown User",
+                  accountId: comment.accountId,
+                  username: comment.userProfile?.username,
+                  userProfile: comment.userProfile,
+                  dateTimeCreated: TimeZone.convertToTimeZone(
+                    comment.dateTimeCreated,
+                    TimeZone.get()
+                  ),
                 }))
               : [],
-            dateTimeCreated: post.dateTimeCreated || new Date().toISOString(),
+            dateTimeCreated: TimeZone.convertToTimeZone(
+              post.dateTimeCreated,
+              TimeZone.get()
+            ),
             userProfile: post.userProfile || {
               username: post.accountId,
               profilePicture: null,
@@ -250,7 +265,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
         abortController.abort();
       };
     },
-    [token, clearError]
+    [token, clearError, currentUserID, context?.userProfile, TimeZone]
   );
 
   // Add post
@@ -443,8 +458,10 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
           id: String(newComment.id),
           content: newComment.content,
           postId: String(newComment.postId),
-          accountId: newComment.accountId,
-          dateTimeCreated: newComment.dateTimeCreated,
+          accountId: currentUserID ?? "-1", // Use currentUserID from context
+          username: context?.userProfile.username ?? "Anonymous", // Use username from context
+          userProfile: context?.userProfile, // Use userProfile from context
+          dateTimeCreated: new Date().toISOString(), // Generate new timestamp
         };
 
         console.log("[DEBUG] Formatted comment:", formattedComment);
@@ -472,7 +489,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
         setLoadingState("isAddingComment", false);
       }
     },
-    [token, clearError]
+    [token, clearError, currentUserID, context?.userProfile]
   );
 
   // Delete comment
