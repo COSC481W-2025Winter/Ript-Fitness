@@ -18,6 +18,7 @@ import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view"
 import { KeyboardAvoidingView, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Stopwatch from "./Stopwatch";
+import { httpRequests } from "@/api/httpRequests";
 
 export default function MyWorkoutsScreen() {
   const context = useContext(GlobalContext);
@@ -93,7 +94,7 @@ export default function MyWorkoutsScreen() {
  
       // Update the workout name
       const workoutResponse = await fetch(
-        `http://ript-fitness-app.azurewebsites.net/workouts/updateWorkout/${workoutId}`,
+        `${httpRequests.getBaseURL()}/workouts/updateWorkout/${workoutId}`,
         {
           method: "PUT",
           headers: {
@@ -121,7 +122,7 @@ export default function MyWorkoutsScreen() {
         };
  
         const exerciseResponse = await fetch(
-          `http://ript-fitness-app.azurewebsites.net/exercises/updateExercise`,
+          `${httpRequests.getBaseURL()}/exercises/updateExercise`,
           {
             method: "PUT",
             headers: {
@@ -163,7 +164,7 @@ export default function MyWorkoutsScreen() {
 
 
       const response = await fetch(
-        `http://ript-fitness-app.azurewebsites.net/workouts/deleteWorkout/${workoutId}`,
+        `${httpRequests.getBaseURL()}/workouts/deleteWorkout/${workoutId}`,
         {
           method: "DELETE",
           headers: {
@@ -190,7 +191,7 @@ export default function MyWorkoutsScreen() {
   const fetchWorkoutById = async (workoutName: string): Promise<number | undefined> => {
     try {
       const response = await fetch(
-        `http://ript-fitness-app.azurewebsites.net/workouts/getUsersWorkouts/0/10000`,
+        `${httpRequests.getBaseURL()}/workouts/getUsersWorkouts/0/10000`,
         {
           method: "GET",
           headers: {
@@ -232,7 +233,7 @@ export default function MyWorkoutsScreen() {
 
     try {
       const response = await fetch(
-       `https://ript-fitness-app.azurewebsites.net/calendar/logWorkout?timeZone=${TimeZone.get()}`,
+       `${httpRequests.getBaseURL()}/calendar/logWorkout?timeZone=${TimeZone.get()}`,
         {
           method: "POST",
           headers: {
