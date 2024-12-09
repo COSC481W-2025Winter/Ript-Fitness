@@ -51,7 +51,7 @@ export function AddWorkoutScreen() {
   const [exerciseName, setExerciseName] = useState('');
   const [typeOfExercise, setTypeOfExercise] = useState<number | null>(null);
   const [sets, setSets] = useState<{ setNumber: number; reps: string}[]>([{ setNumber: 1, reps: ''}]);
-
+  const [exerciseToEdit, setExerciseToEdit] = useState<Exercise | null>(null);
 
   useEffect(() => {
     console.log('Exercises changed:', exercises);
@@ -87,12 +87,37 @@ export function AddWorkoutScreen() {
   }
 
   //make modal appear to edit added workout
-  const editWorkout = (id : any) => {
-  console.log('Opening modal for workout:', id);
-  //Open Modal when pencil icon is pressed
-  //setAddModalVisible(true);
-  context?.setVisible(true);
-  }
+  // const editWorkout = (id : any) => {
+  // console.log('Opening modal for workout:', id);
+  // //Open Modal when pencil icon is pressed
+  // //setAddModalVisible(true);
+  // context?.setVisible(true);
+  // }
+  const editWorkout = (exerciseId: number) => {
+    console.log('Opening modal for workout:', exerciseId);
+  
+    // Find the exercise to edit
+    const exerciseToEdit = exercises.find((exercise) => exercise.listID === exerciseId);
+  
+    if (!exerciseToEdit) {
+      console.error(`Exercise with id ${exerciseId} not found.`);
+      alert("Could not find the exercise to edit.");
+      return;
+    }
+  
+    // Pre-fill the modal fields with exercise details
+    setExerciseName(exerciseToEdit.nameOfExercise);
+    setTypeOfExercise(exerciseToEdit.exerciseType);
+    setSets(
+      Array.from({ length: exerciseToEdit.sets }, (_, index) => ({
+        setNumber: index + 1,
+        reps: exerciseToEdit.reps[index]?.toString() || "",
+      }))
+    );
+  
+    // Open the modal
+    context?.setVisible(true);
+  };
 
   //submit button will send users to My Workout page
 
@@ -166,7 +191,9 @@ export function AddWorkoutScreen() {
 const viewWorkoutDetails = (id : any) => {
   navigation.navigate("ApiScreen", {})
 }
-const [listID, setlistID] = useState(0) 
+const [listID, setlistID] = useState(0);
+const [exerciseID, setexerciseID] = useState(0);
+
 const addWorkout = () => {
   // User has to enter exercise name and choose the type
   if (!exerciseName || typeOfExercise === null) {
@@ -176,9 +203,12 @@ const addWorkout = () => {
   const repNumbers = sets.map((set) => Number(set.reps));
   const weightNumbers = sets.map(() => 0);  //setting weight to 0 for each set
   setlistID(listID + 1)
+  setexerciseID(exerciseID + 1)
   console.log("listID:" + (listID + 1))
+  console.log("exerciseID:" + (exerciseID + 1))
   const newExercise : Exercise = {
     listID: listID + 1,
+    exerciseID: exerciseID + 1,
     sets: sets.length,
     reps: repNumbers,
     nameOfExercise: exerciseName,
@@ -210,7 +240,14 @@ const addWorkout = () => {
       transparent={true}
       visible={context?.modalObject.isVisible}
       animationType='slide'
-      onRequestClose={() => context?.setVisible(false)/*setAddModalVisible(false)*/}
+      // onRequestClose={() => context?.setVisible(false)
+      onRequestClose={() => {
+        context?.setVisible(false)/*setAddModalVisible(false)*/
+        setExerciseName('');
+        setSets([{ setNumber: 1, reps: '' }]);
+        setTypeOfExercise(null);
+        setExerciseToEdit(null); // Reset editing state
+      }}
     >
       <View style={styles.modalOverlay}>
 
@@ -337,6 +374,7 @@ const addWorkout = () => {
 
   interface Exercise {
     listID: number;
+    exerciseID: number;
     sets: number;
     reps: number[];
     nameOfExercise: string;
