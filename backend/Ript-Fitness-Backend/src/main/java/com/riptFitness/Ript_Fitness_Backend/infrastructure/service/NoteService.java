@@ -97,7 +97,6 @@ public class NoteService {
 		for(Note note : listOfNotes) {
 			notes.add(NoteMapper.INSTANCE.convertToDto(note));
 		}
-		Collections.reverse(notes);
 		return notes;
 	}
 
