@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { httpRequests } from "@/api/httpRequests";
 import { GlobalContext } from "./GlobalContext";
+import TimeZone from "@/api/timeZone";
 
 // Define the structure of a comment on a post
 export interface SocialPostComment {
@@ -15,7 +16,13 @@ export interface SocialPostComment {
   content: string;
   postId: string;
   accountId: string;
+  username?: string;
   dateTimeCreated: string;
+  userProfile?: {
+    username?: string;
+    profilePicture?: string;
+  };
+  isDeleted: boolean;
 }
 
 // Define the structure of a social post
@@ -31,17 +38,16 @@ export interface SocialPost {
   numberOfLikes: number;
   userIDsOfLikes: string[];
   userProfile: {
+    id?: string;
     username?: string;
+    profilePicture?: string;
   } | null;
 }
 
-// Define friend-related interfaces
 export interface Friend {
   username: string;
   accountId: string;
 }
-
-// Define loading states interface
 interface LoadingStates {
   isAddingPost: boolean;
   isDeletingPost: boolean;
@@ -91,9 +97,10 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const context = useContext(GlobalContext)
 
-  const token: string = context?.data?.token ?? '';
+  const context = useContext(GlobalContext);
+  const currentUserID = context?.userProfile.id;
+  const token = context?.data.token;
 
   // Loading states for individual operations
   const [loadingStates, setLoadingStates] = useState<LoadingStates>({
@@ -178,33 +185,54 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
         }
 
         const formattedPosts = response.map((post) => {
-          //console.log("[DEBUG] Processing post:", post);
-          console.log("[DEBUG] Post accountId:", post.accountId);
-          //console.log("[DEBUG] Post userProfile:", post.userProfile);
-
-          console.log("[DEBUG] comment:", post.socialPostComments);
-
           return {
             ...post,
             id: String(post.id),
-            accountId: post.accountId || "Unknown User",
+            accountId: post.accountId || "-1",
             likes: Array.isArray(post.userIDsOfLikes)
-              ? post.userIDsOfLikes
+              ? post.userIDsOfLikes.filter(
+                  (id): id is string => id !== undefined
+                )
+              : [],
+            userIDsOfLikes: Array.isArray(post.userIDsOfLikes)
+              ? post.userIDsOfLikes.filter(
+                  (id): id is string => id !== undefined
+                )
               : [],
             comments: Array.isArray(post.socialPostComments)
               ? post.socialPostComments.map((comment: any) => ({
                   ...comment,
-                  accountId: comment.accountId || "Unknown User",
+                  accountId: comment.accountId,
+                  username: comment.userProfile?.username || "Anonymous",
+                  userProfile: comment.userProfile,
+                  dateTimeCreated: TimeZone.convertToTimeZone(
+                    comment.dateTimeCreated,
+                    TimeZone.get()
+                  ),
+                  isDeleted: comment.isDeleted || false,
                 }))
               : [],
             socialPostComments: Array.isArray(post.socialPostComments)
-              ? post.socialPostComments.map((comment : any) => ({
+              ? post.socialPostComments.map((comment: any) => ({
                   ...comment,
-                  accountId: comment.accountId || "Unknown User",
+                  accountId: comment.accountId,
+                  username: comment.userProfile?.username,
+                  userProfile: comment.userProfile,
+                  dateTimeCreated: TimeZone.convertToTimeZone(
+                    comment.dateTimeCreated,
+                    TimeZone.get()
+                  ),
+                  isDeleted: comment.isDeleted || false,
                 }))
               : [],
-            dateTimeCreated: post.dateTimeCreated || new Date().toISOString(),
-            userProfile: post.userProfile || { username: post.accountId },
+            dateTimeCreated: TimeZone.convertToTimeZone(
+              post.dateTimeCreated,
+              TimeZone.get()
+            ),
+            userProfile: post.userProfile || {
+              username: post.accountId,
+              profilePicture: null,
+            },
           };
         });
 
@@ -240,7 +268,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
         abortController.abort();
       };
     },
-    [token, clearError]
+    [token, clearError, currentUserID, context?.userProfile, TimeZone]
   );
 
   // Add post
@@ -272,7 +300,10 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
           comments: Array.isArray(newPost.socialPostComments)
             ? newPost.socialPostComments
             : [],
-          dateTimeCreated: newPost.dateTimeCreated || new Date().toISOString(),
+          dateTimeCreated: TimeZone.convertToTimeZone(
+            newPost.dateTimeCreated,
+            TimeZone.get()
+          ),
         };
 
         setPosts((prevPosts) => [formattedPost, ...prevPosts]);
@@ -332,25 +363,47 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
       if (!post) return;
 
       setLoadingState("isTogglingLike", true);
-      const isLiked = post.likes.includes(token);
+      let isLiked = currentUserID
+        ? post.userIDsOfLikes.includes(currentUserID)
+        : false;
 
       // Optimistic update
       updatePost(postId, (post) => ({
         ...post,
-        likes: isLiked
-          ? post.likes.filter((id) => id !== token)
-          : [...post.likes, token],
+        userIDsOfLikes: isLiked
+          ? post.userIDsOfLikes.filter(
+              (id) => id !== currentUserID && id !== undefined
+            )
+          : [...post.userIDsOfLikes, currentUserID].filter(
+              (id): id is string => id !== undefined
+            ),
+        numberOfLikes: isLiked
+          ? post.numberOfLikes - 1
+          : post.numberOfLikes + 1,
       }));
 
       try {
-        await retry(() =>
-          httpRequests.put(`/socialPost/toggleLike/${postId}`, token, {})
-        );
+        if (isLiked) {
+          await retry(() =>
+            httpRequests.put(`/socialPost/deleteLike/${postId}`, token, {})
+          );
+        } else {
+          await retry(() =>
+            httpRequests.put(`/socialPost/addLike/${postId}`, token, {})
+          );
+        }
         clearError();
       } catch (err) {
         // Revert on error
+        // Revert on error
         updatePost(postId, (post) => ({
           ...post,
+          userIDsOfLikes: isLiked
+            ? [...post.userIDsOfLikes, currentUserID]
+            : post.userIDsOfLikes.filter((id) => id !== currentUserID),
+          numberOfLikes: isLiked
+            ? post.numberOfLikes + 1
+            : post.numberOfLikes - 1,
           likes: isLiked
             ? [...post.likes, token]
             : post.likes.filter((id) => id !== token),
@@ -360,13 +413,14 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
         setLoadingState("isTogglingLike", false);
       }
     },
-    [posts, token, updatePost, clearError]
+    [posts, token, updatePost, clearError, currentUserID]
   );
 
   // Add comment
   const addComment = useCallback(
     async (postId: string, content: string) => {
       console.log("[DEBUG] AddComment started:", { postId, content });
+      console.log(postId , " " , content)
 
       if (!token) {
         console.error("[DEBUG] No token available for adding a comment.");
@@ -411,8 +465,10 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
           id: String(newComment.id),
           content: newComment.content,
           postId: String(newComment.postId),
-          accountId: newComment.accountId,
-          dateTimeCreated: newComment.dateTimeCreated,
+          accountId: context?.userProfile.id, // Use currentUserID from context
+          username: context?.userProfile.username ?? "Anonymous", // Use username from context
+          userProfile: context?.userProfile, // Use userProfile from context
+          dateTimeCreated: new Date().toISOString(), // Generate new timestamp
         };
 
         console.log("[DEBUG] Formatted comment:", formattedComment);
@@ -440,7 +496,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
         setLoadingState("isAddingComment", false);
       }
     },
-    [token, clearError]
+    [token, clearError, currentUserID, context?.userProfile]
   );
 
   // Delete comment
@@ -453,22 +509,72 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
       }
 
       setLoadingState("isDeletingComment", true);
+
       try {
+        // Optimistic update (with comment count update)
+        setPosts((prevPosts) =>
+          prevPosts.map((post) => {
+            if (post.comments.some((comment) => comment.id === commentId)) {
+              const updatedComments = post.comments.map((comment) =>
+                comment.id === commentId
+                  ? { ...comment, isDeleted: true }
+                  : comment
+              );
+
+              const updatedSocialPostComments = post.socialPostComments.map(
+                (comment) =>
+                  comment.id === commentId
+                    ? { ...comment, isDeleted: true }
+                    : comment
+              );
+
+              return {
+                ...post,
+                comments: updatedComments.filter(
+                  (comment) => !comment.isDeleted
+                ), // Filter deleted comments
+                socialPostComments: updatedSocialPostComments.filter(
+                  (comment) => !comment.isDeleted
+                ),
+              };
+            } else {
+              return post;
+            }
+          })
+        );
+
         const response = await retry(() =>
           httpRequests.put(`/socialPost/deleteComment/${commentId}`, token, {})
         );
 
-        if (response.ok) {
+        if (!response.ok) {
+          // Revert the optimistic update if the server request fails
           setPosts((prevPosts) =>
-            prevPosts.map((post) => ({
-              ...post,
-              comments: post.comments.filter(
-                (comment) => comment.id !== commentId
-              ),
-            }))
+            prevPosts.map((post) => {
+              const updatedComments = post.comments.map((comment) =>
+                comment.id === commentId
+                  ? { ...comment, isDeleted: false }
+                  : comment
+              );
+              const updatedSocialPostComments = post.socialPostComments.map(
+                (comment) =>
+                  comment.id === commentId
+                    ? { ...comment, isDeleted: false }
+                    : comment
+              );
+              return {
+                ...post,
+                comments: updatedComments,
+                socialPostComments: updatedSocialPostComments,
+              };
+            })
           );
-          clearError();
+          throw new Error(
+            `Failed to delete comment: ${response.status} ${response.statusText}`
+          );
         }
+
+        clearError();
       } catch (err: any) {
         console.error(`Error deleting comment with ID ${commentId}:`, err);
         setError("Failed to delete comment. Please try again.");
@@ -476,7 +582,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
         setLoadingState("isDeletingComment", false);
       }
     },
-    [token, clearError]
+    [token, clearError, setPosts]
   );
 
   // Initial friends fetch

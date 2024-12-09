@@ -1,7 +1,23 @@
-import React from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import React, { useContext } from "react";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { GlobalContext } from "@/context/GlobalContext";
+import { useSocialFeed } from "@/context/SocialFeedContext";
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+  renderers,
+} from "react-native-popup-menu";
 
 type PostItemType = {
   id: string;
@@ -11,10 +27,12 @@ type PostItemType = {
   caption?: string;
   user: {
     name: string;
-    profilePicture: any; // Using any for the ProfileImage type
+    profilePicture: any;
+    id?: string;
   };
   dateTimeCreated: string;
   likes: string[];
+  numberOfLikes: number;
   comments: Array<{
     id: string;
     content: string;
@@ -22,8 +40,8 @@ type PostItemType = {
     accountId: string;
     dateTimeCreated: string;
   }>;
-  // Add userProfile for debugging
   userProfile?: {
+    id?: string;
     username?: string;
   } | null;
 };
@@ -36,19 +54,11 @@ type ItemProps = {
 };
 
 const formatTimestamp = (dateTimeCreated: string): string => {
-  //console.log("Original Timestamp:", dateTimeCreated);
-
-  const trimmedTimestamp = dateTimeCreated.includes(".")
-    ? dateTimeCreated.split(".")[0] +
-      "." +
-      dateTimeCreated.split(".")[1].slice(0, 3)
-    : dateTimeCreated;
-
-  const date = new Date(trimmedTimestamp);
-  //console.log("Date:", date);
+  const cleanedTimestamp = dateTimeCreated.split(".")[0].replace("T", " ");
+  const date = new Date(cleanedTimestamp);
 
   if (isNaN(date.getTime())) {
-    console.warn("Invalid date:", trimmedTimestamp);
+    console.warn("Invalid date:", dateTimeCreated);
     return "Invalid Date";
   }
 
@@ -59,17 +69,44 @@ const formatTimestamp = (dateTimeCreated: string): string => {
     hour: "numeric",
     minute: "numeric",
     hour12: true,
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   });
 };
 
 const PostItem = ({ item, liked, onLikePress, onCommentPress }: ItemProps) => {
   const navigation = useNavigation<NavigationProp<any>>();
+  const context = useContext(GlobalContext);
+  const { deletePost } = useSocialFeed();
 
-  console.log("[DEBUG] PostItem received:", {
-    id: item.id,
-    user: item.user,
-    rawName: item.user.name,
-  });
+  const currentUserID = context?.userProfile.id;
+  const isOwner = currentUserID === item.userProfile?.id;
+
+  const handleDeletePost = () => {
+    Alert.alert(
+      "Delete Post",
+      "Are you sure you want to delete this post?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => deletePost(item.id),
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const handleUsernamePress = () => {
+    const userProfile = item.userProfile;
+
+    if (!userProfile || !userProfile.id) {
+      console.log("Navigation failed: No userProfile available", { item });
+      return;
+    }
+
+    navigation.navigate("VisitProfileScreen", { item: userProfile });
+  };
 
   const handlePostPress = () => {
     if (item.type === "text") {
@@ -87,26 +124,52 @@ const PostItem = ({ item, liked, onLikePress, onCommentPress }: ItemProps) => {
 
   return (
     <View style={styles.item}>
-      {/* Header */}
-      <TouchableOpacity onPress={handlePostPress}>
-        <View style={styles.header}>
+      <View style={styles.headerContainer}>
+        <TouchableOpacity onPress={handleUsernamePress} style={styles.header}>
           <Image style={styles.profile} source={item.user.profilePicture} />
           <Text style={styles.username}>{item.user.name}</Text>
+        </TouchableOpacity>
+        {/* MENU SECTION - Moved to top right */}
+        <View style={styles.menuContainer}>
+          <Menu>
+            <MenuTrigger customStyles={menuTriggerStyles}>
+              <MaterialCommunityIcons
+                name="dots-horizontal"
+                color="#B1B6C0"
+                size={23}
+              />
+            </MenuTrigger>
+            <MenuOptions customStyles={menuOptionsStyles}>
+              {isOwner ? (
+                <MenuOption
+                  onSelect={handleDeletePost}
+                  customStyles={menuOptionStyles}
+                >
+                  <Text style={styles.deleteText}>Delete Post</Text>
+                </MenuOption>
+              ) : (
+                <MenuOption disabled customStyles={menuOptionStyles}>
+                  <Text style={{ color: "#999" }}>No options available</Text>
+                </MenuOption>
+              )}
+            </MenuOptions>
+          </Menu>
         </View>
-      </TouchableOpacity>
+      </View>
 
-      {/* Content */}
+      {/* Rest of the post content */}
       {item.type === "text" && item.content && (
         <Text style={styles.contentText}>{item.content}</Text>
       )}
       {item.type === "image" && item.imageUrl && (
-        <Image style={styles.postImage} source={{ uri: item.imageUrl }} />
+        <TouchableOpacity onPress={handlePostPress}>
+          <Image style={styles.postImage} source={{ uri: item.imageUrl }} />
+        </TouchableOpacity>
       )}
       {item.type === "image" && item.caption && (
         <Text style={styles.caption}>{item.caption}</Text>
       )}
 
-      {/* Footer */}
       <View style={styles.footer}>
         <View style={styles.likecomment}>
           <TouchableOpacity
@@ -121,7 +184,7 @@ const PostItem = ({ item, liked, onLikePress, onCommentPress }: ItemProps) => {
               color={liked ? "#FF3B30" : "#B1B6C0"}
             />
           </TouchableOpacity>
-          <Text style={styles.likeCounter}>{item.likes.length}</Text>
+          <Text style={styles.likeCounter}>{item.numberOfLikes}</Text>
 
           <TouchableOpacity
             onPress={onCommentPress}
@@ -131,14 +194,51 @@ const PostItem = ({ item, liked, onLikePress, onCommentPress }: ItemProps) => {
           >
             <Ionicons name="chatbubble" color="#B1B6C0" size={23} />
           </TouchableOpacity>
-          <Text style={styles.commentCounter}>{item.comments.length}</Text>
+          <Text style={styles.commentCounter}>
+            {item.comments.filter((comment) => !comment.isDeleted).length}
+          </Text>
         </View>
-        <Text style={styles.timestamp}>
-          {formatTimestamp(item.dateTimeCreated)}
-        </Text>
+        <Text style={styles.timestamp}>{item.dateTimeCreated}</Text>
       </View>
     </View>
   );
+};
+
+const menuTriggerStyles = {
+  triggerWrapper: {
+    // transform: [{ translateX: -20 }],
+    marginLeft: -40,
+  },
+};
+
+const menuOptionsStyles = {
+  optionsContainer: {
+    width: 200,
+    backgroundColor: "white",
+    borderRadius: 8,
+    padding: 5,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  optionsWrapper: {
+    backgroundColor: "white",
+  },
+};
+
+const menuOptionStyles = {
+  optionWrapper: {
+    padding: 10,
+    backgroundColor: "white",
+  },
+  optionText: {
+    color: "black",
+  },
 };
 
 const styles = StyleSheet.create({
@@ -167,6 +267,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "left",
     marginLeft: 7,
+  },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
   },
   contentText: {
     fontSize: 16,
@@ -215,12 +321,21 @@ const styles = StyleSheet.create({
     padding: 7,
     fontSize: 16,
     fontWeight: "bold",
+    minWidth: 30,
   },
   commentCounter: {
     color: "black",
     padding: 7,
     fontSize: 16,
     fontWeight: "bold",
+  },
+  deleteText: {
+    color: "red",
+    padding: 10,
+    fontSize: 16,
+  },
+  menuContainer: {
+    marginRight: -10, // Adjust this value to fine-tune
   },
 });
 

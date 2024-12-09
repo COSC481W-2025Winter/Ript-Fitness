@@ -1,6 +1,6 @@
 // OtherUserProfileScreen.tsx
 
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -30,7 +30,6 @@ interface Post {
   // Add other fields as needed
 }
 
-
 const VisitProfileScreen: React.FC = () => {
   const context = useContext(GlobalContext);
   const profContext = useContext(ProfileContext)
@@ -40,8 +39,6 @@ const VisitProfileScreen: React.FC = () => {
   // Assume that the other user's profile data is passed via navigation params
   const { item } = route.params as any;
 
-  console.log(item)
-
   const [addingFriend, setAddingFriend] = useState(false);
   const [DeletingFriend, setDeletingFriend] = useState(false);
 
@@ -50,13 +47,13 @@ const VisitProfileScreen: React.FC = () => {
 
     setAddingFriend(true);
     try {
-        context?.addFriend(item)
+      context?.addFriend(item);
       const response = await fetch(
         `${httpRequests.getBaseURL()}/friends/addFriend/${item.profileID}`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             Authorization: `Bearer ${context?.data.token}`,
           },
         }
@@ -68,8 +65,8 @@ const VisitProfileScreen: React.FC = () => {
       // Optionally, update the UI or state to reflect the friend request
       // For example, disable the "Add Friend" button or change its text
     } catch (error) {
-        context?.removeFriend(item) //failed to add friend, remove from local data
-      console.error('Error adding friend:', error);
+      context?.removeFriend(item); //failed to add friend, remove from local data
+      console.error("Error adding friend:", error);
     } finally {
       setAddingFriend(false);
     }
@@ -80,13 +77,13 @@ const VisitProfileScreen: React.FC = () => {
 
     setDeletingFriend(true);
     try {
-    context?.removeFriend(item)
+      context?.removeFriend(item);
       const response = await fetch(
         `${httpRequests.getBaseURL()}/friends/deleteFriend/${item.profileID}`,
         {
-          method: 'DELETE',
+          method: "DELETE",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             Authorization: `Bearer ${context?.data.token}`,
           },
         }
@@ -99,13 +96,12 @@ const VisitProfileScreen: React.FC = () => {
       // Optionally, update the UI or state to reflect the friend request
       // For example, disable the "Add Friend" button or change its text
     } catch (error) {
-        context?.addFriend(item)  //failed to remove friend, add back to local data
-      console.error('Error adding friend:', error);
+      context?.addFriend(item); //failed to remove friend, add back to local data
+      console.error("Error adding friend:", error);
     } finally {
       setDeletingFriend(false);
     }
   };
-
 
   if (!item) {
     // Show a loading indicator while fetching the profile
@@ -135,7 +131,7 @@ const VisitProfileScreen: React.FC = () => {
       {/* Profile Section */}
       <View style={styles.profileSection}>
         <Image
-          source={{uri: `data:image/png;base64,${item.profilePicture}` }}
+          source={{ uri: `data:image/png;base64,${item.profilePicture}` }}
           style={styles.avatar}
         />
         <Text style={styles.name}>{item.displayname}</Text>
@@ -217,21 +213,12 @@ const VisitProfileScreen: React.FC = () => {
 
       </View>
 
-      {true ? (
-          <PostsScreen
-          userId={item.id}
-          userProfile={item}
-        />
-) : null}
-</View>
+      {true ? <PostsScreen userId={item.id} userProfile={item} /> : null}
+    </View>
   );
 };
 
-
-const PostsScreen: React.FC<any> = ({
-  userId,
-  userProfile,
-}) => {
+const PostsScreen: React.FC<any> = ({ userId, userProfile }) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -251,9 +238,9 @@ const PostsScreen: React.FC<any> = ({
       const response = await fetch(
         `${httpRequests.getBaseURL()}/socialPost/getPostsFromAccountId/${userId}/${startIndex}/${endIndex}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             Authorization: `Bearer ${context?.data.token}`,
           },
         }
@@ -343,11 +330,11 @@ const PostsScreen: React.FC<any> = ({
   const formatTimestamp = (timestamp: string): string => {
     const date = new Date(timestamp);
     return date.toLocaleString(undefined, {
-      year: 'numeric',
-      month: 'numeric',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
       hour12: true,
     });
   };
@@ -359,9 +346,9 @@ const PostsScreen: React.FC<any> = ({
         keyExtractor={(item, index) => index.toString()}
         renderItem={renderPostItem}
         contentContainerStyle={{
-          alignItems: 'center',
+          alignItems: "center",
           paddingTop: 10,
-          backgroundColor: '#fff',
+          backgroundColor: "#fff",
         }}
         showsVerticalScrollIndicator={true}
         refreshControl={
@@ -378,13 +365,13 @@ const PostsScreen: React.FC<any> = ({
 };
 
 const styles = StyleSheet.create({
-    bioStyle: {
-        flexDirection:'row'
-      },
+  bioStyle: {
+    flexDirection: "row",
+  },
   container: {
     paddingTop:5,
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   centered: {
     flex: 1,
@@ -401,9 +388,9 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingHorizontal: 16,
     paddingBottom: 10,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     // Positioning the header at the top
-    position: 'relative',
+    position: "relative",
     zIndex: 10,
     marginTop: Platform.OS === "ios" ? '10%' : 0
   },
@@ -438,7 +425,7 @@ const styles = StyleSheet.create({
 
 
   profileSection: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 10,
   },
   avatar: {
@@ -448,18 +435,18 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 10,
   },
   bioContainer: {
     marginTop: 10,
     paddingHorizontal: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   bio: {
     fontSize: 13,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
   },
   addFriendButton: {
     flexDirection: 'row',
@@ -490,22 +477,22 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flex: 1,
-    width: '100%',
-    backgroundColor: '#fff',
+    width: "100%",
+    backgroundColor: "#fff",
   },
   postView: {
     flex: 1,
-    backgroundColor: '#eee',
+    backgroundColor: "#eee",
   },
   postItem: {
     marginBottom: 10,
     width: '90%',
     minHeight: 80,
-    backgroundColor: '#eee',
+    backgroundColor: "#eee",
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 10,
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   postAvatar: {
     width: 60,
@@ -524,20 +511,20 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   postFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     bottom: 0,
   },
   likeCommentContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   likeCounter: {
-    color: 'black',
+    color: "black",
     padding: 7,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   dateText: {
     marginRight: 15,

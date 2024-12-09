@@ -1,9 +1,12 @@
 // components/StreakCounter.tsx
 
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import FlameIcon from '../assets/images/streak_flame.svg';
-import { useStreak } from '@/context/StreakContext';
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import FlameIcon from "../assets/images/streak_flame.svg";
+import Flame from "../assets/images/flame.svg";
+import NoFlame from "../assets/images/no-flame.svg";
+import { useStreak } from "@/context/StreakContext";
+import { Platform } from "react-native";
 
 const StreakCounter: React.FC = () => {
   const { streak, loading, error } = useStreak();
@@ -12,15 +15,17 @@ const StreakCounter: React.FC = () => {
     return null;
   }
 
+  const FlameComponent = streak > 0 ? Flame : NoFlame;
+
   return (
     <View
       style={styles.container}
       accessible
       accessibilityLabel={`Streak of ${streak} days`}
     >
-      <FlameIcon width={48} height={48} />
-      <View style={styles.badge}>
-        <Text style={styles.badgeText}>{streak}</Text>
+      <FlameComponent width={48} height={48} />
+      <View style={[styles.badge]}>
+        <Text style={[styles.badgeText,{paddingTop: Platform.OS === "ios" ? 0 : 10}]}>{streak}</Text>
       </View>
     </View>
   );
@@ -28,22 +33,22 @@ const StreakCounter: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'relative',
-    marginTop: -20,
+    position: "relative",
+    marginTop: Platform.OS === "android" ? -10 : -20,
+    paddingTop: Platform.OS === "android" ? 10 : 0,
   },
   badge: {
-    position: 'absolute',
-    right: 16,
+    position: "absolute",
+    width:'100%',
     top: 24,
     borderRadius: 8,
-    width: 16,
-    height: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
+    flex:1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   badgeText: {
     fontSize: 15,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 

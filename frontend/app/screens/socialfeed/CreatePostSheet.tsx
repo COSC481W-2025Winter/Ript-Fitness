@@ -21,123 +21,137 @@ import { useSocialFeed } from "@/context/SocialFeedContext";
 import ProfileImage from "../../../assets/images/profile/Profile.png";
 import { TextInput } from "react-native";
 
-
 export interface CreatePostSheetRef {
   snapToIndex: (index: number) => void;
   close: () => void;
 }
 
-const CreatePostSheet = forwardRef<CreatePostSheetRef>((props, ref) => {
-  const [postText, setPostText] = useState("");
-  const { addPost } = useSocialFeed();
-  const bottomSheetRef = useRef<BottomSheet>(null);
-  const inputRef = useRef<any>(null);
-  const snapPoints = React.useMemo(() => ["100%"], []);
+interface CreatePostSheetProps {
+  userProfilePicture?: string;
+}
 
-  // Handle sheet state changes
-  const handleSheetChange = useCallback((index: number) => {
-    if (index === -1) {
-      setPostText("");
-      Keyboard.dismiss();
-    }
-  }, []);
+const CreatePostSheet = forwardRef<CreatePostSheetRef, CreatePostSheetProps>(
+  ({ userProfilePicture }, ref) => {
+    const [postText, setPostText] = useState("");
+    const { addPost } = useSocialFeed();
+    const bottomSheetRef = useRef<BottomSheet>(null);
+    const inputRef = useRef<any>(null);
+    const snapPoints = React.useMemo(() => ["100%"], []);
 
-  const handleCancel = () => {
-    setPostText("");
-    Keyboard.dismiss();
-    bottomSheetRef.current?.close();
-  };
-
-  useImperativeHandle(ref, () => ({
-    snapToIndex: (index: number) => {
-      bottomSheetRef.current?.snapToIndex(index);
-      if (index === 0 || index === 1) {
-        setTimeout(() => {
-          inputRef.current?.focus();
-        }, 100);
+    // Handle sheet state changes
+    const handleSheetChange = useCallback((index: number) => {
+      if (index === -1) {
+        setPostText("");
+        Keyboard.dismiss();
       }
-    },
-    close: () => {
-      Keyboard.dismiss();
-      bottomSheetRef.current?.close();
-    },
-  }));
+    }, []);
 
-  const handlePost = async () => {
-    if (postText.trim()) {
-      await addPost(postText);
+    const handleCancel = () => {
       setPostText("");
       Keyboard.dismiss();
       bottomSheetRef.current?.close();
-    }
-  };
+    };
 
-  return (
-    <BottomSheet
-      ref={bottomSheetRef}
-      index={-1} //Replace with -1
-      snapPoints={snapPoints}
-      enablePanDownToClose={true}
-      onChange={handleSheetChange}
-      keyboardBehavior="extend"
-      keyboardBlurBehavior="none"
-      android_keyboardInputMode="adjustResize"
-    >
-      {/* Rest of your component remains the same */}
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
-            <Text style={styles.cancelButtonText}>Cancel</Text>
-          </TouchableOpacity>
-          <Text style={styles.title}>New Post</Text>
-          <TouchableOpacity
-            style={[
-              styles.shareButton,
-              !postText.trim() && styles.shareButtonDisabled,
-            ]}
-            onPress={handlePost}
-            disabled={!postText.trim()}
-          >
-            <Text
+    useImperativeHandle(ref, () => ({
+      snapToIndex: (index: number) => {
+        bottomSheetRef.current?.snapToIndex(index);
+        if (index === 0 || index === 1) {
+          setTimeout(() => {
+            inputRef.current?.focus();
+          }, 100);
+        }
+      },
+      close: () => {
+        Keyboard.dismiss();
+        bottomSheetRef.current?.close();
+      },
+    }));
+
+    const handlePost = async () => {
+      if (postText.trim()) {
+        await addPost(postText);
+        setPostText("");
+        Keyboard.dismiss();
+        bottomSheetRef.current?.close();
+      }
+    };
+
+    return (
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={-1}
+        snapPoints={snapPoints}
+        enablePanDownToClose={true}
+        onChange={handleSheetChange}
+        keyboardBehavior="interactive"
+        keyboardBlurBehavior="none"
+        android_keyboardInputMode="adjustResize"
+      >
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={handleCancel}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <Text style={styles.title}>New Post</Text>
+            <TouchableOpacity
               style={[
-                styles.shareButtonText,
+                styles.shareButton,
                 !postText.trim() && styles.shareButtonDisabled,
               ]}
+              onPress={handlePost}
+              disabled={!postText.trim()}
             >
-              Share
-            </Text>
-          </TouchableOpacity>
-        </View>
+              <Text
+                style={[
+                  styles.shareButtonText,
+                  !postText.trim() && styles.shareButtonDisabled,
+                ]}
+              >
+                Share
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-        <View style={styles.mainContent}>
-          <View style={styles.userInfoContainer}>
-            <Image source={ProfileImage} style={styles.profileImage} />
-            <BottomSheetTextInput
-              ref={inputRef}
-              style={styles.input}
-              multiline
-              placeholder="What's happening?"
-              value={postText}
-              onChangeText={setPostText}
-              autoFocus={false}
-              scrollEnabled={true}
-              onSubmitEditing={handlePost}
-            />
+          <View style={styles.mainContent}>
+            <View style={styles.userInfoContainer}>
+              <Image
+                source={
+                  userProfilePicture
+                    ? { uri: `data:image/png;base64,${userProfilePicture}` }
+                    : ProfileImage
+                }
+                style={styles.profileImage}
+              />
+              <BottomSheetTextInput
+                ref={inputRef}
+                style={styles.input}
+                multiline
+                placeholder="What's happening?"
+                value={postText}
+                onChangeText={setPostText}
+                autoFocus={false}
+                scrollEnabled={true}
+                onSubmitEditing={handlePost}
+              />
+            </View>
+          </View>
+
+          <View style={styles.mediaButtonsContainer}>
+            <TouchableOpacity style={styles.mediaButton}>
+              <MaterialIcons name="photo" size={24} color="#21BFBF" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.mediaButton}>
+              <MaterialIcons name="camera-alt" size={24} color="#21BFBF" />
+            </TouchableOpacity>
           </View>
         </View>
-
-        <View style={styles.mediaButtonsContainer}>
-          <TouchableOpacity style={styles.mediaButton}>
-            <MaterialIcons name="photo" size={24} color="#21BFBF" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.mediaButton}>
-            <MaterialIcons name="camera-alt" size={24} color="#21BFBF" />
-          </TouchableOpacity>
-        </View>
-      </View>
-    </BottomSheet>
-  );
-});
+      </BottomSheet>
+    );
+  }
+);
 
 const styles = StyleSheet.create({
   keyboardAvoidingView: {
