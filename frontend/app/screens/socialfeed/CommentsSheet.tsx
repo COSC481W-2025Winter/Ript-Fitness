@@ -47,28 +47,43 @@ interface CommentItemProps {
 interface CommentsSheetProps {
   userProfilePicture?: string;
 }
-/**
- * Formats a date string into a human-readable relative time
- * @param dateString - ISO date string to format
- * @returns Formatted string like "just now", "5m ago", "2h ago", etc.
- */
-const formatCommentTime = (dateString: string) => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffInMinutes = Math.floor(
-    (now.getTime() - date.getTime()) / (1000 * 60)
-  );
 
-  if (diffInMinutes < 1) return "just now";
+const formatCommentTime = (dateString: string) => {
+  let date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    const parts = dateString.match(/(\d+)\/(\d+)\/(\d+), (\d+):(\d+)\s*(\w+)/);
+    if (parts) {
+      const month = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      const year = parseInt(parts[3], 10);
+      let hours = parseInt(parts[4], 10);
+      const minutes = parseInt(parts[5], 10);
+      const ampm = parts[6].toUpperCase();
+
+      if (ampm === "PM" && hours < 12) hours += 12;
+      if (ampm === "AM" && hours === 12) hours = 0;
+
+      date = new Date(year, month, day, hours, minutes);
+    }
+  }
+
+  if (isNaN(date.getTime())) {
+    return "Invalid Date";
+  }
+
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (diffInSeconds < 60) return `${diffInSeconds}s ago`;
+
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
   if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
 
   const diffInHours = Math.floor(diffInMinutes / 60);
   if (diffInHours < 24) return `${diffInHours}h ago`;
 
   const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 7) return `${diffInDays}d ago`;
-
-  return date.toLocaleDateString();
+  return `${diffInDays}d ago`;
 };
 
 const CommentItem = ({ comment, onReply }: CommentItemProps) => {
