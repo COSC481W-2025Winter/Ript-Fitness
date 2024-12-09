@@ -1,6 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,7 +47,7 @@ public class WorkoutsService {
         // Create a new Workouts entity and set its properties
         Workouts newWorkout = new Workouts();
         newWorkout.setName(workoutsDto.getName());
-        newWorkout.setAccount(account);
+        newWorkout.setAccount(account); 
 
         List<ExerciseModel> exercises = new ArrayList<>();
 
@@ -92,50 +93,35 @@ public class WorkoutsService {
 	}
 
 	// Retrieves a list of workouts that have the foreign key of the current user
-	public List<WorkoutsDto> getUsersWorkouts() {
+	public List<WorkoutsDto> getUsersWorkouts(Integer startIndex, Integer endIndex) {
+		if(startIndex > endIndex)
+			throw new RuntimeException("Start index cannot be greater than end index. Start index = " + startIndex + ", end index = " + endIndex);
+	
+		if(startIndex < 0 || endIndex < 0)
+			throw new RuntimeException("Start index and end index must be greater than 0. Start index = " + startIndex + ", end index = " + endIndex);
+
 		Long currentUserId = accountsService.getLoggedInUserId();
 		AccountsModel account = accountsRepository.findById(currentUserId)
 				.orElseThrow(() -> new RuntimeException("Account not found"));
 		List<Workouts> workouts = workoutsRepository.findByAccountId(currentUserId);
+		
+		if (workouts.isEmpty()) {
+	        return Collections.emptyList(); // Return an empty list if no workouts are found
+	    }
+		
+		int workoutsSize = workouts.size();
+		if(startIndex < 0 || startIndex > workoutsSize) {
+			throw new RuntimeException("Start index out of bounds. Start index = "+ startIndex);
+		}
+		
+		if(endIndex >= workoutsSize) {
+			return WorkoutsMapper.INSTANCE.toListWorkoutsDto(workouts).subList(startIndex, workoutsSize);
+		}
 
-		return WorkoutsMapper.INSTANCE.toListWorkoutsDto(workouts);
+		return WorkoutsMapper.INSTANCE.toListWorkoutsDto(workouts).subList(startIndex, endIndex + 1);
 	}
 
-	// Retrieve a single workout object based on a workout Id
-	/*
-	 * @Transactional public WorkoutsDto updateWorkout(Long workoutId, WorkoutsDto
-	 * workoutsDto) { Optional<Workouts> optWorkout =
-	 * workoutsRepository.findById(workoutId); if (optWorkout.isEmpty()) { throw new
-	 * RuntimeException("no workout found with id = " + workoutId); } Workouts
-	 * workoutToBeUpdated = optWorkout.get();
-	 * 
-	 * // Update basic workout properties
-	 * WorkoutsMapper.INSTANCE.updateWorkoutRowFromDto(workoutsDto,
-	 * workoutToBeUpdated);
-	 * 
-	 * // Handle exercises List<ExerciseModel> existingExercises =
-	 * workoutToBeUpdated.getExercises();
-	 * 
-	 * // Clear the existing exercises to avoid transient references if
-	 * (existingExercises != null) { existingExercises.clear(); } else {
-	 * existingExercises = new ArrayList<>(); }
-	 * 
-	 * // Add or update exercises from the DTO if (workoutsDto.getExercises() !=
-	 * null) { for (ExerciseDto exerciseDto : workoutsDto.getExercises()) {
-	 * ExerciseModel exercise = new ExerciseModel();
-	 * exercise.setNameOfExercise(exerciseDto.getNameOfExercise());
-	 * exercise.setReps(exerciseDto.getReps());
-	 * exercise.setSets(exerciseDto.getSets());
-	 * exercise.setAccount(workoutToBeUpdated.getAccount()); // Set the managed
-	 * account existingExercises.add(exercise); } }
-	 * 
-	 * workoutToBeUpdated.setExercises(existingExercises);
-	 * 
-	 * // Save the updated workout entity workoutToBeUpdated =
-	 * workoutsRepository.save(workoutToBeUpdated); return
-	 * WorkoutsMapper.INSTANCE.toWorkoutsDto(workoutToBeUpdated); }
-	 */
-
+	//updates workout
 	@Transactional
 	public WorkoutsDto updateWorkout(Long workoutId, WorkoutsDto workoutsDto) {
 	    Long currentUserId = accountsService.getLoggedInUserId();

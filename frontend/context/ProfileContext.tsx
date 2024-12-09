@@ -1,7 +1,7 @@
 import { httpRequests } from '@/api/httpRequests';
 import React, { createContext, useState, ReactNode, useContext } from 'react';
 import { GlobalContext } from './GlobalContext';
-
+import DEFAULT_PROFILE_PICTURE from '@/assets/base64/defaultPicture';
 
 // Define RequestingFriend type
 export interface RequestingFriend {
@@ -22,8 +22,12 @@ export interface RequestingFriend {
 interface ProfileContextType {
   requestingFriends: RequestingFriend[];
   requestsOpen: boolean;
+  sentFriendRequests: String[];
   setRequestsOpen: (isOpen: boolean) => void;
   reloadFriendRequests: () => void;
+  removeFriendRequest: (id: string) => void;
+  getFriendRequesterById: (id: string) => RequestingFriend | undefined;
+  handleAddSentFriendRequest: (name: string) => void;
 }
 
 export const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
@@ -39,6 +43,15 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
   const [loadedRequests, setLoadedRequests] = useState(false)
   const [loadingRequests, setLoadingRequests] = useState(false)
 
+  const [sentFriendRequests, setSentFriendRequests] = useState<String[]>([])
+  const [loadingSent, setLoadingSent] = useState(false)
+
+  const handleAddSentFriendRequest = (name: string) => {
+    if (!sentFriendRequests.includes(name)) {
+      setSentFriendRequests([...sentFriendRequests, name]);
+    }
+  };
+
 
   const defaultUserProfile: RequestingFriend = {
     id: '',
@@ -47,7 +60,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
     username: '',
     displayname: '',
     bio: '',
-    profilePicture: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAIAAAADnC86AAABU0lEQVR4nO3WP4+CMBgG8BdaXBr/JZCaMOjCon7/T+FkMIaQoAmUGGCSaAik7Q3kOI+cRCdveN+ptDzPr2ON3W4HnxjzIyrCCCOMMMIII/xf4aZpfN9vmgYAhBD7/T4IgqqqXmx8jA809GGlVBzHhBAAKMvyfr9vNhvOeZIkr6iP8eGGPpwkCeecUgoAt9ttPp8TQmazWV3XWuv2n6IoTqcTAJzP5zzPn8UHGvpwlmWMMcZY+yml7CpM01RKtWvbtrXWURQppRzHeRYfaAAA+ggXRVHXdRzHAHA4HBaLhZSyqzDNn1tyzsMw9DxvIL7dbgkhzxp+wev1ul2EYbharaqqulwu0+m0LMvRaGQYRnuqtRZCuK4rhPA8r9vvxSmljLE/G/pwb8bj8fV6PR6PlmUtl8tuP03TyWTiOI6UMk1T13XfbQAAAx/0CCOMMMIII/w9XxQt4FPrpYzlAAAAAElFTkSuQmCC",
+    profilePicture: "",
     isDeleted: false,
     restDays: 0,
     restDaysLeft: 0,
@@ -57,32 +70,13 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
 
 
   const updateFriendRequests = (newProfiles: RequestingFriend[]) => {
-    setRequestingFriends(newProfiles)
-    /*setRequestingFriends((prevProfiles) => {
-      // Create a map for new profiles based on their IDs
-      const newProfilesMap = new Map(newProfiles.map((profile) => [profile.id, profile]));
-  
-      // Update existing profiles or add new ones
-      const updatedProfiles = prevProfiles.map((profile) =>
-        newProfilesMap.has(profile.id)
-          ? {
-              ...profile,
-              ...newProfilesMap.get(profile.id),
-              profilePicture:
-                newProfilesMap.get(profile.id)?.profilePicture || profile.profilePicture,
-            }
-          : profile
-      );
-  
-      // Add any new profiles that don't already exist in prevProfiles
-      newProfiles.forEach((profile) => {
-        if (!prevProfiles.some((prevProfile) => prevProfile.id === profile.id)) {
-          updatedProfiles.push(profile);
-        }
-      });
-  
-      return updatedProfiles;
-    });*/
+    setRequestingFriends(prevProfiles =>
+      newProfiles.map((newProfile, index) => ({
+        ...prevProfiles[index],
+        ...newProfile,
+        profilePicture: newProfile.profilePicture == "" || newProfile.profilePicture == null ? DEFAULT_PROFILE_PICTURE : newProfile.profilePicture
+      }))
+    );
   };
   
 
@@ -90,9 +84,49 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
 
   const [requestsOpen, setRequestsOpen] = useState(false);
 
+  const removeFriendRequest = (idToRemove: string): void => {
+    setRequestingFriends((prevProfiles) =>
+      prevProfiles.filter((profile) => profile.id !== idToRemove)
+    );
+  };
+
+  const getFriendById = (idToFind: string): RequestingFriend | undefined => {
+    return requestingFriends.find((profile) => profile.id === idToFind);
+  };
+
+
+  const getSentRequests = async () => {
+    try {
+    const response = await fetch(`${httpRequests.getBaseURL()}/friendRequest/getAllAccountsWithSpecificStatus/SENT`, {
+      method: 'GET', // Set method to POST
+      headers: {
+        'Content-Type': 'application/json', // Set content type to JSON
+        "Authorization": `Bearer ${context?.data.token}`,
+      },
+      body: "", // Convert the data to a JSON string
+    }); // Use endpoint or replace with BASE_URL if needed
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+    setSentFriendRequests(await response.json())
+  } catch (error) {
+    // If access denied
+    // Send to login page
+    //context?.setToken("")
+    console.error('0013 GET request failed:', error);
+    throw error; // Throw the error for further handling if needed
+  } finally {
+    setLoadingSent(true)
+  }
+  }
+  if (!loadingSent) {
+  getSentRequests();
+  }
+
   const fetchFriendRequests = async () => {
     let friendList;
     try {
+      console.log("ff")
     setLoadingRequests(true)
     const response = await fetch(`${httpRequests.getBaseURL()}/friendRequest/getAllAccountsWithSpecificStatus/PENDING`, {
       method: 'GET', // Set method to POST
@@ -106,7 +140,6 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
       throw new Error(`Error: ${response.status}`);
     }
     friendList = await response.json()
-
   } catch (error) {
     // If access denied
     // Send to login page
@@ -154,7 +187,11 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
         requestingFriends,
         requestsOpen,
         setRequestsOpen,
-        reloadFriendRequests
+        reloadFriendRequests,
+        removeFriendRequest,
+        getFriendRequesterById: getFriendById,
+        handleAddSentFriendRequest,
+        sentFriendRequests
       }}
     >
       {children}

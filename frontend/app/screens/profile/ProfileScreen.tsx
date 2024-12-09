@@ -1,11 +1,4 @@
-import React, {
-  Component,
-  ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { Component, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -19,31 +12,24 @@ import {
   TouchableWithoutFeedback,
   Alert,
   Platform,
-} from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { ScrollView } from "react-native-gesture-handler";
-import {
-  DrawerActions,
-  NavigationContainer,
-  useFocusEffect,
-  useNavigation,
-} from "@react-navigation/native";
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { httpRequests } from "@/api/httpRequests";
-import { GlobalContext, ProfileObject } from "@/context/GlobalContext";
-import { SocialFeedContext } from "@/context/SocialFeedContext";
-import { createDrawerNavigator } from "@react-navigation/drawer";
-import { ProfileScreenNavigationProp } from "../../(tabs)/ProfileStack";
-import GraphScreen from "./GraphScreen";
-import { useSocialFeed, SocialPost } from "@/context/SocialFeedContext";
-import { ProfileContext } from "@/context/ProfileContext";
-import * as ImagePicker from "expo-image-picker";
-import * as ImageManipulator from "expo-image-manipulator";
-import * as FileSystem from "expo-file-system";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+} from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { ScrollView } from 'react-native-gesture-handler';
+import { DrawerActions, NavigationContainer, useFocusEffect, useNavigation } from '@react-navigation/native';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { httpRequests } from '@/api/httpRequests';
+import { GlobalContext, ProfileObject } from '@/context/GlobalContext';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { ProfileScreenNavigationProp } from '../../(tabs)/ProfileStack';
+import GraphScreen from './GraphScreen';
+import { ProfileContext } from '@/context/ProfileContext';
+import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
+import * as FileSystem from 'expo-file-system';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import DEFAULT_PROFILE_PICTURE from '@/assets/base64/defaultPicture';
 
 const Tab = createMaterialTopTabNavigator();
-
 const Drawer = createDrawerNavigator();
 
 interface SocialFeedContextType {
@@ -72,13 +58,24 @@ function getDateRange() {
   // Return the results
   return { startYear, startMonth, endYear, endMonth };
 }
+const printImageDimensions = (uri : any) => {
+  Image.getSize(
+    uri,
+    (width, height) => {
+      console.log(`Image Dimensions: ${width} x ${height}`);
+    },
+    (error) => {
+      console.error('Error getting image dimensions:', error);
+    }
+  );
+};
 
 const uploadPhoto = async () => {
   try {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("Permission Denied", "We need access to your photo library.");
-      return;
+    if (status !== 'granted') {
+      Alert.alert('Permission Denied', 'We need access to your photo library.');
+      return null;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -90,58 +87,96 @@ const uploadPhoto = async () => {
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const imageUri = result.assets[0].uri;
 
-      console.log("myURI: ", imageUri);
-      const resizedUri = await resizeImage(imageUri, 250);
+      console.log('Selected Image URI: ', imageUri);
 
-      const base64 = await FileSystem.readAsStringAsync(resizedUri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
+      printImageDimensions(imageUri)
+      // Create FormData object
+      const resizedUri = await resizeImage(imageUri, 1080)
 
-      return base64;
+      printImageDimensions(resizedUri)
+
+      const timestamp = Date.now(); // Current timestamp in milliseconds
+      const dynamicFileName = `photo-${timestamp}.jpg`;
+
+      const formData = new FormData();
+
+      formData.append('file', {
+        uri: resizedUri,
+        name: dynamicFileName, // You can use a dynamic name if needed
+        type: 'image/jpeg', // Adjust based on the selected file's format
+      } as any);
+
+      return formData;
     }
   } catch (error) {
-    console.error("Error picking or resizing image:", error);
+    console.error('Error picking image:', error);
   }
+
+  return null; // Return null if an error occurs or no image is selected
 };
+
 
 const resizeImage = async (
   uri: string,
   maxDimension: number
 ): Promise<string> => {
   try {
+    // Get original image dimensions
+    const { width: originalWidth, height: originalHeight } = await new Promise<{width: number, height: number}>((resolve, reject) => {
+      Image.getSize(
+        uri,
+        (width, height) => resolve({ width, height }),
+        (error) => reject(error)
+      );
+    });
+
+    // Calculate the scaling factor to maintain aspect ratio
+    let newWidth;
+    let newHeight;
+
+    if (originalWidth > originalHeight) {
+      newWidth = maxDimension;
+      newHeight = Math.round((originalHeight / originalWidth) * maxDimension);
+    } else {
+      newHeight = maxDimension;
+      newWidth = Math.round((originalWidth / originalHeight) * maxDimension);
+    }
+
+    console.log('Resized Dimensions:', newWidth, 'x', newHeight);
+
+    // Resize and compress the image
     const result = await ImageManipulator.manipulateAsync(
       uri,
-      [{ resize: { width: maxDimension } }], // Resize only width to maintain aspect ratio
-      { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
+      [{ resize: { width: newWidth, height: newHeight } }],
+      { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
     );
 
-    console.log("Resized Image URI:", result.uri);
     return result.uri;
   } catch (error) {
-    console.error("Error resizing image:", error);
+    console.error('Error resizing image:', error);
     throw error;
   }
 };
-
 const ProfileTabs = () => {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarIndicatorStyle: { backgroundColor: "#40bcbc", height: "100%" }, // Customize the active tab indicator color
-        tabBarLabelStyle: { fontWeight: "bold" },
+        tabBarIndicatorStyle: { backgroundColor: '#40bcbc', height: '100%' }, // Customize the active tab indicator color
+        tabBarLabelStyle: { fontWeight: 'bold' },
         tabBarStyle: {
-          overflow: "hidden",
-          alignSelf: "center",
-          backgroundColor: "white",
-          width: "80%",
-          borderColor: "#40bcbc",
+          overflow: 'hidden',
+          alignSelf: 'center',
+          backgroundColor: 'white',
+          width: '80%',
+          borderColor: '#40bcbc',
           borderRadius: 50,
           borderWidth: 2,
           marginBottom: 10,
         }, // Tab bar background
         tabBarIndicatorContainerStyle: {},
-        tabBarActiveTintColor: "white",
-        tabBarInactiveTintColor: "#40bcbc",
+        tabBarActiveTintColor: 'white',
+        tabBarInactiveTintColor: '#40bcbc',
+        tabBarScrollEnabled: false,
       }}
       style={styles.nav}
     >
@@ -154,69 +189,204 @@ const ProfileTabs = () => {
 
 function PhotosScreen() {
   const context = useContext(GlobalContext);
-  const images: any = [
-    { id: "1", img: require("../../../assets/images/profile/Profile.png") },
-    { id: "2", img: require("../../../assets/images/profile/Profile.png") },
-  ];
+  const navigation = useNavigation<ProfileScreenNavigationProp>()
+
+
+
+
+
+  const [requested, setRequested] = useState(false);
+  const [returned, setReturned] = useState(false);
+
+  const [photos, setPhotos] = useState<string[]>([]);
+
+  const profContext = useContext(ProfileContext);
+
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const [photosPerLoad, setPhotosPerLoad] = useState(9);
+
+  const [allPhotosLoaded, setAllPhotosLoaded] = useState(false);
+
+  let [currentEndIndex, setCurrentEndIndex] = useState(photosPerLoad);
+
+
+  const refreshPhotos = async () => {
+    setRefreshing(true);
+    setLoadingMore(false);
+    setAllPhotosLoaded(false);
+    await setCurrentEndIndex(photosPerLoad);
+    await fetchPhotosList(0, photosPerLoad);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 0);
+  }
+
+
+  const fetchPhotosList = async (startIndex: number, endIndex: number, clear: boolean = true) => {
+    try {
+      const response = await fetch(
+        `${httpRequests.getBaseURL()}/userProfile/photos?startIndex=${startIndex}&endIndex=${endIndex}`,
+        {
+          method: 'GET', // Set method to POST
+          headers: {
+            'Content-Type': 'application/json', // Set content type to JSON
+            Authorization: `Bearer ${context?.data.token}`,
+          },
+          body: '', // Convert the data to a JSON string
+        }
+      ); // Use endpoint or replace with BASE_URL if needed
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      const json = await response.json(); //.json(); // Parse the response as JSON
+      if (clear) {
+        setPhotos(json);
+      } else {
+        setPhotos((prevPosts) => [...prevPosts, ...json]);
+      }
+      setReturned(true);
+      return json; // Return the JSON data directly
+    } catch (error) {
+      setReturned(true);
+      setLoadingMore(false);
+      setAllPhotosLoaded(true);
+      // If access denied
+      // Send to login page
+
+      //console.error('GET request failed:', error);
+      //throw error; // Throw the error for further handling if needed
+    }
+  };
+
+  if (!requested) {
+    setRequested(true);
+    refreshPhotos();
+    //fetchPostList(0, currentEndIndex);
+  }
 
   const handlePhoto = async () => {
-    const base64Image = await uploadPhoto();
-    if (base64Image) {
+    const formData = await uploadPhoto();
+    if (formData) {
       try {
+        setPhotos((prevPhotos) => [
+          ...prevPhotos,
+          "Loading",
+        ]);
         console.log(`${httpRequests.getBaseURL()}/userProfile/photo`);
-        const response = await fetch(
-          `${httpRequests.getBaseURL()}/userProfile/photo`,
-          {
-            method: "POST", // Set method to POST
-            headers: {
-              "Content-Type": "application/json", // Set content type to JSON
-              Authorization: `Bearer ${context?.data.token}`,
-            },
-            body: JSON.stringify(base64Image), // Convert the data to a JSON string
-          }
-        ); // Use endpoint or replace with BASE_URL if needed
+        const response = await fetch(`${httpRequests.getBaseURL()}/userProfile/photo`, {
+          method: 'POST', // Set method to POST
+          headers: {
+            Authorization: `Bearer ${context?.data.token}`,
+          },
+          body: formData, // Convert the data to a JSON string
+        }); // Use endpoint or replace with BASE_URL if needed
         if (!response.ok) {
           const text = await response.text();
           console.log(text);
           throw new Error(`Error: ${response.status}`);
         }
-        const json = await response.json();
+        const json = await response.text();
+        await refreshPhotos();
         console.log(json);
       } catch (error) {
         console.error(error);
       }
-      //setSelectedImage(base64Image);
+      // setSelectedImage(base64Image);
+    }
+  };
+  console.log(photos)
+
+  const handleDeleteImage = async (uri : any) => {
+    // Find the photo to delete
+    const photoToDelete = photos.find((photo) => photo === uri);
+    if (!photoToDelete) {
+      console.error('Photo not found');
+      return;
+    }
+
+    try {
+      // Construct the endpoint URL
+
+      const endpoint = `${httpRequests.getBaseURL()}/userProfile/deletePhoto?photoUrl=${photoToDelete}`;
+      // Send the DELETE request
+      const response = await fetch(endpoint, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${context?.data.token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        console.error('Error deleting photo:', text);
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      // Update the state to remove the deleted photo
+      setPhotos((prevPhotos) => prevPhotos.filter((photo) => photo !== uri));
+
+      console.log('Photo deleted successfully');
+    } catch (error) {
+      console.error('Error deleting photo:', error);
     }
   };
 
+  const photosWithAddButton = [
+    ...photos.map((uri) => ({ uri })), // Convert each URI to an object
+    { isAddButton: true },             // Add button placeholder
+  ];
+
+  const renderItem = ({ item } : any) => {
+    if (item.isAddButton) {
+      // Render the add button
+      return (
+        <TouchableOpacity style={styles.addPhotoButton} onPress={handlePhoto}>
+          <Ionicons name="add" size={48} color="#BFBFBF" />
+        </TouchableOpacity>
+      );
+
+    } else if (item.uri == 'Loading') {
+      // Render the loading indicator
+      return (
+        <View style={[styles.photo, {justifyContent:'center'}]}>
+          <ActivityIndicator size="large" />
+        </View>
+      );
+    } else {
+      // Render the photo
+      return <TouchableOpacity onPress={() =>
+        navigation.navigate('ImageFullScreen', {
+          imageUri: item.uri,
+          onDelete: () => handleDeleteImage(item.uri),
+        })
+      }><Image source={{ uri: item.uri }} style={styles.photo} /></TouchableOpacity>;
+    }
+  };
+
+  
+
   return (
-    <View style={{ width: "100%", flex: 1, backgroundColor: "#fff" }}>
-      <View style={styles.photosContainer}>
-        <FlatList
-          data={images}
-          keyExtractor={(item) => item.id}
-          numColumns={3} // Adjust the number of columns as needed
-          renderItem={({ item }) => (
-            <Image source={item.img} style={styles.photo} />
-          )}
-          contentContainerStyle={{
-            justifyContent: "flex-start",
-            alignItems: "flex-start", // Align items to the left
-            paddingTop: 10,
-            backgroundColor: "#fff",
-          }}
-          ListFooterComponent={
-            <TouchableOpacity
-              style={styles.addPhotoButton}
-              onPress={handlePhoto}
-            >
-              <Ionicons name="add" size={30} color="#fff" />
-            </TouchableOpacity>
-          }
-          showsVerticalScrollIndicator={true}
-        />
-      </View>
-    </View>
+
+    <View style={{width:'100%', flex:1, backgroundColor:'#fff'}}>
+<View style={styles.photosContainer}>
+<FlatList
+  data={photosWithAddButton}
+  keyExtractor={(item, index) => index.toString()}
+  numColumns={3} // Adjust the number of columns as needed
+  renderItem={renderItem}
+  contentContainerStyle={{
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start', // Align items to the left
+    paddingTop: 10,
+    backgroundColor: '#fff',
+  }}
+  showsVerticalScrollIndicator={true}
+/>
+</View>
+</View>
   );
 }
 
@@ -228,6 +398,7 @@ function PostsScreen() {
   const [posts, setPosts] = useState<Post[]>([]);
 
   const context = useContext(GlobalContext);
+  const profContext = useContext(ProfileContext);
 
   const [refreshing, setRefreshing] = React.useState(false);
 
@@ -247,8 +418,8 @@ function PostsScreen() {
     userProfile: ProfileObject;
     userIdsOfLikes: number[];
   }
-
-  const onRefresh = React.useCallback(async () => {
+  const refreshPosts = async () => {
+    console.log("refreshing")
     setRefreshing(true);
     setLoadingMore(false);
     setAllPostsLoaded(false);
@@ -257,23 +428,27 @@ function PostsScreen() {
     setTimeout(() => {
       setRefreshing(false);
     }, 0);
-  }, []);
+  }
+  const onRefresh = React.useCallback(refreshPosts, []);
 
-  const fetchPostList = async (
-    startIndex: number,
-    endIndex: number,
-    clear: boolean = true
-  ) => {
+  useFocusEffect(
+    useCallback(() => {
+      refreshPosts()
+      return () => {};
+    }, [])
+  );
+
+  const fetchPostList = async (startIndex: number, endIndex: number, clear: boolean = true) => {
     try {
       const response = await fetch(
-        `${httpRequests.getBaseURL()}/socialPost/getPostsFromAccountId/${14}/${startIndex}/${endIndex}`,
+        `${httpRequests.getBaseURL()}/socialPost/getPostsFromAccountId/${context?.userProfile.id}/${startIndex}/${endIndex}`,
         {
-          method: "GET", // Set method to POST
+          method: 'GET', // Set method to POST
           headers: {
-            "Content-Type": "application/json", // Set content type to JSON
+            'Content-Type': 'application/json', // Set content type to JSON
             Authorization: `Bearer ${context?.data.token}`,
           },
-          body: "", // Convert the data to a JSON string
+          body: '', // Convert the data to a JSON string
         }
       ); // Use endpoint or replace with BASE_URL if needed
       if (!response.ok) {
@@ -301,42 +476,29 @@ function PostsScreen() {
 
   if (!requested) {
     setRequested(true);
-    fetchPostList(0, currentEndIndex);
+    //fetchPostList(0, currentEndIndex);
   }
-
-  // Fetch details for each post based on postIds
-  /*useEffect(() => {
-    if (!requested) {
-      setRequested(true);
-      const fetchPosts = async () => {
-        try {
-          // Fetch details for the first 10 post IDs
-          const first10Posts = await fetchPostList(0, 10);
-          setPosts(first10Posts);
-        } catch (error) {
-          console.error('Error fetching post details:', error);
-        }
-      };
-      fetchPosts();
-    }
-  }, [requested, postIds]);*/
 
   const formatTimestamp = (timestamp: string): string => {
     const date = new Date(timestamp);
     return date.toLocaleString(undefined, {
-      year: "numeric",
-      month: "numeric",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true, //converts to 12 hour format
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true, // converts to 12 hour format
     });
   };
   const renderPostItem = ({ item: post }: { item: Post }) => (
     <View style={styles.postItem}>
       <Image
         source={{
-          uri: `data:image/png;base64,${post.userProfile.profilePicture}`,
+          uri: `data:image/png;base64,${
+            post.userProfile.profilePicture == '' || post.userProfile.profilePicture == null
+              ? DEFAULT_PROFILE_PICTURE
+              : post.userProfile.profilePicture
+          }`,
         }}
         style={styles.postAvatar}
       />
@@ -378,7 +540,7 @@ function PostsScreen() {
     }
   };
 
-  //refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+  // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
   return (
     <View style={styles.postView}>
       {true ? (
@@ -493,7 +655,7 @@ function ProgressScreen() {
     ).getDate(); // Directly calculate days
 
     React.useEffect(() => {
-      console.log("Calendar refreshed!");
+      console.log('Calendar refreshed!');
       console.log(context?.calendar);
     }, [refreshKey]);
 
@@ -528,6 +690,15 @@ function ProgressScreen() {
           });
         }
       }
+          // Call the function with the corrected date ranges
+          context?.loadCalendarDays({
+            startYear: startDate.year,
+            startMonth: startDate.month,
+            endYear: endDate.year,
+            endMonth: endDate.month,
+          });
+        }
+      }
       if (loadedStartDate > myDate) {
         return <ActivityIndicator size="large" color="#00ff00" />;
       }
@@ -549,20 +720,18 @@ function ProgressScreen() {
           ); // Render empty spacers
         }
       }
-      //if date is in context
-      //use context date
-      //else if date is not in context
-      //if date is before today, 3
-      //if date is today or after, 4
+      // if date is in context
+      // use context date
+      // else if date is not in context
+      // if date is before today, 3
+      // if date is today or after, 4
       return (
         <React.Fragment key={i}>
           {renderCalendarDay(
             day,
             myDate.getFullYear(),
             myDate.getMonth(),
-            getActivityType(
-              new Date(myDate.getFullYear(), myDate.getMonth(), day)
-            )
+            getActivityType(new Date(myDate.getFullYear(), myDate.getMonth(), day))
           )}
         </React.Fragment>
       );
@@ -578,21 +747,21 @@ function ProgressScreen() {
   };
 
   const [myDate, setMyDate] = useState(new Date(Date.now()));
-  //const [year, setYear] = useState(today.getFullYear())
-  //const [month, setMonth] = useState(today.getMonth())
+  // const [year, setYear] = useState(today.getFullYear())
+  // const [month, setMonth] = useState(today.getMonth())
   const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
   const setToFirstOfPreviousMonth = () => {
     const date = new Date(myDate);
@@ -617,19 +786,16 @@ function ProgressScreen() {
         restDaysLeft: Math.max((context.userProfile?.restDaysLeft || 0) - 1, 0),
       });
 
-      const today = new Date().toISOString().split("T")[0]; // Get today's date in yyyy-MM-dd format
+      const today = new Date().toISOString().split('T')[0]; // Get today's date in yyyy-MM-dd format
 
       try {
-        const response = await fetch(
-          `${httpRequests.getBaseURL()}/calendar/logRestDay?date=${today}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json", // Set content type to JSON
-              Authorization: `Bearer ${context?.data.token}`, // Replace with the correct token
-            },
-          }
-        );
+        const response = await fetch(`${httpRequests.getBaseURL()}/calendar/logRestDay?date=${today}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json', // Set content type to JSON
+            Authorization: `Bearer ${context?.data.token}`, // Replace with the correct token
+          },
+        });
 
         if (!response.ok) {
           const errorText = await response.text();
@@ -637,18 +803,18 @@ function ProgressScreen() {
         }
 
         const result = await response.text();
-        console.log("Rest day logged successfully:", result);
-        //context?.clearCalendar()
+        console.log('Rest day logged successfully:', result);
+        // context?.clearCalendar()
         const dateRange = getDateRange();
         await context?.loadCalendarDays(dateRange);
         setRefreshKey((prevKey) => prevKey + 1);
       } catch (error) {
         context?.updateUserProfile({
           ...context.userProfile, // Spread existing userProfile to retain all required fields
-          restDaysLeft: currentRestDays, //change failed. Reset local data.
+          restDaysLeft: currentRestDays, // change failed. Reset local data.
         });
 
-        console.error("Error logging rest day:", error);
+        console.error('Error logging rest day:', error);
       }
     }
   };
@@ -672,46 +838,33 @@ function ProgressScreen() {
 
         <Calendar />
 
-        <View
-          style={{
-            marginBottom: 10,
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
-          <Text>Rest Days Remaining: {context?.userProfile.restDaysLeft}</Text>
-          <TouchableOpacity
-            style={{
-              marginLeft: 10,
-              backgroundColor: "#e3c067",
-              paddingHorizontal: 15,
-              paddingVertical: 8,
-              borderRadius: 5,
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.25,
-              shadowRadius: 4,
-              elevation: 5, // Adds shadow on Android
-            }}
-            onPress={useRestDay}
-          >
-            <Text style={{ color: "#fff", fontWeight: "bold" }}>
-              Use Rest Day
-            </Text>
-          </TouchableOpacity>
-        </View>
+    <View style={{ marginBottom: '10%', flexDirection: 'row', alignItems: 'center', }}>
+      <Text style={{ }} >{context?.userProfile.restDaysLeft} days available</Text>
+      <TouchableOpacity
+        style={{
+          marginLeft: 10,
+          backgroundColor: '#21BFBF',
+          paddingHorizontal: 15,
+          paddingVertical: 10,
+          borderRadius: 20,
+          alignSelf: 'center'
+          // shadowColor: '#000',
+          // shadowOffset: { width: 0, height: 2 },
+          // shadowOpacity: 0.25,
+          // shadowRadius: 4,
+          // elevation: 5, // Adds shadow on Android
+        }}
+        onPress={useRestDay}
+      >
+        <Text style={{ color: '#FFF', }}>Use Rest Day</Text>
+      </TouchableOpacity>
+    </View>
+
 
         <View style={styles.links}>
-          <TouchableOpacity
-            style={styles.link}
-            onPress={() => navigation.navigate("GraphScreen")}
-          >
+          <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('GraphScreen')}>
             <Text style={styles.linkText}>Graphs</Text>
-            <Ionicons
-              name="chevron-forward-outline"
-              size={24}
-              style={styles.linkIcon}
-            />
+            <Ionicons name="chevron-forward-outline" size={24} style={styles.linkIcon} />
           </TouchableOpacity>
         </View>
       </View>
@@ -722,37 +875,55 @@ function ProgressScreen() {
 function CustomDrawerContent({ navigation }: any) {
   const drawerNav = async (navigation: any) => {
     navigation.closeDrawer();
-    navigation.navigate("SettingsScreen");
+    navigation.navigate('SettingsScreen');
+  };
+  const aboutUs = async (navigation: any) => {
+    navigation.closeDrawer();
+    navigation.navigate('RiptTeamScreen');
   };
 
   const context = useContext(GlobalContext);
   return (
     <View style={styles.drawerContent}>
+      <View>
+        <TouchableOpacity
+          style={styles.drawerItem}
+          onPress={() => {
+            // Navigate to Settings screen or handle accordingly
+            drawerNav(navigation);
+            // navigation.navigate('SettingsScreen');
+          }}
+        >
+          <View style={styles.drawerItemTextContainer}>
+            <Ionicons name="settings-outline" size={24} color={'#1E1E1E'} />
+            <Text style={styles.drawerItemText}>Account Settings</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.drawerItem}
+          onPress={() => {
+            // Handle logout logic here
+            navigation.closeDrawer();
+            context?.setToken('');
+            // Perform logout actions
+          }}
+        >
+          <View style={styles.drawerItemTextContainer}>
+            <Ionicons name="log-out-outline" size={24} color={'#1E1E1E'} />
+            <Text style={styles.drawerItemText}>Logout</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
       <TouchableOpacity
         style={styles.drawerItem}
         onPress={() => {
-          // Navigate to Settings screen or handle accordingly
-          drawerNav(navigation);
-          //navigation.navigate('SettingsScreen');
+          // Navigate to Ript team page
+          aboutUs(navigation);
         }}
       >
-        <View style={styles.drawerItemTextContainer}>
-          <Ionicons name="settings-outline" size={24} color={"#1E1E1E"} />
-          <Text style={styles.drawerItemText}>Account Settings</Text>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.drawerItem}
-        onPress={() => {
-          // Handle logout logic here
-          navigation.closeDrawer();
-          context?.setToken("");
-          // Perform logout actions
-        }}
-      >
-        <View style={styles.drawerItemTextContainer}>
-          <Ionicons name="log-out-outline" size={24} color={"#1E1E1E"} />
-          <Text style={styles.drawerItemText}>Logout</Text>
+        <View style={[styles.drawerItemTextContainer, {borderTopWidth: 1, paddingTop: 10, borderBottomWidth: 0}]}>
+          <Ionicons name="people-outline" size={24} color={'#1E1E1E'} />
+          <Text style={styles.drawerItemText}>Ript Fitness Team</Text>
         </View>
       </TouchableOpacity>
     </View>
@@ -768,47 +939,49 @@ const MainScreen = () => {
   useFocusEffect(
     useCallback(() => {
       ProfContext?.reloadFriendRequests(); // Example: Fetch profile data or perform actions
-
+      context?.reloadFriends();
       // Optionally, return a cleanup function if needed
       return () => {};
     }, [])
   );
 
   const handleAddFriend = () => {
-    navigation.navigate("FriendsScreen");
+    navigation.navigate('FriendsScreen');
   };
 
-  const handleAcceptFriendRequest = async (id: any) => {
-    //Get Account ID
-    //Send Request to Account ID
-    console.log(id);
-    console.log(adding.indexOf(id));
+  const handleFriendRequest = async (id: any, myStatus: string) => {
+    // Get Account ID
+    // Send Request to Account ID
     if (adding.indexOf(id) == -1) {
       setAdding((prevNumbers) => [...prevNumbers, id]);
       try {
         const myBody = {
           accountIdOfToAccount: id,
-          status: "ACCEPTED",
+          status: myStatus,
         };
-        const response = await fetch(
-          `${httpRequests.getBaseURL()}/friendRequest/sendRequest`,
-          {
-            method: "PUT", // Set method to POST
-            headers: {
-              "Content-Type": "application/json", // Set content type to JSON
-              Authorization: `Bearer ${context?.data.token}`,
-            },
-            body: JSON.stringify(myBody), // Convert the data to a JSON string
+        ProfContext?.removeFriendRequest(id);
+        if (myStatus == 'ACCEPTED') {
+          const newFriend = ProfContext?.getFriendRequesterById(id);
+          if (newFriend && newFriend != null) {
+            context?.addFriend(newFriend);
           }
-        ); // Use endpoint or replace with BASE_URL if needed
+        }
+        const response = await fetch(`${httpRequests.getBaseURL()}/friendRequest/sendRequest`, {
+          method: 'PUT', // Set method to POST
+          headers: {
+            'Content-Type': 'application/json', // Set content type to JSON
+            Authorization: `Bearer ${context?.data.token}`,
+          },
+          body: JSON.stringify(myBody), // Convert the data to a JSON string
+        }); // Use endpoint or replace with BASE_URL if needed
         if (!response.ok) {
           throw new Error(`Error: ${response.status}`);
         }
         const json = await response.text(); //.json(); // Parse the response as JSON
         console.log(json);
-        //return json; // Return the JSON data directly
+        // return json; // Return the JSON data directly
       } catch (error) {
-        console.error("00012 GET request failed:", error);
+        console.error('00012 GET request failed:', error);
         throw error; // Throw the error for further handling if needed
       } finally {
         setAdding((prev) => {
@@ -816,6 +989,8 @@ const MainScreen = () => {
           updated.splice(prev.indexOf(id), 1); // Remove the item
           return updated; // Return the updated array
         });
+        ProfContext?.reloadFriendRequests();
+        context?.reloadFriends();
       }
     }
   };
@@ -850,30 +1025,46 @@ const MainScreen = () => {
                     key={index}
                     style={[
                       styles.friendRequestItem,
-                      index === ProfContext?.requestingFriends?.length - 1 && {
-                        borderBottomWidth: 0,
-                      },
+                      index === ProfContext?.requestingFriends?.length - 1 && { borderBottomWidth: 0 },
                     ]}
                   >
-                    <Image
-                      source={{
-                        uri: `data:image/png;base64,${friend.profilePicture}`,
+                    <TouchableOpacity
+                      style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}
+                      onPress={() => {
+                        ProfContext?.setRequestsOpen(false);
+                        navigation.navigate('VisitProfileScreen', { item: friend });
                       }}
-                      style={styles.friendReqAvatar}
-                    />
-                    <View style={styles.friendInfo}>
-                      <Text style={styles.friendName}>
-                        {friend.displayname}
-                      </Text>
-                      <Text style={styles.friendUsername}>
-                        @{friend.username}
-                      </Text>
-                    </View>
+                    >
+                      <Image
+                        source={{ uri: `data:image/png;base64,${friend.profilePicture}` }}
+                        style={styles.friendReqAvatar}
+                      />
+
+                      <View style={styles.friendInfo}>
+                        <Text style={styles.friendName}>{friend.displayname}</Text>
+                        <Text style={styles.friendUsername}>@{friend.username}</Text>
+                      </View>
+                    </TouchableOpacity>
+
                     <TouchableOpacity
                       style={styles.acceptButton}
-                      onPress={() => handleAcceptFriendRequest(friend.id)}
+                      onPress={() => handleFriendRequest(friend.id, 'ACCEPTED')}
                     >
-                      <Text style={styles.acceptButtonText}>Accept</Text>
+                      {adding.indexOf(Number(friend.id)) == -1 ? (
+                        <Text style={styles.acceptButtonText}>Accept</Text>
+                      ) : (
+                        <ActivityIndicator size="small" color="#ffffff" />
+                      )}
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.declineButton}
+                      onPress={() => handleFriendRequest(friend.id, 'DECLINED')}
+                    >
+                      {adding.indexOf(Number(friend.id)) == -1 ? (
+                        <Ionicons name="trash" size={18} color="white" />
+                      ) : (
+                        <ActivityIndicator size="small" color="#ffffff" />
+                      )}
                     </TouchableOpacity>
                   </View>
                 ))
@@ -885,13 +1076,12 @@ const MainScreen = () => {
         </View>
       </Modal>
       <View style={styles.container}>
+
         <View style={styles.center}>
           {/* Profile Section */}
           <View style={styles.profileSection}>
             <Image
-              source={{
-                uri: `data:image/png;base64,${context?.userProfile.profilePicture}`,
-              }}
+              source={{ uri: `data:image/png;base64,${context?.userProfile.profilePicture}` }}
               style={styles.avatar}
             />
             <Text style={styles.name}>{context?.userProfile.displayname}</Text>
@@ -900,17 +1090,17 @@ const MainScreen = () => {
                 <TouchableOpacity
                   onPress={() => {
                     if (context?.userProfile) {
-                      navigation.navigate("FullBioScreen", {
-                        userProfile: context.userProfile,
-                      });
+                      navigation.navigate('FullBioScreen', { userProfile: context.userProfile });
                     } else {
-                      console.error("User profile is undefined.");
+                      console.error('User profile is undefined.');
                     }
                   }}
                 >
                   <Text style={styles.bio}>
-                    {context?.userProfile.bio.slice(0, 50)}
-                    {" >"}
+                    {context?.userProfile?.bio != null
+                      ? `${(context?.userProfile?.bio.split('\n')[0] || '').slice(0, 50)}`
+                      : null}
+                      {context?.userProfile.bio && (context?.userProfile.bio.length > context?.userProfile.bio.split('\n')[0].length || context?.userProfile.bio.split('\n')[0].length > 50)  ? <Text style={{ color: '#757575', fontWeight: 600 }}>{'...View more'}</Text> : <></>}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -922,14 +1112,10 @@ const MainScreen = () => {
                   {context?.friends.length === 0 ? (
                     // Render "Add Friend" button when there are no friends
                     <View style={styles.addFriendContainer}>
-                      <TouchableOpacity
-                        style={styles.addFriendButton}
-                        onPress={handleAddFriend}
-                      >
-                        <Text>
-                          <Ionicons name="person-add" /> Add Friend
-                        </Text>
-                      </TouchableOpacity>
+    <TouchableOpacity style={styles.addFriendButton} onPress={handleAddFriend}>
+      <Ionicons name="search-outline" size={18} color={'#757575'} />
+      <Text style={{marginLeft: 3, color: '#757575'}} >Find Friends</Text>
+    </TouchableOpacity>
                     </View>
                   ) : (
                     // Render the FlatList if there are friends
@@ -944,23 +1130,13 @@ const MainScreen = () => {
                           keyExtractor={(_, index) => index.toString()} // Use index as the key
                           renderItem={({ item, index }) => (
                             <Image
-                              source={{
-                                uri: `data:image/png;base64,${item.profilePicture}`,
-                              }}
-                              style={[
-                                styles.friendAvatar,
-                                { zIndex: 5 - index },
-                              ]}
+                              source={{ uri: `data:image/png;base64,${item.profilePicture}` }}
+                              style={[styles.friendAvatar, { zIndex: 5 - index }]}
                             />
                           )}
                           ListFooterComponent={
                             context && context?.friends.length > 4 ? (
-                              <View
-                                style={[
-                                  styles.moreFriends,
-                                  { marginLeft: -15 },
-                                ]}
-                              >
+                              <View style={[styles.moreFriends, { marginLeft: -15 }]}>
                                 <Text style={styles.moreFriendsText}>
                                   +{context?.friends.length - 4}
                                 </Text>
@@ -968,14 +1144,13 @@ const MainScreen = () => {
                             ) : null
                           }
                           showsHorizontalScrollIndicator={false}
-                          ItemSeparatorComponent={() => (
-                            <View style={{ width: 0, marginLeft: -15 }} />
-                          )}
+                          ItemSeparatorComponent={() => <View style={{ width: 0, marginLeft: -15 }} />}
                         />
                       </TouchableOpacity>
                     </View>
                   )}
                 </View>
+
               </View>
             </View>
           </View>
@@ -984,25 +1159,6 @@ const MainScreen = () => {
       <View style={styles.tabContainer}>
         <ProfileTabs />
       </View>
-
-      {/* Navigation Links 
-      <View style={styles.links}>
-        <TouchableOpacity style={styles.link}>
-          <Text style={styles.linkText}>Food Log</Text>
-          <Ionicons name="chevron-forward-outline" size={24} style={styles.linkIcon}/>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.link}>
-          <Text style={styles.linkText}>Graphs</Text>
-          <Ionicons name="chevron-forward-outline" size={24} style={styles.linkIcon} />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.link}>
-          <Text style={styles.linkText}>Account Settings</Text>
-          <Ionicons name="chevron-forward-outline" size={24} style={styles.linkIcon}/>
-        </TouchableOpacity>
-      </View>
-*/}
     </View>
   );
 };
@@ -1010,11 +1166,12 @@ const MainScreen = () => {
 const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const ProfContext = useContext(ProfileContext);
+  const context = useContext(GlobalContext); // Access GlobalContext here
   const insets = useSafeAreaInsets();
   return (
     <Drawer.Navigator
       screenOptions={{
-        drawerPosition: "left",
+        drawerPosition: 'left',
       }}
       drawerContent={(props) => <CustomDrawerContent {...props} />}
     >
@@ -1023,9 +1180,9 @@ const ProfileScreen: React.FC = () => {
         component={MainScreen}
         options={({ navigation }) => ({
           headerShown: true,
-          headerTitleAlign: "center", // Center the header title
-          headerTitle: "",
+          headerTitleAlign: 'center', // Center the header title
 
+          headerTitle: context?.userProfile.username,
           headerStyle: {
             paddingTop: Platform.OS === "ios" ? 20 : 0, // Add paddingTop for iOS
             height: Platform.OS === "ios" ? 80 : 60, // Adjust header height if necessary
@@ -1039,22 +1196,23 @@ const ProfileScreen: React.FC = () => {
                   ProfContext?.setRequestsOpen(!ProfContext?.requestsOpen);
                 }}
               >
-                <Ionicons name="notifications-outline" size={24}></Ionicons>
+                <Ionicons name="notifications-outline" size={24} />
                 {ProfContext && ProfContext?.requestingFriends?.length > 0 ? (
                   <View style={styles.pendingFriend}></View>
-                ) : (
-                  <></>
-                )}
+                ) : null}
               </TouchableOpacity>
             </View>
-          ) /*() => (
+          ),
+          // Add the headerLeft here
+          headerLeft: () => (
             <TouchableOpacity
               onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
-              style={{ marginRight: 15 }}
+              style={{ marginLeft: 15 }}
             >
+              {/* Replace the View with a circle containing the user's profile picture */}
               <Ionicons name="menu" size={24} />
             </TouchableOpacity>
-          ),*/,
+          ),
         })}
       />
     </Drawer.Navigator>
@@ -1075,11 +1233,10 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     top: 20,
-    //backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dimmed background
-    justifyContent: "center",
-    alignItems: "center",
+    // backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dimmed background
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-
   popup: {
     padding: 20,
     backgroundColor: "#fff",
@@ -1094,11 +1251,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 0, // Adjust as needed
     bottom: 0,
-    height: "30%",
-    width: "90%",
-    alignSelf: "center",
+    height: '30%',
+    width: '90%',
+    alignSelf: 'center',
   },
-
   friendRequestItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -1132,6 +1288,15 @@ const styles = StyleSheet.create({
     zIndex: 10, // Ensure it's on top
     elevation: 5, // For Android
   },
+  declineButton: {
+    backgroundColor: '#40bcbc',
+    marginLeft: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 5,
+    zIndex: 10, // Ensure it's on top
+    elevation: 5, // For Android
+  },
   acceptButtonText: {
     color: "#fff",
     fontWeight: "bold",
@@ -1141,45 +1306,54 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#888",
   },
-
-  addFriendContainer: {},
+  addFriendContainer: {
+    marginBottom: 5
+  },
   addFriendButton: {
-    backgroundColor: "#ececed",
-    paddingVertical: 8,
-    paddingHorizontal: 8,
-    borderRadius: 10,
+    backgroundColor:"#ececed",
+    paddingVertical:8,
+    paddingHorizontal:8,
+    borderRadius:7,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   addFriendButtonOverlay: {
     margin: 0,
     padding: 0,
   },
   pendingFriend: {
-    backgroundColor: "red",
+    backgroundColor: 'red',
     width: 10,
     height: 10,
-    position: "absolute",
+    position: 'absolute',
     right: 0,
     borderRadius: 5,
   },
   drawerContent: {
     flex: 1,
-    paddingTop: 50,
-    backgroundColor: "#fff",
+    paddingTop: 70,
+    backgroundColor: '#fff',
+    justifyContent: 'space-between'
   },
   drawerItem: {
-    padding: 20,
+    padding: 10,
+    // borderTopWidth: 1,
+    // borderTopColor: '#ddd',
   },
   drawerItemText: {
     fontSize: 18,
     paddingLeft: 5,
   },
   drawerItemTextContainer: {
-    alignItems: "center",
-    flexDirection: "row",
+    alignItems: 'center',
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    borderTopColor: '#ddd',
+    paddingBottom: 10
   },
   postsContainer: {
     flex: 1,
-    //backgroundColor:"red",
     padding: 0,
     margin: 0,
   },
@@ -1188,16 +1362,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bioStyle: {
-    flexDirection: "row",
+    flexDirection: 'row',
   },
   postText: {
     fontSize: 16,
     marginBottom: 10,
   },
   postFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     bottom: 0,
   },
   likeCommentContainer: {
@@ -1205,9 +1379,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   likecomment: {
-    flexDirection: "row",
-    alignItems: "center",
-    position: "relative",
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
     bottom: 0,
     left: 15,
     marginTop: 10,
@@ -1223,22 +1397,22 @@ const styles = StyleSheet.create({
     right: 15,
   },
   avatarView: {
-    height: "100%",
-    justifyContent: "center",
+    height: '100%',
+    justifyContent: 'center',
     paddingBottom: 10,
   },
   textView: {
-    justifyContent: "center",
-    alignContent: "center",
-    alignItems: "center",
-    width: "70%",
-    //height:"100%",
+    justifyContent: 'center',
+    alignContent: 'center',
+    alignItems: 'center',
+    width: '70%',
+    // height:"100%",
     marginLeft: 5,
     marginBottom: 25,
     marginTop: 10,
     borderRadius: 15,
-    //backgroundColor:"red",
-    //backgroundColor:"#eee"
+    // backgroundColor:"red",
+    // backgroundColor:"#eee"
   },
   postAvatar: {
     width: 60,
@@ -1249,53 +1423,52 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   postItem: {
-    marginBottom: 10,
-    width: "80%",
-    minHeight: 80,
-    backgroundColor: "#eee",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
-    flexDirection: "row",
+    marginBottom:10,
+    width:"90%",
+    minHeight:80,
+    backgroundColor:"#eee",
+    borderWidth:1,
+    borderColor:"#ddd",
+    borderRadius:10,
+    flexDirection:"row",
   },
   photosContainer: {
     flex: 1, // Allows FlatList to take up full height and be scrollable
     padding: 0,
-    margin: 0,
-    alignItems: "center",
+    margin:0,
+    // alignItems:'left',
   },
   addPhotoButton: {
-    width: 100, // Adjust as needed for your layout
-    height: 100,
-    borderRadius: 10,
-    margin: 9,
-    backgroundColor: "#40bcbc", // Attractive green color
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5, // Adds shadow on Android
+    width: 128, // Adjust as needed for your layout
+    height: 128,
+    // borderRadius: 10,
+    margin:1,
+    backgroundColor: '#ededed', // gray
+    justifyContent: 'center',
+    alignItems: 'center',
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 4 },
+    // shadowOpacity: 0.3,
+    // shadowRadius: 4,
+    // elevation: 5, // Adds shadow on Android
   },
-
   photo: {
-    width: 100, // Adjust as needed for your layout
-    height: 100,
-    borderRadius: 10,
-    margin: 9,
+    width: 128, // Adjust as needed for your layout
+    height: 128,
+    // borderRadius: 10,
+    margin:1,
   },
   bg: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
   },
   tabContainer: {
     flex: 1,
-    width: "100%",
-    alignItems: "center",
-    backgroundColor: "#fff",
+    width: '100%',
+    alignItems: 'center',
+    backgroundColor: '#fff',
   },
-  container: { backgroundColor: "#fff" },
+  container: { backgroundColor: '#fff' },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -1304,22 +1477,17 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   center: {
-    alignItems: "center",
+    alignItems: 'center',
   },
-  title: { fontSize: 24, fontWeight: "bold" },
-  profileSection: { alignItems: "center", marginTop: 20 },
+  title: { fontSize: 24, fontWeight: 'bold' },
+  profileSection: { alignItems: 'center', marginTop: 20, },
   avatar: { width: 100, height: 100, borderRadius: 50 },
-  name: { fontSize: 20, fontWeight: "bold", marginTop: 10 },
-  bio: { fontSize: 13, fontWeight: "bold", marginVertical: 0 },
-  friendsContainer: {},
-  friendsSection: { flexDirection: "row", marginTop: 10 },
-  friendsLabel: { marginRight: 10, fontSize: 16 },
-  friendAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginHorizontal: 5,
-  },
+  name: { fontSize: 20, fontWeight: 'bold', marginTop: 10 },
+  bio: { fontSize: 13, marginTop: 3, textAlign: 'center' },
+  friendsContainer: { },
+  friendsSection: { flexDirection: 'row', marginTop: 10},
+  friendsLabel: { marginRight: 10, fontSize: 16, },
+  friendAvatar: { width: 40, height: 40, borderRadius: 20, marginHorizontal: 5, borderWidth: 1.5, borderColor: '#fff' },
   moreFriends: {
     width: 40,
     height: 40,
@@ -1330,83 +1498,55 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  nav: {
-    height: "10%",
-    width: "100%",
-    marginTop: 5,
-    marginBottom: 5,
-    backgroundColor: "#fff",
-    flex: 1,
-  },
-  moreFriendsText: { fontWeight: "bold" },
-  friendsList: { alignContent: "center" },
-  calendar: {
-    paddingTop: 20,
-    paddingBottom: 20,
-    alignItems: "center",
-    width: "100%",
-    backgroundColor: "white",
-    height: "100%",
-  },
-  calendarHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingBottom: "2%",
-  },
-  minWidth: { minWidth: "50%", alignItems: "center" },
-  month: { marginHorizontal: 10, fontSize: 18, fontWeight: "bold" },
+
+  nav: { height:"10%", width:"100%", marginTop:5,marginBottom:5, backgroundColor:"#fff", flex:1},
+  moreFriendsText: { color: '#757575' },
+  friendsList: {alignContent:'center'},
+  calendar: { paddingTop: 20, paddingBottom:20, alignItems: 'center' , width:'100%', backgroundColor:"white", height:"100%"},
+  calendarHeader: { flexDirection: 'row', alignItems: 'center' , paddingBottom:'2%'},
+  minWidth: { minWidth:'50%', alignItems:'center'},
+
+  month: { marginHorizontal: 10, fontSize: 18, fontWeight: 'bold' },
   daysRow: {},
   calendarContainer: {
-    //backgroundColor:"red",
-    alignItems: "center",
-    width: "90%",
+    // backgroundColor:"red",
+    alignItems: 'center',
+    width: '90%',
     aspectRatio: 1.166,
   },
   daysContainer: {
-    paddingLeft: "4%",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "flex-start",
-    width: "95%",
-    height: "auto",
-    alignItems: "center",
+    paddingLeft: '4%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    width: '95%',
+    height: 'auto',
+    alignItems: 'center',
     aspectRatio: 1.1,
   },
-  day: {
-    width: "11.42%",
-    aspectRatio: 1,
-    margin: 4,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  activeDay: { backgroundColor: "#63c782" },
-  inactiveDay: { backgroundColor: "#F2505D" },
-  restDay: { backgroundColor: "#f4d47c" },
-  upcomingDay: { backgroundColor: "#f0ecec", color: "black" },
-  dayText: { color: "#fff", fontWeight: "bold" },
-  dayTextOverwrite: { color: "black", fontWeight: "bold" },
-  hiddenDay: {
-    backgroundColor: "white",
-    borderColor: "black",
-    borderWidth: 1,
-    color: "black",
-    opacity: 0,
-  },
-  hiddenDayText: { color: "#", fontWeight: "bold", opacity: 0 },
-  links: { marginHorizontal: 16, width: "100%" },
+  day: { width: '11.42%', aspectRatio: 1, margin: 4, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  activeDay: { backgroundColor: '#63c782' },
+  inactiveDay: { backgroundColor: '#F2505D' },
+  restDay: { backgroundColor: '#f4d47c' },
+  upcomingDay: { backgroundColor: '#f0ecec', color: 'black' },
+  dayText: { color: '#fff', fontWeight: 'bold' },
+  dayTextOverwrite: { color: 'black', fontWeight: 'bold' },
+  hiddenDay: { backgroundColor: 'white', borderColor: 'black', borderWidth: 1, color: 'black', opacity: 0 },
+  hiddenDayText: { color: '#', fontWeight: 'bold', opacity: 0 },
+  links: { marginHorizontal: 16, width: '100%' },
   link: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: 16,
+    borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: "#ccc",
+    borderColor: '#ccc',
+    // backgroundColor: '#ededed'
   },
-  linkText: { fontSize: 18, paddingLeft: "5%" },
+  linkText: { fontSize: 18, paddingLeft: '5%' },
   linkIcon: {
-    paddingRight: "5%",
+    paddingRight: '5%',
   },
   tabBar: {
     flexDirection: "row",
@@ -1416,12 +1556,12 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
   },
   postView: {
-    backgroundColor: "#eee",
+    backgroundColor: '#eee',
     flex: 1, // Allows FlatList to take up full height and be scrollable
     padding: 0,
     margin: 0,
-    //backgroundColor:"#fff",
-    //alignItems:"center",
+    // backgroundColor:"#fff",
+    // alignItems:"center",
   },
 });
 

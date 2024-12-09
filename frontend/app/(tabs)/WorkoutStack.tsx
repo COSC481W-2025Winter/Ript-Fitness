@@ -25,6 +25,7 @@ export type WorkoutStackParamList = {
   MyWorkoutsScreen: {};
   MyNotesScreen: {};
   EditNoteScreen: { note:Note | null };
+  RiptWorkoutScreen: {};
 };
 
 export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamList>;
@@ -45,6 +46,7 @@ export default function WorkoutStack() {
         component={WorkoutApiScreen}
         options={{
           title: '',
+          headerLeft: () => <></>,
           headerRight: () => <StreakCounter />,
         }}
       />
@@ -55,10 +57,25 @@ export default function WorkoutStack() {
           headerRight: () => <StreakCounter />,
         }}
       />
-      <Stack.Screen
+       <Stack.Screen
         name="StartWorkoutScreen"
         component={StartWorkoutScreen}
-        options={{}}
+        options={({ navigation }) => ({
+          title: 'Live Workout',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('WorkoutApiScreen', {})}
+              style={[styles.leftButton, styles.button, styles.buttonSize]}
+            >
+              <TabBarIcon
+                name="arrow-back-outline"
+                size={30}
+                color="#454343"
+              />
+            </TouchableOpacity>
+          ),
+          headerTitleAlign: 'center',
+        })}
       />
       <Stack.Screen
         name="MyWorkoutsScreen"
@@ -71,8 +88,7 @@ export default function WorkoutStack() {
               style={[styles.leftButton, styles.button, styles.buttonSize]}
             >
               <TabBarIcon
-                style={styles.leftArrow}
-                name="arrow-down"
+                name="arrow-back-outline"
                 size={30}
                 color="#454343"
               />
@@ -92,8 +108,7 @@ export default function WorkoutStack() {
               style={[styles.leftButton, styles.button, styles.buttonSize]}
             >
               <TabBarIcon
-                style={styles.leftArrow}
-                name="arrow-down"
+                name="arrow-back-outline"
                 size={30}
                 color="#454343"
               />
@@ -113,8 +128,7 @@ export default function WorkoutStack() {
               style={[styles.leftButton, styles.button, styles.buttonSize]}
             >
               <TabBarIcon
-                style={styles.leftArrow}
-                name="arrow-down"
+                name="arrow-back-outline"
                 size={30}
                 color="#454343"
               />
@@ -130,12 +144,11 @@ export default function WorkoutStack() {
           title: '',
           headerLeft: () => (
             <TouchableOpacity
-              onPress={() => navigation.navigate('MyNotesScreen', {})}
+              onPress={() => navigation.goBack()}
               style={[styles.leftButton, styles.button, styles.buttonSize]}
             >
               <TabBarIcon
-                style={styles.leftArrow}
-                name="arrow-down"
+                name="arrow-back-outline"
                 size={30}
                 color="#454343"
               />
@@ -155,8 +168,7 @@ export default function WorkoutStack() {
               style={[styles.leftButton, styles.button, styles.buttonSize]}
             >
               <TabBarIcon
-                style={styles.leftArrow}
-                name="arrow-down"
+                name="arrow-back-outline"
                 size={30}
                 color="#454343"
               />
@@ -184,8 +196,7 @@ export default function WorkoutStack() {
               style={[styles.leftButton, styles.button, styles.buttonSize]}
             >
               <TabBarIcon
-                style={styles.leftArrow}
-                name="arrow-down"
+                name="arrow-back-outline"
                 size={30}
                 color="#454343"
               />
@@ -233,8 +244,5 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  leftArrow: {
-    transform: [{ rotate: '90deg' }],
   },
 });

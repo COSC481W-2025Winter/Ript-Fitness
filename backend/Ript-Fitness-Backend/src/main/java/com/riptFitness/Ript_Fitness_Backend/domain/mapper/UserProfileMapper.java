@@ -10,12 +10,12 @@ import com.riptFitness.Ript_Fitness_Backend.web.dto.UserDto;
 
 @Mapper
 public interface UserProfileMapper {
-    UserProfileMapper INSTANCE = Mappers.getMapper(UserProfileMapper.class);
+	UserProfileMapper INSTANCE = Mappers.getMapper(UserProfileMapper.class);
 
-    UserDto toUserDto(UserProfile user);
+	UserDto toUserDto(UserProfile user);
 
-    UserProfile toUser(UserDto userDto);
+	UserProfile toUser(UserDto userDto);
 
-    @Mapping(target = "id", ignore = true)
-    void updateUserFromDto(UserDto userDto, @MappingTarget UserProfile user);
+	@Mapping(target = "id", ignore = true)
+	void updateUserFromDto(UserDto userDto, @MappingTarget UserProfile user);
 }

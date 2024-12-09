@@ -41,12 +41,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
 
     // borderWidth: 1,
-    borderRadius: 20,
+    borderRadius: 30,
     padding: 10,
     // borderColor: 'grey',
     width: '90%',
-    // height: '10%',
+    // maxHeight: 70,
     backgroundColor: '#EDEDED',
+    alignSelf: 'center',
+    marginVertical: 15,
 
   },
   iconStyle: {

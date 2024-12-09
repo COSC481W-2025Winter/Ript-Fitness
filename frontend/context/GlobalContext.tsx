@@ -67,7 +67,7 @@ export interface Workout {
 
 
 export interface Exercise {
-  exerciseId: number;
+  exerciseId: number | null ;
   nameOfExercise: string;
   sets: number;
   reps: number[];
@@ -104,6 +104,7 @@ interface GlobalContextType {
   fetchWorkouts: () => Promise<void>;
   addWorkout: (workout: Workout) => void;
   updateWorkout: (updatedWorkout: Workout) => void;
+  reloadFriends: () => void;
 
 }
 
@@ -176,7 +177,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
     username: '',
     displayname: '',
     bio: '',
-    profilePicture: DEFAULT_PROFILE_PICTURE,
+    profilePicture: '',
     isDeleted: false,
     restDays: 0,
     restDaysLeft: 0,
@@ -186,6 +187,8 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
 
   const [userProfile, setMyUserProfile] = useState<ProfileObject>(defaultUserProfile);
 
+  const [privatePhotos, setPrivatePhotos] = useState<String[]>([]);
+
 
     const [friends, setFriends] = useState<FriendObject[]>([]);
 
@@ -193,7 +196,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
       setMyUserProfile((prevProfile) => ({
         ...prevProfile,
         ...newProfile,
-        profilePicture: (newProfile.profilePicture == undefined || newProfile.profilePicture == "") ? prevProfile.profilePicture : newProfile.profilePicture,
+        profilePicture: (newProfile.profilePicture == undefined || newProfile.profilePicture == "") ? DEFAULT_PROFILE_PICTURE : newProfile.profilePicture,
       }));
     };
 
@@ -280,7 +283,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
       console.log("Fetching workouts with token:", data.token);
 
 
-      const response = await fetch(`${httpRequests.getBaseURL()}/workouts/getUsersWorkouts`, {
+      const response = await fetch(`${httpRequests.getBaseURL()}/workouts/getUsersWorkouts/0/10000`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${data.token}`,
@@ -447,6 +450,57 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
     };
   };
 
+  const reloadFriends = async () => {
+    try {
+
+
+      const response = await fetch(`${httpRequests.getBaseURL()}/friends/getFriendsListOfCurrentlyLoggedInUser`, {
+        method: 'GET', // Set method to POST
+        headers: {
+          'Content-Type': 'application/json', // Set content type to JSON
+          "Authorization": `Bearer ${data.token}`,
+        },
+        body: "", // Convert the data to a JSON string
+      }); // Use endpoint or replace with BASE_URL if needed
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      const friendNames = await response.json()
+            try {
+  
+  
+              const response = await fetch(`${httpRequests.getBaseURL()}/userProfile/getUserProfilesFromList`, {
+                method: 'POST', // Set method to POST
+                headers: {
+                  'Content-Type': 'application/json', // Set content type to JSON
+                  "Authorization": `Bearer ${data.token}`,
+                },
+                body: JSON.stringify(friendNames), // Convert the data to a JSON string
+              }); // Use endpoint or replace with BASE_URL if needed
+              if (!response.ok) {
+                throw new Error(`Error: ${response.status}`);
+              }
+              const json = await response.json()
+              console.log("foo " + JSON.stringify(json))
+              updateFriends(json)
+          
+            } catch (error) {
+              // If access denied
+              // Send to login page
+              setToken("")
+              console.error('0004 GET request failed:', error);
+              throw error; // Throw the error for further handling if needed
+            }
+  
+    } catch (error) {
+      // If access denied
+      // Send to login page
+      setToken("")
+      console.error('0003 GET request failed:', error);
+      throw error; // Throw the error for further handling if needed
+    }
+  }
+
   const loadInitialProfileData = async () => {
       try {
       const response = await fetch(`${httpRequests.getBaseURL()}/userProfile/getUserProfile`, {
@@ -460,7 +514,9 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
+      console.log("loading...")
       const json = await response.json()
+      console.log(json)
       updateUserProfile(json)
     } catch (error) {
       // If access denied
@@ -469,54 +525,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
       console.error('0002 GET request failed:', error);
       throw error; // Throw the error for further handling if needed
     }
-    try {
-
-
-    const response = await fetch(`${httpRequests.getBaseURL()}/friends/getFriendsListOfCurrentlyLoggedInUser`, {
-      method: 'GET', // Set method to POST
-      headers: {
-        'Content-Type': 'application/json', // Set content type to JSON
-        "Authorization": `Bearer ${data.token}`,
-      },
-      body: "", // Convert the data to a JSON string
-    }); // Use endpoint or replace with BASE_URL if needed
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
-    }
-    const friendNames = await response.json()
-          try {
-
-
-            const response = await fetch(`${httpRequests.getBaseURL()}/userProfile/getUserProfilesFromList`, {
-              method: 'POST', // Set method to POST
-              headers: {
-                'Content-Type': 'application/json', // Set content type to JSON
-                "Authorization": `Bearer ${data.token}`,
-              },
-              body: JSON.stringify(friendNames), // Convert the data to a JSON string
-            }); // Use endpoint or replace with BASE_URL if needed
-            if (!response.ok) {
-              throw new Error(`Error: ${response.status}`);
-            }
-            const json = await response.json()
-            console.log("foo " + JSON.stringify(json))
-            updateFriends(json)
-        
-          } catch (error) {
-            // If access denied
-            // Send to login page
-            setToken("")
-            console.error('0003 GET request failed:', error);
-            throw error; // Throw the error for further handling if needed
-          }
-
-  } catch (error) {
-    // If access denied
-    // Send to login page
-    setToken("")
-    console.error('0003 GET request failed:', error);
-    throw error; // Throw the error for further handling if needed
-  }
+    reloadFriends();
 
   const dateRange = getDateRange();
   await loadCalendarDays(dateRange)
@@ -558,6 +567,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         fetchWorkouts,
         addWorkout,
         updateWorkout,
+        reloadFriends,
       }}
     >
 

@@ -1,5 +1,5 @@
 import React, { useContext, useLayoutEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Platform } from 'react-native';
 import { GlobalContext, ProfileObject } from '@/context/GlobalContext';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -7,7 +7,7 @@ import { ProfileStackParamList } from '@/app/(tabs)/ProfileStack';
 
 
 
-const FullBioScreen: React.FC<FullBioScreenProps> = ({ route }) => {
+const FullBioScreen: React.FC<any> = ({ route }) => {
     const { userProfile } = route.params;
   const context = useContext(GlobalContext);
   const navigation = useNavigation();
@@ -50,6 +50,7 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: 20,
+    marginTop: Platform.OS === "ios" ? '10%' : 0
   },
   avatar: {
     width: 120,

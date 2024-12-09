@@ -10,13 +10,16 @@ import {
   StyleSheet,
   ActivityIndicator,
   RefreshControl,
-} from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { FriendObject, GlobalContext } from "@/context/GlobalContext";
-import { httpRequests } from "@/api/httpRequests";
-import { ProfileScreenNavigationProp } from "@/app/(tabs)/ProfileStack";
+  Platform,
+} from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { User, UserCheck, UserMinus, UserPlus } from "react-native-feather";
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { FriendObject, GlobalContext } from '@/context/GlobalContext';
+import { httpRequests } from '@/api/httpRequests';
+import { ProfileScreenNavigationProp } from '@/app/(tabs)/ProfileStack';
+import { ProfileContext } from '@/context/ProfileContext';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -29,6 +32,7 @@ interface Post {
 
 const VisitProfileScreen: React.FC = () => {
   const context = useContext(GlobalContext);
+  const profContext = useContext(ProfileContext)
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const route = useRoute();
 
@@ -103,22 +107,26 @@ const VisitProfileScreen: React.FC = () => {
     // Show a loading indicator while fetching the profile
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#40bcbc" />
+        <ActivityIndicator size="large" />
       </View>
     );
   }
-
+  const goBack = () => {
+    navigation.goBack()
+  }
   return (
     <View style={styles.container}>
       {/* Header with Back Button */}
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
-      </View>
+  <TouchableOpacity
+    onPress={goBack}
+    style={styles.backButton}
+  >
+    <Ionicons name="arrow-back" size={24} color="#000" />
+  </TouchableOpacity>
+  <Text style={styles.headerTitle}>{item.username}</Text>
+</View>
+<View style={styles.headerBorder}></View>
 
       {/* Profile Section */}
       <View style={styles.profileSection}>
@@ -127,38 +135,82 @@ const VisitProfileScreen: React.FC = () => {
           style={styles.avatar}
         />
         <Text style={styles.name}>{item.displayname}</Text>
-        <View style={styles.bioStyle}>
-          <TouchableOpacity
-            onPress={() => {
-              if (item) {
-                navigation.navigate("FullBioScreen", { userProfile: item });
-              } else {
-                console.error("User profile is undefined.");
-              }
-            }}
-          >
+        <View style={styles.bioStyle}><TouchableOpacity 
+        onPress={() => {
+            if (item) {
+              navigation.navigate('FullBioScreen', { userProfile: item });
+            } else {
+              console.error('User profile is undefined.');
+            }
+          }}>
+            
             <Text style={styles.bio}>
-              {item.bio && item.bio?.slice(0, 50) + " >"}
-            </Text>
-          </TouchableOpacity>
-        </View>
+  {item.bio != null
+    ? `${(item.bio.split('\n')[0] || '').slice(0, 50)}`
+    : ''}
+
+{item.bio && (item.bio.length > item.bio.split('\n')[0].length || item.bio.split('\n')[0].length > 50)  ? <Text style={{ color: '#757575', fontWeight: 600 }}>{'...View more'}</Text> : <></>}
+</Text>
+
+</TouchableOpacity></View>
 
         {/* Add Friend Button */}
-        <TouchableOpacity
-          style={styles.addFriendButton}
-          onPress={handleAddFriend}
-          disabled={addingFriend}
+        <TouchableOpacity style={[
+    styles.addFriendButton,
+            (context?.friends.some(friend => friend.username === item.username)
+            ? styles.friendButton
+            : styles.addFriendButtonStyle),
+
+
+    (addingFriend || 
+     context?.friends.some(friend => friend.username === item.username) || 
+     profContext?.sentFriendRequests.includes(item.username)) && 
+    styles.disabledButton
+  ]}
+            onPress={() => {
+    if (addingFriend) {
+      // Do nothing or show a loading indicator
+    } else if (context?.friends.some(friend => friend.username === item.username)) {
+      // Remove friend action
+      handleDeleteFriend();
+    } else if (profContext?.sentFriendRequests.includes(item.username)) {
+      // Do nothing, request is pending
+    } else {
+      // Add friend action
+      handleAddFriend();
+    }
+  }}
+         disabled={addingFriend || profContext?.sentFriendRequests.includes(item.username)}
         >
-          <Text style={styles.addFriendButtonText}>
-            {addingFriend
-              ? "Adding..."
-              : context?.friends.some(
-                  (friend) => friend.username === item.username
-                )
-              ? "Remove Friend"
-              : "Add Friend"}
+
+  {context?.friends.some(friend => friend.username === item.username) ? (
+          <UserCheck stroke={'#1D1B20'} strokeWidth={2.5} width={18} height={18} />
+        ) : (
+          profContext?.sentFriendRequests.includes(item.username) ?  <UserCheck stroke={'#1D1B20'} strokeWidth={2.5} width={18} height={18} /> :<UserPlus stroke={'#fff'} strokeWidth={2.5} width={18} height={18} /> 
+        )}
+          {/* <UserCheck stroke={'#1D1B20'} strokeWidth={2.5} width={18} height={18} /> */}
+          <Text 
+            // style={styles.addFriendButtonText}
+            style={[
+              styles.addFriendButtonText,
+              (context?.friends.some(friend => friend.username === item.username) || profContext?.sentFriendRequests.includes(item.username))
+                ? styles.friendButtonText
+                : styles.addFriendButtonTextStyle,
+            ]}
+          >
+               {addingFriend
+      ? 'Adding...'
+      : context?.friends.some(friend => friend.username === item.username)
+      ? 'Friends'
+      : profContext?.sentFriendRequests.includes(item.username)
+      ? 'Requested'
+      : 'Add Friend'}
           </Text>
         </TouchableOpacity>
+
+
+ 
+
       </View>
 
       {true ? <PostsScreen userId={item.id} userProfile={item} /> : null}
@@ -172,7 +224,11 @@ const PostsScreen: React.FC<any> = ({ userId, userProfile }) => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [currentEndIndex, setCurrentEndIndex] = useState(9);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
-  const context = useContext(GlobalContext);
+  const [initialLoadDone, setInitialLoadDone] = useState(false)
+
+    const context = useContext(GlobalContext)
+
+
   const fetchPosts = async (
     startIndex: number,
     endIndex: number,
@@ -205,8 +261,10 @@ const PostsScreen: React.FC<any> = ({ userId, userProfile }) => {
         setAllPostsLoaded(true);
       }
     } catch (error) {
-      console.error("Error fetching posts:", error);
+      //console.error('Error fetching posts:', error);
       setAllPostsLoaded(true);
+    } finally {
+        setInitialLoadDone(true)
     }
   };
 
@@ -236,7 +294,7 @@ const PostsScreen: React.FC<any> = ({ userId, userProfile }) => {
     if (loadingMore) {
       return (
         <View style={{ paddingVertical: 20 }}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" />
         </View>
       );
     } else {
@@ -248,9 +306,9 @@ const PostsScreen: React.FC<any> = ({ userId, userProfile }) => {
     <View style={styles.postItem}>
       <Image
         source={
-          userProfile.image
-            ? { uri: userProfile.image }
-            : require("../../../assets/images/profile/Profile.png")
+            userProfile.profilePicture
+            ? { uri: `data:image/png;base64,${userProfile.profilePicture}` }
+            : require('../../../assets/images/profile/Profile.png')
         }
         style={styles.postAvatar}
       />
@@ -283,7 +341,7 @@ const PostsScreen: React.FC<any> = ({ userId, userProfile }) => {
 
   return (
     <View style={styles.postView}>
-      <FlatList
+        {posts.length > 0 && initialLoadDone ?       <FlatList
         data={posts}
         keyExtractor={(item, index) => index.toString()}
         renderItem={renderPostItem}
@@ -299,7 +357,9 @@ const PostsScreen: React.FC<any> = ({ userId, userProfile }) => {
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
-      />
+      /> : initialLoadDone ? <View style ={{flex:1, justifyContent:'center', backgroundColor:'#fff'}}><Text style={styles.emptyText}>No posts available</Text>
+                  <Text style={styles.emptyEmoji}>😔</Text></View> : <ActivityIndicator size="large" color="#40bcbc" />}
+
     </View>
   );
 };
@@ -309,14 +369,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   container: {
+    paddingTop:5,
     flex: 1,
     backgroundColor: "#fff",
   },
   centered: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+  emptyText: {
+    fontSize: 20,
+    color: "#999",
+    margin: 7,
+    textAlign:'center'
+},
   header: {
     paddingTop: 10,
     paddingHorizontal: 16,
@@ -325,10 +392,38 @@ const styles = StyleSheet.create({
     // Positioning the header at the top
     position: "relative",
     zIndex: 10,
+    marginTop: Platform.OS === "ios" ? '10%' : 0
   },
-  backButton: {
-    // Style for the back button
+  emptyEmoji: {
+    fontSize: 48,
+    color: "#999",
+    margin: 7,
+    textAlign:'center'
   },
+  disabledButton: {
+    backgroundColor: "#EDEDED", // Light grey
+  },
+    headerBorder: {
+        borderBottomWidth:1,
+        borderColor:'grey',
+        opacity:0.5,
+        marginBottom:5,
+    },
+    backButton: {
+      position: 'absolute',
+      left: 10, 
+      padding: 10,
+      zIndex:10,
+    },
+    headerTitle: {
+      fontSize: 18, 
+      fontWeight: 'bold',
+      textAlign: 'center',
+    },
+
+  
+
+
   profileSection: {
     alignItems: "center",
     marginTop: 10,
@@ -354,15 +449,31 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   addFriendButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 15,
-    backgroundColor: "#40bcbc",
     paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 20,
+    paddingHorizontal: 15,
+    borderRadius: 7,
+    marginBottom: 10,
+  },
+  addFriendButtonStyle: {
+    backgroundColor: '#21BFBF',
+  },
+  friendButton: {
+    backgroundColor: '#EDEDED', 
+  },
+  friendButtonText: {
+    color: '#1D1B20'
+  },
+  addFriendButtonTextStyle: {
+    color: '#fff'
   },
   addFriendButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: '#1D1B20',
+    fontWeight: 600,
+    fontSize: 14,
+    marginLeft: 5,
   },
   tabContainer: {
     flex: 1,
@@ -375,7 +486,7 @@ const styles = StyleSheet.create({
   },
   postItem: {
     marginBottom: 10,
-    width: "80%",
+    width: '90%',
     minHeight: 80,
     backgroundColor: "#eee",
     borderWidth: 1,

@@ -5,6 +5,8 @@ import { GlobalContext } from '@/context/GlobalContext';
 import { httpRequests } from '@/api/httpRequests';
 import { useNavigation } from '@react-navigation/native';
 import DEFAULT_PROFILE_PICTURE from '@/assets/base64/defaultPicture';
+import { ProfileContext } from '@/context/ProfileContext';
+
 
 export interface FriendObject {
   id: string;
@@ -27,7 +29,11 @@ const context = useContext(GlobalContext)
 const [loading, setLoading] = useState(false);
 const [adding, setAdding] = useState<number[]>([])
 
+
+
 const [potentialFriends, setPotentialFriends] = useState<FriendObject[]>([]);
+
+
 
 const updatePotentialFriends = (newFriends: FriendObject[]) => {
   setPotentialFriends((prevFriends) => 
@@ -47,6 +53,9 @@ const updatePotentialFriends = (newFriends: FriendObject[]) => {
   const filteredPotentialFriends = potentialFriends.filter((friend: any) =>
     friend.username.toLowerCase().includes(search.toLowerCase())
   );
+
+
+  
 
   const searchForFriends = async () => {
     if (search.length >= 3) {
@@ -76,8 +85,8 @@ const updatePotentialFriends = (newFriends: FriendObject[]) => {
     }
     }
   }
-
-  const sendFriendRequest = async (id: number) => {
+  const profContext = useContext(ProfileContext)
+  const sendFriendRequest = async (id: number, username: string) => {
     //Get Account ID
     console.log(id)
     //Send Request to Account ID
@@ -85,7 +94,7 @@ const updatePotentialFriends = (newFriends: FriendObject[]) => {
       "accountIdOfToAccount": id,
       "status": "SENT"
   }
-  if (adding.indexOf(id) == -1) {
+  if (adding.indexOf(id) == -1 && !profContext?.sentFriendRequests.includes(username)) {
     setAdding((prevNumbers) => [...prevNumbers, id]);
   try {
     const response = await fetch(`${httpRequests.getBaseURL()}/friendRequest/sendNewRequest`, {
@@ -100,6 +109,7 @@ const updatePotentialFriends = (newFriends: FriendObject[]) => {
       throw new Error(`Error: ${response.status}`);
     }
     const json = await response.json() //.json(); // Parse the response as JSON
+    profContext?.handleAddSentFriendRequest(username)
     //return json; // Return the JSON data directly
   } catch (error) {
     console.error('GET request failed:', error);
@@ -125,19 +135,41 @@ const updatePotentialFriends = (newFriends: FriendObject[]) => {
         <Text style={styles.friendUserName}>@{item.username}</Text>
       </View>
       </TouchableOpacity>
-      <TouchableOpacity 
-        style={styles.addButton} 
-        onPress={() => sendFriendRequest(item.id)}>
-        <Text style={styles.addButtonText}>{adding.indexOf(item.id) != -1 ? "Sending...": (context?.friends.some((friend) => friend.id === item.id) ? "Already Friends": "Send Request") }</Text>
-      </TouchableOpacity>
+
+      <TouchableOpacity
+  style={[
+    styles.addButton,
+    (adding.includes(item.id) || 
+     context?.friends.some((friend) => friend.id === item.id) || 
+     profContext?.sentFriendRequests.includes(item.username)) && styles.disabledButton
+  ]}
+  onPress={() => sendFriendRequest(item.id, item.username)}
+  disabled={
+    adding.includes(item.id) ||
+    context?.friends.some((friend) => friend.id === item.id) ||
+    profContext?.sentFriendRequests.includes(item.username)
+  }
+>
+  <Text style={styles.addButtonText}>
+    {adding.includes(item.id)
+      ? "Sending..."
+      : context?.friends.some((friend) => friend.id === item.id)
+      ? "Already Friends"
+      : profContext?.sentFriendRequests.includes(item.username)
+      ? "Request Sent"
+      : "Send Request"}
+  </Text>
+</TouchableOpacity>
+
+
     </View>
   );}
 
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={[styles.header, {paddingTop: Platform.OS === "ios" ? 30 : 0, // Add paddingTop for iOS
-            height: Platform.OS === "ios" ? 80 : 60,    // Adjust header height if necessary
+      <View style={[styles.header, {marginTop: Platform.OS === "ios" ? '10%' : 0, // Add paddingTop for iOS
+            // height: Platform.OS === "ios" ? 80 : 60,    // Adjust header height if necessary
             backgroundColor: 'white', }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="black" />
@@ -148,7 +180,7 @@ const updatePotentialFriends = (newFriends: FriendObject[]) => {
       {/* Search Bar */}
       <TextInput
         style={styles.searchBar}
-        placeholder="Search Potential Friends"
+        placeholder="Search"
         value={search}
         onChangeText={setSearch}
         onEndEditing={searchForFriends}
@@ -159,7 +191,7 @@ const updatePotentialFriends = (newFriends: FriendObject[]) => {
 
 
       {loading ? (
-  <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />
+  <ActivityIndicator size="large" style={styles.loader} />
 ) : filteredPotentialFriends.length > 0 ? (
   <FlatList
     data={filteredPotentialFriends}
@@ -228,13 +260,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#888', 
 },
+
+disabledButton: {
+  backgroundColor: "#d3d3d3", // Light grey
+},
+
+
   addButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#21BFBF',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 6,
   },
   addButtonText: { color: '#fff', fontWeight: 'bold' },
+
 });
 
 export default FindFriendsScreen;

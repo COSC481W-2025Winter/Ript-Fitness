@@ -183,28 +183,29 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cancelButtonText: {
-    fontSize: 18,
+    fontSize: 16,
     color: "#000",
   },
   shareButton: {
-    width: 80,
-    paddingVertical: 8,
-    paddingHorizontal: 8,
+    width: '20%',
+    paddingVertical: 5,
+    // paddingHorizontal: 8,
     borderRadius: 25,
     backgroundColor: "#21BFBF",
     justifyContent: "center",
     alignItems: "center",
-    flex: 1,
+    // flex: 1,
   },
   shareButtonText: {
     color: "white",
     fontWeight: "400",
-    fontSize: 17,
+    fontSize: 16,
     letterSpacing: 0.1,
     lineHeight: 24,
   },
   shareButtonDisabled: {
     opacity: 0.5,
+    // backgroundColor: '#03B7B7'
   },
   mainContent: {
     flexShrink: 1,

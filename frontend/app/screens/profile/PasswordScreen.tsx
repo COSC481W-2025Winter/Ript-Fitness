@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { httpRequests } from '@/api/httpRequests';
 import { GlobalContext } from '@/context/GlobalContext';
@@ -11,7 +11,7 @@ const ChangePasswordScreen = ({ navigation } : any) => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^])[A-Za-z\d@$!%*?&#^]{8,}$/;
 const context = useContext(GlobalContext)
 
     const setNewPasswordWithWarning = (value : string) => {
@@ -24,11 +24,11 @@ const context = useContext(GlobalContext)
                 setErrorMessage("")
             } else {
                 setErrorMessage(`Password must have:
-                    • At least 8 characters
-                    • At least 1 uppercase letter
-                    • At least 1 lowercase letter
-                    • At least 1 special character
-                    • At least 1 number`
+• At least 8 characters
+• At least 1 uppercase letter
+• At least 1 lowercase letter
+• At least 1 special character (!@#$%^&*)
+• At least 1 number`
                   );
         }
     }
@@ -44,11 +44,11 @@ const context = useContext(GlobalContext)
                 setErrorMessage("")
             } else {
                 setErrorMessage(`Password must have:
-                    • At least 8 characters
-                    • At least 1 uppercase letter
-                    • At least 1 lowercase letter
-                    • At least 1 special character
-                    • At least 1 number`
+• At least 8 characters
+• At least 1 uppercase letter
+• At least 1 lowercase letter
+• At least 1 special character (!@#$%^&*)
+• At least 1 number`
                   );
         }
         }
@@ -125,18 +125,19 @@ const context = useContext(GlobalContext)
 
 const styles = StyleSheet.create({
     errorContainer: {
-      width: '100%',
-      alignItems: 'center', // Align children horizontally in the center
+      width: '90%',
+      alignItems: 'flex-start', // Align children horizontally in the center
       justifyContent: 'center', // Align children vertically in the center
-      marginVertical: 10, // Add some space around the error container
+      marginVertical: 5, // Add some space around the error container
+      marginLeft: '5%'
     },
     errorView: {
-      width: '80%', // Adjust the width for better centering
-      padding: 10, // Add some padding for better appearance
+      width: '100%', // Adjust the width for better centering
+      // padding: 10, // Add some padding for better appearance
       borderRadius: 8, // Add rounded corners
-      alignItems: 'center', // Center the text horizontally
+      alignItems: 'flex-start', // Center the text horizontally
     },
-    container: { flex: 1, backgroundColor: '#fff' },
+    container: { flex: 1, backgroundColor: '#fff', },
     center: {
       alignContent: 'center',
       marginLeft: "5%",
@@ -149,15 +150,16 @@ const styles = StyleSheet.create({
       padding: 16,
       borderBottomWidth: 1,
       borderBottomColor: '#ddd',
+      marginTop: Platform.OS === "ios" ? '10%' : 0
     },
-    title: { fontSize: 20, fontWeight: 'bold' },
+    title: { fontSize: 18, fontWeight: 'bold' },
     saveButton: {
-      backgroundColor: '#E0F7FA',
+      backgroundColor: '#21BFBF',
       paddingHorizontal: 16,
       paddingVertical: 6,
       borderRadius: 20,
     },
-    saveButtonText: { color: '#00796B', fontWeight: 'bold' },
+    saveButtonText: { color: '#fff', fontWeight: 'bold' },
     instructions: {
       margin: 16,
       color: '#666',

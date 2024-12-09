@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, TouchableOpacity, View, FlatList, ScrollView, Dimensions, ActivityIndicator, Modal, KeyboardAvoidingView } from 'react-native';
+import { Image, StyleSheet, Platform, TouchableOpacity, View, FlatList, ScrollView, Dimensions, ActivityIndicator, Modal, KeyboardAvoidingView, Alert, Keyboard } from 'react-native';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -20,6 +20,8 @@ import { GlobalContext } from '@/context/GlobalContext';
 import CustomChip from '@/components/custom/CustomChip';
 import { WorkoutContext } from '@/context/WorkoutContext';
 import { Text } from 'react-native';
+import CustomSearchBar from '@/components/custom/CustomSearchBar';
+import { center } from '@shopify/react-native-skia';
 
 
 function getColor(type : number) : string  {
@@ -29,7 +31,7 @@ function getColor(type : number) : string  {
   } else if (type == 2) {
     return ("#2493BF")
   } else if (type == 3) {
-    return ("#2493BF")
+    return ("#ECC275")
   }
   return "#fff"
 }
@@ -49,7 +51,7 @@ export function AddWorkoutScreen() {
   const [exerciseName, setExerciseName] = useState('');
   const [typeOfExercise, setTypeOfExercise] = useState<number | null>(null);
   const [sets, setSets] = useState<{ setNumber: number; reps: string}[]>([{ setNumber: 1, reps: ''}]);
-
+  const [exerciseToEdit, setExerciseToEdit] = useState<Exercise | null>(null);
 
   useEffect(() => {
     console.log('Exercises changed:', exercises);
@@ -85,12 +87,37 @@ export function AddWorkoutScreen() {
   }
 
   //make modal appear to edit added workout
-  const editWorkout = (id : any) => {
-  console.log('Opening modal for workout:', id);
-  //Open Modal when pencil icon is pressed
-  //setAddModalVisible(true);
-  context?.setVisible(true);
-  }
+  // const editWorkout = (id : any) => {
+  // console.log('Opening modal for workout:', id);
+  // //Open Modal when pencil icon is pressed
+  // //setAddModalVisible(true);
+  // context?.setVisible(true);
+  // }
+  const editWorkout = (exerciseId: number) => {
+    console.log('Opening modal for workout:', exerciseId);
+  
+    // Find the exercise to edit
+    const exerciseToEdit = exercises.find((exercise) => exercise.listID === exerciseId);
+  
+    if (!exerciseToEdit) {
+      console.error(`Exercise with id ${exerciseId} not found.`);
+      alert("Could not find the exercise to edit.");
+      return;
+    }
+  
+    // Pre-fill the modal fields with exercise details
+    setExerciseName(exerciseToEdit.nameOfExercise);
+    setTypeOfExercise(exerciseToEdit.exerciseType);
+    setSets(
+      Array.from({ length: exerciseToEdit.sets }, (_, index) => ({
+        setNumber: index + 1,
+        reps: exerciseToEdit.reps[index]?.toString() || "",
+      }))
+    );
+  
+    // Open the modal
+    context?.setVisible(true);
+  };
 
   //submit button will send users to My Workout page
 
@@ -98,16 +125,15 @@ export function AddWorkoutScreen() {
     try {
     setSubmitting(true)
     let WorkoutExercises = [];
-
-    for (let i =0; i<Exercises.length; i++) {
+    for (let i =0; i<exercises.length; i++) {
       const currentExercise = {
-        "sets": Exercises[i].sets,
-        "reps": Exercises[i].reps,
-        "nameOfExercise": Exercises[i].nameOfExercise,
-        "exerciseType": Exercises[i].exerciseType
+        "sets": exercises[i].sets,
+        "reps": exercises[i].reps,
+        "weight": exercises[i].weight,
+        "nameOfExercise": exercises[i].nameOfExercise,
+        "exerciseType": exercises[i].exerciseType
     }
       try {
-        console.log("A " + JSON.stringify(currentExercise))
       const response = await fetch(`${httpRequests.getBaseURL()}/exercises/addExercise`, {
         method: 'POST', // Set method to POST
         headers: {
@@ -120,6 +146,7 @@ export function AddWorkoutScreen() {
         throw new Error(`Error: ${response.status}`);
       }
       const json = await response.json() //.json(); // Parse the response as JSON
+      console.log("EID: " + json.exerciseId)
       WorkoutExercises.push(json.exerciseId);
   
       //return json; // Return the JSON data directly
@@ -146,6 +173,12 @@ export function AddWorkoutScreen() {
       }
       const json = await response.json() //.json(); // Parse the response as JSON
       console.log(JSON.stringify(json))
+
+      // Success message for users
+      // Alert.alert("Success", "Workout has been saved to My Workouts.");
+      // Send users to My Workouts
+      navigation.replace('MyWorkoutsScreen', {});
+
       setSubmitting(false)
       //return json; // Return the JSON data directly
     } catch (error) {
@@ -158,6 +191,8 @@ export function AddWorkoutScreen() {
 const viewWorkoutDetails = (id : any) => {
   navigation.navigate("ApiScreen", {})
 }
+const [listID, setlistID] = useState(0);
+const [exerciseID, setexerciseID] = useState(0);
 
 const addWorkout = () => {
   // User has to enter exercise name and choose the type
@@ -166,12 +201,18 @@ const addWorkout = () => {
     return;
   }        
   const repNumbers = sets.map((set) => Number(set.reps));
-
+  const weightNumbers = sets.map(() => 0);  //setting weight to 0 for each set
+  setlistID(listID + 1)
+  setexerciseID(exerciseID + 1)
+  console.log("listID:" + (listID + 1))
+  console.log("exerciseID:" + (exerciseID + 1))
   const newExercise : Exercise = {
+    listID: listID + 1,
+    exerciseID: exerciseID + 1,
     sets: sets.length,
     reps: repNumbers,
     nameOfExercise: exerciseName,
-    weight: [],
+    weight: weightNumbers,
     exerciseType: typeOfExercise!,
     description: '',
   };
@@ -199,7 +240,14 @@ const addWorkout = () => {
       transparent={true}
       visible={context?.modalObject.isVisible}
       animationType='slide'
-      onRequestClose={() => context?.setVisible(false)/*setAddModalVisible(false)*/}
+      // onRequestClose={() => context?.setVisible(false)
+      onRequestClose={() => {
+        context?.setVisible(false)/*setAddModalVisible(false)*/
+        setExerciseName('');
+        setSets([{ setNumber: 1, reps: '' }]);
+        setTypeOfExercise(null);
+        setExerciseToEdit(null); // Reset editing state
+      }}
     >
       <View style={styles.modalOverlay}>
 
@@ -283,12 +331,13 @@ const addWorkout = () => {
                         flexDirection: 'row', 
                         alignItems: 'flex-end', 
                         marginTop: 10, 
+                        paddingBottom: Platform.OS === "ios" ? 10 : 15
                         // marginLeft: 5, 
                       }} 
                       onPress={handleRemoveSet}
                     >
                       <Ionicons name="trash-outline" size={20} color="#F22E2E" />
-                      <Text style={{ fontSize: 14, color: '#F22E2E', marginLeft: 3 }}>Delete Set</Text>
+                      <Text style={{ fontSize: 14, color: '#F22E2E', marginLeft: 3, }}>Delete Set</Text>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -311,12 +360,12 @@ const addWorkout = () => {
           </View>
         </KeyboardAvoidingView>
       </View>
-    </Modal>
+    </Modal> 
   );
 
   const sideButtons = [
     {id: '1', icon: 'pencil', func: editWorkout },
-    {id: '2', icon: 'arrow-up', func: viewWorkoutDetails, style: styles.viewButton },
+    // {id: '2', icon: 'arrow-forward', func: viewWorkoutDetails },
   ];
 
   //Instead of Sets, display
@@ -324,6 +373,8 @@ const addWorkout = () => {
 
 
   interface Exercise {
+    listID: number;
+    exerciseID: number;
     sets: number;
     reps: number[];
     nameOfExercise: string;
@@ -332,7 +383,6 @@ const addWorkout = () => {
     weight: number[];
   }
 
-  const Exercises : Exercise[] = [];
 
   const renderLeftActions = (maxTheWidth: any) => {
     //console.log(maxTheWidth? "true" : "false")
@@ -371,18 +421,7 @@ const addWorkout = () => {
   }
 
   const [maxWidth, setMaxWidth] = useState(false)
-/*
-  const testGet = async () => {
-    const exampleJson =  //create a json object using the variables set in our textboxes
-      {
-        "username": "nhalash",
-        "password": "password123"
-    };
-    //make a post request
-    const response = await httpRequests.get("/getTestObject", exampleJson)
-    console.log(JSON.stringify(response))
-  }
-*/
+
   const renderItem = ({ item, drag, isActive }: RenderItemParams<Exercise>) => (
     <Swipeable 
     renderLeftActions={() => renderLeftActions(maxWidth)}
@@ -396,40 +435,35 @@ const addWorkout = () => {
     onSwipeableOpen={() => removeExercise(item)}
     containerStyle={styles.test}
     enabled={(!isActive && !isOverlayVisible)}
-  >
-    <View style={styles.exerciseButtonContainer}>
-
-
-    {isActive && isOverlayVisible && (
-        <View style={styles.dragOverlay}>
-          
-        </View>
-      )}
-    <ExerciseButton
-      onLongPress={() => handleLongPress(drag)}
-      onPressOut={() => handlePressOut(isActive)}
-      leftColor={getColor(item.exerciseType)}
-      title={item.nameOfExercise}
-      descColor={getColor(item.exerciseType)}
-      desc={item.reps.length.toString() + " Sets"}
-      //onLongPress={drag}  // Enable dragging when long-pressed
-      isActive={isActive}
-      style={styles.myWidth}
-      sideButtons={sideButtons}
     >
-
-      
-      {item.reps.map((rep : any, index : any) => (
-        <View key={index} style={styles.rowItem}>
-          <ThemedText style={styles.floatLeft}>{rep}</ThemedText>
-          <ThemedText style={styles.floatRight}>{"Reps"}</ThemedText>
-        </View>
-      ))}
-    </ExerciseButton>
-    </View>
+      <View style={styles.exerciseButtonContainer}>
+        {isActive && isOverlayVisible && (
+            <View style={styles.dragOverlay}>
+              
+            </View>
+        )}
+        <ExerciseButton
+          onLongPress={() => handleLongPress(drag)}
+          onPressOut={() => handlePressOut(isActive)}
+          leftColor={getColor(item.exerciseType)}
+          title={item.nameOfExercise}
+          descColor={getColor(item.exerciseType)}
+          desc={item.reps.length.toString() + " Sets"}
+          //onLongPress={drag}  // Enable dragging when long-pressed
+          isActive={isActive}
+          style={styles.myWidth}
+          sideButtons={sideButtons}
+        >  
+        {item.reps.map((rep : any, index : any) => (
+          <View key={index} style={styles.rowItem}>
+            <ThemedText style={styles.floatLeft}>{rep}</ThemedText>
+            <ThemedText style={styles.floatRight}>{"Reps"}</ThemedText>
+          </View>
+        ))}
+        </ExerciseButton>
+      </View>
     </Swipeable>
   );
-
 
   const [text, setText] = useState("")
   const [lastDragIndex, setLastDraggedIndex] = useState(null)
@@ -438,51 +472,94 @@ const addWorkout = () => {
     setExercises(data)
   }
 
-
-  return (    <View style={styles.totalView}>
-
-
-
-
-    <View style={styles.flatListView}>
-    
-
-    <DraggableFlatList
-    style={styles.flatList}
-      data={exercises}
-      renderItem={renderItem}
-      keyExtractor={(item, index) => index.toString()}
-      onDragEnd={({ data }) => onDragEnd(data)} // Update the order after dragging
-      ListHeaderComponent={      <View style={{marginTop:10, alignSelf:"center"}}>
-      <CustomTextInput
-          onChangeText={setText}
-          placeholder="Workout Name"
-          placeholderTextColor="#999"
-          width={width*0.85}
-          style={{
-            borderWidth: 0,
-            fontSize: 16,
-            paddingLeft: 15,
-            borderRadius: 20,
-            backgroundColor: '#EDEDED',
-          }}
-        />
+  return (    
+    <View style={styles.totalView}>
+      {/* Workout Name Input */}
+      <View style={{marginTop:10, alignSelf:"center", }}>
+        <View style={styles.workoutNameContainer}>
+          <TextInput
+            placeholder="Workout Name"
+            placeholderTextColor={'#B6B6B6'}
+            autoCapitalize='words'
+            style={styles.inputStyle}
+            onChangeText={setText}
+            onBlur={Keyboard.dismiss}
+            autoFocus={true}
+          />
+        </View>
+      </View>
       
-      </View>}
-      ListFooterComponent={() => <View style={{ height: submitHeight }} />}
-    />
-    <View style={styles.submitView}>
-      <TouchableOpacity onPress={submitWorkout} style={styles.button}><View style={styles.submitButtonView}><ThemedText style={styles.buttonText}>{submitting ? <ActivityIndicator size="small" color="#ffffff" /> : "Submit"}</ThemedText>{submitting ? <></> : <Ionicons name="chevron-up" style={[styles.submitIcon]} size={20} color="white"/>}</View></TouchableOpacity>
-    </View>
-  {modalComponent}
-  </View></View>)
+      {/* Message/directions for the user */}
+      <View style={{justifyContent: 'center', alignContent: 'center', alignSelf: 'center'}}>
+          {exercises.length === 0 && (
+            <Text style={styles.helperText} numberOfLines={2}>
+              Use the '+' button to add {"\n"} an exercise to your workout
+            </Text>
+          )}
+      </View>
 
+      {/* Exercise tabs */}
+      <View style={styles.flatListView}>
+        <DraggableFlatList
+          style={styles.flatList}
+          data={exercises}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => item.listID.toString()}
+          onDragEnd={({ data }) => onDragEnd(data)} // Update the order after dragging
+          // ListHeaderComponent={
+          //   <View style={{marginTop:10, alignSelf:"center", }}>
+          //     <View style={styles.searchContainer}>
+          //       <TextInput
+          //         placeholder="Workout Name"
+          //         placeholderTextColor={'#B6B6B6'}
+          //         autoCapitalize='words'
+          //         style={styles.inputStyle}
+          //         onChangeText={setText}
+          //         onBlur={Keyboard.dismiss}
+          //         autoFocus={true}
+          //       />
+          //     </View>
+          //   </View>
+          // }
+          ListFooterComponent={() => <View style={{ height: submitHeight }} />}
+        />
+        {modalComponent}
+      </View>
+
+      
+      {/* Create Workout Button */}
+      <View style={styles.submitView}>
+          <TouchableOpacity 
+            onPress={submitWorkout} 
+            style={[
+              styles.button,
+              exercises.length === 0 && styles.buttonDisabled
+            ]}
+            disabled={exercises.length === 0}
+          >
+            <View style={styles.submitButtonView}>
+              <ThemedText 
+                style={styles.buttonText}
+              >{submitting ? <ActivityIndicator size="small" color="#ffffff" /> : "Create Workout"}
+              </ThemedText>
+            </View>
+          </TouchableOpacity>
+        </View>
+    </View>
+  );
 }
 
 const submitHeight = Dimensions.get("screen").height * 0.09;
 const styles = StyleSheet.create({
-  viewButton: {
-    transform: [{ rotate: '90deg' }],
+  workoutNameContainer: {
+    flexDirection: 'row',
+    // alignItems: 'center',
+    padding: 10,
+    width: '90%',
+    // borderRadius: 3,
+    // alignSelf: 'center',
+    // marginTop: 10,
+    // backgroundColor: 'blue'
   },
   maxWidth: {
     width:'100%',
@@ -490,7 +567,12 @@ const styles = StyleSheet.create({
   exerciseButtonContainer: {
     position: 'relative', // Ensure the overlay is positioned over the button
     zIndex:10,
-    // backgroundColor:'green',
+  },
+  inputStyle: {
+    flex: 1, // Ensures the input takes up the remaining space
+    // color: '#747474',
+    fontSize: 25,
+    fontWeight: 'bold',
   },
   dragOverlay: {
     position: 'absolute',
@@ -542,6 +624,9 @@ test: {
   },
   flatListView:{
     width:'100%',
+    height: '100%',
+    // justifyContent: 'space-between',
+    // backgroundColor: 'pink',
   },
   myWidth: {
     width:'100%',
@@ -550,13 +635,13 @@ test: {
   },
   innerView: {
     paddingBottom:'23%',
-    paddingTop:'3%'
+    paddingTop:'3%',
   },
   totalView: {
-    height:'50%',
+    // height:'50%',
     alignItems:'center',
     flex:1,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     backgroundColor: '#fff', // main background e2e2e2 or f6f6f6
   },
   rowItem:{
@@ -572,7 +657,9 @@ test: {
   },
   flatList: {
     //paddingBottom:'100%',
+    height: '90%',
     width:'100%',
+    // backgroundColor: 'red'
   },
   floatLeft: {
     alignSelf:'flex-start',
@@ -580,21 +667,25 @@ test: {
   floatRight: {
     alignSelf:'flex-end',
   },
+  helperText: {
+    color: '#888', // grey color
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: '60%'
+    // backgroundColor: 'green'
+    // marginVertical: 10,
+    // paddingTop: 10
+  },
   submitView: {
     width:'100%',
     /*borderTopWidth:1,
-    borderTopColor:'lightgrey',
-    backgroundColor:'#f3f3f2',*/
+    borderTopColor:'lightgrey', */
     alignItems:'center',
     position:'absolute',
     height:submitHeight,
     bottom:0,
     padding:10,
-  },
-  submitIcon: {
-    //position:'absolute',
-    //right:50,
-    transform: [{ rotate: '90deg' }],
+    // backgroundColor: 'gray',
   },
   stepContainer: {
     gap: 8,
@@ -610,11 +701,15 @@ test: {
   button: {
     height:50,
     width:'90%',
-    backgroundColor:'#302c2c',  //submit button color
+    backgroundColor:'#2493BF',  //submit button color
     borderRadius:10,
     textAlign:'center',
     justifyContent:'center',
     alignItems:'center',
+  },
+  buttonDisabled: {
+    // backgroundColor:'#D9D9D9',
+    opacity: 0.5,
   },
   buttonText: {
     textAlign:'center',
@@ -665,10 +760,15 @@ test: {
   },
   repInput: {
     fontSize: 16,
+    // fontSize: Platform.OS === "ios" ? 16 : 14,
     backgroundColor: '#D9D9D9',
     width: '15%',
     borderRadius: 5,
     textAlign: 'center',
+    maxHeight: 30,
+    textAlignVertical: 'center', 
+    paddingVertical: 0,
+
   },
   modalButtonsContainer: {
     flexDirection: 'row',

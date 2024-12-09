@@ -1,5 +1,4 @@
 import { StyleSheet } from "react-native";
-
 import {
   createStackNavigator,
   StackNavigationProp,
@@ -22,11 +21,13 @@ export type ProfileStackParamList = {
   ProfileScreen: undefined;
   GraphScreen: undefined;
   SettingsScreen: undefined;
+  RiptTeamScreen: undefined;
   FriendsScreen: undefined;
   FindFriendsScreen: undefined;
   FullBioScreen: { userProfile: ProfileObject };
   VisitProfileScreen: any;
   ApiScreen: undefined;
+  ImageFullScreen: {};
 };
 
 export type ProfileScreenNavigationProp =

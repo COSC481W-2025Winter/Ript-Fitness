@@ -62,7 +62,7 @@ const context = useContext(GlobalContext)
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
-        <Text style={styles.title}>Friends</Text>
+        <Text style={styles.title}>Friends List</Text>
         <TouchableOpacity onPress={() => navigation.navigate('FindFriendsScreen')}>
           <Ionicons name="add" size={30} color="black" style={styles.addButton} />
         </TouchableOpacity>
@@ -71,7 +71,7 @@ const context = useContext(GlobalContext)
       {/* Search Bar */}
       <TextInput
         style={styles.searchBar}
-        placeholder="Search Friends"
+        placeholder="Search"
         value={search}
         onChangeText={setSearch}
       />
@@ -94,7 +94,7 @@ const context = useContext(GlobalContext)
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: '#fff',  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',

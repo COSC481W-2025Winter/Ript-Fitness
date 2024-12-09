@@ -16,7 +16,7 @@ public class Photo {
 
     @Lob
     @Column(nullable = false)
-    private byte[] photo;
+    private String photo;
 
     @Column(name = "upload_timestamp", nullable = false)
     private LocalDateTime uploadTimestamp;
@@ -38,12 +38,12 @@ public class Photo {
         this.userProfile = userProfile;
     }
 
-    public byte[] getPhoto() {
+    public String getPhoto() {
         return photo;
     }
 
-    public void setPhoto(byte[] photo) {
-        this.photo = photo;
+    public void setPhoto(String sasUrl) {
+        this.photo = sasUrl;
     }
 
     public LocalDateTime getUploadTimestamp() {
@@ -53,4 +53,5 @@ public class Photo {
     public void setUploadTimestamp(LocalDateTime uploadTimestamp) {
         this.uploadTimestamp = uploadTimestamp;
     }
+
 }

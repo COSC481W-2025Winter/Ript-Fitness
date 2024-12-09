@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,113 +31,127 @@ import com.riptFitness.Ript_Fitness_Backend.web.dto.CalendarDto;
 @Import(SecurityConfig.class)
 public class CalendarServiceTest {
 
-    @Mock
-    private CalendarRepository calendarRepository;
+	@Mock
+	private CalendarRepository calendarRepository;
 
-    @Mock
-    private AccountsRepository accountsRepository;
+	@Mock
+	private AccountsRepository accountsRepository;
 
-    @Mock
-    private AccountsService accountsService;
+	@Mock
+	private AccountsService accountsService;
 
-    @Mock
-    private UserProfileRepository userProfileRepository;
+	@Mock
+	private UserProfileRepository userProfileRepository;
 
-    @InjectMocks
-    private CalendarService calendarService;
+	@InjectMocks
+	private CalendarService calendarService;
 
-    private AccountsModel account;
-    private UserProfile userProfile;
-    private Calendar calendarEntry;
-    private LocalDate testDate;
+	private AccountsModel account;
+	private UserProfile userProfile;
+	private Calendar calendarEntry;
 
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
+	@BeforeEach
+	public void setUp() {
+		MockitoAnnotations.openMocks(this);
 
-        testDate = LocalDate.of(2024, 11, 22); // Example date for testing
+		// Mock account and user profile
+		account = new AccountsModel();
+		account.setId(1L);
 
-        // Mock account and user profile
-        account = new AccountsModel();
-        account.setId(1L);
+		userProfile = new UserProfile();
+		userProfile.setRestDaysLeft(3);
+		userProfile.setRestDays(3);
+		userProfile.setRestResetDate(LocalDateTime.now());
+		userProfile.setAccount(account);
+		userProfile.setTimeZone("Etc/GMT+5"); // Set a default time zone
 
-        userProfile = new UserProfile();
-        userProfile.setRestDaysLeft(3);
-        userProfile.setRestDays(3);
-        userProfile.setRestResetDate(LocalDate.now());
+		// Mock a calendar entry
+		calendarEntry = new Calendar(account, LocalDateTime.now(), 1, "Etc/GMT+5"); // Activity type 1 = Workout
+		calendarEntry.setTimeZoneWhenLogged("Etc/GMT+5"); // Set the time zone for calendar entries
 
-        // Mock a calendar entry
-        calendarEntry = new Calendar(account, testDate, 1); // Activity type 1 = Workout
+		// Mock repository responses
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+		when(accountsRepository.findById(1L)).thenReturn(Optional.of(account));
+		when(userProfileRepository.findUserProfileByAccountId(1L)).thenReturn(Optional.of(userProfile));
+	}
 
-        // Mock repository responses
-        when(accountsService.getLoggedInUserId()).thenReturn(1L);
-        when(accountsRepository.findById(1L)).thenReturn(Optional.of(account));
-        when(userProfileRepository.findUserProfileByAccountId(1L)).thenReturn(Optional.of(userProfile));
-    }
+	@Test
+	public void testLogWorkoutDay() {
+		when(calendarRepository.findTopByAccountIdOrderByDateDesc(1L)).thenReturn(Optional.empty());
+		calendarService.logWorkoutDay("Etc/GMT+5");
+		verify(calendarRepository, times(1)).save(any(Calendar.class));
+	}
 
-    @Test
-    public void testLogWorkoutDay() {
-        when(calendarRepository.findByAccountIdAndDate(1L, testDate)).thenReturn(Optional.empty());
+	@Test
+	public void testLogWorkoutDayAlreadyLogged() {
+		Calendar existingEntry = new Calendar(account, LocalDateTime.now(), 1, "Etc/GMT+5"); // Activity type 1 = Workout
+		existingEntry.setTimeZoneWhenLogged("Etc/GMT+5"); // Set a valid time zone
+		when(calendarRepository.findTopByAccountIdOrderByDateDesc(1L)).thenReturn(Optional.of(existingEntry));
 
-        calendarService.logWorkoutDay(testDate);
+		IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+			calendarService.logWorkoutDay("Etc/GMT+5");
+		});
 
-        verify(calendarRepository, times(1)).save(any(Calendar.class)); // Verify save is called once
-    }
+		assertEquals("Something was already logged for this day.", exception.getMessage());
+	}
 
-    @Test
-    public void testLogWorkoutDayAlreadyLogged() {
-        when(calendarRepository.findByAccountIdAndDate(1L, testDate)).thenReturn(Optional.of(calendarEntry));
+	@Test
+	public void testLogRestDay() {
+		userProfile.setRestDaysLeft(2);
+		when(calendarRepository.findTopByAccountIdOrderByDateDesc(1L)).thenReturn(Optional.empty());
+		when(userProfileRepository.findUserProfileByAccountId(1L)).thenReturn(Optional.of(userProfile));
 
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            calendarService.logWorkoutDay(testDate);
-        });
+		calendarService.logRestDay("Etc/GMT+5");
 
-        assertEquals("Workout already logged for this date.", exception.getMessage());
-    }
+		verify(calendarRepository, times(1)).save(any(Calendar.class));
+		assertEquals(1, userProfile.getRestDaysLeft());
+	}
 
-    @Test
-    public void testLogRestDay() {
-        when(calendarRepository.findByAccountIdAndDate(1L, testDate)).thenReturn(Optional.empty());
+	@Test
+	public void testLogRestDayNoRestDaysLeft() {
+		userProfile.setRestDaysLeft(0);
+		when(userProfileRepository.findUserProfileByAccountId(1L)).thenReturn(Optional.of(userProfile));
 
-        calendarService.logRestDay(testDate);
+		IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+			calendarService.logRestDay("Etc/GMT+5");
+		});
 
-        verify(calendarRepository, times(1)).save(any(Calendar.class)); // Verify save is called once
-        assertEquals(2, userProfile.getRestDaysLeft()); // Verify restDaysLeft is decremented
-    }
+		assertEquals("No rest days left for this week.", exception.getMessage());
+	}
 
-    @Test
-    public void testLogRestDayNoRestDaysLeft() {
-        userProfile.setRestDaysLeft(0);
+	@Test
+	public void testLogRestDayAlreadyLogged() {
+		Calendar existingEntry = new Calendar(account, LocalDateTime.now(), 2, "Etc/GMT+5"); // Activity type 2 = Rest day
+		existingEntry.setTimeZoneWhenLogged("Etc/GMT+5"); // Ensure the time zone is set
+		when(calendarRepository.findTopByAccountIdOrderByDateDesc(1L)).thenReturn(Optional.of(existingEntry));
 
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            calendarService.logRestDay(testDate);
-        });
+		IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+			calendarService.logRestDay("Etc/GMT+5");
+		});
 
-        assertEquals("No rest days left for this week.", exception.getMessage());
-    }
+		assertEquals("Something was already logged for this day.", exception.getMessage());
+	}
 
-    @Test
-    public void testLogRestDayAlreadyLogged() {
-        when(calendarRepository.findByAccountIdAndDate(1L, testDate)).thenReturn(Optional.of(calendarEntry));
+	@Test
+	public void testGetMonth() {
+	    LocalDateTime startDate = LocalDateTime.of(2023, 12, 1, 0, 0);
+	    LocalDateTime endDate = LocalDateTime.of(2023, 12, 31, 23, 59);
 
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            calendarService.logRestDay(testDate);
-        });
+	    Calendar calendarEntry = new Calendar();
+	    calendarEntry.setDate(LocalDateTime.of(2023, 12, 5, 12, 0));
+	    calendarEntry.setActivityType(1);
+	    calendarEntry.setTimeZoneWhenLogged("America/New_York");
 
-        assertEquals("Rest day already logged for this date.", exception.getMessage());
-    }
+	    when(calendarRepository.findByAccountIdAndDateBetween(anyLong(), eq(startDate), eq(endDate)))
+	        .thenReturn(List.of(calendarEntry));
 
-    @Test
-    public void testGetMonth() {
-        // Mock calendar entries for a date range
-        when(calendarRepository.findByAccountIdAndDateBetween(1L, LocalDate.of(2024, 11, 1), LocalDate.of(2024, 11, 30)))
-            .thenReturn(List.of(calendarEntry));
+	    List<CalendarDto> result = calendarService.getMonth(startDate, endDate);
 
-        List<CalendarDto> calendarDtos = calendarService.getMonth(LocalDate.of(2024, 11, 1), LocalDate.of(2024, 11, 30));
+	    assertNotNull(result);
+	    assertEquals(1, result.size());
+	    assertEquals("America/New_York", result.get(0).getTimeZoneWhenLogged());
+	    assertEquals(1, result.get(0).getActivityType());
+	    assertEquals(LocalDateTime.of(2023, 12, 5, 12, 0), result.get(0).getDate());
+	}
 
-        assertNotNull(calendarDtos);
-        assertEquals(1, calendarDtos.size());
-        assertEquals(testDate, calendarDtos.get(0).getDate());
-        assertEquals(1, calendarDtos.get(0).getActivityType()); // Check if activity type is workout
-    }
 }

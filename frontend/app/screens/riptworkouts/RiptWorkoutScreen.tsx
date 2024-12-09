@@ -1,5 +1,4 @@
 import { TextInput, StyleSheet, ScrollView, Text, View, Dimensions, FlatList } from "react-native";
-import SearchBar from '@/components/custom/CustomSearchBar';
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import PreCreatedWorkoutButton from '@/components/custom/PreCreatedWorkoutButton'
 import StreakHeader from '@/components/StreakHeader';
@@ -7,12 +6,14 @@ import { SavedWorkoutButton } from "@/components/custom/SavedWorkoutButton";
 import RiptWorkouts, { Workout } from '@/app/screens/riptworkouts/RiptWorkouts';
 import { useNavigation } from '@react-navigation/native';
 import { WorkoutScreenNavigationProp } from "@/app/(tabs)/WorkoutStack";
+import CustomSearchBar from "@/components/custom/CustomSearchBar";
 
 
 
 export default function RiptWorkoutsScreen() {
 
   const navigation = useNavigation<WorkoutScreenNavigationProp>();
+  
 
   //   const handleWorkoutPress = (workoutId: number) => {
   //       // Find the selected workout data
@@ -23,7 +24,7 @@ export default function RiptWorkoutsScreen() {
   const SearchBarHeader = () => {
     return (
       <View style={styles.searchContainer}>
-        <SearchBar></SearchBar>
+        <CustomSearchBar/>
       </View>
     )
     }
@@ -34,7 +35,7 @@ export default function RiptWorkoutsScreen() {
     return (
         <View style={styles.container}>
             <StreakHeader></StreakHeader>
-            <SearchBarHeader></SearchBarHeader>
+            {/* <SearchBarHeader></SearchBarHeader> */}
             <FlatList 
                 style={styles.workoutContainer}
                 data={RiptWorkouts}
@@ -62,8 +63,8 @@ export default function RiptWorkoutsScreen() {
 
 const styles = StyleSheet.create({
   searchContainer: {
-    margin: 10,
-    gap: 8, 
+    // margin: 10,
+    // gap: 8, 
   },
   workoutContainer: {
     flex:1,
@@ -88,8 +89,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     gap: 8, 
+    backgroundColor: '#fff',
   },
   columnWrapper: {
-    paddingHorizontal: 10, // Add padding to the left and right of the row
+    paddingHorizontal: 5, // Add padding to the left and right of the row
   },
 });
