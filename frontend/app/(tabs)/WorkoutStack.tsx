@@ -84,7 +84,7 @@ export default function WorkoutStack() {
           title: 'My Workouts',
           headerLeft: () => (
             <TouchableOpacity
-              onPress={() => navigation.navigate('WorkoutApiScreen', {})}
+              onPress={() => navigation.goBack()}
               style={[styles.leftButton, styles.button, styles.buttonSize]}
             >
               <TabBarIcon
@@ -104,7 +104,7 @@ export default function WorkoutStack() {
           title: 'Ript Workouts',
           headerLeft: () => (
             <TouchableOpacity
-              onPress={() => navigation.navigate('WorkoutApiScreen', {})}
+              onPress={() => navigation.goBack()}
               style={[styles.leftButton, styles.button, styles.buttonSize]}
             >
               <TabBarIcon
@@ -124,7 +124,7 @@ export default function WorkoutStack() {
           title: 'Workout Details',
           headerLeft: () => (
             <TouchableOpacity
-              onPress={() => navigation.navigate('RiptWorkoutScreen', {})}
+              onPress={() => navigation.goBack()}
               style={[styles.leftButton, styles.button, styles.buttonSize]}
             >
               <TabBarIcon
@@ -164,7 +164,7 @@ export default function WorkoutStack() {
           title: 'Add Workout',
           headerLeft: () => (
             <TouchableOpacity
-              onPress={() => navigation.navigate('WorkoutApiScreen', {})}
+              onPress={() => navigation.goBack()}
               style={[styles.leftButton, styles.button, styles.buttonSize]}
             >
               <TabBarIcon
@@ -192,7 +192,7 @@ export default function WorkoutStack() {
           title: 'My Notes',
           headerLeft: () => (
             <TouchableOpacity
-              onPress={() => navigation.navigate('WorkoutApiScreen', {})}
+              onPress={() => navigation.goBack()}
               style={[styles.leftButton, styles.button, styles.buttonSize]}
             >
               <TabBarIcon

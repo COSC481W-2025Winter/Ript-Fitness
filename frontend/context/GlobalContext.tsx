@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { httpRequests } from '@/api/httpRequests';
 import { ProfileContext } from './ProfileContext';
 import DEFAULT_PROFILE_PICTURE from '@/assets/base64/defaultPicture';
+import TimeZone from '@/api/timeZone';
 
 
 
@@ -26,6 +27,8 @@ export interface ProfileObject {
   restDaysLeft: number,
   restResetDate: string,
   restRestDayOfWeek: number,
+  accountCreatedDate: string,
+  timeZone: string,
 }
 
 export interface FriendObject {
@@ -41,12 +44,15 @@ export interface FriendObject {
   restDaysLeft: number,
   restResetDate: string,
   restRestDayOfWeek: number,
+  accountCreatedDate: string,
+  timeZone: string,
 }
 
 
 export interface CalendarDay {
-  date: "string",
+  date: string,
   activityType: number,
+  timeZoneWhenLogged: string,
 }
 
 export interface Calendar {
@@ -96,10 +102,14 @@ interface GlobalContextType {
   addFriend: (newFriend: FriendObject) => void;
   calendar: Calendar;
   calendarLoadTracker: CalendarLoadTracker;
-  loadCalendarDays: (dateRange: { startYear: number; startMonth: number; endYear: number; endMonth: number; }) => Promise<void>;
+  loadCalendarDays: (
+    dateRange: { startYear: number; startMonth: number; endYear: number; endMonth: number; }, 
+    clear?: boolean
+  ) => Promise<void>;
   clearCalendar: () => void;
 
-
+  incrementRemovePending: () => void;
+  decrementRemovePending: () => void;
   workouts: Workout[];
   fetchWorkouts: () => Promise<void>;
   addWorkout: (workout: Workout) => void;
@@ -183,6 +193,8 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
     restDaysLeft: 0,
     restResetDate: '',
     restRestDayOfWeek: 0,
+    accountCreatedDate: '',
+    timeZone: '',
   };
 
   const [userProfile, setMyUserProfile] = useState<ProfileObject>(defaultUserProfile);
@@ -214,6 +226,41 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         })
       );
     };
+
+    const addFriends = (newFriends: FriendObject[]) => {
+      setFriends((prevFriends) => {
+        const updatedFriends = [...prevFriends]; // Clone the current friends array
+    
+        newFriends.forEach((newFriend) => {
+          // Check if the friend already exists
+          const existingIndex = updatedFriends.findIndex(
+            (friend) => friend.id === newFriend.id
+          );
+    
+          if (existingIndex !== -1) {
+            // If the friend exists, update their information
+            updatedFriends[existingIndex] = {
+              ...updatedFriends[existingIndex],
+              ...newFriend,
+              profilePicture: (newFriend.profilePicture == undefined || newFriend.profilePicture == "")
+                ? DEFAULT_PROFILE_PICTURE
+                : newFriend.profilePicture,
+            };
+          } else {
+            // If the friend does not exist, add them
+            updatedFriends.push({
+              ...newFriend,
+              profilePicture: (newFriend.profilePicture == undefined || newFriend.profilePicture == "")
+                ? DEFAULT_PROFILE_PICTURE
+                : newFriend.profilePicture,
+            });
+          }
+        });
+    
+        return updatedFriends; // Return the new state
+      });
+    };
+    
     
 
   const removeFriend = (friendId: string) => {
@@ -249,7 +296,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
   const clearContext = () => {
     setMyUserProfile(defaultUserProfile);
     setFriends([])
-
+    clearCalendar();
   };
 
   const clearCalendar =() => {
@@ -390,8 +437,9 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
   const loadInitialBodyData = async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
   };
+  
 
-  const loadCalendarDays = async (dateRange: { startYear:number, startMonth:number, endYear:number, endMonth:number }) => {
+  const loadCalendarDays = async (dateRange: { startYear:number, startMonth:number, endYear:number, endMonth:number }, clear?: boolean) => {
     try {
       const response = await fetch(`${httpRequests.getBaseURL()}/calendar/getMonth?startYear=${dateRange.startYear}&startMonth=${dateRange.startMonth}&endYear=${dateRange.endYear}&endMonth=${dateRange.endMonth}`, {
         method: 'GET', // Set method to POST
@@ -410,8 +458,13 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
 
      const calendarData: Calendar = {};
      json.forEach((day : CalendarDay) => {
-       calendarData[day.date] = day.activityType;
+      day.date = TimeZone.convertToTimeZone(day.date, day.timeZoneWhenLogged).split(',')[0].trim()
+       calendarData[day.date] = day.activityType; 
      });
+
+     if (clear) {
+      clearCalendar();
+     }
     
      setCalendar((prevCalendar) => ({
       ...prevCalendar,
@@ -450,10 +503,30 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
     };
   };
 
+  const [removePending, setRemovePending] = useState(0)
+  const [reloadPending, setReloadPending] = useState(false)
+
+  useEffect(() => {
+    if (removePending == 0 && reloadPending) {
+      setReloadPending(false);
+      reloadFriends();
+    }
+  }, [removePending]); // Run whenever `data` changes
+
+  const incrementRemovePending = () => {
+    setRemovePending((prev) => prev + 1); // Increment the number by 1
+  };
+
+  const decrementRemovePending = () => {
+    setRemovePending((prev) => prev - 1); // Increment the number by 1
+  };
+
   const reloadFriends = async () => {
+    if (removePending > 0) {
+      setReloadPending(true)
+      return;
+    }
     try {
-
-
       const response = await fetch(`${httpRequests.getBaseURL()}/friends/getFriendsListOfCurrentlyLoggedInUser`, {
         method: 'GET', // Set method to POST
         headers: {
@@ -463,6 +536,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         body: "", // Convert the data to a JSON string
       }); // Use endpoint or replace with BASE_URL if needed
       if (!response.ok) {
+        setToken("")
         throw new Error(`Error: ${response.status}`);
       }
       const friendNames = await response.json()
@@ -478,24 +552,19 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
                 body: JSON.stringify(friendNames), // Convert the data to a JSON string
               }); // Use endpoint or replace with BASE_URL if needed
               if (!response.ok) {
+                setToken("")
                 throw new Error(`Error: ${response.status}`);
               }
               const json = await response.json()
               console.log("foo " + JSON.stringify(json))
-              updateFriends(json)
+                updateFriends(json)
           
             } catch (error) {
-              // If access denied
-              // Send to login page
-              setToken("")
               console.error('0004 GET request failed:', error);
               throw error; // Throw the error for further handling if needed
             }
   
     } catch (error) {
-      // If access denied
-      // Send to login page
-      setToken("")
       console.error('0003 GET request failed:', error);
       throw error; // Throw the error for further handling if needed
     }
@@ -512,6 +581,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         body: "", // Convert the data to a JSON string
       }); // Use endpoint or replace with BASE_URL if needed
       if (!response.ok) {
+        setToken("")
         throw new Error(`Error: ${response.status}`);
       }
       console.log("loading...")
@@ -519,9 +589,6 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
       console.log(json)
       updateUserProfile(json)
     } catch (error) {
-      // If access denied
-      // Send to login page
-      setToken("")
       console.error('0002 GET request failed:', error);
       throw error; // Throw the error for further handling if needed
     }
@@ -568,6 +635,8 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         addWorkout,
         updateWorkout,
         reloadFriends,
+        incrementRemovePending,
+        decrementRemovePending
       }}
     >
 
