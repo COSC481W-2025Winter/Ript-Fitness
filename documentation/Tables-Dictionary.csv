@@ -1,0 +1,18 @@
+﻿Table;Description
+accounts_model;Stores information related to user accounts.
+calendar_entries;Contains calendar entries linked to user workouts
+day;Stores daily data such as calories, carbs, fat, and water consumption.
+day_food;Links food items to specific days for tracking consumption.
+exercise_ids;Links exercises to specific workouts.
+exercise_model;Stores details about specific exercises, including type, reps, and sets.
+food;Contains food item information including nutritional values.
+friend_request;Manages friend requests between users.
+friends_list;Stores the list of friends for each user.
+notes;Stores personal notes created by users.
+photo;Stores photos uploaded by users to their profiles.
+social_post;Stores social media posts made by users.
+social_post_comment;Stores comments made on social posts.
+streak;Tracks users' streaks for consecutive days of activity.
+user_profile;Contains user profile information, including names and preferences.
+workout_data;Stores data about specific workouts performed by users.
+workouts;Stores information about workout sessions created or performed by users.

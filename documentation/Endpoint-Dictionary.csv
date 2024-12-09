@@ -1,0 +1,185 @@
+﻿Controller Name;Name;Description;Type;URL;Body;Response
+AccountsController;createNewAccount;Creates a new user account with a username password and email.;POST;http://ript-fitness-app.azurewebsites.net/accounts/createNewAccount;"{
+"username": "nhalash",
+"password": "password123",
+"email": "nhalash@emich.edu"
+}";
+AccountsController;login;Logs in a user given that the username/password meet the login criteria;PUT;http://ript-fitness-app.azurewebsites.net/accounts/login;"{
+"username": "nhalash",
+"password": "password123"
+";
+AccountsController;changePassword;You can change the password by typing in the current password and new one;PUT;https://ript-fitness-app.azurewebsites.net/accounts/{currentPassword}/{newPassword};None;200 if successful, 500 otherwise
+AccountsController;updateEmail;Updates email of account.;PUT;https://ript-fitness-app.azurewebsites.net/accounts/updateEmail/{newEmail};None;
+CalendarController;logWorkout;Logs a workout day for currently logged-in account on specified date.;POST;https://ript-fitness-app.azurewebsites.net/calendar/logWorkout?timeZone=Etc/GMT%2B5;None;void
+CalendarController;logRestDay;Logs a rest day for currently logged-in account on specified date;POST;http://localhost:8080/calendar/logRestDay?timeZone=Etc/GMT-5;None;void
+CalendarController;getMonth;Retrieves calendar entries for specified date range typically covering an entire month;GET;https://ript-fitness-app.azurewebsites.net/calendar/getMonth?startYear=2024&startMonth=9&endYear=2024&endMonth=9;None;
+ExercisesController;addExercise;Adds a new exercise to user's profile;POST;http://localhost:8080/exercises/addExercise;"{
+"exerciseId": 1,
+"sets": 3,
+"reps": [10, 10, 10],
+"nameOfExercise": "Push Ups",
+"accountReferenceId": 1
+}";Returns created exercise
+ExercisesController;deleteExercise;Soft deletes an exercise by setting isDeleted flag to true based on provided exercise ID;DELETE;http://localhost:8080/exercises/deleteExercise/{exerciseId};None;Returns deleted exercise object
+ExercisesController;updateReps;Updates number of reps for a given exercise set;PUT;http://localhost:8080/exercises/editReps/{exerciseId}/{setNumber}/{newNumberOfReps};None;Returns exercise with updated reps
+ExercisesController;updateSets;Updates number of sets for an exercise;PUT;http://localhost:8080/exercises/editSets/{exerciseId}/{newNumberOfSets};None;Returns exercise with updated sets
+ExercisesController;editExerciseName;Updates name of an exercise;PUT;http://localhost:8080/exercises/editExerciseName/{exerciseId}/{newExerciseName};None;Returns exercise with updated name
+ExercisesController;findByKeyword;Finds exercises based on given keyword;GET;http://localhost:8080/exercises/findByKeyword/{keyword};None;Returns a list of exercise objects containing keyword
+ExercisesController;getExercisesFromCurrentUser;"Gets all NON deleted exercises from user that is currently logged in; going back 'nMostRecent' exercises";GET;http://localhost:8080/exercises/getAllExercises/{nMostRecent};None;Returns a List of Exercises from user that is currently logged in
+ExercisesController;updateExercise;Updates an exercise given an exercise DTO;PUT;http://localhost:8080/exercises/updateExercise;"{
+"exerciseId": 1,
+"sets": 3,
+"reps": [10, 10, 10],
+"nameOfExercise": "Push Ups",
+"accountReferenceId": 1
+}";Updated exercise object
+FriendRequestController;sendNewRequest;Send a friend request to toAccount from currently logged in account if users had no friend request history;POST;https://ript-fitness-app.azurewebsites.net/friendRequest/sendNewRequest;"{
+accountIdOfToAccount: accountID of non-currently logged in account
+status: (“SENT”, “ACCEPTED”, or “DECLINED”)
+}";ArrayList<FriendRequestDto> (index 0 from logged-in account's perspective, index 1 from other account's perspective)
+FriendRequestController;getStatus;Takes in an accountId and returns status of currently logged in user to accountId in path;GET;https://ript-fitness-app.azurewebsites.net/friendRequest/getStatus/insertToAccountIdHere;None;String of type RequestStatus (PENDING, SENT, ACCEPTED, DECLINED) or “NO RELATIONSHIP”
+FriendRequestController;sendRequest;Same as endpoint 1 except currently logged in account and toAccount already have a relationship;PUT;https://ript-fitness-app.azurewebsites.net/friendRequest/sendRequest;"{
+accountIdOfToAccount: accountID of non-currently logged in account
+status: (“SENT”, “ACCEPTED”, or “DECLINED”)
+}";ArrayList<FriendRequestDto>
+FriendRequestController;getAllAccountsWithSpecifcStatus;"Takes in a RequestStatus enum type ("PENDING", "SENT", "ACCEPTED", "DECLINED") and and returns an ArrayList of usernames (Strings) who have that relationship with currently logged in user";GET;https://ript-fitness-app.azurewebsites.net/friendRequest/getAllAccountsWithSpecifcStatus/InsertRequestStatusHere;None;ArrayList<String> (usernames)
+FriendsController;addFriend;Adds currently logged in user to input parameter account's friends list and vice versa;POST;https://ript-fitness-app.azurewebsites.net/friends/addFriend/insertAccountIdHere;None;String with a success/failure message
+FriendsController;getFriendsListOfCurrentlyLoggedInUser;Returns a List of usernames (Strings) that are usernames of currently logged in user's friends;GET;https://ript-fitness-app.azurewebsites.net/friends/getFriendsListOfCurrentlyLoggedInUser;None;ArrayList<String> (usernames)
+FriendsController;getFriendsList;Takes in an accountId (Long), returns an ArrayList<String> representing usernames of friends of account;GET;https://ript-fitness-app.azurewebsites.net/friends/getFriendsList/insertAccountIdHere;None;ArrayList<String> (usernames)
+FriendsController;deleteFriend;Deletes account with parameter accountId from currently logged in user's friend's list and vice versa;DELETE;https://ript-fitness-app.azurewebsites.net/friends/deleteFriend/insertAccountIdHere;None;Success/Failure response (String message)
+GraphController;addNewGraph;Adds a Graph associated with the currently logged-in user.;POST;https://ript-fitness-app.azurewebsites.net/graph/addNewGraph;"{
+"xAxisName": "Whatever the user wants to call the x axis",
+"yAxisName": "Whatever the user wants to call the y axis",
+"title": "Whatever the user wants to title the Graph"
+}";Returns the added GraphDto object
+GraphController;getGraphsOfCurrentlyLoggedInUser;Returns an ArrayList of all Graphs associated with the currently logged-in user.;GET;https://ript-fitness-app.azurewebsites.net/graph/getGraphsOfCurrentlyLoggedInUser;None;ArrayList<GraphDto>
+GraphController;addValue;Adds a coordinated pair to the specified Graph (Y-axis value).;PUT;https://ript-fitness-app.azurewebsites.net/graph/addValue/InsertYAxisValueHere;Title of Graph (String);Updated GraphDto object
+GraphController;deleteValue;Deletes a coordinated pair in a specified Graph with a specified index.;PUT;https://ript-fitness-app.azurewebsites.net/graph/deleteValue/InsertIndexHere;Title of Graph (String);Updated GraphDto object
+GraphController;deleteGraph;Soft deletes a Graph in the Graph database table.;DELETE;https://ript-fitness-app.azurewebsites.net/graph/deleteGraph/InsertGraphIdHere;None;GraphDto object that's been soft deleted
+NoteController;addNote;Allows a user to create a new note;POST;https://ript-fitness-app.azurewebsites.net/note/addNote;"{
+"title": "Test Note for azure DB",
+"description": "did a push up"
+}";200 if successful, 500 otherwise
+NoteController;deleteNote;Allows a user to delete a note;DELETE;http://ript-fitness-app.azurewebsites.net/note/deleteNote/{noteId};None;204 if successful, 500 otherwise
+NoteController;editNote;Allows a user to edit a note;PUT;http://ript-fitness-app.azurewebsites.net/note/editNote/{noteId};"{
+"title": "edited note title",
+"description": "edited note description"
+}";200 if successful, 500 otherwise
+NoteController;getAllNotesFromLoggedInUser;Allows a user to get all non-deleted notes that they have written;GET;http://ript-fitness-app.azurewebsites.net/note/getAllNotesFromLoggedInUser;None;200 if successful, 500 otherwise
+NoteController;getNotesBasedOnKeyword;Allows a user to get a note that contains given keyword (title);GET;http://ript-fitness-app.azurewebsites.net/note/getNotesBasedOnKeyword/{keyword};None;200 if successful, 500 otherwise
+NutritionTrackerController;addFood;Adds a Food object to Food database table;POST;https://ript-fitness-app.azurewebsites.net/nutritionCalculator/addFood;"{
+"name": "Pringles",
+"calories": 290,
+"protein": 20,
+"carbs": 30,
+"fat": 10,
+"multiplier": 1.0,
+"isDeleted": false
+}";
+NutritionTrackerController;getFood;Get the values from a specific Food database table row;GET;https://ript-fitness-app.azurewebsites.net/nutritionCalculator/getFood/InsertFoodIDHere;None;
+NutritionTrackerController;getFoodsOfLoggedInUser;Returns all Food objects that belong to the logged in user based on start and end indexes;GET;https://ript-fitness-app.azurewebsites.net/nutritionCalculator/getFoodsOfLoggedInUser/startIndex/endIndex;None;
+NutritionTrackerController;editFood;Edit a row in the Food database table;PUT;https://ript-fitness-app.azurewebsites.net/nutritionCalculator/editFood/InsertFoodIDHere;"{
+"name": "Pringles",
+"calories": 290,
+"protein": 20,
+"carbs": 30,
+"fat": 10,
+"multiplier": 1.0,
+"isDeleted": false
+}";
+NutritionTrackerController;deleteFood;Soft delete a row in the Food database table;DELETE;https://ript-fitness-app.azurewebsites.net/nutritionCalculator/deleteFood/InsertFoodIDHere;None;
+NutritionTrackerController;addDay;Add a row to the Day database table;POST;https://ript-fitness-app.azurewebsites.net/nutritionCalculator/addDay;"{
+"foodsEatenInDay": [],
+"foodIdsInFoodsEatenInDayList": []
+}";
+NutritionTrackerController;getDay;Gets a row from the Day database table and calculates total nutrient information;PUT;https://ript-fitness-app.azurewebsites.net/nutritionCalculator/getDay/InsertDayIdHere;None;
+NutritionTrackerController;getDayOfLoggedInUser;Returns a DayDto object corresponding to the index path variable;GET;https://ript-fitness-app.azurewebsites.net/nutritionCalculator/getDayOfLoggedInUser/index;None;
+NutritionTrackerController;deleteDay;Soft delete a row in the Day database table;DELETE;https://ript-fitness-app.azurewebsites.net/nutritionCalculator/deleteDay/InsertDayIDHere;None;
+NutritionTrackerController;addFoodsToDay;Add Food objects to a Day object;POST;https://ript-fitness-app.azurewebsites.net/nutritionCalculator/addFoodsToDay/InsertDayIdHere;"[2]
+[1, 2, 3]";
+NutritionTrackerController;deleteFoodsInDay;Delete Food objects in a Day object;POST;https://ript-fitness-app.azurewebsites.net/nutritionCalculator/deleteFoodsInDay/InsertDayIdHere;"[2]
+[1, 2, 3]";
+NutritionTrackerController;editWaterIntake;Edits water intake by adding an integer value to the current water intake;PUT;https://ript-fitness-app.azurewebsites.net/nutritionCalculator/editWaterIntake/InsertDayIdHere/InsertWaterIntakeHere;None;
+SocialPostController;addPost;Adds a social post to the SocialPost database;POST;https://ript-fitness-app.azurewebsites.net/socialPost/addPost;"{ 
+"content": "Great PR, Chris!"
+}";
+SocialPostController;getPost;Returns a SocialPostDto object from the SocialPost database;GET;https://ript-fitness-app.azurewebsites.net/socialPost/getPost/InsertPostIdHere;None;
+SocialPostController;getPostsFromCurrentlyLoggedInUser;Returns an ArrayList of post Ids from the currently logged in user's ID based on starting and ending indexes;GET;https://ript-fitness-app.azurewebsites.net/socialPost/getPostsFromCurrentlyLoggedInUser/startIndex/endIndex;None;
+SocialPostController;getPostsFromAccountId;Returns an ArrayList of post Ids from the account with accountId based on starting and ending indexes;GET;https://ript-fitness-app.azurewebsites.net/socialPost/getPostsFromAccountId/accountId/startIndex/endIndex;None;
+SocialPostController;getSocialFeed;Returns a List of SocialPostDto objects belonging to the currently logged in user and their friends in descending time order based on start and end indexes in path variable;GET;https://ript-fitness-app.azurewebsites.net/socialPost/getSocialFeed/startIndex/endIndex;None;
+SocialPostController;editPostContent;Edits a post content (just the content nothing else);PUT;https://ript-fitness-app.azurewebsites.net/socialPost/editPostContent/InsertPostIdHere;String containing new content;
+SocialPostController;deletePost;Soft deletes a SocialPost in the SocialPost database;DELETE;https://ript-fitness-app.azurewebsites.net/socialPost/deletePost/InsertPostIdHere;None;
+SocialPostController;addLike;Adds a like to a post from the currently logged in user's ID;PUT;https://ript-fitness-app.azurewebsites.net/socialPost/addLike/InsertPostIdHere;None;
+SocialPostController;deleteLike;Deletes a like from a post for the currently logged in user's ID;PUT;https://ript-fitness-app.azurewebsites.net/socialPost/deleteLike/InsertPostIdHere;None;
+SocialPostController;addComment;Adds a SocialPostComment to a SocialPost;PUT;https://ript-fitness-app.azurewebsites.net/socialPost/addComment;"{
+"content": "Wow!",
+"postId": 3
+}";
+SocialPostController;deleteComment;Deletes a SocialPostComment in a SocialPost;PUT;https://ript-fitness-app.azurewebsites.net/socialPost/deleteComment/InsertSocialPostCommentIdHere;None;
+StreakController;getStreak;Gets the streak object that is connected with the user's id;GET;https://ript-fitness-app.azurewebsites.net/streak/getStreak/ReplaceWithID;None;
+StreakController;updateStreak;Updates the streaks either incrementing it if it is the next day or resets to zero;PUT;https://ript-fitness-app.azurewebsites.net/streak/updateStreak/ReplaceWithID;None;
+TokenController;validateToken;Given a token, will determine if it is still valid based on its time constraint;POST;https://ript-fitness-app.azurewebsites.net/api/token/validate;{{jwtToken}};TRUE if valid, error otherwise
+UserProfileController;addUser;Creates a new user profile and stores it in the UserProfile database;POST;https://ript-fitness-app.azurewebsites.net/userProfile/addUser;"{
+"firstName": "tom",
+"lastName": "van",
+"username": "tomvan123",
+"isDeleted": false
+}";
+UserProfileController;getUser;Retrieves the user profile data based on the provided user ID;GET;https://ript-fitness-app.azurewebsites.net/userProfile/getUser/{userId};None;
+UserProfileController;editUser;Edits an existing user profile based on the provided user ID and updates it in the UserProfile database;PUT;https://ript-fitness-app.azurewebsites.net/userProfile/editUser/{userId};"{
+"firstName": "tom",
+"lastName": "van",
+"username": "tomvan123",
+"isDeleted": false
+}";
+UserProfileController;deleteUser;Soft deletes a user profile by setting the isDeleted flag to true based on the provided user ID;DELETE;https://ript-fitness-app.azurewebsites.net/userProfile/deleteUser/{userId};None;
+UserProfileController;addPrivatePhoto;Adds a private photo to the user's account.;POST;https://ript-fitness-appazurewebsitesnet/userProfile/photo;Raw binary data of the photo to be uploaded;Void (HTTP 200 on success)
+UserProfileController;getPrivatePhotos;Retrieves a paginated list of private photos for a specific user;GET;https://ript-fitness-app.azurewebsites.net/userProfile/photos;None;"Array of Photo objects:
+id (Long): ID of the photo.
+photo (byte[]): Binary data of the photo."
+UserProfileController;deletePrivatePhoto;Deletes a private photo by its ID;DELETE;https://ript-fitness-app.azurewebsites.net/userProfile/photo/{photoId};None;Void (HTTP 200 on success)
+UserProfileController;searchUserProfiles;Searches for user profiles by username using a search term with pagination;GET;https://ript-fitness-app.azurewebsites.net/userProfile/search;None;"Array of UserDto objects:id (Long): ID of the user profile
+firstName (String): User's first name
+lastName (String): User's last name
+username (String): Username
+bio (String): Bio of the user"
+UserProfileController;getUserProfile;Retrieves the user profile data based on the currently logged-in user's username;GET;https://ript-fitness-app.azurewebsites.net/userProfile/getUserProfile;None;
+UserProfileController;updateUserProfile;Updates user profile for currently logged-in user;PUT;https://ript-fitness-app.azurewebsites.net/userProfile/updateUserProfile;UserDto object;
+UserProfileController;deleteUserProfile;Soft deletes user profile for currently logged-in user;DELETE;https://ript-fitness-app.azurewebsites.net/userProfile/deleteUserProfile;None;
+UserProfileController;getUserProfilesFromList;Retrieves user profiles for a list of usernames;POST;https://ript-fitness-app.azurewebsites.net/userProfile/getUserProfilesFromList;List of usernames (Strings);
+UserProfileController;updateProfilePicture;Updates profile picture of currently logged-in user;PUT;https://ript-fitness-app.azurewebsites.net/userProfile/profilePicture;byte[] (binary data of the profile picture);
+UserProfileController;getProfilePicture;Retrieves profile picture of currently logged-in user;GET;https://ript-fitness-app.azurewebsites.net/userProfile/profilePicture;None;
+UserProfileController;addPrivatePhoto;Adds a private photo for currently logged-in user;POST;https://ript-fitness-app.azurewebsites.net/userProfile/photo;"Multipart file (photo) that contains: 
+{
+uri: imageURI,
+name: imageNameHere,
+type: 'image/jpeg',
+}";Void (HTTP 200 on success)
+UserProfileController;getPrivatePhotos;Retrieves a list of private photos for currently logged-in user;GET;https://ript-fitness-app.azurewebsites.net/userProfile/photos?startIndex={index}&endIndex={index};None;A list of Photo URLs with a SaS token at the end to allow only the user to view the photo
+UserProfileController;getSasUrl;Retrieves a SAS URL for a specific blob in Azure;GET;https://ript-fitness-app.azurewebsites.net/userProfile/getSasUrl;blobName (String);Returns a SaS token for a certain photo
+WorkoutDataController;addWorkoutData;Adds workout data to table;POST;https://ript-fitness-app.azurewebsites.net/workoutData/addWorkoutData;"{
+"exerciseName" : "bench",
+"reps" : [1,2,1],
+"weight" : [20, 20, 29]
+}";
+WorkoutDataController;getWorkoutData;Returns a specific WorkoutDataDto with given ID;GET;https://ript-fitness-app.azurewebsites.net/workoutData/{wDataId};None;
+WorkoutDataController;getAllWorkoutData;Returns a list of all workout data with same name within given index range;GET;https://ript-fitness-app.azurewebsites.net/workoutData/getAllData/{startIndex}/{endIndex}/{exerciseName};None;
+WorkoutDataController;getMaxReps;Returns most reps done for a given exercise;GET;https://ript-fitness-app.azurewebsites.net/workoutData/getMaxReps/{exerciseName};None;
+WorkoutDataController;getMaxWeight;Returns most weight done for a given exercise;GET;https://ript-fitness-app.azurewebsites.net/workoutData/getMaxWeight/{exerciseName};None;
+WorkoutDataController;updateWorkoutData;Updates an existing workout data;PUT;https://ript-fitness-app.azurewebsites.net/workoutData/updateWorkoutData/{wDataId};"{
+"exerciseName" : "bench",
+"reps" : [2,2,2],
+"weight" : [20, 20, 29]
+}";
+WorkoutDataController;deleteWorkoutData;Soft deletes a given workout data;DELETE;https://ript-fitness-app.azurewebsites.net/workoutData/deleteWorkoutData/{wDataId};None;
+WorkoutsController;addWorkout;Adds a workout to database table;POST;https://ript-fitness-app.azurewebsites.net/workouts/addWorkout;"{
+"name": "pull day",
+"exercises": [1,2,3],
+"isDeletd": false
+}";
+WorkoutsController;getWorkout;Returns a specific workout from a ID;GET;https://ript-fitness-app.azurewebsites.net/workouts/replacewithworkoutid;None;
+WorkoutsController;getUsersWorkouts;Retrieves all workouts related to current logged in user;GET;https://ript-fitness-app.azurewebsites.net/workouts/getUsersWorkouts;None;
+WorkoutsController;updateWorkout;Updates name of a workout;PUT;https://ript-fitness-app.azurewebsites.net/workouts/updateWorkout/ReplaceWithIdofWorkout;"{
+"name": "push day 2",
+}";
+WorkoutsController;deleteWorkout;Soft Deletes A workout;DELETE;https://ript-fitness-app.azurewebsites.net/workouts/deleteWorkout/ReplaceWithWorkoutID;None;
