@@ -52,6 +52,7 @@ export function AddWorkoutScreen() {
   const [typeOfExercise, setTypeOfExercise] = useState<number | null>(null);
   const [sets, setSets] = useState<{ setNumber: number; reps: string}[]>([{ setNumber: 1, reps: ''}]);
   const [exerciseToEdit, setExerciseToEdit] = useState<Exercise | null>(null);
+  const [editing, setEditing] = useState(-1);
 
   useEffect(() => {
     console.log('Exercises changed:', exercises);
@@ -93,18 +94,18 @@ export function AddWorkoutScreen() {
   // //setAddModalVisible(true);
   // context?.setVisible(true);
   // }
-  const editWorkout = (exerciseId: number) => {
-    console.log('Opening modal for workout:', exerciseId);
+  const editExercise = (exerciseId: string) => {
+    setEditing(Number(exerciseId))
   
     // Find the exercise to edit
-    const exerciseToEdit = exercises.find((exercise) => exercise.listID === exerciseId);
+    const exerciseToEdit = exercises.find((exercise) => exercise.listID == Number(exerciseId));
   
     if (!exerciseToEdit) {
       console.error(`Exercise with id ${exerciseId} not found.`);
       alert("Could not find the exercise to edit.");
       return;
     }
-  
+    console.log(" foo " , exerciseToEdit.nameOfExercise)
     // Pre-fill the modal fields with exercise details
     setExerciseName(exerciseToEdit.nameOfExercise);
     setTypeOfExercise(exerciseToEdit.exerciseType);
@@ -114,12 +115,21 @@ export function AddWorkoutScreen() {
         reps: exerciseToEdit.reps[index]?.toString() || "",
       }))
     );
-  
+    //setModalRefresh(1)
     // Open the modal
     context?.setVisible(true);
   };
 
-  //submit button will send users to My Workout page
+/*
+  const [refreshModal, setModalRefresh] = useState(0);
+
+  useEffect(() => {
+    if (refreshModal != 0) {
+      setModalRefresh(0)
+      console.log(exerciseName)
+    }
+  }, [refreshModal]); // Re-run effect whenever exercises updates
+*/
 
    const submitWorkout = async () => {
     try {
@@ -194,7 +204,7 @@ const viewWorkoutDetails = (id : any) => {
 const [listID, setlistID] = useState(0);
 const [exerciseID, setexerciseID] = useState(0);
 
-const addWorkout = () => {
+const addExercise = () => {
   // User has to enter exercise name and choose the type
   if (!exerciseName || typeOfExercise === null) {
     alert("Exercise name and exercise type are required fields.");
@@ -202,13 +212,15 @@ const addWorkout = () => {
   }        
   const repNumbers = sets.map((set) => Number(set.reps));
   const weightNumbers = sets.map(() => 0);  //setting weight to 0 for each set
-  setlistID(listID + 1)
-  setexerciseID(exerciseID + 1)
-  console.log("listID:" + (listID + 1))
-  console.log("exerciseID:" + (exerciseID + 1))
+  console.log("ree1234: " , editing)
+  if (editing == -1) {
+    setlistID(listID + 1)
+    setexerciseID(exerciseID + 1)
+  }
+  const increment = editing == -1 ? 1 : 0
   const newExercise : Exercise = {
-    listID: listID + 1,
-    exerciseID: exerciseID + 1,
+    listID: listID + increment,
+    exerciseID: exerciseID + increment,
     sets: sets.length,
     reps: repNumbers,
     nameOfExercise: exerciseName,
@@ -216,14 +228,26 @@ const addWorkout = () => {
     exerciseType: typeOfExercise!,
     description: '',
   };
-  console.log('New Exercise:', newExercise);
+  console.log('New Exercise:', newExercise.listID);
 
   // Update the exercises state with the new exercise
-  setExercises((prev) => {
-    const updatedExercises = [...prev, newExercise];
-    console.log('Updated Exercises:', updatedExercises);  // Log updated exercises array
-    return updatedExercises;
-  });
+  console.log(editing)
+  if (editing != -1) {
+    setExercises(
+      exercises.map((exercise) =>
+        exercise.listID === Number(editing)
+          ? { ...newExercise, listID: exercise.listID } // Update other properties but preserve listID
+          : exercise // Keep the rest unchanged
+      )
+    );
+    setEditing(-1)
+  } else {
+    setExercises((prev) => {
+      const updatedExercises = [...prev, newExercise];
+      console.log('Updated Exercises:', updatedExercises);  // Log updated exercises array
+      return updatedExercises;
+    });
+}
 
   //reset fields
   //setExercises((prev) => [...prev, newExercise]);
@@ -259,13 +283,14 @@ const addWorkout = () => {
 
           <View style={styles.modalContent}>
             {/* Title and close modal icon */}
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <TextInput style={{fontSize: 18, fontWeight: '500', }}
+            <View style={{ flexDirection: 'row' }}>
+              <TextInput style={{fontSize: 18, fontWeight: '500', flex:1 }}
                 placeholder='Exercise Name'
                 placeholderTextColor={'#B6B6B6'}
                 maxLength={20}
                 autoFocus={true}
                 autoCapitalize='words'
+                defaultValue={exerciseName}
                 onChangeText={setExerciseName}
               />
               {/* Close/ x button */}
@@ -276,6 +301,7 @@ const addWorkout = () => {
                   //setAddModalVisible(false);
                   setSets([{ setNumber: 1, reps: '' }]);
                   setExerciseName('');
+                  setEditing(-1)
                   setTypeOfExercise(null);
                   }}
                 >
@@ -284,6 +310,7 @@ const addWorkout = () => {
             </View>
             {/* Upper, Lower, or Rec type - 1, 2, 3 */}
             <CustomChip 
+              selectedType={typeOfExercise}
               onTypeSelect={(type) => setTypeOfExercise(type)}
             />
             {/* Each set with rep for the exercise */}
@@ -352,7 +379,7 @@ const addWorkout = () => {
               {/* Save Button */}
               <TouchableOpacity 
                 style={styles.modalButton2} 
-                onPress={addWorkout}
+                onPress={addExercise}
               >
                 <Text style={{ color: '#fff', fontSize: 15 }}>Save</Text>
               </TouchableOpacity>
@@ -364,7 +391,7 @@ const addWorkout = () => {
   );
 
   const sideButtons = [
-    {id: '1', icon: 'pencil', func: editWorkout },
+    {id: '1', icon: 'pencil', func: editExercise },
     // {id: '2', icon: 'arrow-forward', func: viewWorkoutDetails },
   ];
 
@@ -450,6 +477,7 @@ const addWorkout = () => {
           descColor={getColor(item.exerciseType)}
           desc={item.reps.length.toString() + " Sets"}
           //onLongPress={drag}  // Enable dragging when long-pressed
+          id={item.listID.toString()}
           isActive={isActive}
           style={styles.myWidth}
           sideButtons={sideButtons}
@@ -469,6 +497,7 @@ const addWorkout = () => {
   const [lastDragIndex, setLastDraggedIndex] = useState(null)
 
   const onDragEnd = (data : any) => {
+    console.log("the data: " , data)
     setExercises(data)
   }
 
