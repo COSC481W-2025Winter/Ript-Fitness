@@ -2,7 +2,7 @@ import { GlobalContext } from "@/context/GlobalContext";
 import { USE_LOCAL, LOCAL_IP } from "@env";
 import { useContext } from "react";
 
-const Azure_URL = "https://ript-fitness-app.azurewebsites.net";
+const Azure_URL = "https://ript-fitness-b3.mysql.database.azure.com";
 const BASE_URL = USE_LOCAL === "true" ? `http://${LOCAL_IP}` : Azure_URL;
 
 export class httpRequests {

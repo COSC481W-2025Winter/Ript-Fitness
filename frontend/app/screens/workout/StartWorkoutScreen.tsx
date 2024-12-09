@@ -40,7 +40,7 @@ export default function StartWorkoutScreen() {
     const [workoutName, setWorkoutName] = useState(""); // State for workout name
   const [submitting, setSubmitting] = useState(false);
   const httpRequests = {
-    getBaseURL: () => "http://ript-fitness-app.azurewebsites.net",
+    getBaseURL: () => `${httpRequests.getBaseURL()}`,
   };
  
   console.log(
@@ -64,7 +64,7 @@ export default function StartWorkoutScreen() {
       };
   
       const response = await fetch(
-        "http://ript-fitness-app.azurewebsites.net/note/addNote",
+        `${httpRequests.getBaseURL()}/note/addNote`,
         {
           method: "POST",
           headers: {
