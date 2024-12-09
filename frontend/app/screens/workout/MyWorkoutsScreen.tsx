@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 10,
-    backgroundColor: "white", // Light gray background for better contrast
+    // backgroundColor: "white", // Light gray background for better contrast
     justifyContent: 'space-evenly',
     alignItems: 'center',
   },
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
 
   workoutItem: {
     backgroundColor: "#fff",
-    width: '90%',
+    width: '95%',
     height: 90,
     borderRadius: 10,
     // borderWidth: 0.3,
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: "95%",
-    backgroundColor: "#fff",
+    backgroundColor: "#f9f9f9",
     borderRadius: 15,
     padding: 20,
     maxHeight: "90%", // Increased max height for better visibility
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9f9f9",
   },
   saveButton: {
-    backgroundColor: "#56C97B",
+    backgroundColor: "#21BFBF",
     padding: 12,
     borderRadius: 10,
     alignItems: "center",
@@ -434,7 +434,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   editButton: {
-    backgroundColor: "#ECC275",
+    backgroundColor: "#21BFBF",
     padding: 12,
     borderRadius: 10,
     alignItems: "center",
@@ -496,6 +496,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 10,
     padding: 15,
+    marginTop: 20,
     marginBottom: 20,
     elevation: 3,
     shadowColor: "#000",
@@ -549,7 +550,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f4f4f4", // Match background with container
+    // backgroundColor: "#f4f4f4", // Match background with container
   },
   setValueTitle: {
     fontSize: 16,
@@ -575,6 +576,7 @@ const styles = StyleSheet.create({
     // backgroundColor: "#56C97B",
     paddingTop: 3,
     flexDirection: 'row',
+    alignItems: 'center',
     // padding: 2,
     // borderWidth: 1, 
     // borderColor: 'lightgrey',
@@ -582,7 +584,7 @@ const styles = StyleSheet.create({
     // marginTop: 10,
   },
   addSetText: {
-    color: "black",
+    color: "#21BFBF",
     fontSize: 16,
     margin: 3, 
   },
@@ -671,7 +673,7 @@ return (
   <View style={styles.container}>
     {loading ? (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#21BFBF" />
+        <ActivityIndicator size="large" />
         <Text>Loading Workouts...</Text>
       </View>
     ) : (
@@ -852,7 +854,7 @@ return (
                     >
                       {/* <Text style={styles.addSetText}>Add Set</Text> */}
                       <Text style={styles.addSetText}>Add Set</Text>
-                      <Ionicons name="add" size={25}></Ionicons>
+                      <Ionicons name="add-circle-outline" size={20} color={'#21BFBF'}></Ionicons>
                     </TouchableOpacity>
                   </View>
                 )}

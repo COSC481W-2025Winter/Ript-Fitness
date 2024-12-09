@@ -1,5 +1,5 @@
 import React, { useState, useContext  } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, TextInput, Modal, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, TextInput, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Swipeable } from 'react-native-gesture-handler';
 import { GlobalContext } from "@/context/GlobalContext"; // Access global context
@@ -52,7 +52,7 @@ export default function StartWorkoutScreen() {
   );
   const addNote = async () => {
     if (!noteText) {
-      Alert.alert("FYI!", "Reminder you can add a note!");
+      // Alert.alert("FYI!", "Reminder you can add a note!");
       return;
     }
   
@@ -79,13 +79,13 @@ export default function StartWorkoutScreen() {
       }
   
       console.log("Note added successfully");
-      Alert.alert("Success", "Note saved successfully!");
+      // Alert.alert("Success", "Note saved successfully!");
   
       // Clear the note input after submission
       setNoteText("");
   
       // Optionally, navigate to MyNotesScreen if needed
-      navigation.navigate("MyNotesScreen", {});
+      // navigation.navigate("MyNotesScreen", {});
     } catch (error) {
       console.error("Error adding note:", error);
       Alert.alert("Error", "Failed to save note. Please try again.");
@@ -167,7 +167,8 @@ export default function StartWorkoutScreen() {
       setWorkoutName("");
       setExercises([]);
       Alert.alert("Success", "Workout and note added successfully!");
-      navigation.navigate("MyWorkoutsScreen", {});
+      // navigation.navigate("MyWorkoutsScreen", {});
+      navigation.replace('MyWorkoutsScreen', {});
     } catch (error) {
       console.error("Error submitting workout:", error);
       Alert.alert("Error", "Failed to submit workout. Please try again.");
@@ -522,8 +523,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  modalContentContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   modalContent: {
-    width: '80%',
+    minWidth: '85%',
+    // minWidth: 400,
     backgroundColor: 'white',
     padding: 20,
     borderRadius: 10,
@@ -535,6 +541,7 @@ const styles = StyleSheet.create({
   },
   notesInput: {
     height: 150,
+    minWidth: '85%',
     borderColor: 'gray',
     borderWidth: 1,
     borderRadius: 8,
@@ -588,19 +595,33 @@ return (
       onRequestClose={() => setNoteModalVisible(false)}
     >
       <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Workout Notes</Text>
-          <TextInput
-            style={styles.notesInput}
-            placeholder="Type your notes here"
-            value={noteText}
-            onChangeText={setNoteText}
-            multiline
-          />
-          <TouchableOpacity onPress={() => setNoteModalVisible(false)} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>Save Notes</Text>
-          </TouchableOpacity>
-        </View>
+
+        <KeyboardAvoidingView
+          style={styles.modalContentContainer}
+          // style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}  
+        >
+            <View style={styles.modalContent}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text style={styles.modalTitle}>Workout Notes</Text>
+                <TouchableOpacity onPress={() => setNoteModalVisible(false)}>
+                  <Ionicons name='close-circle-outline' size={30} color={'#747474'} />
+                </TouchableOpacity>
+              </View>
+              <TextInput
+                style={styles.notesInput}
+                placeholder="Type your notes here"
+                value={noteText}
+                onChangeText={setNoteText}
+                placeholderTextColor={'#555'}
+                multiline
+              />
+              <TouchableOpacity onPress={() => setNoteModalVisible(false)} style={styles.closeButton}>
+                <Text style={styles.closeButtonText}>Save Notes</Text>
+              </TouchableOpacity>
+            </View>
+          </KeyboardAvoidingView>
       </View>
     </Modal>
 
