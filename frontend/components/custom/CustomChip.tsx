@@ -24,19 +24,13 @@ interface CustomChipProps {
   selectedType?: number | null; 
 }
 
-const CustomChip: React.FC<CustomChipProps> = ({ onTypeSelect }) => {
-  const [selectedChip, setSelectedChip] = useState<number | null>(null);
-  console.log(selectedChip);
-  const handleChipPress = (value: number) => {
-    setSelectedChip(value);
-    onTypeSelect(value);
-  };
-
+const CustomChip: React.FC<CustomChipProps> = ({ selectedType, onTypeSelect }) => {
+  
   return (
     <View style={styles.container}>
-      <Chip label="Upper" value={1} selected={selectedChip === 1} onPress={handleChipPress} />
-      <Chip label="Lower" value={2} selected={selectedChip === 2} onPress={handleChipPress} />
-      <Chip label="Rec" value={3} selected={selectedChip === 3} onPress={handleChipPress} />
+      <Chip label="Upper" value={1} selected={selectedType === 1} onPress={onTypeSelect} />
+      <Chip label="Lower" value={2} selected={selectedType === 2} onPress={onTypeSelect} />
+      <Chip label="Rec" value={3} selected={selectedType === 3} onPress={onTypeSelect} />
     </View>
   );
 };
