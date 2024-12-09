@@ -414,19 +414,20 @@ const styles = StyleSheet.create({
         width: '100%', 
         flexDirection: 'row',
         borderColor: '#21BFBF',
-        borderWidth:1,
+        borderTopWidth:2,
+        borderBottomWidth:2,
         alignItems: 'center',
         position: 'relative',
         justifyContent: 'space-evenly',
     }, 
     selectedBox: {
-        width: '33%',
+        width: '35%',
         alignItems: 'center',
         backgroundColor:'#21BFBF',
         padding: 5, 
     },
     box: {
-        width: '33%',
+        width: '34%',
         alignItems: 'center',
         backgroundColor: 'white',
         padding: 5,
@@ -440,6 +441,7 @@ const styles = StyleSheet.create({
     text: {
         padding: 10,
         color: '#21BFBF',
+        fontWeight: 'bold',
     },
     selectedText: {
         fontWeight: 'bold',

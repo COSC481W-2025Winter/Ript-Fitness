@@ -674,7 +674,7 @@ const PostsScreen: React.FC<any> = ({
     if (!returned || loadingMore) {
       return (
         <View style={{ paddingVertical: 20 }}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" />
         </View>
       );
     } else {

@@ -294,6 +294,7 @@ const FoodLogSavedPage = () => {
                     paddingLeft: 30,
                     borderRadius: 20,
                     backgroundColor: "#EDEDED",
+                    // width: '90%'
                 }}
         />
         </View>

@@ -332,7 +332,7 @@ function PhotosScreen() {
     if (!returned || loadingMore) {
       return (
         <View style={{ paddingVertical: 20 }}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" />
         </View>
       );
     } else {
@@ -356,7 +356,7 @@ function PhotosScreen() {
       // Render the loading indicator
       return (
         <View style={[styles.photo, {justifyContent:'center'}]}>
-          <ActivityIndicator size="large" color="#40bcbc" />
+          <ActivityIndicator size="large" />
         </View>
       );
     } else {
@@ -693,7 +693,7 @@ function PostsScreen() {
     if (!returned || loadingMore) {
       return (
         <View style={{ paddingVertical: 20 }}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" />
         </View>
       );
     } else {
@@ -732,7 +732,7 @@ function PostsScreen() {
           //columnWrapperStyle={{ padding: 0, margin: 0 }}
         />
       ) : (
-        <ActivityIndicator size="large" color="#40bcbc" />
+        <ActivityIndicator size="large" />
       )}
     </View>
   );
@@ -848,7 +848,7 @@ function ProgressScreen() {
         }
       }
       if (loadedStartDate > myDate) {
-        return <ActivityIndicator size="large" color="#00ff00" />;
+        return <ActivityIndicator size="large" />;
       }
     }
 
@@ -986,10 +986,10 @@ function ProgressScreen() {
       <TouchableOpacity
         style={{
           marginLeft: 10,
-          backgroundColor: '#BFBFBF',
+          backgroundColor: '#21BFBF',
           paddingHorizontal: 15,
           paddingVertical: 10,
-          borderRadius: 7,
+          borderRadius: 20,
           alignSelf: 'center'
           // shadowColor: '#000',
           // shadowOffset: { width: 0, height: 2 },
@@ -999,17 +999,17 @@ function ProgressScreen() {
         }}
         onPress={useRestDay}
       >
-        <Text style={{ color: '#40403F', }}>Use Rest Day</Text>
+        <Text style={{ color: '#fff', }}>Use Rest Day</Text>
       </TouchableOpacity>
-    </View>
+      </View>
 
 
-        <View style={styles.links}>
+        {/* <View style={styles.links}>
           <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('GraphScreen')}>
             <Text style={styles.linkText}>Graphs</Text>
             <Ionicons name="chevron-forward-outline" size={24} style={styles.linkIcon} />
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
     </ScrollView>
   );
@@ -1020,35 +1020,54 @@ function CustomDrawerContent({ navigation }: any) {
     navigation.closeDrawer();
     navigation.navigate('SettingsScreen');
   };
+  const aboutUs = async (navigation: any) => {
+    navigation.closeDrawer();
+    navigation.navigate('RiptTeamScreen');
+  };
 
   const context = useContext(GlobalContext);
   return (
     <View style={styles.drawerContent}>
+      <View>
+        <TouchableOpacity
+          style={styles.drawerItem}
+          onPress={() => {
+            // Navigate to Settings screen or handle accordingly
+            drawerNav(navigation);
+            // navigation.navigate('SettingsScreen');
+          }}
+        >
+          <View style={styles.drawerItemTextContainer}>
+            <Ionicons name="settings-outline" size={24} color={'#1E1E1E'} />
+            <Text style={styles.drawerItemText}>Account Settings</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.drawerItem}
+          onPress={() => {
+            // Handle logout logic here
+            navigation.closeDrawer();
+            context?.setToken('');
+            // Perform logout actions
+          }}
+        >
+          <View style={styles.drawerItemTextContainer}>
+            <Ionicons name="log-out-outline" size={24} color={'#1E1E1E'} />
+            <Text style={styles.drawerItemText}>Logout</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
       <TouchableOpacity
         style={styles.drawerItem}
         onPress={() => {
           // Navigate to Settings screen or handle accordingly
-          drawerNav(navigation);
+          aboutUs(navigation);
           // navigation.navigate('SettingsScreen');
         }}
       >
-        <View style={styles.drawerItemTextContainer}>
-          <Ionicons name="settings-outline" size={24} color={'#1E1E1E'} />
-          <Text style={styles.drawerItemText}>Account Settings</Text>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.drawerItem}
-        onPress={() => {
-          // Handle logout logic here
-          navigation.closeDrawer();
-          context?.setToken('');
-          // Perform logout actions
-        }}
-      >
-        <View style={styles.drawerItemTextContainer}>
-          <Ionicons name="log-out-outline" size={24} color={'#1E1E1E'} />
-          <Text style={styles.drawerItemText}>Logout</Text>
+        <View style={[styles.drawerItemTextContainer, {borderTopWidth: 1, paddingTop: 10, borderBottomWidth: 0, borderTopColor: '#ddd'}]}>
+          <Ionicons name="people-outline" size={24} color={'#1E1E1E'} />
+          <Text style={styles.drawerItemText}>RiptFitness Team</Text>
         </View>
       </TouchableOpacity>
     </View>
@@ -1458,6 +1477,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 70,
     backgroundColor: '#fff',
+    justifyContent: 'space-between'
   },
   drawerItem: {
     padding: 10,
