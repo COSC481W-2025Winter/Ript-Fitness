@@ -1,0 +1,110 @@
+﻿Table;Field;Data Type;Primary Key;Foreign Key;Description
+accounts_model;id;bigint;Yes;No;Unique identifier for each account
+accounts_model;email;varchar(255);No;No;
+accounts_model;last_login;datetime(6);No;No;Timestamp of last login
+accounts_model;password;varchar(255);No;No;
+accounts_model;username;varchar(255);No;No;
+calendar_entries;id;bigint;Yes;No;Unique identifier for each calendar entry
+calendar_entries;activity_type;int;No;No;Type of activity associated with calendar entry (1 for workout, 2 for rest)
+calendar_entries;date;date;No;No;Date of calendar entry
+calendar_entries;account_id;bigint;No;Yes;FK linking calendar entry to an account
+day;id;bigint;Yes;No;Unique identifier for each day entry
+day;calories;double;No;No;
+day;date;date;No;No;
+day;is_deleted;bit(1);No;No;Flag indicating if entry has been deleted (1 = deleted, 0 = not deleted)
+day;total_carbs;double;No;No;Total amount of carbs consumed on specified day
+day;total_fat;double;No;No;Total amount of fat consumed on specified day
+day;total_protein;double;No;No;Total amount of protein consumed on specified day
+day;total_water_consumed;int;No;No;Total amount of water consumed on this day (oz)
+day;account_id;bigint;No;Yes;FK linking day entry to a specific account
+day_food;my_row_id;bigint;Yes;No;Unique identifier for each record
+day_food;day_id;bigint;No;Yes;FK linking food entry to a specific day
+day_food;food_id;bigint;No;Yes;FK linking entry to a specific food item
+exercise_ids;my_row_id;bigint;Yes;No;Unique identifier for each record
+exercise_ids;workout_id;bigint;No;Yes;FK linking exercise to a specific workout
+exercise_ids;exercise_id;bigint;No;Yes;FK linking record to a specific exercise
+exercise_model;exercise_id;bigint;Yes;No;Unique identifier for each exercise
+exercise_model;is_deleted;bit(1);No;No;Flag indicating if exercise has been deleted (1 = deleted, 0 = not deleted)
+exercise_model;name_of_exercise;varchar(255);No;No;
+exercise_model;reps;varbinary(255);No;No;Number of repetitions for exercise
+exercise_model;sets;int;No;No;Number of sets for exercise
+exercise_model;account_id;bigint;No;Yes;FK linking exercise to a specific account
+exercise_model;workout_id;bigint;No;Yes;Identifier linking exercise to a specific workout session
+exercise_model;weight;varbinary(255);No;No;Weight used for exercise
+exercise_model;description;varchar(255);No;No;
+exercise_model;exercise_type;int;No;No;
+food;id;bigint;Yes;No;Unique identifier for each food item
+food;calories;double;No;No;Total number of calories in food item
+food;carbs;double;No;No;Total amount of carbs in food item
+food;fat;double;No;No;Total amount of fat in food item
+food;is_deleted;bit(1);No;No;Flag indicating if food item has been deleted (1 = deleted, 0 = not deleted)
+food;multiplier;double;No;No;Multiplier used to adjust food item’s values (e.g., for portion size)
+food;name;varchar(255);No;No;
+food;protein;double;No;No;Total amount of protein in food item
+food;account_id;bigint;No;Yes;FK linking food item to a specific account
+friend_request;id;bigint;Yes;No;Unique identifier for each friend request
+friend_request;account_id_of_from_account;bigint;No;No;Identifier of account sending friend request
+friend_request;account_id_of_to_account;bigint;No;No;Identifier of account receiving friend request
+friend_request;date_time_of_most_recent_change_to_status;datetime(6);No;No;Timestamp of most recent status change for friend request
+friend_request;from_username;varchar(255);No;No;Username of account sending friend request
+friend_request;status;friend_request_status_enum;No;No;Current status of friend request (ACCEPTED, DECLINED, PENDING, SENT)
+friend_request;to_username;varchar(255);No;No;Username of account receiving friend request
+friend_request;from_account_id;bigint;No;Yes;FK of account sending friend request
+friend_request;to_account_id;bigint;No;Yes;FK of account receiving friend request
+friends_list;my_row_id;bigint;Yes;No;Unique identifier for each record in friends list
+friends_list;account_id;bigint;No;Yes;FK linking record to a specific account
+friends_list;friend_id;bigint;No;Yes;FK linking record to a specific friend account
+notes;note_id;bigint;Yes;No;Unique identifier for each note
+notes;created_at;datetime(6);No;No;Timestamp when note was created
+notes;description;varchar(255);No;No;Content of note
+notes;is_deleted;bit(1);No;No;Flag indicating if note has been deleted (1 = deleted, 0 = not deleted)
+notes;title;varchar(255);No;No;
+notes;updated_at;datetime(6);No;No;Timestamp when note was last updated
+notes;account_id;bigint;No;Yes;FK linking note to a specific account
+photo;id;bigint;Yes;No;Unique identifier for each photo
+photo;photo;tinytext;No;No;
+photo;upload_timestamp;datetime(6);No;No;
+photo;user_profile_id;bigint;No;Yes;FK linking photo to specific user profile
+social_post;id;bigint;Yes;No;Unique identifier for each social post
+social_post;account_id;bigint;No;Yes;FK linking post to a specific account
+social_post;content;varchar(255);No;No;Text content of social post
+social_post;created_date;datetime(6);No;No;Timestamp indicating when post was created
+social_post;is_deleted;bit(1);No;No;Flag indicating if post has been deleted (1 = deleted, 0 = not deleted)
+social_post;number_of_likes;int;No;No;Count of number of likes on post
+social_post;userids_of_likes;varbinary(255);No;No;Binary data representing IDs of users who liked post
+social_post;user_profile_id;bigint;No;Yes;Identifier linking post to a specific user profile
+social_post_comment;id;bigint;Yes;No;Unique identifier for each comment on a social post
+social_post_comment;account_id;bigint;No;Yes;FK linking comment to a specific account
+social_post_comment;content;varchar(255);No;No;Text content of comment
+social_post_comment;created_date;datetime(6);No;No;Timestamp indicating when comment was created
+social_post_comment;is_deleted;bit(1);No;No;Flag indicating if comment has been deleted (1 = deleted, 0 = not deleted)
+social_post_comment;post_id;bigint;No;Yes;FK linking comment to a specific social post
+social_post_comment;user_profile_id;bigint;No;Yes;FK linking comment to a specific user profile
+streak;account_id;bigint;Yes;Yes;FK linking streak to a specific account
+streak;current_st;int;No;No;Current streak count (consecutive days of activity)
+streak;goal;int;No;No;Target streak goal
+streak;off_days;int;No;No;Number of off days allowed in streak
+streak;prev_login;datetime(6);No;No;Timestamp indicating last login of user
+user_profile;id;bigint;Yes;No;Unique identifier for each user profile
+user_profile;first_name;varchar(255);No;No;
+user_profile;is_deleted;bit(1);No;No;Flag indicating if user profile has been deleted (1 = deleted, 0 = not deleted)
+user_profile;last_name;varchar(255);No;No;
+user_profile;username;varchar(255);No;No;
+user_profile;account_id;bigint;No;Yes;FK linking user profile to a specific account
+user_profile;bio;varchar(255);No;No;User input bio
+user_profile;display_name;varchar(255);No;No;Display name shown in user profile
+user_profile;rest_days;int;No;No;Number of rest days set by user
+user_profile;rest_days_left;int;No;No;Remaining rest days for user
+user_profile;rest_reset_date;date;No;No;Date when rest days reset
+user_profile;rest_reset_day_of_week;int;No;No;Day of week when rest days reset
+user_profile;profile_picture;longblob;No;No;Binary data representing user's profile picture
+workout_data;data_id;bigint;Yes;No;Unique identifier for each workout data entry
+workout_data;exercise_name;varchar(255);No;No;
+workout_data;is_deleted;bit(1);No;No;Flag indicating if workout data has been deleted (1 = deleted, 0 = not deleted)
+workout_data;reps;varbinary(255);No;No;Number of repetitions for exercise (stored as binary data)
+workout_data;weight;varbinary(255);No;No;Weight used for exercise (stored as binary data)
+workout_data;account_id;bigint;No;Yes;FK linking workout data to a specific account
+workouts;workouts_id;bigint;Yes;No;Unique identifier for each workout session
+workouts;is_deleted;bit(1);No;No;Flag indicating if workout has been deleted (1 = deleted, 0 = not deleted)
+workouts;name;varchar(255);No;No;Title of workout
+workouts;account_id;bigint;No;Yes;FK linking workout to a specific account
