@@ -182,6 +182,7 @@ public class AccountsService {
 		user.setDisplayname(username);
 		user.setFirstName("");
 		user.setLastName("");
+		user.setAccountCreatedDate(LocalDateTime.now()); 
 		userProfileRepository.save(user);
 
 		accountsModel.setUserProfile(user);

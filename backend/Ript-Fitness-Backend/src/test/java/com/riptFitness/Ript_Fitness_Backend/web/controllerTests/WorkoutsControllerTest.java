@@ -89,9 +89,9 @@ public class WorkoutsControllerTest {
 
     @Test
     public void testGetUsersWorkouts() throws Exception {
-        when(workoutsService.getUsersWorkouts()).thenReturn(Collections.singletonList(workoutDto));
+        when(workoutsService.getUsersWorkouts(0,0)).thenReturn(Collections.singletonList(workoutDto));
 
-        mockMvc.perform(get("/workouts/getUsersWorkouts")
+        mockMvc.perform(get("/workouts/getUsersWorkouts/0/0")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].workoutsId").value(1L))
