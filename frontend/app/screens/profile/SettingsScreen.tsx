@@ -392,7 +392,7 @@ const SettingsScreen = ({ navigation }: any) => {
           onPress={() => navigation.navigate("ChangePasswordScreen")}
         >
           <Text style={styles.label}>Change password</Text>
-          <Ionicons name="chevron-forward" size={20} color="black" />
+          <Ionicons name="chevron-forward" size={20} color="black" style={{paddingRight: 15}} />
         </TouchableOpacity>
       </View>
     </KeyboardAwareScrollView>

@@ -21,6 +21,7 @@ const Chip: React.FC<ChipProps> = ({ label, value, selected, onPress }) => {
 
 interface CustomChipProps {
   onTypeSelect: (type: number) => void;
+  selectedType?: number | null; 
 }
 
 const CustomChip: React.FC<CustomChipProps> = ({ onTypeSelect }) => {

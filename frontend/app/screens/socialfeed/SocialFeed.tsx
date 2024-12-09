@@ -15,6 +15,7 @@ import {
   View,
   TouchableOpacity,
   ActivityIndicator,
+  KeyboardAvoidingView,
 } from "react-native";
 import * as Haptics from "expo-haptics";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -28,18 +29,17 @@ import { CreatePostSheetRef } from "./CreatePostSheet";
 import ProfileImage from "../../../assets/images/profile/Profile.png";
 import StreakHeader from "@/components/StreakHeader";
 import { GlobalContext } from "@/context/GlobalContext";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 export default function SocialFeed() {
   const createPostSheetRef = useRef<CreatePostSheetRef>(null);
   const commentsSheetRef = useRef<CommentsSheetRef>(null);
   const { posts, loading, error, fetchPosts, toggleLike } = useSocialFeed();
 
-  const context = useContext(GlobalContext)
-
-  const token: string = context?.data?.token ?? '';
-
-
-
+  const context = useContext(GlobalContext);
+  const currentUserProfilePicture = context?.userProfile.profilePicture;
+  const currentUserID = context?.userProfile.id;
+  const token = context?.data.token;
 
   const [page, setPage] = useState(0);
   const pageSize = 10;
@@ -65,21 +65,13 @@ export default function SocialFeed() {
   };
 
   const handleLoadMore = useCallback(async () => {
-    if (
-      loading ||
-      !hasMorePosts ||
-      isFetchingRef.current ||
-      posts.length < page * pageSize ||
-      posts.length === 0
-    ) {
+    if (loading || !hasMorePosts || isFetchingRef.current || isRefreshing) {
       console.log("[DEBUG] Skipping load more:", {
         loading,
         hasMorePosts,
         isFetching: isFetchingRef.current,
-        currentPostCount: posts.length,
-        expectedMinimum: page * pageSize,
+        isRefreshing,
       });
-      setHasMorePosts(false);
       return;
     }
 
@@ -95,12 +87,10 @@ export default function SocialFeed() {
         currentPostCount: posts.length,
       });
 
-      const currentLength = posts.length;
+      const fetchedPosts = await fetchPosts(startIndex, endIndex);
 
-      await fetchPosts(startIndex, endIndex);
-
-      if (posts.length === currentLength) {
-        console.log("[DEBUG] No new posts received, reached end");
+      if (fetchedPosts.length < pageSize) {
+        console.log("[DEBUG] No more posts to load.");
         setHasMorePosts(false);
       } else {
         setPage(nextPage);
@@ -111,12 +101,11 @@ export default function SocialFeed() {
         setHasMorePosts(false);
       } else {
         console.error("Error loading posts:", error);
-        throw error;
       }
     } finally {
       isFetchingRef.current = false;
     }
-  }, [loading, hasMorePosts, page, posts.length, fetchPosts]);
+  }, [loading, hasMorePosts, page, posts.length, fetchPosts, isRefreshing]);
 
   const onRefresh = useCallback(async () => {
     if (isRefreshing) return;
@@ -149,13 +138,14 @@ export default function SocialFeed() {
 
   const renderItem = useCallback(
     ({ item }: { item: SocialPost }) => {
-      console.log("[DEBUG] Processing post for display:", {
-        id: item.id,
-        accountId: item.accountId,
-        //userProfile: item.userProfile,
-      });
-
+      if (item.isDeleted) {
+        return null; // This fixed the bug where it was rending a deleted post before
+      }
       const username = item.userProfile?.username || item.accountId;
+
+      const profilePictureSource = item.userProfile?.profilePicture
+        ? { uri: `data:image/png;base64,${item.userProfile.profilePicture}` }
+        : ProfileImage;
 
       console.log("[DEBUG] Resolved username:", {
         id: item.id,
@@ -172,19 +162,25 @@ export default function SocialFeed() {
             type: "text",
             content: item.content,
             user: {
-              name: username !== "Unknown User" ? username : item.accountId,
-              profilePicture: ProfileImage,
+              name: username,
+              profilePicture: profilePictureSource,
+              id: item.accountId,
             },
             dateTimeCreated: item.dateTimeCreated,
             likes: Array.isArray(item.likes) ? item.likes : [],
+            numberOfLikes: item.numberOfLikes,
             comments: Array.isArray(item.comments)
               ? item.comments.map((comment) => ({
                   ...comment,
                   timestamp: comment.dateTimeCreated,
                 }))
               : [],
+            userProfile: item.userProfile,
           }}
-          liked={Array.isArray(item.likes) && item.likes.includes(token)}
+          liked={
+            Array.isArray(item.userIDsOfLikes) &&
+            item.userIDsOfLikes.includes(currentUserID)
+          }
           onLikePress={() => handleLike(item.id)}
           onCommentPress={() => {
             console.log(`Comment button pressed for post ID: ${item.id}`);
@@ -247,9 +243,14 @@ export default function SocialFeed() {
           >
             <Ionicons name="add" size={24} color="white" />
           </TouchableOpacity>
-
-          <CreatePostSheet ref={createPostSheetRef} />
-          <CommentsSheet ref={commentsSheetRef} />
+            <CreatePostSheet
+              ref={createPostSheetRef}
+              userProfilePicture={currentUserProfilePicture}
+            />
+          <CommentsSheet
+            ref={commentsSheetRef}
+            userProfilePicture={currentUserProfilePicture}
+          />
         </SafeAreaView>
       </PortalProvider>
     </GestureHandlerRootView>

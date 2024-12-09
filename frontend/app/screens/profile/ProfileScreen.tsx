@@ -36,6 +36,10 @@ import { Timer } from 'victory';
 const Tab = createMaterialTopTabNavigator();
 const Drawer = createDrawerNavigator();
 
+interface SocialFeedContextType {
+  clearPosts: () => void;
+}
+
 function getDateRange() {
   // Get the current date
   const currentDate = new Date();
@@ -45,7 +49,11 @@ function getDateRange() {
   const endMonth = currentDate.getMonth() + 1; // getMonth() is zero-based
 
   // Calculate last month's date
-  const lastMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 4, 1);
+  const lastMonthDate = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() - 4,
+    1
+  );
 
   // Set startYear and startMonth to the year and month of last month
   const startYear = lastMonthDate.getFullYear();
@@ -112,7 +120,10 @@ const uploadPhoto = async () => {
 };
 
 
-const resizeImage = async (uri: string, maxDimension: number): Promise<string> => {
+const resizeImage = async (
+  uri: string,
+  maxDimension: number
+): Promise<string> => {
   try {
     // Get original image dimensions
     const { width: originalWidth, height: originalHeight } = await new Promise<{width: number, height: number}>((resolve, reject) => {
@@ -356,7 +367,7 @@ function PhotosScreen() {
       // Render the loading indicator
       return (
         <View style={[styles.photo, {justifyContent:'center'}]}>
-          <ActivityIndicator size="large" color="#40bcbc" />
+          <ActivityIndicator size="large" />
         </View>
       );
     } else {
@@ -699,7 +710,6 @@ function PostsScreen() {
     } else {
       return null;
     }
-
   };
 
   // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -708,16 +718,18 @@ function PostsScreen() {
       {true ? (
         <FlatList
           data={posts}
-          keyExtractor={(_, index) => index.toString()}
+          keyExtractor={(item, index) => index.toString()}
           renderItem={renderPostItem}
           //contentContainerStyle={styles.postsContainer} // Optional, to style the FlatList container
           contentContainerStyle={{
-            alignItems: 'center',
+            alignItems: "center",
             paddingTop: 10,
-            backgroundColor: '#fff',
+            backgroundColor: "#fff",
           }}
           showsVerticalScrollIndicator={true}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
           ListFooterComponent={renderFooter}
@@ -762,7 +774,12 @@ function ProgressScreen() {
   };
 
   let spacerKey = 100;
-  const renderCalendarDay = (day: number, month: number, year: number, type: number) => {
+  const renderCalendarDay = (
+    day: number,
+    month: number,
+    year: number,
+    type: number
+  ) => {
     let myStyle;
     let textStyle;
     if (day == 0) {
@@ -808,7 +825,9 @@ function ProgressScreen() {
   const addLoadingDate = (date: Date) => {
     setLoadingDates((prevLoadingDates) => {
       // Check if the date already exists in the array
-      const exists = prevLoadingDates.some((d) => d.getTime() === date.getTime());
+      const exists = prevLoadingDates.some(
+        (d) => d.getTime() === date.getTime()
+      );
       // If not, append the date; otherwise, return the previous state
       return exists ? prevLoadingDates : [...prevLoadingDates, date];
     });
@@ -824,7 +843,11 @@ function ProgressScreen() {
   const [refreshKey, setRefreshKey] = useState(0); // State to trigger re-render
   
   const Calendar = () => {
-    const daysInMonth = new Date(myDate.getFullYear(), myDate.getMonth(), 0).getDate(); // Directly calculate days
+    const daysInMonth = new Date(
+      myDate.getFullYear(),
+      myDate.getMonth(),
+      0
+    ).getDate(); // Directly calculate days
 
     React.useEffect(() => {
 
@@ -832,12 +855,35 @@ function ProgressScreen() {
 
     if (context) {
       const loadedStartDate = new Date(context.calendarLoadTracker.startDate);
-      if (new Date(loadedStartDate.getFullYear(), loadedStartDate.getMonth() + 2, loadedStartDate.getDate()) > myDate) {
-        const exists = loadingDates.some((d) => d.getTime() === myDate.getTime());
+      if (
+        new Date(
+          loadedStartDate.getFullYear(),
+          loadedStartDate.getMonth() + 2,
+          loadedStartDate.getDate()
+        ) > myDate
+      ) {
+        const exists = loadingDates.some(
+          (d) => d.getTime() === myDate.getTime()
+        );
         if (!exists) {
-          const startDate = adjustDate(myDate.getFullYear(), myDate.getMonth() - 3); // Subtract 3 months
-          const endDate = adjustDate(loadedStartDate.getFullYear(), loadedStartDate.getMonth() + 1); // Add 1 month
+          const startDate = adjustDate(
+            myDate.getFullYear(),
+            myDate.getMonth() - 3
+          ); // Subtract 3 months
+          const endDate = adjustDate(
+            loadedStartDate.getFullYear(),
+            loadedStartDate.getMonth() + 1
+          ); // Add 1 month
 
+          // Call the function with the corrected date ranges
+          context?.loadCalendarDays({
+            startYear: startDate.year,
+            startMonth: startDate.month,
+            endYear: endDate.year,
+            endMonth: endDate.month,
+          });
+        }
+      }
           // Call the function with the corrected date ranges
           context?.loadCalendarDays({
             startYear: startDate.year,
@@ -857,9 +903,15 @@ function ProgressScreen() {
       const day = i + 1;
 
       if (i === 0) {
-        const firstDay = new Date(myDate.getFullYear(), myDate.getMonth(), 1).getDay(); // Get first weekday of the month
+        const firstDay = new Date(
+          myDate.getFullYear(),
+          myDate.getMonth(),
+          1
+        ).getDay(); // Get first weekday of the month
         for (let j = 0; j < firstDay; j++) {
-          spacers.push(renderCalendarDay(0, myDate.getFullYear(), myDate.getMonth(), 5)); // Render empty spacers
+          spacers.push(
+            renderCalendarDay(0, myDate.getFullYear(), myDate.getMonth(), 5)
+          ); // Render empty spacers
         }
       }
       // if date is in context
@@ -978,18 +1030,17 @@ function ProgressScreen() {
           </TouchableOpacity>
         </View>
 
-   
-    <Calendar/>
+        <Calendar />
 
     <View style={{ marginBottom: '10%', flexDirection: 'row', alignItems: 'center', }}>
       <Text style={{ }} >{context?.userProfile.restDaysLeft} days available</Text>
       <TouchableOpacity
         style={{
           marginLeft: 10,
-          backgroundColor: '#BFBFBF',
+          backgroundColor: '#21BFBF',
           paddingHorizontal: 15,
           paddingVertical: 10,
-          borderRadius: 7,
+          borderRadius: 20,
           alignSelf: 'center'
           // shadowColor: '#000',
           // shadowOffset: { width: 0, height: 2 },
@@ -999,7 +1050,7 @@ function ProgressScreen() {
         }}
         onPress={useRestDay}
       >
-        <Text style={{ color: '#40403F', }}>Use Rest Day</Text>
+        <Text style={{ color: '#FFF', }}>Use Rest Day</Text>
       </TouchableOpacity>
     </View>
 
@@ -1020,35 +1071,53 @@ function CustomDrawerContent({ navigation }: any) {
     navigation.closeDrawer();
     navigation.navigate('SettingsScreen');
   };
+  const aboutUs = async (navigation: any) => {
+    navigation.closeDrawer();
+    navigation.navigate('RiptTeamScreen');
+  };
 
   const context = useContext(GlobalContext);
   return (
     <View style={styles.drawerContent}>
+      <View>
+        <TouchableOpacity
+          style={styles.drawerItem}
+          onPress={() => {
+            // Navigate to Settings screen or handle accordingly
+            drawerNav(navigation);
+            // navigation.navigate('SettingsScreen');
+          }}
+        >
+          <View style={styles.drawerItemTextContainer}>
+            <Ionicons name="settings-outline" size={24} color={'#1E1E1E'} />
+            <Text style={styles.drawerItemText}>Account Settings</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.drawerItem}
+          onPress={() => {
+            // Handle logout logic here
+            navigation.closeDrawer();
+            context?.setToken('');
+            // Perform logout actions
+          }}
+        >
+          <View style={styles.drawerItemTextContainer}>
+            <Ionicons name="log-out-outline" size={24} color={'#1E1E1E'} />
+            <Text style={styles.drawerItemText}>Logout</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
       <TouchableOpacity
         style={styles.drawerItem}
         onPress={() => {
-          // Navigate to Settings screen or handle accordingly
-          drawerNav(navigation);
-          // navigation.navigate('SettingsScreen');
+          // Navigate to Ript team page
+          aboutUs(navigation);
         }}
       >
-        <View style={styles.drawerItemTextContainer}>
-          <Ionicons name="settings-outline" size={24} color={'#1E1E1E'} />
-          <Text style={styles.drawerItemText}>Account Settings</Text>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.drawerItem}
-        onPress={() => {
-          // Handle logout logic here
-          navigation.closeDrawer();
-          context?.setToken('');
-          // Perform logout actions
-        }}
-      >
-        <View style={styles.drawerItemTextContainer}>
-          <Ionicons name="log-out-outline" size={24} color={'#1E1E1E'} />
-          <Text style={styles.drawerItemText}>Logout</Text>
+        <View style={[styles.drawerItemTextContainer, {borderTopWidth: 1, paddingTop: 10, borderBottomWidth: 0}]}>
+          <Ionicons name="people-outline" size={24} color={'#1E1E1E'} />
+          <Text style={styles.drawerItemText}>Ript Fitness Team</Text>
         </View>
       </TouchableOpacity>
     </View>
@@ -1308,10 +1377,9 @@ const ProfileScreen: React.FC = () => {
 
           headerTitle: context?.userProfile.username,
           headerStyle: {
-            // paddingTop: Platform.OS === "ios" ? 20 : 0, // Add paddingTop for iOS
-            height: Platform.OS === "ios" ? 80 : 60,    // Adjust header height if necessary
-            backgroundColor: 'white',                  // Ensure consistent background
-
+            paddingTop: Platform.OS === "ios" ? 20 : 0, // Add paddingTop for iOS
+            height: Platform.OS === "ios" ? 80 : 60, // Adjust header height if necessary
+            backgroundColor: "white", // Ensure consistent background
             // You can add more styling properties as needed
           },
           headerRight: () => (
@@ -1346,7 +1414,7 @@ const ProfileScreen: React.FC = () => {
 
 const styles = StyleSheet.create({
   overlayTouchable: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     bottom: 0,
     left: 0,
@@ -1364,16 +1432,16 @@ const styles = StyleSheet.create({
   },
   popup: {
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
     zIndex: 5,
     marginTop: 20,
-    position: 'absolute',
+    position: "absolute",
     top: 0, // Adjust as needed
     bottom: 0,
     height: '30%',
@@ -1381,12 +1449,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   friendRequestItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 15,
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: "#ddd",
   },
   friendReqAvatar: {
     width: 40,
@@ -1399,14 +1467,14 @@ const styles = StyleSheet.create({
   },
   friendName: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   friendUsername: {
     fontSize: 14,
-    color: '#888',
+    color: "#888",
   },
   acceptButton: {
-    backgroundColor: '#40bcbc',
+    backgroundColor: "#40bcbc",
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 5,
@@ -1423,13 +1491,13 @@ const styles = StyleSheet.create({
     elevation: 5, // For Android
   },
   acceptButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
   },
   noRequests: {
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 16,
-    color: '#888',
+    color: "#888",
   },
   addFriendContainer: {
     marginBottom: 5
@@ -1458,6 +1526,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 70,
     backgroundColor: '#fff',
+    justifyContent: 'space-between'
   },
   drawerItem: {
     padding: 10,
@@ -1473,6 +1542,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
+    borderTopColor: '#ddd',
     paddingBottom: 10
   },
   postsContainer: {
@@ -1498,8 +1568,8 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   likeCommentContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   likecomment: {
     flexDirection: 'row',
@@ -1510,10 +1580,10 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   likeCounter: {
-    color: 'black',
+    color: "black",
     padding: 7,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   dateText: {
     bottom: 0,
@@ -1614,9 +1684,9 @@ const styles = StyleSheet.create({
   },
   container: { backgroundColor: '#fff' },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 10,
   },
@@ -1638,9 +1708,9 @@ const styles = StyleSheet.create({
     zIndex: 0,
     marginBottom: 10,
     borderRadius: 20,
-    backgroundColor: '#e9e8e9',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#e9e8e9",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   nav: { height:"10%", width:"100%", marginTop:5,marginBottom:5, backgroundColor:"#fff", flex:1},
@@ -1679,9 +1749,9 @@ const styles = StyleSheet.create({
   hiddenDayText: { color: '#', fontWeight: 'bold', opacity: 0 },
   links: { marginHorizontal: 16, width: '100%' },
   link: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingVertical: 16,
     borderTopWidth: 1,
     borderBottomWidth: 1,
@@ -1693,11 +1763,11 @@ const styles = StyleSheet.create({
     paddingRight: '5%',
   },
   tabBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     paddingVertical: 10,
     borderTopWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
   },
   postView: {
     backgroundColor: '#fff',

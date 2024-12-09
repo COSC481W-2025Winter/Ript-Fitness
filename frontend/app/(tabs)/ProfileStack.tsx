@@ -21,8 +21,10 @@ import VisitFriendsScreen from '../screens/profile/VisitFriendsScreen';
 
 
 export type ProfileStackParamList = {
+  ProfileScreen: undefined;
   GraphScreen: undefined;
   SettingsScreen: undefined;
+  RiptTeamScreen: undefined;
   FriendsScreen: undefined;
   FindFriendsScreen: undefined;
   FullBioScreen: { userProfile: ProfileObject };
@@ -32,11 +34,12 @@ export type ProfileStackParamList = {
   ImageFullScreen: {};
 };
 
-export type ProfileScreenNavigationProp = StackNavigationProp<ProfileStackParamList>;
+export type ProfileScreenNavigationProp =
+  StackNavigationProp<ProfileStackParamList>;
 
 const Stack = createStackNavigator();
 
-export default function ProfileStack(props : any) {
+export default function ProfileStack(props: any) {
   return (
     <ProfileProvider>
     <Stack.Navigator initialRouteName="ProfileScreen" screenOptions={{ headerShown: false }}>
@@ -54,7 +57,7 @@ export default function ProfileStack(props : any) {
       {/* Put any additional screens for your tab here. This allows us to use a stack.
         A stack allows us to easily navigate back a page when we're in a secondary screen on a certain tab.
       */}
-    </Stack.Navigator>
+      </Stack.Navigator>
     </ProfileProvider>
   );
 }
@@ -72,46 +75,45 @@ export default function ProfileStack(props : any) {
 
 const styles = StyleSheet.create({
   scrollView: {
-    backgroundColor:'#005500',
-    padding:0,
-    margin:0,
-    width:'100%',
-    },
-    
-    centerContentContainer: {
-      alignItems:'center',
-    },
-      SafeAreaView: {
+    backgroundColor: "#005500",
+    padding: 0,
+    margin: 0,
+    width: "100%",
+  },
 
-        //alignItems: 'center',
-        backgroundColor: '#0ffff0',
-        height:'100%',
-        width:'100%',
-        //overflow:'scroll',
-        paddingTop:20,
-        justifyContent: 'flex-start',
-        flexDirection:'column',
-      },
-    
-      sectionContainer: {
-        marginTop: 32,
-        paddingHorizontal: 24,
-      },
-      sectionTitle: {
-        fontSize: 24,
-        fontWeight: '600',
-      },
-      sectionDescription: {
-        marginTop: 8,
-        fontSize: 18,
-        fontWeight: '400',
-      },
-      highlight: {
-        fontWeight: '700',
-      },
-    
-      size40x40: {
-        height:40,
-        width:40,
-      },
-    });
+  centerContentContainer: {
+    alignItems: "center",
+  },
+  SafeAreaView: {
+    //alignItems: 'center',
+    backgroundColor: "#0ffff0",
+    height: "100%",
+    width: "100%",
+    //overflow:'scroll',
+    paddingTop: 20,
+    justifyContent: "flex-start",
+    flexDirection: "column",
+  },
+
+  sectionContainer: {
+    marginTop: 32,
+    paddingHorizontal: 24,
+  },
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: "600",
+  },
+  sectionDescription: {
+    marginTop: 8,
+    fontSize: 18,
+    fontWeight: "400",
+  },
+  highlight: {
+    fontWeight: "700",
+  },
+
+  size40x40: {
+    height: 40,
+    width: 40,
+  },
+});

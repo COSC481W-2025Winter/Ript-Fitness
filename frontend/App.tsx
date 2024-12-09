@@ -3,8 +3,10 @@ import "react-native-gesture-handler";
 import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PortalProvider } from "@gorhom/portal";
-import 'react-native-gesture-handler';
+import "react-native-gesture-handler";
 import React, { useContext, useState } from "react";
+import { Provider as PaperProvider } from "react-native-paper";
+import { MenuProvider } from "react-native-popup-menu";
 import { NavigationContainer } from "@react-navigation/native";
 import {
   createStackNavigator,
@@ -34,9 +36,8 @@ import {
   ReanimatedLogLevel,
 } from "react-native-reanimated";
 
-import { WorkoutProvider } from './context/WorkoutContext';
-import FoodLogScreen from './app/screens/foodlog/FoodLog';
-
+import { WorkoutProvider } from "./context/WorkoutContext";
+import FoodLogScreen from "./app/screens/foodlog/FoodLog";
 
 // Suppress specific Reanimated warnings using LogBox
 LogBox.ignoreLogs([
@@ -63,10 +64,10 @@ const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 
 function MainApp() {
-  const context = useContext(GlobalContext)
+  const context = useContext(GlobalContext);
 
   if (context?.additionalLoadingRequired) {
-    return (<SplashScreen/>)
+    return <SplashScreen />;
   }
 
   return (
@@ -106,13 +107,16 @@ function MainApp() {
         }}
       />
 
-      <Tab.Screen 
-        name="Food" 
-        component={BodyStack} 
+      <Tab.Screen
+        name="Food"
+        component={BodyStack}
         options={{
           tabBarIcon: ({ focused, size, color }) => (
-            <Ionicons name={focused ? 'nutrition' : 'nutrition-outline'} size={size} color={color}/>
-
+            <Ionicons
+              name={focused ? "nutrition" : "nutrition-outline"}
+              size={size}
+              color={color}
+            />
           ),
           headerShown: false,
         }}
@@ -135,18 +139,17 @@ function MainApp() {
 }
 
 function RootNavigator() {
-  const context = useContext(GlobalContext)
-  const isLoading = context?.isLoaded
-  const [verifiedToken, setVerifiedToken] = useState(false)
-  const [temp, setTemp] = useState(true)
-  let user = (context?.data.token != '')
+  const context = useContext(GlobalContext);
+  const isLoading = context?.isLoaded;
+  const [verifiedToken, setVerifiedToken] = useState(false);
+  const [temp, setTemp] = useState(true);
+  let user = context?.data.token != "";
 
   if (context?.isLoaded != true) {
-    return (<SplashScreen/>)
+    return <SplashScreen />;
   } else {
-    user = (context?.data.token != '')
+    user = context?.data.token != "";
   }
-
 
   return (
     <Stack.Navigator
@@ -183,28 +186,28 @@ function RootNavigator() {
 }
 
 export default function App() {
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <NavigationContainer>
-        <PortalProvider>
-          <GlobalProvider>
-            <StreakProvider>
-              <NotesProvider>
-                <SocialFeedProvider>
-                  <WorkoutProvider>
-                  <>
-                    <StatusBar barStyle="default" />
-                    <RootNavigator />
-                  </>
-                  </WorkoutProvider>
-                </SocialFeedProvider>
-              </NotesProvider>
-            </StreakProvider>
-          </GlobalProvider>
-        </PortalProvider>
-      </NavigationContainer>
-    </GestureHandlerRootView>)
-
-  
+      <MenuProvider>
+        <NavigationContainer>
+          <PortalProvider>
+            <GlobalProvider>
+              <StreakProvider>
+                <NotesProvider>
+                  <SocialFeedProvider>
+                    <WorkoutProvider>
+                      <>
+                        <StatusBar barStyle="default" />
+                        <RootNavigator />
+                      </>
+                    </WorkoutProvider>
+                  </SocialFeedProvider>
+                </NotesProvider>
+              </StreakProvider>
+            </GlobalProvider>
+          </PortalProvider>
+        </NavigationContainer>
+      </MenuProvider>
+    </GestureHandlerRootView>
+  );
 }

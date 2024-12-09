@@ -40,183 +40,149 @@ import com.riptFitness.Ript_Fitness_Backend.domain.model.Photo;
 @ActiveProfiles("test")
 public class UserProfileControllerTests {
 
-    @Autowired
-    private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
-    @MockBean
-    private UserProfileService userProfileService;
+	@MockBean
+	private UserProfileService userProfileService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+	@Autowired
+	private ObjectMapper objectMapper;
 
-    @MockBean
-    private JwtUtil jwtUtil;
+	@MockBean
+	private JwtUtil jwtUtil;
 
-    @MockBean
-    private UserDetailsService userDetailsService;
+	@MockBean
+	private UserDetailsService userDetailsService;
 
-    private UserDto userDto;
-    private final String token = "Bearer test-token";
+	private UserDto userDto;
+	private final String token = "Bearer test-token";
 
-    @BeforeEach
-    public void setUp() {
-        // Mock SecurityContextHolder
-        Authentication authentication = mock(Authentication.class);
-        when(authentication.getName()).thenReturn("testUser"); // Set the username to "testUser"
-        SecurityContext securityContext = mock(SecurityContext.class);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        SecurityContextHolder.setContext(securityContext);
+	@BeforeEach
+	public void setUp() {
+		Authentication authentication = mock(Authentication.class);
+		when(authentication.getName()).thenReturn("testUser"); // Set the username to "testUser"
+		SecurityContext securityContext = mock(SecurityContext.class);
+		when(securityContext.getAuthentication()).thenReturn(authentication);
+		SecurityContextHolder.setContext(securityContext);
 
-        // Mock userDto setup
-        userDto = new UserDto();
-        userDto.firstName = "Tom";
-        userDto.lastName = "Van";
-        userDto.username = "testUser";
-        userDto.isDeleted = false;
+		// Mock userDto setup
+		userDto = new UserDto();
+		userDto.firstName = "Tom";
+		userDto.lastName = "Van";
+		userDto.username = "testUser";
+		userDto.isDeleted = false;
 
-        when(jwtUtil.extractUsername(any(String.class))).thenReturn("testUser");
-    }
+		when(jwtUtil.extractUsername(any(String.class))).thenReturn("testUser");
+	}
 
+	@Test
+	public void testGetUserProfile() throws Exception {
+		when(userProfileService.getUserByUsername(any(String.class))).thenReturn(userDto);
 
-    @Test
-    public void testGetUserProfile() throws Exception {
-        when(userProfileService.getUserByUsername(any(String.class))).thenReturn(userDto);
+		mockMvc.perform(get("/userProfile/getUserProfile").header("Authorization", token)
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.firstName").value("Tom")).andExpect(jsonPath("$.lastName").value("Van"));
+	}
 
-        mockMvc.perform(get("/userProfile/getUserProfile")
-                .header("Authorization", token)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName").value("Tom"))
-                .andExpect(jsonPath("$.lastName").value("Van"));
-    }
+	@Test
+	public void testUpdateUserProfile() throws Exception {
+		when(userProfileService.updateUserByUsername(any(String.class), any(UserDto.class))).thenReturn(userDto);
 
-    @Test
-    public void testUpdateUserProfile() throws Exception {
-        when(userProfileService.updateUserByUsername(any(String.class), any(UserDto.class))).thenReturn(userDto);
+		mockMvc.perform(put("/userProfile/updateUserProfile").header("Authorization", token)
+				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(userDto)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.firstName").value("Tom"));
+	}
 
-        mockMvc.perform(put("/userProfile/updateUserProfile")
-                .header("Authorization", token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName").value("Tom"));
-    }
+	@Test
+	public void testDeleteUserProfile() throws Exception {
+		userDto.isDeleted = true;
+		when(userProfileService.softDeleteUserByUsername(any(String.class))).thenReturn(userDto);
 
-    @Test
-    public void testDeleteUserProfile() throws Exception {
-        userDto.isDeleted = true;
-        when(userProfileService.softDeleteUserByUsername(any(String.class))).thenReturn(userDto);
+		mockMvc.perform(delete("/userProfile/deleteUserProfile").header("Authorization", token)
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.isDeleted").value(true));
+	}
 
-        mockMvc.perform(delete("/userProfile/deleteUserProfile")
-                .header("Authorization", token)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.isDeleted").value(true));
-    }
+	@Test
+	public void testGetUserProfilesFromList() throws Exception {
+		List<UserDto> userDtos = List.of(userDto);
+		List<String> usernames = List.of("tom.van");
 
-    @Test
-    public void testGetUserProfilesFromList() throws Exception {
-        List<UserDto> userDtos = List.of(userDto);
-        List<String> usernames = List.of("tom.van");
+		when(userProfileService.getUserProfilesFromListOfUsernames(any(List.class))).thenReturn(userDtos);
 
-        when(userProfileService.getUserProfilesFromListOfUsernames(any(List.class))).thenReturn(userDtos);
+		mockMvc.perform(post("/userProfile/getUserProfilesFromList").header("Authorization", token)
+				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(usernames)))
+				.andExpect(status().isOk()).andExpect(jsonPath("$[0].firstName").value("Tom"))
+				.andExpect(jsonPath("$[0].lastName").value("Van"));
+	}
 
-        mockMvc.perform(post("/userProfile/getUserProfilesFromList")
-                .header("Authorization", token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(usernames)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].firstName").value("Tom"))
-                .andExpect(jsonPath("$[0].lastName").value("Van"));
-    }
+	@Test
+	public void testGetProfilePicture() throws Exception {
+		byte[] mockPhoto = new byte[] { 1, 2, 3 };
+		when(userProfileService.getProfilePicture(anyString())).thenReturn(mockPhoto);
 
-    @Test
-    public void testGetProfilePicture() throws Exception {
-        byte[] mockPhoto = new byte[]{1, 2, 3};
-        when(userProfileService.getProfilePicture(anyString())).thenReturn(mockPhoto);
+		mockMvc.perform(get("/userProfile/profilePicture").header("Authorization", token)
+				.contentType(MediaType.APPLICATION_OCTET_STREAM)).andExpect(status().isOk())
+				.andExpect(content().bytes(mockPhoto));
 
-        mockMvc.perform(get("/userProfile/profilePicture")
-                .header("Authorization", token)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM))
-                .andExpect(status().isOk())
-                .andExpect(content().bytes(mockPhoto));
+		verify(userProfileService, times(1)).getProfilePicture(anyString());
+	}
 
-        verify(userProfileService, times(1)).getProfilePicture(anyString());
-    }
+	@Test
+	public void testUpdateProfilePicture() throws Exception {
+		byte[] profilePicture = new byte[] { 1, 2, 3 };
 
-    @Test
-    public void testUpdateProfilePicture() throws Exception {
-        byte[] profilePicture = new byte[]{1, 2, 3};
+		mockMvc.perform(put("/userProfile/profilePicture").header("Authorization", token).content(profilePicture)
+				.contentType(MediaType.APPLICATION_OCTET_STREAM)).andExpect(status().isOk());
 
-        mockMvc.perform(put("/userProfile/profilePicture")
-                .header("Authorization", token)
-                .content(profilePicture)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM))
-                .andExpect(status().isOk());
+		verify(userProfileService, times(1)).updateProfilePicture(anyString(), eq(profilePicture));
+	}
 
-        verify(userProfileService, times(1)).updateProfilePicture(anyString(), eq(profilePicture));
-    }
+	@Test
+	public void testAddPrivatePhoto() throws Exception {
+		// Mocked photo data
+		byte[] photo = new byte[] { 1, 2, 3 };
 
-    @Test
-    public void testAddPrivatePhoto() throws Exception {
-        // Mocked photo data
-        byte[] photo = new byte[]{1, 2, 3};
+		// Create a MockMultipartFile for the request
+		MockMultipartFile mockFile = new MockMultipartFile("file", "photo.jpg", MediaType.IMAGE_JPEG_VALUE, photo);
 
-        // Create a MockMultipartFile for the request
-        MockMultipartFile mockFile = new MockMultipartFile(
-            "file",                      // Form field name
-            "photo.jpg",                 // Original file name
-            MediaType.IMAGE_JPEG_VALUE,  // Content type
-            photo                        // File content
-        );
+		mockMvc.perform(multipart("/userProfile/photo").file(mockFile).header("Authorization", "Bearer " + token))
+				.andExpect(status().isOk());
 
-        // Perform the request
-        mockMvc.perform(multipart("/userProfile/photo") // Use multipart for file uploads
-                .file(mockFile)                        // Attach the mock file
-                .header("Authorization", "Bearer " + token)) // Add authorization header
-                .andExpect(status().isOk());                // Assert 200 OK response
+		// Verify the service method was called
+		verify(userProfileService, times(1)).addPrivatePhoto(anyString(), eq(photo), eq(MediaType.IMAGE_JPEG_VALUE));
+	}
 
-        // Verify the service method was called
-        verify(userProfileService, times(1))
-                .addPrivatePhoto(anyString(), eq(photo), eq(MediaType.IMAGE_JPEG_VALUE));
-    }
+	@Test
+	void testSearchUserProfiles() throws Exception {
+		// Mock data for test
+		UserDto user1 = new UserDto();
+		user1.id = 1L;
+		user1.firstName = "John";
+		user1.lastName = "Doe";
+		user1.username = "testUser";
+		user1.bio = "Bio";
 
-    @Test
-    void testSearchUserProfiles() throws Exception {
-        // Mock data for test
-        UserDto user1 = new UserDto();
-        user1.id = 1L;
-        user1.firstName = "John";
-        user1.lastName = "Doe";
-        user1.username = "testUser";
-        user1.bio = "Bio";
+		UserDto user2 = new UserDto();
+		user2.id = 2L;
+		user2.firstName = "Jane";
+		user2.lastName = "Smith";
+		user2.username = "TestUser2";
+		user2.bio = "Another Bio";
 
-        UserDto user2 = new UserDto();
-        user2.id = 2L;
-        user2.firstName = "Jane";
-        user2.lastName = "Smith";
-        user2.username = "TestUser2";
-        user2.bio = "Another Bio";
+		List<UserDto> mockProfiles = List.of(user1, user2);
 
-        List<UserDto> mockProfiles = List.of(user1, user2);
+		when(userProfileService.searchUserProfilesByUsername(eq("test"), eq(0), eq(10), anyString()))
+				.thenReturn(mockProfiles);
 
-        // Mock the service to return the expected profiles
-        when(userProfileService.searchUserProfilesByUsername(eq("test"), eq(0), eq(10), anyString()))
-                .thenReturn(mockProfiles);
+		mockMvc.perform(get("/userProfile/search").param("searchTerm", "test").param("startIndex", "0")
+				.param("endIndex", "10").header("Authorization", token)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(2)) // Expect 2 results
+				.andExpect(jsonPath("$[0].username").value("testUser"))
+				.andExpect(jsonPath("$[1].username").value("TestUser2"));
 
-        // Perform the request
-        mockMvc.perform(get("/userProfile/search")
-                .param("searchTerm", "test")
-                .param("startIndex", "0")
-                .param("endIndex", "10")
-                .header("Authorization", token))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2)) // Expect 2 results
-                .andExpect(jsonPath("$[0].username").value("testUser"))
-                .andExpect(jsonPath("$[1].username").value("TestUser2"));
-
-        // Verify the service method was called with the correct parameters
-        verify(userProfileService, times(1)).searchUserProfilesByUsername(eq("test"), eq(0), eq(10), anyString());
-    }
+		verify(userProfileService, times(1)).searchUserProfilesByUsername(eq("test"), eq(0), eq(10), anyString());
+	}
 
 }
