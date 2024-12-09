@@ -66,6 +66,9 @@ public class AccountsModel {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Note> notes = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Graph> graphs;
 
     @ManyToMany
     @JoinTable(
@@ -226,6 +229,23 @@ public class AccountsModel {
 	public void setFoods(List<Food> foods) {
 		this.foods = foods;
 	}
+
+	public List<WorkoutData> getWorkoutdata() {
+		return workoutdata;
+	}
+
+	public void setWorkoutdata(List<WorkoutData> workoutdata) {
+		this.workoutdata = workoutdata;
+	}
+
+	public List<Graph> getGraphs() {
+		return graphs;
+	}
+
+	public void setGraphs(List<Graph> graphs) {
+		this.graphs = graphs;
+	}
+
 	
 	
 }
