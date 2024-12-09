@@ -16,6 +16,8 @@ import TimeZone from "@/api/timeZone";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view"
 import { KeyboardAvoidingView, Platform } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import Stopwatch from "./Stopwatch";
 
 export default function MyWorkoutsScreen() {
   const context = useContext(GlobalContext);
@@ -259,24 +261,31 @@ export default function MyWorkoutsScreen() {
       );
     }
   };
-  
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#f4f4f4", // Light gray background for better contrast
+    paddingTop: 10,
+    backgroundColor: "white", // Light gray background for better contrast
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
   },
   title: {
-    fontSize: 28,
+    fontSize: 36,
     fontWeight: "bold",
     marginBottom: 20,
     color: "#333",
     textAlign: "center",
   },
+
   workoutItem: {
     backgroundColor: "#fff",
+    width: '90%',
+    height: 90,
     borderRadius: 10,
-    padding: 15,
+    // borderWidth: 0.3,
+    // borderColor: 'grey',
+    padding: 5,
     marginBottom: 15,
     elevation: 3,
     shadowColor: "#000",
@@ -284,15 +293,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     flexDirection: "column", // Stack workout name and buttons vertically
-    alignItems: "center", // Center items horizontally
+    textAlign: 'left',
+    paddingLeft: 10,
+    alignSelf: 'center',
   },
   
   
   workoutName: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#4CAF50",
-    marginBottom: 10, // Add space between workout name and buttons
+    color: "black",
+    padding: 5,
+    marginBottom: 15, // Add space between workout name and buttons
   },
   
   buttonGroup: {
@@ -302,16 +314,26 @@ const styles = StyleSheet.create({
   },
   
   viewButton: {
-    backgroundColor: "#4CAF50", // Fitness-friendly green color
-    paddingVertical: 8,
-    paddingHorizontal: 18,
+    backgroundColor: "white", // Fitness-friendly green color
+    width: '30%',
+    height: 30,
+    padding: 5,
     borderRadius: 8,
-    marginRight: 6,
+    borderColor: '#21BFBF',
+    borderWidth: 1, 
   },
+
+  viewButtonText: {
+    color: "#21BFBF",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+
   deleteButton: {
-    backgroundColor: "#FF6347", // Subtle red for delete
-    paddingVertical: 8,
-    paddingHorizontal: 15,
+    backgroundColor: "#F2505D", // Subtle red for delete
+    width: '30%',
+    height: 30,
+    padding: 5,
     borderRadius: 8,
   },
   buttonText: {
@@ -340,7 +362,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#333",
+    color: "black",
     marginBottom: 20,
     textAlign: "center",
   },
@@ -358,7 +380,7 @@ const styles = StyleSheet.create({
   exerciseName: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#555", // Neutral gray for exercise names
+    color: "black", // Neutral gray for exercise names
     marginBottom: 10,
     textAlign: "center",
   },
@@ -393,11 +415,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     marginVertical: 10,
-    fontSize: 16,
-    backgroundColor: "#fff",
+    fontSize: 22,
+    fontWeight: 'bold',
+    // color: 'grey',
+    // backgroundColor: "#fff",
+    backgroundColor: "#f9f9f9",
   },
   saveButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#56C97B",
     padding: 12,
     borderRadius: 10,
     alignItems: "center",
@@ -409,7 +434,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   editButton: {
-    backgroundColor: "#FFA500",
+    backgroundColor: "#ECC275",
     padding: 12,
     borderRadius: 10,
     alignItems: "center",
@@ -488,12 +513,21 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 8,
     backgroundColor: "#f9f9f9",
+    marginRight: -7,
+    marginLeft: -7,
   },
   setRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     marginVertical: 10,
+  },
+  labelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginVertical: 10,
+    marginRight: -10,
   },
   setLabel: {
     fontSize: 16,
@@ -509,7 +543,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center', // Center align text
     minWidth: 60, // Keep input size consistent
-    height: 40, // Match the height of the input boxes
+    height: 30, // Match the height of the input boxes
   },
   loadingContainer: {
     flex: 1,
@@ -517,6 +551,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#f4f4f4", // Match background with container
   },
+  setValueTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: "#555",
+    textAlign: "center",
+    flex: 1,
+  }, 
+  setValueTitleStart: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: "#555",
+    textAlign: "right",
+    flex: 1,
+  }, 
   setValue: {
     fontSize: 16,
     color: "#555",
@@ -524,22 +572,25 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   addSetButton: {
-    backgroundColor: "#4CAF50",
-    padding: 10,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 10,
+    // backgroundColor: "#56C97B",
+    paddingTop: 3,
+    flexDirection: 'row',
+    // padding: 2,
+    // borderWidth: 1, 
+    // borderColor: 'lightgrey',
+    // borderRadius: 8,
+    // marginTop: 10,
   },
   addSetText: {
-    color: "#fff",
+    color: "black",
     fontSize: 16,
-    fontWeight: "bold",
+    margin: 3, 
   },
   removeSetButton: {
-    backgroundColor: "#FF6347",
-    padding: 10,
+    // backgroundColor: "lightgrey",
+    // padding: 10,
     borderRadius: 8,
-    alignItems: "center",
+    alignItems: "center", 
   },
   removeSetText: {
     color: "#fff",
@@ -547,11 +598,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   startButton: {
-    backgroundColor: "#007BFF", // Blue for Start Workout button
-    paddingVertical: 8,
-    paddingHorizontal: 15,
+    backgroundColor: "#21BFBF", // Blue for Start Workout button
+    width: '30%',
+    height: 30,
+    padding: 5,
     borderRadius: 8,
-    marginRight: 10,
   },
   
   checkBox: {
@@ -576,7 +627,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   finishButton: {
-    backgroundColor: "#4CAF50", // Green button for finishing workout
+    backgroundColor: "#21BFBF", // Green button for finishing workout
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -592,15 +643,26 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'column',
     marginRight: 20, // Space between inputs
-    marginBottom: 22, // Space below each input container
+    marginBottom: 2, // Space below each input container
     flex: 1.3, // Maintain proper sizing within the set row
   },
-  inputLabel: {
+  inputHeaderContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginRight: 20, // Space between inputs
+    marginBottom: 2, // Space below each input container
+    flex: 1.3, // Maintain proper sizing within the set row
+  }, 
+  inputHeader: {
     fontSize: 14,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 2,
+    // marginRight: 50,
     color: '#555',
   },
+  // columnWrapper: {
+  //   paddingHorizontal: 5, // Add padding to the left and right of the row
+  // },
 
   
 });
@@ -609,33 +671,25 @@ return (
   <View style={styles.container}>
     {loading ? (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4CAF50" />
+        <ActivityIndicator size="large" color="#21BFBF" />
         <Text>Loading Workouts...</Text>
       </View>
     ) : (
       <>
+      {/* <Stopwatch /> */}
         <FlatList
           data={context?.workouts}
           keyExtractor={(item, index) =>
             item.id ? `workout-${item.id}-${index}` : `workout-${index}`
           }
+          // numColumns={1} // Specify two columns
+          // columnWrapperStyle={styles.columnWrapper} // Add spacing between columns
+          showsVerticalScrollIndicator= {false}
           renderItem={({ item }) => (
             <View style={styles.workoutItem}>
               <Text style={styles.workoutName}>{item.name}</Text>
               <View style={styles.buttonGroup}>
-                <TouchableOpacity
-                  style={styles.viewButton}
-                  onPress={() => openModal(item)} // Open view modal
-                >
-                  <Text style={styles.buttonText}>View</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.startButton}
-                  onPress={() => startWorkout(item)} // Open start workout modal
-                >
-                  <Text style={styles.buttonText}>Start Workout</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
+              <TouchableOpacity
                   style={styles.deleteButton}
                   onPress={() =>
                     Alert.alert(
@@ -653,6 +707,20 @@ return (
                   }
                 >
                   <Text style={styles.buttonText}>Delete</Text>
+                  {/* <Ionicons name="trash-outline" size={25} color="#F2505D"></Ionicons> */}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.viewButton}
+                  onPress={() => openModal(item)} // Open view modal
+                >
+                  <Text style={styles.viewButtonText}>View</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.startButton}
+                  onPress={() => startWorkout(item)} // Open start workout modal
+                >
+                  <Text style={styles.buttonText}>Start</Text>
+                  {/* <Ionicons name="arrow-up-circle" size={60} color="#21BFBF"></Ionicons> */}
                 </TouchableOpacity>
               </View>
             </View>
@@ -703,6 +771,12 @@ return (
                       }}
                       placeholder="Exercise Name"
                     />
+                    <View style={styles.inputHeaderContainer}>
+                      <Text style={styles.inputHeader}>Set</Text>
+                      <Text style={styles.inputHeader}>Reps</Text>
+                      <Text style={styles.inputHeader}>     Weight</Text>
+                      <Text style={styles.inputHeader}></Text>
+                    </View>
                     <FlatList
                       data={item.reps.map((_, setIndex) => ({
                         reps: item.reps[setIndex],
@@ -713,13 +787,11 @@ return (
                       }
                       renderItem={({ item: setItem, index: setIndex }) => (
                         <View style={styles.setRow}>
-                          <Text style={styles.setLabel}>
-                            Set {setIndex + 1}
-                          </Text>
+                          <Text style={styles.setLabel}>  {setIndex + 1}</Text>
                           
                           {/* Reps Label and Input */}
                           <View style={styles.inputContainer}>
-                            <Text style={styles.inputLabel}>Reps</Text>
+                            {/* <Text style={styles.inputLabel}></Text> */}
                             <TextInput
                               style={styles.setInput}
                               value={setItem.reps.toString()}
@@ -736,7 +808,7 @@ return (
 
                           {/* Weight Label and Input */}
                           <View style={styles.inputContainer}>
-                            <Text style={styles.inputLabel}>Weight</Text>
+                            {/* <Text style={styles.inputLabel}></Text> */}
                             <TextInput
                               style={styles.setInput}
                               value={setItem.weight.toString()}
@@ -751,6 +823,7 @@ return (
                             />
                           </View>
 
+                          
                           <TouchableOpacity
                             style={styles.removeSetButton}
                             onPress={() => {
@@ -760,9 +833,10 @@ return (
                               setUpdatedExercises(updated);
                             }}
                           >
-                            <Text style={styles.removeSetText}>
+                            <Ionicons name="trash-outline" size={25} color="#F2505D"></Ionicons>
+                            {/* <Text style={styles.removeSetText}>
                               Remove
-                            </Text>
+                            </Text> */}
                           </TouchableOpacity>
                         </View>
                       )}
@@ -776,7 +850,9 @@ return (
                         setUpdatedExercises(updated);
                       }}
                     >
+                      {/* <Text style={styles.addSetText}>Add Set</Text> */}
                       <Text style={styles.addSetText}>Add Set</Text>
+                      <Ionicons name="add" size={25}></Ionicons>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -801,6 +877,11 @@ return (
                     <Text style={styles.exerciseName}>
                       {item.nameOfExercise}
                     </Text>
+                    <View style={styles.setRow}>
+                      <Text style={styles.setLabel}>Set</Text>
+                      <Text style={styles.setValueTitle}>Reps</Text>
+                      <Text style={styles.setValueTitle}>Weight</Text>
+                    </View>
                     <FlatList
                       data={item.reps.map((_, setIndex) => ({
                         reps: item.reps[setIndex],
@@ -815,13 +896,13 @@ return (
                       }) => (
                         <View style={styles.setRow}>
                           <Text style={styles.setLabel}>
-                            Set {setIndex + 1}
+                            {setIndex + 1}
                           </Text>
                           <Text style={styles.setValue}>
-                            Reps: {setItem.reps}
+                            {setItem.reps}
                           </Text>
                           <Text style={styles.setValue}>
-                            Weight: {setItem.weight} lbs
+                            {setItem.weight} lbs
                           </Text>
                         </View>
                       )}
@@ -860,7 +941,8 @@ return (
       {selectedWorkout && (
         <>
           <Text style={styles.modalTitle}>
-            {selectedWorkout.name} - Start Workout
+            Start {selectedWorkout.name}
+          {/* <Stopwatch />  */}
           </Text>
           <FlatList
               data={selectedWorkout.exercises || []}
@@ -868,13 +950,19 @@ return (
               renderItem={({ item, index: exerciseIndex }) => (
                 <View style={styles.exerciseCard}>
                   <Text style={styles.exerciseName}>{item.nameOfExercise}</Text>
+                  <View style={styles.labelRow}>
+                      <Text style={styles.setLabel}>Set</Text>
+                      <Text style={styles.setValueTitleStart}>Reps</Text>
+                      <Text style={styles.setValueTitleStart}>Weight</Text>
+                      <Text style={styles.setValueTitleStart}>Finish</Text>
+                    </View>
                   
                   {/* Replace the nested FlatList with map() */}
                   {item.reps.map((rep, setIndex) => (
                     <View key={`set-${exerciseIndex}-${setIndex}`} style={styles.setRow}>
-                      <Text style={styles.setLabel}>Set {setIndex + 1}</Text>
-                      <Text style={styles.setValue}>Reps: {rep}</Text>
-                      <Text style={styles.setValue}>Weight: {item.weight[setIndex]} lbs</Text>
+                      <Text style={styles.setLabel}> {setIndex + 1}</Text>
+                      <Text style={styles.setValue}>{rep}</Text>
+                      <Text style={styles.setValue}>{item.weight[setIndex]} lbs</Text>
 
                       {/* Checkbox */}
                       <TouchableOpacity
@@ -894,7 +982,7 @@ return (
                               : styles.unchecked
                           }
                         >
-                          {checkboxStates[`${exerciseIndex}-${setIndex}`] ? "✔" : "✘"}
+                        {checkboxStates[`${exerciseIndex}-${setIndex}`] ? "✔" : " "}
                         </Text>
                       </TouchableOpacity>
                     </View>
