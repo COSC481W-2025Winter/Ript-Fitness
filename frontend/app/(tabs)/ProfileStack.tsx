@@ -17,6 +17,7 @@ import EditNoteScreen from '../screens/notes/EditNoteScreen';
 import { Note } from '@/components/MyNotes/NotesContext';
 import ImageFullScreen from '../screens/profile/ImageFullScreen';
 import VisitFriendsScreen from '../screens/profile/VisitFriendsScreen';
+import RiptTeamScreen from '../screens/profile/RiptTeamScreen';
 
 
 
@@ -46,6 +47,7 @@ export default function ProfileStack(props: any) {
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} options={{headerShown:false}}/>
       <Stack.Screen name="GraphScreen" component={GraphScreen} options={{headerShown:false}}/>
       <Stack.Screen name="SettingsScreen" component={SettingsScreen} options={{headerShown:false}}/>
+      <Stack.Screen name="RiptTeamScreen" component={RiptTeamScreen} options={{headerShown:false}}/>
       <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} options={{headerShown:false}}/>
       <Stack.Screen name="FriendsScreen" component={FriendsScreen} options={{headerShown:false}}/>
       <Stack.Screen name="FindFriendsScreen" component={FindFriendsScreen} options={{headerShown:false}}/>

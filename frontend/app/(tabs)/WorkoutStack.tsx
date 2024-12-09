@@ -64,7 +64,7 @@ export default function WorkoutStack() {
           title: 'Live Workout',
           headerLeft: () => (
             <TouchableOpacity
-              onPress={() => navigation.navigate('WorkoutApiScreen', {})}
+              onPress={() => navigation.goBack()}
               style={[styles.leftButton, styles.button, styles.buttonSize]}
             >
               <TabBarIcon

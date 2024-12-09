@@ -956,8 +956,9 @@ return (
                       <Text style={styles.setLabel}>Set</Text>
                       <Text style={styles.setValueTitleStart}>Reps</Text>
                       <Text style={styles.setValueTitleStart}>Weight</Text>
-                      <Text style={styles.setValueTitleStart}>Finish</Text>
-                    </View>
+                      <Ionicons style={{ marginLeft: '10%', marginRight: '5%' }} name="checkmark" size={30} color="#555" />
+                      {/* <Text style={styles.setValueTitleStart}>Finish</Text> */}
+                  </View>
                   
                   {/* Replace the nested FlatList with map() */}
                   {item.reps.map((rep, setIndex) => (

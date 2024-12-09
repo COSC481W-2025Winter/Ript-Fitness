@@ -383,7 +383,7 @@ const confirmDeleteExercise = (exerciseIndex: number) => {
                 onPress={() => confirmDeleteSet(index, setIndex)} // Pass both exercise index and set index
                 style={styles.deleteSetButton}
               >
-                <Ionicons name="trash-outline" size={20} color="red" />
+                <Ionicons name="trash-outline" size={20} color="#F22E2E" />
               </TouchableOpacity>
             </View>
           </View>
@@ -394,8 +394,8 @@ const confirmDeleteExercise = (exerciseIndex: number) => {
           onPress={() => addSetToExercise(index)} // Pass the index to add a set
           style={styles.addSetButton}
         >
-          <Ionicons name="add-circle-outline" size={20} color="#21BFBF" />
           <Text style={styles.addSetButtonText}>Add Set</Text>
+          <Ionicons name="add-circle-outline" size={20} color="#21BFBF" />
         </TouchableOpacity>
       </View>
     </Swipeable>
@@ -416,33 +416,29 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
     borderRadius: 8,
     marginBottom: 10,
-    width: '35%',
-    marginLeft: -30,
-    maxHeight: 90,
+    height: '40%'
   },
   notesButtonText: {
     fontSize: 16,
-    color: '#333',
+    color: '#888',
   },
   // Styling for the exercise name input
   exerciseNameInput: {
     height: 40,
-    borderColor: 'gray',
+    borderColor: '#ccc',
     borderWidth: 1,
     paddingHorizontal: 10,
     marginBottom: 10,
     borderRadius: 8,
-    width: '80%',
   },
   // Add exercise button styling
   addButton: {
     backgroundColor: '#21BFBF',
-    padding: 10,
-    borderRadius: 10,
+    borderRadius: 8,
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 20,
+    height: 40,
   },
   addButtonText: {
     color: 'white',
@@ -466,6 +462,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     flex: 1,
+    marginBottom: 5,
   },
   exerciseSets: {
     fontSize: 15,
@@ -522,11 +519,11 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   swipeDeleteButton: {
-    backgroundColor: 'red',
+    backgroundColor: '#F22E2E',
     justifyContent: 'center',
     alignItems: 'center',
     width: 80,
-    height: '96%',
+    height: '90%',
     borderRadius: 10,
   },
   deleteText: {
@@ -539,19 +536,20 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   addSetButtonText: {
-    marginLeft: 5,
+    marginHorizontal: 5,
     color: '#21BFBF',
+    fontSize: 15,
   },
   submitButton: {
     backgroundColor: '#302c2c',
-    padding: 10,
+    padding: 15,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 20,
   },
   submitButtonText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 16,
   },
   modalOverlay: {
     flex: 1,
@@ -574,13 +572,12 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 5,
   },
   notesInput: {
-    //height: 150,
     minWidth: '85%',
-    height: 300,
-    maxHeight: '300%',
+    height: 200,
+    // maxHeight: '300%',
     borderColor: 'gray',
     borderWidth: 1,
     borderRadius: 8,
@@ -589,7 +586,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
     width: 272,
     // maxHeight: '100%',
-    flexGrow:1,
+    // flexGrow:1,
   },
   workoutNameInput: {
     height: 40,
@@ -608,21 +605,16 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     alignItems: 'center',
-    width: 272,
   },
   closeButtonText: {
     color: 'white',
     fontSize: 16,
   },
   topRow: {
-    flexDirection: 'row',
+    // flexDirection: 'row',
+    height: '40%',
+    // backgroundColor: 'pink'
   }, 
-  namesRow: {
-    flex: 1,
-  },
-  notesRow: {
-    flexDirection: 'row',
-  },
   keyboardAvoid: {
     width: '80%',
     backgroundColor: 'white',
@@ -641,116 +633,100 @@ return (
     <StreakHeader></StreakHeader>
     {/* Notes button */}
     <View style={styles.topRow}>
-    <View style={styles.namesRow}>
-    <TextInput
-      style={styles.workoutNameInput}
-      placeholder="Enter Workout Name"
-      placeholderTextColor={"grey"}
-      value={workoutName}
-      onChangeText={setWorkoutName}
-    />
-     {/* Input for new exercise name */}
-     <TextInput
-      style={styles.exerciseNameInput}
-      placeholder="Enter Exercise Name"
-      value={newExerciseName}
-      onChangeText={setNewExerciseName}
-    />
-    </View>
-    
-    <TouchableOpacity style={styles.notesButton} onPress={() => setNoteModalVisible(true)}>
-      {noteText ?
-        <Text style={styles.notesButtonText}>
-            {noteText.slice(0, 35) + "..." }
-        </Text>
-      : 
-        <View style={styles.notesRow}>
-          <Text  style={styles.notesButtonText}>Add notes </Text>
-          <Ionicons name="create-outline" size={18}/>
-        </View>
-      }
-    </TouchableOpacity>
-   
-
-
-    {/* Notes modal */}
-    <Modal
-      transparent={true}
-      visible={isNoteModalVisible}
-      animationType="slide"
-      onRequestClose={() => setNoteModalVisible(false)}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.modalOverlay}>
-        <KeyboardAvoidingView
-          style={styles.modalContentContainer}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}  
-        >
-            <View style={styles.modalContent}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text style={styles.modalTitle}>Workout Notes</Text>
-                <TouchableOpacity onPress={() => setNoteModalVisible(false)}>
-                  <Ionicons name='close-circle-outline' size={30} color={'#747474'} />
-                </TouchableOpacity>
-              </View>
-              <TextInput
-                style={styles.notesInput}
-                placeholder="Type your notes here"
-                value={noteText}
-                onChangeText={setNoteText}
-                placeholderTextColor={'#555'}
-                multiline
-              />
-              <TouchableOpacity onPress={() => setNoteModalVisible(false)} style={styles.closeButton}>
-                <Text style={styles.closeButtonText}>Save Notes</Text>
-              </TouchableOpacity>
-            </View>
-          </KeyboardAvoidingView>
-        {/*<KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : "height"}
-              style={styles.keyboardAvoid}
-            >
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Workout Notes</Text>
+      <View>
+        <TextInput
+          style={styles.workoutNameInput}
+          placeholder="Enter Workout Name"
+          placeholderTextColor={"#B6B6B6"}
+          value={workoutName}
+          autoCapitalize='words'
+          onChangeText={setWorkoutName}
+        />
+        <TouchableOpacity style={styles.notesButton} onPress={() => setNoteModalVisible(true)}>
+        {noteText ?
+          <Text style={styles.notesButtonText}>
+              {noteText.slice(0, 35) + "..." }
+          </Text>
+        : 
+          <View>
+            <Text  style={styles.notesButtonText}>Add notes </Text>
+            {/* <Ionicons name="create-outline" size={18}/> */}
+          </View>
+        }
+        </TouchableOpacity>
+        {/* Input for new exercise name */}
+        <View>
           <TextInput
-            style={[styles.notesInput]}
-            placeholder="Type your notes here"
-            placeholderTextColor={"grey"}
-            value={noteText}
-            onChangeText={setNoteText}
-            multiline
+            style={styles.exerciseNameInput}
+            placeholder="Enter Exercise Name"
+            value={newExerciseName}
+            autoCapitalize='words'
+            onChangeText={setNewExerciseName}
           />
-          <TouchableOpacity onPress={() => setNoteModalVisible(false)} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>Save Notes</Text>
+          {/* Add exercise button */}
+          <TouchableOpacity style={styles.addButton} onPress={addExercise}>
+            <Text style={styles.addButtonText}>Add Exercise</Text>
+            <Ionicons name="add-circle-outline" size={20} color="white" />
           </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>*/}
       </View>
-      </TouchableWithoutFeedback>
-    </Modal>
-    
-
-
+  
+      {/* Notes modal */}
+      <Modal
+        transparent={true}
+        visible={isNoteModalVisible}
+        animationType="slide"
+        onRequestClose={() => setNoteModalVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.modalOverlay}>
+          <KeyboardAvoidingView
+            style={styles.modalContentContainer}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}  
+          >
+              <View style={styles.modalContent}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                  <Text style={styles.modalTitle}>Workout Notes</Text>
+                  <TouchableOpacity onPress={() => setNoteModalVisible(false)}>
+                    <Ionicons style={{ marginBottom: 5 }} name='close-circle-outline' size={30} color={'#747474'} />
+                  </TouchableOpacity>
+                </View>
+                <TextInput
+                  style={styles.notesInput}
+                  placeholder="Type your notes here"
+                  value={noteText}
+                  onChangeText={setNoteText}
+                  placeholderTextColor={'#555'}
+                  multiline
+                />
+                <TouchableOpacity onPress={() => setNoteModalVisible(false)} style={styles.closeButton}>
+                  <Text style={styles.closeButtonText}>Save Notes</Text>
+                </TouchableOpacity>
+              </View>
+            </KeyboardAvoidingView>
+        </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
-    {/* Add exercise button */}
-    <TouchableOpacity style={styles.addButton} onPress={addExercise}>
-      <Text style={styles.addButtonText}>Add Exercise</Text>
-      <Ionicons name="add-circle-outline" size={20} color="white" />
-    </TouchableOpacity>
-
-
     {/* Exercise list */}
       <FlatList
         data={exercises}
         keyExtractor={(_, index) => index.toString()} // Use the index as the unique key
         renderItem={renderExercise} // Use the updated renderExercise function
       />
-
-
     {/* Submit button */}
-    <TouchableOpacity style={styles.submitButton} onPress={submitWorkout}>
-      <Text style={styles.submitButtonText}>Submit</Text>
+    <TouchableOpacity
+      onPress={submitWorkout}
+      style={[
+        styles.submitButton,
+        exercises.length === 0 && { opacity: 0.3 }, // Gray out button when disabled
+      ]}
+      disabled={exercises.length === 0} // Disable when no exercises
+    >
+      <Text style={styles.submitButtonText}>
+        {exercises.length === 0 ? "Add Exercises to Submit" : "Submit Workout"}
+      </Text>
     </TouchableOpacity>
   </View>
 )};
