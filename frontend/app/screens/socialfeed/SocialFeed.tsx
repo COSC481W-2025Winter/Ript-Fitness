@@ -15,6 +15,7 @@ import {
   View,
   TouchableOpacity,
   ActivityIndicator,
+  KeyboardAvoidingView,
 } from "react-native";
 import * as Haptics from "expo-haptics";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -28,6 +29,7 @@ import { CreatePostSheetRef } from "./CreatePostSheet";
 import ProfileImage from "../../../assets/images/profile/Profile.png";
 import StreakHeader from "@/components/StreakHeader";
 import { GlobalContext } from "@/context/GlobalContext";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 export default function SocialFeed() {
   const createPostSheetRef = useRef<CreatePostSheetRef>(null);
@@ -241,11 +243,10 @@ export default function SocialFeed() {
           >
             <Ionicons name="add" size={24} color="white" />
           </TouchableOpacity>
-
-          <CreatePostSheet
-            ref={createPostSheetRef}
-            userProfilePicture={currentUserProfilePicture}
-          />
+            <CreatePostSheet
+              ref={createPostSheetRef}
+              userProfilePicture={currentUserProfilePicture}
+            />
           <CommentsSheet
             ref={commentsSheetRef}
             userProfilePicture={currentUserProfilePicture}

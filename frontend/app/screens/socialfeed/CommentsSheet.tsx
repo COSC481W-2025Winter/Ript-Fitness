@@ -19,7 +19,7 @@ import {
   FlatList,
   Alert,
 } from "react-native";
-import BottomSheet, { BottomSheetTextInput } from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetScrollView, BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { useSocialFeed, SocialPostComment } from "@/context/SocialFeedContext";
 import ProfileImage from "../../../assets/images/profile/Profile.png";
 import { GlobalContext } from "@/context/GlobalContext";
@@ -191,6 +191,9 @@ const CommentsSheet = forwardRef<CommentsSheetRef, CommentsSheetProps>(
           console.log("[DEBUG] addComment completed");
 
           const updatedPost = posts.find((p) => p.id === currentPostId);
+          if (updatedPost && updatedPost.socialPostComments == null) {
+            updatedPost.socialPostComments = [];
+          }
           console.log("[DEBUG] Post state after API call:", updatedPost);
 
           setCommentText("");
@@ -229,6 +232,8 @@ const CommentsSheet = forwardRef<CommentsSheetRef, CommentsSheetProps>(
         onChange={handleSheetChange}
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
+        android_keyboardInputMode="adjustResize"
+      
       >
         <KeyboardAvoidingView
           style={styles.keyboardAvoidingView}
@@ -241,9 +246,13 @@ const CommentsSheet = forwardRef<CommentsSheetRef, CommentsSheetProps>(
             </View>
 
             {/* Comments list */}
+            <BottomSheetScrollView>
             <FlatList
+            keyboardShouldPersistTaps="handled"
+            scrollEnabled={true}
               data={comments}
               keyExtractor={(item) => item.id}
+              style={{zIndex:10, elevation:10}}
               renderItem={({ item }) => (
                 <CommentItem
                   comment={item}
@@ -255,6 +264,7 @@ const CommentsSheet = forwardRef<CommentsSheetRef, CommentsSheetProps>(
               )}
               contentContainerStyle={styles.commentsList}
             />
+            </BottomSheetScrollView>
 
             {/* Comment input section */}
             <View style={styles.inputContainer}>
@@ -372,7 +382,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   input: {
-    flex: 1,
+    flex: 50,
     maxHeight: 100,
     borderRadius: 20,
     backgroundColor: "#f5f5f5",
@@ -384,6 +394,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     marginLeft: 8,
+    flex:1,
+    minWidth:60,
   },
   sendButtonDisabled: {
     opacity: 0.5,

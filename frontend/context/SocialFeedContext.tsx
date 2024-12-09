@@ -420,6 +420,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
   const addComment = useCallback(
     async (postId: string, content: string) => {
       console.log("[DEBUG] AddComment started:", { postId, content });
+      console.log(postId , " " , content)
 
       if (!token) {
         console.error("[DEBUG] No token available for adding a comment.");
@@ -464,7 +465,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
           id: String(newComment.id),
           content: newComment.content,
           postId: String(newComment.postId),
-          accountId: currentUserID ?? "-1", // Use currentUserID from context
+          accountId: context?.userProfile.id, // Use currentUserID from context
           username: context?.userProfile.username ?? "Anonymous", // Use username from context
           userProfile: context?.userProfile, // Use userProfile from context
           dateTimeCreated: new Date().toISOString(), // Generate new timestamp

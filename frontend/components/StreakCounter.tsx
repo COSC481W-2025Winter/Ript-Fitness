@@ -24,8 +24,8 @@ const StreakCounter: React.FC = () => {
       accessibilityLabel={`Streak of ${streak} days`}
     >
       <FlameComponent width={48} height={48} />
-      <View style={styles.badge}>
-        <Text style={styles.badgeText}>{streak}</Text>
+      <View style={[styles.badge]}>
+        <Text style={[styles.badgeText,{paddingTop: Platform.OS === "ios" ? 0 : 10}]}>{streak}</Text>
       </View>
     </View>
   );
@@ -39,11 +39,10 @@ const styles = StyleSheet.create({
   },
   badge: {
     position: "absolute",
-    right: 16,
+    width:'100%',
     top: 24,
     borderRadius: 8,
-    width: 16,
-    height: 16,
+    flex:1,
     justifyContent: "center",
     alignItems: "center",
   },

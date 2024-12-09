@@ -83,7 +83,7 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef, CreatePostSheetProps>(
         snapPoints={snapPoints}
         enablePanDownToClose={true}
         onChange={handleSheetChange}
-        keyboardBehavior="extend"
+        keyboardBehavior="interactive"
         keyboardBlurBehavior="none"
         android_keyboardInputMode="adjustResize"
       >
