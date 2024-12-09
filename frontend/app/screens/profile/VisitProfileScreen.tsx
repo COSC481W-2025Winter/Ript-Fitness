@@ -12,6 +12,8 @@ import {
   RefreshControl,
   Platform,
 } from 'react-native';
+
+import { Alert } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Haptics from "expo-haptics";
 import { User, UserCheck, UserMinus, UserPlus } from "react-native-feather";
@@ -142,12 +144,42 @@ const VisitProfileScreen: React.FC = () => {
     }
   };
 
+
+const confirmRemoveFriend = () => {
+  return new Promise((resolve) => {
+    Alert.alert(
+      "Remove Friend", // Title
+      "Are you sure?", // Message
+      [
+        {
+          text: "Cancel",
+          onPress: () => resolve(true), // Resolve if canceled
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          onPress: () => resolve(false), // Do nothing if confirmed
+        },
+      ],
+      { cancelable: true } // Allows dismissal by tapping outside
+    );
+  });
+};
+
+
   const handleDeleteFriend = async () => {
     if (DeletingFriend) return;
 
+    const canceled = await confirmRemoveFriend();
+    if (canceled) {
+      console.log("Action Cancelled");
+      return;
+    }
+
     setDeletingFriend(true);
     try {
-    context?.removeFriend(item)
+    context?.removeFriend(item.id)
+    context?.incrementRemovePending();
       const response = await fetch(
         `${httpRequests.getBaseURL()}/friends/deleteFriend/${item.id}`,
         {
@@ -170,6 +202,7 @@ const VisitProfileScreen: React.FC = () => {
       console.error('Error adding friend:', error);
     } finally {
       setDeletingFriend(false);
+      context?.decrementRemovePending();
     }
   };
 

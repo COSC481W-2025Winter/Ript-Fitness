@@ -827,8 +827,7 @@ function ProgressScreen() {
     const daysInMonth = new Date(myDate.getFullYear(), myDate.getMonth(), 0).getDate(); // Directly calculate days
 
     React.useEffect(() => {
-      console.log('Calendar refreshed!');
-      console.log(context?.calendar);
+
     }, [refreshKey]);
 
     if (context) {

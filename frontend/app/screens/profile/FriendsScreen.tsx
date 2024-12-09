@@ -15,15 +15,10 @@ const context = useContext(GlobalContext)
   );
 
 
-  useFocusEffect(
-    useCallback(() => {
-      context?.reloadFriends();
-      return () => {};
-    }, [])
-  );
   const deleteFriend = async (id: string) => {
     try {
         context?.removeFriend(id)
+        context?.incrementRemovePending();
         const response = await fetch(`${httpRequests.getBaseURL()}/friends/deleteFriend/${id}`, {
           method: 'DELETE', // Set method to POST
           headers: {
@@ -41,6 +36,8 @@ const context = useContext(GlobalContext)
       
         console.error('0001 GET request failed:', error);
         throw error; // Throw the error for further handling if needed
+      } finally {
+        context?.decrementRemovePending();
       }
   }
 

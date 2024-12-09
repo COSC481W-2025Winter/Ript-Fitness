@@ -108,7 +108,8 @@ interface GlobalContextType {
   ) => Promise<void>;
   clearCalendar: () => void;
 
-
+  incrementRemovePending: () => void;
+  decrementRemovePending: () => void;
   workouts: Workout[];
   fetchWorkouts: () => Promise<void>;
   addWorkout: (workout: Workout) => void;
@@ -225,6 +226,41 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         })
       );
     };
+
+    const addFriends = (newFriends: FriendObject[]) => {
+      setFriends((prevFriends) => {
+        const updatedFriends = [...prevFriends]; // Clone the current friends array
+    
+        newFriends.forEach((newFriend) => {
+          // Check if the friend already exists
+          const existingIndex = updatedFriends.findIndex(
+            (friend) => friend.id === newFriend.id
+          );
+    
+          if (existingIndex !== -1) {
+            // If the friend exists, update their information
+            updatedFriends[existingIndex] = {
+              ...updatedFriends[existingIndex],
+              ...newFriend,
+              profilePicture: (newFriend.profilePicture == undefined || newFriend.profilePicture == "")
+                ? DEFAULT_PROFILE_PICTURE
+                : newFriend.profilePicture,
+            };
+          } else {
+            // If the friend does not exist, add them
+            updatedFriends.push({
+              ...newFriend,
+              profilePicture: (newFriend.profilePicture == undefined || newFriend.profilePicture == "")
+                ? DEFAULT_PROFILE_PICTURE
+                : newFriend.profilePicture,
+            });
+          }
+        });
+    
+        return updatedFriends; // Return the new state
+      });
+    };
+    
     
 
   const removeFriend = (friendId: string) => {
@@ -467,10 +503,30 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
     };
   };
 
+  const [removePending, setRemovePending] = useState(0)
+  const [reloadPending, setReloadPending] = useState(false)
+
+  useEffect(() => {
+    if (removePending == 0 && reloadPending) {
+      setReloadPending(false);
+      reloadFriends();
+    }
+  }, [removePending]); // Run whenever `data` changes
+
+  const incrementRemovePending = () => {
+    setRemovePending((prev) => prev + 1); // Increment the number by 1
+  };
+
+  const decrementRemovePending = () => {
+    setRemovePending((prev) => prev - 1); // Increment the number by 1
+  };
+
   const reloadFriends = async () => {
+    if (removePending > 0) {
+      setReloadPending(true)
+      return;
+    }
     try {
-
-
       const response = await fetch(`${httpRequests.getBaseURL()}/friends/getFriendsListOfCurrentlyLoggedInUser`, {
         method: 'GET', // Set method to POST
         headers: {
@@ -501,7 +557,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
               }
               const json = await response.json()
               console.log("foo " + JSON.stringify(json))
-              updateFriends(json)
+                updateFriends(json)
           
             } catch (error) {
               console.error('0004 GET request failed:', error);
@@ -579,6 +635,8 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
         addWorkout,
         updateWorkout,
         reloadFriends,
+        incrementRemovePending,
+        decrementRemovePending
       }}
     >
 
