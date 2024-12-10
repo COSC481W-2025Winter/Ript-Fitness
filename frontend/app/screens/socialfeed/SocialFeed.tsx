@@ -89,23 +89,35 @@ export default function SocialFeed() {
 
       const fetchedPosts = await fetchPosts(startIndex, endIndex);
 
+      console.log("[DEBUG] Fetched posts:", {
+        count: fetchedPosts.length,
+        pageSize,
+        hasMore: fetchedPosts.length === pageSize,
+      });
+
       if (fetchedPosts.length < pageSize) {
-        console.log("[DEBUG] No more posts to load.");
+        console.log("[DEBUG] No more posts available");
         setHasMorePosts(false);
       } else {
         setPage(nextPage);
       }
     } catch (error: any) {
+      console.error("[DEBUG] Error in handleLoadMore:", error);
       if (error.message?.includes("500")) {
-        console.log("[DEBUG] Reached end of available posts");
         setHasMorePosts(false);
-      } else {
-        console.error("Error loading posts:", error);
       }
     } finally {
       isFetchingRef.current = false;
     }
-  }, [loading, hasMorePosts, page, posts.length, fetchPosts, isRefreshing]);
+  }, [
+    loading,
+    hasMorePosts,
+    page,
+    posts.length,
+    fetchPosts,
+    isRefreshing,
+    pageSize,
+  ]);
 
   const onRefresh = useCallback(async () => {
     if (isRefreshing) return;
@@ -243,10 +255,10 @@ export default function SocialFeed() {
           >
             <Ionicons name="add" size={24} color="white" />
           </TouchableOpacity>
-            <CreatePostSheet
-              ref={createPostSheetRef}
-              userProfilePicture={currentUserProfilePicture}
-            />
+          <CreatePostSheet
+            ref={createPostSheetRef}
+            userProfilePicture={currentUserProfilePicture}
+          />
           <CommentsSheet
             ref={commentsSheetRef}
             userProfilePicture={currentUserProfilePicture}

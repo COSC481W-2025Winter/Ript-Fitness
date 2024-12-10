@@ -66,7 +66,7 @@ interface SocialFeedContextType {
   loadingStates: LoadingStates;
   error: string | null;
   clearError: () => void;
-  fetchPosts: (startIndex: number, endIndex: number) => Promise<void>;
+  fetchPosts: (startIndex: number, endIndex: number) => Promise<SocialPost[]>;
   addPost: (content: string) => Promise<void>;
   deletePost: (postId: string) => Promise<void>;
   toggleLike: (postId: string) => Promise<void>;
@@ -154,12 +154,17 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
 
   // Fetch posts
   const fetchPosts = useCallback(
-    async (startIndex: number = 0, endIndex: number = 10) => {
+    async (
+      startIndex: number = 0,
+      endIndex: number = 10
+    ): Promise<SocialPost[]> => {
       if (!token) {
         console.error("No token available for fetching posts.");
         setError("Authentication token is missing.");
-        return;
+        return [];
       }
+
+      console.log("Fetching posts with:", { startIndex, endIndex });
 
       setLoading(true);
       setError(null);
@@ -171,7 +176,8 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
         const response = await retry(() =>
           httpRequests.get(
             `/socialPost/getSocialFeed/${startIndex}/${endIndex}`,
-            token
+            token,
+            { signal: abortController.signal }
           )
         );
 
@@ -181,7 +187,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
           if (startIndex === 0) {
             setPosts([]);
           }
-          return;
+          return [];
         }
 
         const formattedPosts = response.map((post) => {
@@ -251,25 +257,30 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
           );
         });
         clearError();
+        return formattedPosts;
       } catch (err: any) {
         if (err.name === "AbortError") {
-          return;
+          return [];
         }
         console.error("[DEBUG] Error fetching posts:", err);
         if (startIndex === 0) {
           setPosts([]);
         }
         setError("Failed to fetch posts. Please try again later.");
+        return [];
       } finally {
         setLoading(false);
       }
-
-      return () => {
-        abortController.abort();
-      };
     },
     [token, clearError, currentUserID, context?.userProfile, TimeZone]
   );
+
+  useEffect(() => {
+    const abortController = new AbortController();
+    return () => {
+      abortController.abort();
+    };
+  }, []);
 
   // Add post
   const addPost = useCallback(
@@ -395,7 +406,6 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
         clearError();
       } catch (err) {
         // Revert on error
-        // Revert on error
         updatePost(postId, (post) => ({
           ...post,
           userIDsOfLikes: isLiked
@@ -420,7 +430,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
   const addComment = useCallback(
     async (postId: string, content: string) => {
       console.log("[DEBUG] AddComment started:", { postId, content });
-      console.log(postId , " " , content)
+      console.log(postId, " ", content);
 
       if (!token) {
         console.error("[DEBUG] No token available for adding a comment.");
