@@ -6,6 +6,7 @@ import { GlobalContext } from "@/context/GlobalContext"; // Access global contex
 import { useNavigation } from "@react-navigation/native"; // Navigation
 import { WorkoutScreenNavigationProp } from '@/app/(tabs)/WorkoutStack';
 import StreakHeader from '@/components/StreakHeader';
+import { httpRequests } from '@/api/httpRequests';
 
 
 
@@ -39,9 +40,6 @@ export default function StartWorkoutScreen() {
   const navigation = useNavigation<WorkoutScreenNavigationProp >();
     const [workoutName, setWorkoutName] = useState(""); // State for workout name
   const [submitting, setSubmitting] = useState(false);
-  const httpRequests = {
-    getBaseURL: () => `${httpRequests.getBaseURL()}`,
-  };
  
   console.log(
     "Mapped exercises payload:",
@@ -110,6 +108,8 @@ export default function StartWorkoutScreen() {
         };
   
         try {
+          console.log(`${httpRequests.getBaseURL()}/exercises/addExercise`)
+          console.log(currentExercise)
           const response = await fetch(
             `${httpRequests.getBaseURL()}/exercises/addExercise`,
             {
@@ -159,7 +159,7 @@ export default function StartWorkoutScreen() {
       const workoutJson = await workoutResponse.json();
   
       // Add workout to context
-      context.addWorkout({ ...workoutJson, exercises: [] });
+      context?.addWorkout({ ...workoutJson, exercises: [] });
   
       // Save the note
       await addNote();
@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     textAlign: 'center',
     color: 'black',
-    maxHeight: 30,
+    //maxHeight: 30,
     textAlignVertical: 'center',
   },
   deleteSetButton: {
@@ -644,8 +644,9 @@ return (
         />
         <TouchableOpacity style={styles.notesButton} onPress={() => setNoteModalVisible(true)}>
         {noteText ?
-          <Text style={styles.notesButtonText}>
-              {noteText.slice(0, 35) + "..." }
+          <Text style={styles.notesButtonText} numberOfLines={4} // Limit to one line
+          ellipsizeMode="tail">
+              {noteText}
           </Text>
         : 
           <View>
