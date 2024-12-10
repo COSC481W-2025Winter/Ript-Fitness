@@ -40,21 +40,29 @@ public class StreakService {
 		LocalDateTime curTime = LocalDateTime.now();
 		LocalDateTime prevLogin = streakDto.prevLogin;
 		
+		if(streak.currentSt == 0) {
+			streak.currentSt = 1;
+		}
+		
 		if (prevLogin.getDayOfYear() != curTime.getDayOfYear()) {// checks for same day
 			if(prevLogin.getDayOfYear() == 366 && curTime.getDayOfYear() == 1) { //check for leap year last day of the year
 				streak.currentSt++;
+				streak.prevLogin = curTime;
 				streakRepository.save(streak);
 				
 			} else if(prevLogin.getDayOfYear() == 365 && curTime.getDayOfYear() == 1) { //checks for leap year and if it is the last day of the year
 				streak.currentSt++;
+				streak.prevLogin = curTime;
 				streakRepository.save(streak);
 				
 			} else if(prevLogin.getDayOfYear()+1 == curTime.getDayOfYear() && prevLogin.getYear() == curTime.getYear()) {//Checks to see if it is the next day of the same year
 				streak.currentSt++;
+				streak.prevLogin = curTime;
 				streakRepository.save(streak);
 				
 			} else {
-				streak.currentSt = 0;
+				streak.currentSt = 1;
+				streak.prevLogin = curTime;
 				streakRepository.save(streak);
 				
 			}
