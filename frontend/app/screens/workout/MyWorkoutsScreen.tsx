@@ -224,16 +224,15 @@ export default function MyWorkoutsScreen() {
 
 
 
-
   const logWorkout = async () => {
     if (!selectedWorkout) {
       Alert.alert("Error", "No workout selected to log.");
       return;
     }
-
+  
     try {
       const response = await fetch(
-       `${httpRequests.getBaseURL()}/calendar/logWorkout?timeZone=${TimeZone.get()}`,
+        `${httpRequests.getBaseURL()}/calendar/logWorkout?timeZone=${TimeZone.get()}`,
         {
           method: "POST",
           headers: {
@@ -243,7 +242,7 @@ export default function MyWorkoutsScreen() {
           body: JSON.stringify({ workoutId: selectedWorkout.id }),
         }
       );
-
+  
       if (!response.ok) {
         const errorMessage = await response.text();
         if (errorMessage.includes("Workout already logged for this date")) {
@@ -255,13 +254,18 @@ export default function MyWorkoutsScreen() {
         }
         throw new Error(`Failed to log workout: ${errorMessage}`);
       }
+  
+      // Success block: Workout logged successfully
+      console.log("Workout logged successfully");
+      Alert.alert("Success", "Workout logged!");
+  
     } catch (error) {
-      Alert.alert(
-        "Error",
-        "Failed to log workout. Please check your network or try again later."
-      );
+      // Error block: Handle failed attempts
+      console.log("Workout already logged for this date");
+      Alert.alert("Workout already logged for this date");
     }
   };
+  
 
 const styles = StyleSheet.create({
   container: {
@@ -667,7 +671,15 @@ const styles = StyleSheet.create({
   //   paddingHorizontal: 5, // Add padding to the left and right of the row
   // },
 
-  
+  helperText: {
+    color: '#888', // grey color
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: '60%',
+
+   marginVertical: 350,
+    // paddingTop: 10
+  },
 });
 
 return (
@@ -731,7 +743,14 @@ return (
         />
       </>
     )}
-
+      {/* Message/directions for the user */}
+      <View style={{justifyContent: 'center', alignContent: 'center', alignSelf: 'center'}}>
+          {!context?.workouts || context.workouts.length === 0 && (
+            <Text style={styles.helperText} numberOfLines={1}>
+              Please add a workout!
+            </Text>
+          )}
+      </View>
     {/* Modal for View and Edit */}
 <Modal
   visible={isModalVisible && !isTracking}
