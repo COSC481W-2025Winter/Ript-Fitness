@@ -88,18 +88,23 @@ export default function SocialFeed() {
       });
 
       const fetchedPosts = await fetchPosts(startIndex, endIndex);
-      if (fetchedPosts == null) {
-        setHasMorePosts(false);
-      } else if (fetchedPosts.length < pageSize) {
+
+      console.log("[DEBUG] Fetched posts:", {
+        count: fetchedPosts.length,
+        pageSize,
+        hasMore: fetchedPosts.length === pageSize,
+      });
+
+      if (fetchedPosts.length < pageSize) {
+        console.log("[DEBUG] No more posts available");
         setHasMorePosts(false);
       } else {
         setPage(nextPage);
       }
     } catch (error: any) {
+      console.error("[DEBUG] Error in handleLoadMore:", error);
       if (error.message?.includes("500")) {
         setHasMorePosts(false);
-      } else {
-        console.error("Error loading posts:", error);
       }
     } finally {
       isFetchingRef.current = false;
