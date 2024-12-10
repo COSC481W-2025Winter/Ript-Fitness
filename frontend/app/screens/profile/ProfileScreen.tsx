@@ -926,10 +926,6 @@ function ProgressScreen() {
   const useRestDay = async () => {
     if (context && context?.userProfile.restDaysLeft > 0) {
       const currentRestDays = context?.userProfile.restDaysLeft;
-      context?.updateUserProfile({
-        ...context.userProfile, // Spread existing userProfile to retain all required fields
-        restDaysLeft: Math.max((context.userProfile?.restDaysLeft || 0) - 1, 0),
-      });
 
       const today = new Date().toISOString().split('T')[0]; // Get today's date in yyyy-MM-dd format
 
@@ -944,11 +940,16 @@ function ProgressScreen() {
 
         if (!response.ok) {
           const errorText = await response.text();
+          Alert.alert("You've Already Logged Something For Today.")
           throw new Error(`Error: ${response.status} - ${errorText}`);
         }
 
         const result = await response.text();
         console.log('Rest day logged successfully:', result);
+        context?.updateUserProfile({
+          ...context.userProfile, // Spread existing userProfile to retain all required fields
+          restDaysLeft: Math.max((context.userProfile?.restDaysLeft || 0) - 1, 0),
+        });
         // context?.clearCalendar()
         const dateRange = getDateRange();
         await context?.loadCalendarDays(dateRange);
@@ -1331,7 +1332,7 @@ const ProfileScreen: React.FC = () => {
           headerTitle: context?.userProfile.username,
           headerStyle: {
             // paddingTop: Platform.OS === "ios" ? 20 : 0, // Add paddingTop for iOS
-            height: Platform.OS === "ios" ? 80 : 60,    // Adjust header height if necessary
+            height: Platform.OS === "ios" ? 100 : 60,    // Adjust header height if necessary
             backgroundColor: 'white',                  // Ensure consistent background
 
             // You can add more styling properties as needed
