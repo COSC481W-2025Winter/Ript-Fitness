@@ -65,7 +65,7 @@ export class httpRequests {
     endpoint: string,
     token: string,
     data: Record<string, any>
-  ): Promise<Response> {
+  ): Promise<any> {
     try {
       let response;
       console.log("rthrth" + token);

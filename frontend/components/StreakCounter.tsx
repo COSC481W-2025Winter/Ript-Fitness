@@ -15,7 +15,7 @@ const StreakCounter: React.FC = () => {
     return null;
   }
 
-  const FlameComponent = streak > 0 ? Flame : NoFlame;
+  const FlameComponent = streak > 1 ? Flame : NoFlame;
 
   return (
     <View
