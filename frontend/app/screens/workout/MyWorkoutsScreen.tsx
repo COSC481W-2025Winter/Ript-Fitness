@@ -245,7 +245,7 @@ export default function MyWorkoutsScreen() {
   
       if (!response.ok) {
         const errorMessage = await response.text();
-        if (errorMessage.includes("Workout already logged for this date")) {
+        if (errorMessage.includes("Workout or Rest day already logged for this date")) {
           Alert.alert(
             "Duplicate Log",
             "A workout has already been logged for today."
@@ -261,8 +261,8 @@ export default function MyWorkoutsScreen() {
   
     } catch (error) {
       // Error block: Handle failed attempts
-      console.log("Workout already logged for this date");
-      Alert.alert("Workout already logged for this date");
+      console.log("Workout or Rest day already logged for this date");
+      Alert.alert("Workout or Rest day already logged for this date");
     }
   };
   
