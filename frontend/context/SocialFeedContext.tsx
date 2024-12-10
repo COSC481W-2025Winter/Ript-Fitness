@@ -181,7 +181,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
           )
         );
 
-        console.log("[DEBUG] Raw response from server:", response);
+        //console.log("[DEBUG] Raw response from server:", response);
 
         if (!response || !Array.isArray(response)) {
           if (startIndex === 0) {
@@ -449,7 +449,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
           httpRequests.put("/socialPost/addComment", token, { content, postId })
         );
 
-        console.log("[DEBUG] Raw API response:", response);
+        //console.log("[DEBUG] Raw API response:", response);
 
         if (!response.ok) {
           throw new Error("Failed to add comment");

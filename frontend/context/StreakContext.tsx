@@ -32,6 +32,7 @@ export const StreakProvider: React.FC<StreakProviderProps> = ({ children }) => {
     //context.setToken("");
     setLoading(true);
     setError(null);
+    console.log("Fetching Streak ree")
 
     if (!token) {
       setStreak(0);
@@ -40,7 +41,18 @@ export const StreakProvider: React.FC<StreakProviderProps> = ({ children }) => {
     }
 
     try {
-      const data: StreakData = await httpRequests.get('/streak/getStreak', token, {});
+      //const data: StreakData = await httpRequests.put('/streak/updateStreak', token, {});
+      const workoutResponse = await fetch(
+        `${httpRequests.getBaseURL()}/streak/updateStreak`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${context?.data.token}`,
+          },
+          body: '',
+        });
+      const data = await workoutResponse.json()
       setStreak(data.currentSt);
     } catch (err) {
       console.error('Error fetching streak:', err);
