@@ -645,7 +645,8 @@ return (
         <TouchableOpacity style={styles.notesButton} onPress={() => setNoteModalVisible(true)}>
         {noteText ?
           <Text style={styles.notesButtonText}>
-              {noteText.slice(0, 35) + "..." }
+              {noteText.slice(0, 200) }
+              {/* {noteText.slice(0, 200) + "..." } */}
           </Text>
         : 
           <View>
@@ -714,6 +715,7 @@ return (
         data={exercises}
         keyExtractor={(_, index) => index.toString()} // Use the index as the unique key
         renderItem={renderExercise} // Use the updated renderExercise function
+        contentContainerStyle={{ paddingBottom: 100 }}
       />
     {/* Submit button */}
     <TouchableOpacity
