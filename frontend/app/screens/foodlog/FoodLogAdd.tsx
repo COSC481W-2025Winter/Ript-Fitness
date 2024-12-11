@@ -7,6 +7,7 @@ import { httpRequests } from "@/api/httpRequests";
 import { GlobalContext } from "@/context/GlobalContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 //Need to figure out how to get the day to work on login and then not switch until the next day 
 
@@ -353,14 +354,14 @@ const FoodLogAddPage = () => {
 
     return(
 
-        <KeyboardAvoidingView 
-            style={{ flex: 1, backgroundColor: '#fff', justifyContent: 'space-between' }}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0} // Adjust this value based on your header height
+        <KeyboardAwareScrollView 
+            style={{ flex: 1, backgroundColor: '#fff' }}
+            //behavior={Platform.OS === "ios" ? "padding" : "height"} , justifyContent: 'space-between'
+            //keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0} // Adjust this value based on your header height
         > 
             <ScrollView 
-                style={{maxHeight: '100%', marginTop: 10, marginHorizontal: 5, marginBottom: 50, backgroundColor: '#fff'}} 
-                contentContainerStyle={{ paddingBottom: 115, }}
+                style={{maxHeight: '100%', marginTop: 10, marginHorizontal: 5, marginBottom: 0, backgroundColor: '#fff'}} 
+                contentContainerStyle={{  }}
             >
                     <Text style={styles.label}>Nutrition Facts</Text>
                     <Text style={styles.description}>Enter the details from the label</Text>
@@ -479,7 +480,7 @@ const FoodLogAddPage = () => {
                             }} 
                     />
                 </View>
-        </KeyboardAvoidingView>
+        </KeyboardAwareScrollView>
     );
 };
 const styles = StyleSheet.create({

@@ -42,6 +42,7 @@ interface CommentItemProps {
       id?: string;
       profilePicture?: string;
       username?: string;
+      displayname?: string;
     };
   };
   onReply?: () => void;
@@ -121,7 +122,7 @@ const CommentItem = ({ comment, onReply }: CommentItemProps) => {
       <View style={styles.commentContent}>
         <View style={styles.commentHeader}>
           <Text style={styles.commentUsername}>
-            {comment.username || comment.accountId}
+            {comment.displayname || comment.accountId}
           </Text>
           <Text style={styles.commentTime}>
             {formatCommentTime(comment.dateTimeCreated)}
@@ -275,10 +276,12 @@ const CommentsSheet = forwardRef<CommentsSheetRef, CommentsSheetProps>(
                     comment={{
                       ...item,
                       username: item.userProfile?.username || item.accountId,
+                      displayname: item.userProfile?.displayname || item.accountId,
                     }}
                     onReply={() => {
                       inputRef.current?.focus();
-                      const usernameToReplyTo = item.username;
+                      const usernameToReplyTo = item.displayname;
+                      console.log(item)
                       setCommentText(`@${usernameToReplyTo} `);
                     }}
                   />

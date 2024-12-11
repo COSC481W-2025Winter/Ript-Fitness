@@ -280,7 +280,7 @@ const FoodLogSavedPage = () => {
             <View style={styles.searchContainer}>
                 <Ionicons
                 name="search-outline"
-                size={15}
+                size={20}
                 color="#747474"
                 style={styles.iconContainer}
                 />
@@ -294,7 +294,7 @@ const FoodLogSavedPage = () => {
                     borderWidth: 0,
                     fontSize: 16,
                     paddingLeft: 30,
-                    borderRadius: 20,
+                    borderRadius: 25,
                     backgroundColor: "#EDEDED",
                     // width: '90%'
                 }}
@@ -313,21 +313,21 @@ const FoodLogSavedPage = () => {
            <View style={styles.searchContainer}>
                 <Ionicons
                 name="search-outline"
-                size={15}
+                size={20}
                 color="#747474"
                 style={styles.iconContainer}
                 />
                 <CustomTextInput
                 placeholder="Search"
                 placeholderTextColor="#999"
-                // width={width * 0.85}
+                width={width * 0.85}
                 value={searchText}
                 onChangeText={setSearchText}
                 style={{
                     borderWidth: 0,
                     fontSize: 16,
                     paddingLeft: 30,
-                    borderRadius: 20,
+                    borderRadius: 25,
                     backgroundColor: "#EDEDED",
                 }}
         />
@@ -339,21 +339,21 @@ const FoodLogSavedPage = () => {
            <View style={styles.searchContainer}>
                 <Ionicons
                 name="search-outline"
-                size={15}
+                size={20}
                 color="#747474"
                 style={styles.iconContainer}
                 />
                 <CustomTextInput
                 placeholder="Search"
                 placeholderTextColor="#999"
-                // width={width * 0.85}
+                width={width * 0.85}
                 value={searchText}
                 onChangeText={setSearchText}
                 style={{
                     borderWidth: 0,
                     fontSize: 16,
                     paddingLeft: 30,
-                    borderRadius: 20,
+                    borderRadius: 25,
                     backgroundColor: "#EDEDED",
                 }}
         />
@@ -366,21 +366,21 @@ const FoodLogSavedPage = () => {
           <View style={styles.searchContainer}>
                 <Ionicons
                 name="search-outline"
-                size={15}
+                size={20}
                 color="#747474"
                 style={styles.iconContainer}
                 />
                 <CustomTextInput
                 placeholder="Search"
                 placeholderTextColor="#999"
-                // width={width * 0.85}
+                width={width * 0.85}
                 value={searchText}
                 onChangeText={setSearchText}
                 style={{
                     borderWidth: 0,
                     fontSize: 16,
                     paddingLeft: 30,
-                    borderRadius: 20,
+                    borderRadius: 25,
                     backgroundColor: "#EDEDED",
                 }}
         />

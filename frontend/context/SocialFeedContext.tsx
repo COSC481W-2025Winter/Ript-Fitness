@@ -17,10 +17,12 @@ export interface SocialPostComment {
   postId: string;
   accountId: string;
   username?: string;
+  displayname?: string;
   dateTimeCreated: string;
   userProfile?: {
     username?: string;
     profilePicture?: string;
+    displayname?: string;
   };
   isDeleted: boolean;
 }
@@ -40,6 +42,7 @@ export interface SocialPost {
   userProfile: {
     id?: string;
     username?: string;
+    displayname?: string;
     profilePicture?: string;
   } | null;
 }
@@ -210,6 +213,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
                   ...comment,
                   accountId: comment.accountId,
                   username: comment.userProfile?.username || "Anonymous",
+                  displayname: comment.userProfile?.displayname || "Anonymous",
                   userProfile: comment.userProfile,
                   dateTimeCreated: TimeZone.convertToTimeZone(
                     comment.dateTimeCreated,
@@ -223,6 +227,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
                   ...comment,
                   accountId: comment.accountId,
                   username: comment.userProfile?.username,
+                  displayname: comment.userProfile?.displayname,
                   userProfile: comment.userProfile,
                   dateTimeCreated: TimeZone.convertToTimeZone(
                     comment.dateTimeCreated,
@@ -477,6 +482,7 @@ export function SocialFeedProvider({ children }: { children: ReactNode }) {
           postId: String(newComment.postId),
           accountId: context?.userProfile.id, // Use currentUserID from context
           username: context?.userProfile.username ?? "Anonymous", // Use username from context
+          displayname: context.userProfile?.displayname || "Anonymous",
           userProfile: context?.userProfile, // Use userProfile from context
           dateTimeCreated: new Date().toISOString(), // Generate new timestamp
         };
