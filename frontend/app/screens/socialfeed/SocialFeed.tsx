@@ -154,6 +154,7 @@ export default function SocialFeed() {
         return null; // This fixed the bug where it was rending a deleted post before
       }
       const username = item.userProfile?.username || item.accountId;
+      const displayname = item.userProfile?.displayname || item.accountId;
 
       const profilePictureSource = item.userProfile?.profilePicture
         ? { uri: `data:image/png;base64,${item.userProfile.profilePicture}` }
@@ -174,7 +175,7 @@ export default function SocialFeed() {
             type: "text",
             content: item.content,
             user: {
-              name: username,
+              name: displayname,
               profilePicture: profilePictureSource,
               id: item.accountId,
             },

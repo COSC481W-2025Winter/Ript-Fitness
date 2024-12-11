@@ -14,7 +14,7 @@ const CustomTextInput: React.FC<CustomTextInputProps> = ({ placeholder, placehol
   const containerStyle: ViewStyle = {
     width:  width || '100%',
   };
-
+console.log(" w " ,width)
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <TextInput

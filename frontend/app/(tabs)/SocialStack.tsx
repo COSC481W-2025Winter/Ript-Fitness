@@ -14,6 +14,7 @@ import ImagePostScreen from "../screens/socialfeed/ImagePostScreen";
 import VisitProfileScreen from "../screens/profile/VisitProfileScreen";
 import StreakCounter from "@/components/StreakCounter";
 import { StreakProvider } from "@/context/StreakContext";
+import VisitFriendsScreen from "../screens/profile/VisitFriendsScreen";
 
 const Stack = createStackNavigator();
 
@@ -67,6 +68,7 @@ const SocialStack: React.FC = () => {
           component={VisitProfileScreen}
           options={{ title: "RIPT", headerShown: false }}
         />
+        <Stack.Screen name="VisitFriendsScreen" component={VisitFriendsScreen} options={{headerShown:false}}/>
         {/* Add any additional screens here */}
       </Stack.Navigator>
     </SocialProvider>
