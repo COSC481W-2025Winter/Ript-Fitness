@@ -1,5 +1,6 @@
 package com.riptFitness.Ript_Fitness_Backend.web.dto;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +9,7 @@ public class DayDto {
 
 	public Long id;
 	public List<FoodDto> foodsEatenInDay = new ArrayList<>();	
+	public LocalDate date;
 	public double calories;
 	public double totalCarbs;
 	public double totalProtein;
