@@ -1,7 +1,6 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 

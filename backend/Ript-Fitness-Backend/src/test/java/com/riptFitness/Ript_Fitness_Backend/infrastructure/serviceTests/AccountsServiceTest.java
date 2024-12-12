@@ -19,7 +19,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.riptFitness.Ript_Fitness_Backend.domain.mapper.AccountsMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.StreakRepository;
@@ -56,7 +55,6 @@ public class AccountsServiceTest {
     private AccountsService accountsService;
 
     private AccountsDto accountsDto;
-    private AccountsModel accountsModel;
 
     @BeforeEach
     public void setUp() {
@@ -84,9 +82,6 @@ public class AccountsServiceTest {
         accountsDto.setPassword("password123");
         accountsDto.setEmail("test@example.com");
         accountsDto.setlastLogin(LocalDateTime.now());
-
-        // Initialize AccountsModel
-        accountsModel = AccountsMapper.INSTANCE.convertToModel(accountsDto);
     }
 
     @Test

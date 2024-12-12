@@ -2,9 +2,6 @@ package com.riptFitness.Ript_Fitness_Backend.web.dto;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
-
 public class NoteDto {
 	
 	public Long noteId;

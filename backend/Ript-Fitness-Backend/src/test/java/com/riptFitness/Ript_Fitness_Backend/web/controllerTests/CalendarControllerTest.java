@@ -39,9 +39,6 @@ public class CalendarControllerTest {
 	@MockBean
 	private JwtUtil jwtUtil;
 
-	@Autowired
-	private ObjectMapper objectMapper;
-
 	@BeforeEach
 	public void setUp() {
 		when(jwtUtil.extractUsername(any(String.class))).thenReturn("test-user");
