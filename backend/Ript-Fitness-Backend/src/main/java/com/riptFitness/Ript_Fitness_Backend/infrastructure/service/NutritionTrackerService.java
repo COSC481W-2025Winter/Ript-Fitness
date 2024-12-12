@@ -42,6 +42,8 @@ public class NutritionTrackerService {
 	//Adds a Food object to the database
 	public FoodDto addFood(FoodDto foodDto) {
 		Food foodToBeAdded = FoodMapper.INSTANCE.toFood(foodDto);
+		foodToBeAdded.name = (foodToBeAdded.name == null) ? "Unnamed food" : foodToBeAdded.name;	//If name is null in HTTP request, set name to "Unnamed food"
+		foodToBeAdded.multiplier = (foodToBeAdded.multiplier == 0) ? 1 : foodToBeAdded.multiplier;	//If multiplier is null in HTTP request, set multiplier to 1
 		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
 		AccountsModel currentlyLoggedInAccount = accountsRepository.findById(currentlyLoggedInUserId).get();
 		foodToBeAdded.account = currentlyLoggedInAccount;

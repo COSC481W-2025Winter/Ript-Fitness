@@ -24,6 +24,6 @@ public class Food {
 	public double carbs;
 	public double protein;
 	public double fat;
-	public double multiplier = 1.0;
+	public double multiplier;
 	public boolean isDeleted = false;
 }
