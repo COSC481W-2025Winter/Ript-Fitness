@@ -136,8 +136,45 @@ public class StreakServiceTest {
 		StreakDto result = streakServiceForServiceTest.updateStreak();
 
 		assertNotNull(result);
-		//assertEquals(10, result.currentSt);
+	}
+	
+	@Test
+	void testServiceUpdatedStreakValidStreakIsZero() {
+		streak.currentSt = 0;
+		
+		when(accountsService.getLoggedInUserId()).thenReturn(100L);
+        when(accountsRepository.findById(100L)).thenReturn(Optional.of(account));
+		when(streakRepository.findById(100L)).thenReturn(Optional.of(streak));
+		StreakDto result = streakServiceForServiceTest.updateStreak();
 
+		assertNotNull(result);
+		assertEquals(1, result.currentSt);
+	}
+	
+	@Test
+	void testServiceUpdatedStreakValidIncrementStreak() {
+		streak.prevLogin = LocalDateTime.now().minusDays(1);
+		
+		when(accountsService.getLoggedInUserId()).thenReturn(100L);
+        when(accountsRepository.findById(100L)).thenReturn(Optional.of(account));
+		when(streakRepository.findById(100L)).thenReturn(Optional.of(streak));
+		StreakDto result = streakServiceForServiceTest.updateStreak();
+
+		assertNotNull(result);
+		assertEquals(11, result.currentSt);
+	}
+	
+	@Test
+	void testServiceUpdatedStreakValidEndStreak() {
+		streak.prevLogin = LocalDateTime.now().minusDays(2);
+		
+		when(accountsService.getLoggedInUserId()).thenReturn(100L);
+        when(accountsRepository.findById(100L)).thenReturn(Optional.of(account));
+		when(streakRepository.findById(100L)).thenReturn(Optional.of(streak));
+		StreakDto result = streakServiceForServiceTest.updateStreak();
+
+		assertNotNull(result);
+		assertEquals(1, result.currentSt);
 	}
 
 	@Test
@@ -147,9 +184,4 @@ public class StreakServiceTest {
 		assertThrows(RuntimeException.class, () -> streakServiceForServiceTest.updateStreak());
 
 	}
-
-	
-
-	
-
 }
