@@ -2,13 +2,10 @@ package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
 import java.net.MalformedURLException;
 import java.time.DateTimeException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
@@ -16,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.UserProfileMapper;
-import com.riptFitness.Ript_Fitness_Backend.domain.model.Calendar;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Photo;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.PhotoRepository;

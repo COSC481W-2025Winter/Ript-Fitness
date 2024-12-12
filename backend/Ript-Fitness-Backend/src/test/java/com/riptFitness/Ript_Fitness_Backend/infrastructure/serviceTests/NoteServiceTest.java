@@ -1,16 +1,12 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.serviceTests;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.riptFitness.Ript_Fitness_Backend.domain.mapper.NoteMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Note;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.StreakMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Streak;
-import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.StreakRepository;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.StreakDto;
 
@@ -18,12 +17,10 @@ public class StreakService {
 	
 	private StreakRepository streakRepository;
 	private final AccountsService accountsService;
-	private final AccountsRepository accountsRepository;
 	
-	public StreakService(StreakRepository streakRepository, AccountsService accountsService, AccountsRepository accountsRepository) {
+	public StreakService(StreakRepository streakRepository, AccountsService accountsService) {
 		this.streakRepository = streakRepository;
 		this.accountsService = accountsService;
-		this.accountsRepository = accountsRepository;
 	}
 	
 

@@ -1,7 +1,6 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity

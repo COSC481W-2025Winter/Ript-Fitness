@@ -3,7 +3,6 @@ package com.riptFitness.Ript_Fitness_Backend.infrastructure.serviceTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
@@ -20,7 +19,6 @@ import org.mockito.MockitoAnnotations;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.FriendRequest;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.RequestStatus;
-import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.FriendRequestRepository;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AccountsService;

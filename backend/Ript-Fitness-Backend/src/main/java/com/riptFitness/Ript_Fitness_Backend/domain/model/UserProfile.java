@@ -1,6 +1,5 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.model;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 

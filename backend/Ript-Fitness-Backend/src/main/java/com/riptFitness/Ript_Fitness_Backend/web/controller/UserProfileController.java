@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.riptFitness.Ript_Fitness_Backend.domain.model.Photo;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AzureBlobService;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.UserProfileService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.UserDto;

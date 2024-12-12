@@ -1,8 +1,6 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;

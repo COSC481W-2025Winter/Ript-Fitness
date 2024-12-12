@@ -3,7 +3,6 @@ package com.riptFitness.Ript_Fitness_Backend.web.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.riptFitness.Ript_Fitness_Backend.domain.model.Calendar;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.CalendarService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.CalendarDto;
 

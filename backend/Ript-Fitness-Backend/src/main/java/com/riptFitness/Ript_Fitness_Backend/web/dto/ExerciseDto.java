@@ -3,7 +3,6 @@ package com.riptFitness.Ript_Fitness_Backend.web.dto;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.riptFitness.Ript_Fitness_Backend.domain.model.Workouts;
 
 public class ExerciseDto {
 

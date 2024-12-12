@@ -1,16 +1,15 @@
 package com.riptFitness.Ript_Fitness_Backend.web.dto;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
-import com.riptFitness.Ript_Fitness_Backend.domain.model.Food;
-
-//Dto must match the model class exactly minus the "@" declarations
+//Dto must match the model class exactly minus the "@" declarations (and excluding any variables you don't want sent to the front end)
 public class DayDto {
 
 	public Long id;
 	public List<FoodDto> foodsEatenInDay = new ArrayList<>();	
+	public LocalDate date;
 	public double calories;
 	public double totalCarbs;
 	public double totalProtein;

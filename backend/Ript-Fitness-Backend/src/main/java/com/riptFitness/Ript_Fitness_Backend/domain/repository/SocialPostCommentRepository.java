@@ -1,6 +1,5 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.repository;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
