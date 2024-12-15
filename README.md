@@ -26,11 +26,27 @@
 
 <h2 style="font-size:20px; font-weight:bold;">Setting Up the Frontend</h2>
 <hr style="border:1px solid #000; margin-top:10px;">
-<p style="font-size:16px;"></p>
+<p style="font-size:16px;">Download Python/vscode if you don't have it
+Download Node.js. No need to install chocolatey
+https://nodejs.org/en
+
+restart VSCode or command prompt if open
+Open project
+Change dir to frontEnd
+npm install
+npx expo install --check
+
+npx expo start or npm start
+</p>
 
 <h2 style="font-size:20px; font-weight:bold;">Working with Microsoft Azure</h2>
 <hr style="border:1px solid #000; margin-top:10px;">
-<p style="font-size:16px;"></p>
+<p style="font-size:16px;">
+Connection info
+What's all in Azure
+Benefits?
+
+</p>
 
 <h2 style="font-size:20px; font-weight:bold;">Security</h2>
 <hr style="border:1px solid #000; margin-top:10px;">
