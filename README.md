@@ -26,15 +26,21 @@
 
 <h2 style="font-size:20px; font-weight:bold;">Setting Up the Frontend</h2>
 <hr style="border:1px solid #000; margin-top:10px;">
+<p style="font-size:16px;"></p>
 
 <h2 style="font-size:20px; font-weight:bold;">Working with Microsoft Azure</h2>
 <hr style="border:1px solid #000; margin-top:10px;">
+<p style="font-size:16px;"></p>
 
 <h2 style="font-size:20px; font-weight:bold;">Security</h2>
 <hr style="border:1px solid #000; margin-top:10px;">
+<p style="font-size:16px;"></p>
 
 <h2 style="font-size:20px; font-weight:bold;">Expo Go</h2>
 <hr style="border:1px solid #000; margin-top:10px;">
+<p style="font-size:16px;"></p>
 
 <h2 style="font-size:20px; font-weight:bold;">Ideas For Future Teams</h2>
 <hr style="border:1px solid #000; margin-top:10px;">
+
+<p style="font-size:16px;">Front end features: <br>Implement graphs (backend already setup for this)<br>Add body diagram page (backend would also need to be setup for this)<br>Add "Dark Mode" button or color themes in settings<br>Add a timer to "Start Workout" and "Live Workout" modals<br>Allow for in-all cropping and positioning when selecting a profile picture<br>Implement seeing multiple Days in nutrition tracker (backend already setup for this through getDayOfLoggedInUser/index endpoint)<br>Make it easier on the UI side to create a new day, preferably one day gets its own Day object<br>Automatically save notes when pressing back button<br>Delete not trash can in header of note screen<br>Add hover to notes with a small menu to delete it on the "My Notes" screen<br>Add share icon to posts<br>Pinned notes - these notes will appear at the top even if other notes are added or edited<br>Make nutrition tracker feature faster. It is slower than other features and this is likely on the frontend side.<br>Add your headshots to the team page!<br><br>Workouts backend: <br>Add weight plates calculator (135 = 45lb bar + (2 * 45lb plates))<br>PR Celebrations - Automatic detection and animation for frontend<br>Add ability to add where you're currently working out, and give the user the option to make it public so others can know where you're working out<br><br>Social Post backend:<br>Add the ability to see everyone's posts (on top of just seeing your friends' posts)<br>Add hashtags and searches based on hashtags<br>Add ability to add photos to posts<br><br>User Profile backend:<br>Hide posts on profile screen unless they're on your friend's list<br><br>Nutrition tracker backend:<br>Add more variables such as sugar, sodium, potassium, etc. to Food.java and Day.java total variables<br>Add ability to take a picture of a nutrition label and fill those values when adding a Food<br><br>Other:<br>Add moderation system for spam (admin vs. user accounts)<br>Block/report account feature<br>Private messaging feature<br>Users shouldn't be able to add themselves as a friend<br>Add offline mode<br>Ript Stories<br>Ript Reels<br></p>
