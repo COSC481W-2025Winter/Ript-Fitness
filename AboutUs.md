@@ -1,7 +1,7 @@
 <h2 style="font-size:24px; font-weight:bold;">Ript Fitness</h2>
 <hr style="border:1px solid #000; margin-top:10px;">
 
-Ript Fitness is a fitness application that will help people track their workouts, as well as other features related to fitness and getting healthy. It uses Java Spring Boot as the backend to create HTTP endpoints that the frontend will call in order to get relevant data and display it to the user. Its specific features are still being discussed, but at the least it will help people track their workouts and get healthier. It is a full stack application that is centered around fitness and health.
+Ript Fitness is a full-stack application that uses Java Spring Boot as the backend, React Native as the frontend framework, TypeScript as the frontend language, Microsoft Azure for deployment, Docker for containerized devlopment, Maven as a build automation tool, and MySql for the database. Through the first semester of work on this app, features in the application include a social feed, a nutrition tracker, a workout tracker, a friend's list, a user profile with account settings, and pictures hosted through Microsoft Blog Storage. It uses a hashing algorithm to store usernames and passwords, and JWT tokens to authenticate users when backend endpoints are called. The ultimate goal for this app is to make it to the app store on iOS and Android
 
 <h3 style="font-size:20px; font-weight:bold;">Meet the team</p>
 <hr style="border:1px solid #000; margin-top:10px;">
