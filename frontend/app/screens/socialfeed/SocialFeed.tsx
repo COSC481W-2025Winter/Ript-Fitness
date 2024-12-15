@@ -192,7 +192,7 @@ export default function SocialFeed() {
           }}
           liked={
             Array.isArray(item.userIDsOfLikes) &&
-            item.userIDsOfLikes.includes(currentUserID)
+            item.userIDsOfLikes.includes(currentUserID!)
           }
           onLikePress={() => handleLike(item.id)}
           onCommentPress={() => {
