@@ -26,31 +26,44 @@
 
 <h2 style="font-size:20px; font-weight:bold;">Setting Up the Frontend</h2>
 <hr style="border:1px solid #000; margin-top:10px;">
-<p style="font-size:16px;">Download Python/vscode if you don't have it
-Download Node.js. No need to install chocolatey
-https://nodejs.org/en
+<p style="font-size:16px;">For the front end, it's recommended you use Visual Studio Code. This allows you to easily access the terminal and run your server, or handle your branches using git. You can download Visual Studio Code here: https://code.visualstudio.com/<br>
 
-restart VSCode or command prompt if open
-Open project
-Change dir to frontEnd
-npm install
-npx expo install --check
+Download Node.js. React Native projects have some NodeJS scripts, You'll see a checkbox asking you to install chocolatey, you can uncheck it. Download NodeJS here: https://nodejs.org/en
 
-npx expo start or npm start
+restart All VSCode windows or command prompts if any were open<br>
+Click File, Open Folder, and locate the Ript-Fitness project folder.<br>
+Change in the terminal, cd the frontend folder<br>
+
+Run the below command. It installs all the app's dependencies using package-lock.json and package-lock.json<br>npm install<br><br>
+
+Run the below command. It checks the dependencies, and you version of the EXPO CLI, installing versions known to work with your EXPO CLI<br>
+npx expo install --check<br><br>
+
+Run the below command. It scans installed dependencies for known security vulnerabilities. At the time of writing, there are none, however if any issues are found in the future, it will attempt to automatically update or patch the dependencies to safer versions.<br>
+npm audit fix<br><br>
+
+To run the app, you have two choices, use one of the below commands.<br>The first, will run connected to the Azure server. This is recommended for anyone developing the front-end, so they don't also have to.<br>
+The second, will run a NodeJS script that sets up a .env file in the frontend to use your current local IPV4 address (127.0.0.1 or localhost does not work if connecting using your phone), and set USE_LOCAL to true, then revert it to normal when you close the server. This will allow anyone wanting to run both the backend and the frontend on their computer to connect with minimal intervention.<br>
+npx expo start<br>
+npm start
 </p>
 
 <h2 style="font-size:20px; font-weight:bold;">Working with Microsoft Azure</h2>
 <hr style="border:1px solid #000; margin-top:10px;">
 <p style="font-size:16px;">
-Connection info
-What's all in Azure
-Benefits?
+Azure has connection details that your professor will have.
 
+Azure hosts Ript-Fitness in the form of a Docker Container App, a MySQL database, as well as Azure Blob Service used for the private photos<br><br>
+
+There's a github action that automatically builds the backend and creates a docker container, and pushes it to Azure, which should allow for minimal manual intervention, and allow anyone working on the frontend to develop without running Java SpringBoot or Docker.
 </p>
 
 <h2 style="font-size:20px; font-weight:bold;">Security</h2>
 <hr style="border:1px solid #000; margin-top:10px;">
-<p style="font-size:16px;"></p>
+<p style="font-size:16px;">
+Private Photos use an SaS token. This is appended to the URL inside of the backend code. It is used as verification so that only the user who added the private photo to the Ript-Fitness app can view it. Not to be confused with User Profile Pictures, which are public, and stored as a Base64 image inside the database.
+
+</p>
 
 <h2 style="font-size:20px; font-weight:bold;">Expo Go</h2>
 <hr style="border:1px solid #000; margin-top:10px;">

@@ -21,6 +21,9 @@ Ript Fitness is a full-stack application that uses Java Spring Boot as the backe
 <h3 style="font-size:20px; font-weight:bold;">Christopher Martus - Team Member - Backend</h3>
 <p style="font-size:16px;">Hi, my Name is Christopher. This is my last class to finish my bachelors degree in computer science. I current work at a tim hortons but am looking for other work in either IT or software engineering. I am married and we have a cute little australian shepherd named Bond. In my free time I enjoy playing disc golf, video games and messing around with soldiering and 3d printing.</p>
 
+<h3 style="font-size:20px; font-weight:bold;">Evan Snowgold - Frontend Lead - Frontend</h3>
+<p style="font-size:16px;">This is my Senior Year, majoring in Computer Science Applied. For 7 years I've worked in R&D, in that time I've progressed from software validation and documentation, to programming in Visual Basic and Javascript, utilizing MsSql and Jquery. I'm always looking to learn and improve, and will be applying to masters programs after graduation.</p>
+
 <h3 style="font-size:20px; font-weight:bold;">Michael Shahine - Team Member - Frontend</h3>
 <p style="font-size:16px;">I am in my senior year at Eastern Michigan University I will be getting my bachelors degree in Computer science. I plan to continue my education after EMU in a masters program and higher education. Outside of school I love to play basketball, and spend time by the water.</p>
 
@@ -29,9 +32,6 @@ Ript Fitness is a full-stack application that uses Java Spring Boot as the backe
 
 <h3 style="font-size:20px; font-weight:bold;">Natalie Hoang - Team Member - Frontend</h3>
 <p style="font-size:16px;">This is my last semester of my bachelor's degree in computer science. Over the summer, I worked at UWM, where I focused on frontend work. I hope to find a job and start my career after this semester. Outside of school, I love playing volleyball and spikeball.</p>
-
-<h3 style="font-size:20px; font-weight:bold;">Evan Snowgold - Team Member - Frontend</h3>
-<p style="font-size:16px;">This is my Senior Year, majoring in Computer Science Applied. For 7 years I've worked in R&D, in that time I've progressed from software validation and documentation, to programming in Visual Basic and Javascript, utilizing MsSql and Jquery. I'm always looking to learn and improve, and will be applying to masters programs after graduation.</p>
 
 <h3 style="font-size:20px; font-weight:bold;">Ciara Wheeler - Team Member - Frontend</h3>
 <p style="font-size:16px;">This is my final semester of my bachelor's degree in computer science. I am a student-athlete here at EMU, on the diving team. I also coach gymnastics and am an IT Technician for a company called Maximus. I am from Iowa and am looking to move back home after this year to find a full time job.</p>
