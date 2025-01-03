@@ -63,11 +63,39 @@ There's a github action that automatically builds the backend and creates a dock
 <p style="font-size:16px;">
 Private Photos use an SaS token. This is appended to the URL inside of the backend code. It is used as verification so that only the user who added the private photo to the Ript-Fitness app can view it. Not to be confused with User Profile Pictures, which are public, and stored as a Base64 image inside the database.
 
+Tech Stack and Security Implementation
+The backend of this application is built with Java Spring Boot, leveraging its robust ecosystem for scalable and maintainable development. For security, the application integrates Spring Security to handle authentication and authorization processes seamlessly. To ensure data integrity and safeguard sensitive user information, the application uses JWT (JSON Web Tokens) for stateless authentication and Argon2 hashing for encrypting passwords and email addresses during account creation.
+
+The use of JWT tokens provides a secure and efficient way to manage user sessions without server-side storage. When a user logs in or creates an account, the backend validates the credentials, generates a token, and returns it to the client. This token is then used to authenticate subsequent requests, ensuring the user's identity and permissions are verified. The token structure includes a payload that is signed using a secret key, making it tamper-resistant and suitable for distributed systems.
+
+For account creation, the application employs Argon2, a memory-intensive and secure password-hashing algorithm. This method is recognized for its resistance to brute-force attacks and hardware-accelerated cracking attempts. During registration, both the email and password are hashed using Argon2 before being stored in the database. This ensures that even in the unlikely event of a database breach, sensitive user information remains protected.
+
+Methods for Account Creation and Security
+Account Creation:
+When a user signs up, their email and password are hashed using the Argon2PasswordEncoder, ensuring that plaintext credentials are never stored. The hashed values are securely stored in the database along with other user details.
+
+Login and JWT Token Generation:
+During login, the users credentials are authenticated against the hashed values in the database. Upon successful authentication, a JWT token is generated, embedding the users unique identifier and roles. This token is signed using a secret key and sent to the client for use in subsequent requests.
+
+Authorization:
+The application includes a custom JwtRequestFilter that intercepts incoming HTTP requests. This filter validates the provided JWT token, extracts the users details, and sets the authentication context. This ensures that only authorized users can access protected endpoints.
+
+Secure Communication:
+All sensitive operations, including account creation, login, and data retrieval, occur over HTTPS to prevent interception of data in transit.
+
+This combination of modern frameworks, secure algorithms, and best practices ensures a high level of security and performance, making the application both user-friendly and robust against security threats.
 </p>
 
 <h2 style="font-size:20px; font-weight:bold;">Expo Go</h2>
 <hr style="border:1px solid #000; margin-top:10px;">
-<p style="font-size:16px;"></p>
+<p style="font-size:16px;">
+Expo Go is where RIPT is hosted. Expo Go is free to download on the App Store. Once downlaoded you mujst create an account. Once the account is created, you can use a stable version of our app such as this one as of 1/3/2025: exp://u.expo.dev/ea20e0cb-de85-4497-8c69-2a529bb4a3a4/group/15ab57b4-690a-43cc-9529-729a1e999870
+
+The link that I provided will open the App; where you can create a RIPT account. 
+
+Now you may ask how did I generate that link? Well that link is generated with an "EAS" build. An EAS build requires a few steps. I will provide documentation from Expo Go that shows how to set it up (PART 1): https://docs.expo.dev/build/setup/
+The next step iun the setup process is to look at our 'app.json' file which you will see a Project ID. If you want to create a new build (maybe after creationg a feature) you must clear that ID and use 'eas update' in thge command line to generate a new build + ID.
+</p>
 
 <h2 style="font-size:20px; font-weight:bold;">Ideas For Future Teams</h2>
 <hr style="border:1px solid #000; margin-top:10px;">
