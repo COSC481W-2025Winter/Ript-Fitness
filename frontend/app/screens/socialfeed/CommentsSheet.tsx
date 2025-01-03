@@ -161,7 +161,7 @@ const CommentsSheet = forwardRef<CommentsSheetRef, CommentsSheetProps>(
     // Context and Refs
     const { posts, addComment } = useSocialFeed();
     const bottomSheetRef = useRef<BottomSheet>(null);
-    const inputRef = useRef<TextInput>(null);
+    const inputRef = useRef<any>(null);
 
     // How far up on the screen the bottom sheet will go
     const snapPoints = React.useMemo(() => ["85%"], []);

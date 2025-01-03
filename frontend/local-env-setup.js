@@ -26,7 +26,7 @@ function setupEnv() {
   let updatedEnvFile = envFileContent;
 
   // Check if USE_LOCAL is set to true
-  const useLocal = /USE_LOCAL=true/.test(envFileContent);
+  const useLocal = true;///USE_LOCAL=true/i.test(envFileContent);
   if (useLocal) {
     console.log("Using Local")
     try {
@@ -34,11 +34,8 @@ function setupEnv() {
       const localIp = getLocalIpAddress();
 
       // Replace or set the LOCAL_IP variable in the .env file
-      if (/LOCAL_IP=/.test(envFileContent)) {
-        updatedEnvFile = envFileContent.replace(/LOCAL_IP=.*/, `LOCAL_IP=${localIp}`);
-      } else {
-        updatedEnvFile += `\nLOCAL_IP=${localIp}`;
-      }
+      updatedEnvFile = envFileContent.replace(/USE_LOCAL=.*/, `USE_LOCAL=${true}`);
+      updatedEnvFile = updatedEnvFile.replace(/LOCAL_IP=.*/, `LOCAL_IP=${localIp}`);
 
       // Write the updated .env file
       fs.writeFileSync(envPath, updatedEnvFile);
