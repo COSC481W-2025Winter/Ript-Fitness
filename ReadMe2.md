@@ -1,18 +1,3 @@
-Name: Team A
-
-Policy:
-
-Project description:
-
-Team Bios:
-
-Jaison
-
-Brianna
-
-Rong
-
-Jake
 <h2 style ="font-size:24px; font-weight:bold;"> Name: Team A</h2>
 
 Policy:
