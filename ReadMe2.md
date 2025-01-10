@@ -1,15 +1,52 @@
-<h2 style ="font-size:24px; font-weight:bold;"> Name: Team A</h2>
+## Name: Team A
 
-Policy:
+### Policy
 
-<p style="font-size:16px;">Project description: Ript Fitness is a full-stack application that uses Java Spring Boot as the backend, React Native as the frontend framework, TypeScript as the frontend language, Microsoft Azure for deployment, Docker for containerized devlopment, Maven as a build automation tool, and MySql for the database. Through the first semester of work on this app, features in the application include a social feed, a nutrition tracker, a workout tracker, a friend's list, a user profile with account settings, and pictures hosted through Microsoft Blog Storage. It uses a hashing algorithm to store usernames and passwords, and JWT tokens to authenticate users when backend endpoints are called. The ultimate goal for this app is to make it to the app store on iOS and Android.</p>
+**Absence Policy**
 
-<h2 style ="font-size:24px; font-weight:bold;">Team Bios: </h2>
+Absences will be excused in cases of illness, emergencies, or university-sanctioned events, following the professor’s guidelines. Team members should notify the team in advance when possible. Unexcused absences may impact participation grades, per course policy.
 
-	- Jaison: 
+**Ethics Policy**
 
-	- Brianna: 
+All team members are expected to follow EMU’s academic integrity guidelines and the professor's expectations. ChatGPT use will be limited to 20% of the codebase, primarily for non-critical tasks such as generating boilerplate code or refactoring. Any use of AI tools must be clearly documented within the code comments and project documentation. Unethical behavior, including deleting or altering another team member's work without permission, will be addressed collaboratively and escalated to the instructor if unresolved.
 
-	- Rong: 
+**Language Policy**
 
-	- Jake: 
+English will be the only language used for all discussions, meetings, and documentation to ensure clear communication among all team members.
+
+**Code/Work Modification Policy**
+
+Team members must seek permission from the original contributor before modifying or expanding their code. Changes should be documented through comments and GitHub commits. If a team member is unavailable for approval and changes are necessary, the modification must be clearly marked with a comment referencing the original author and the date of modification.
+
+**Face Mask Policy**
+
+Not applicable – all meetings will be conducted virtually through Discord.
+
+---
+
+## Project Description
+
+**Ript Fitness** is a full-stack application that uses Java Spring Boot as the backend, React Native as the frontend framework, TypeScript as the frontend language, Microsoft Azure for deployment, Docker for containerized development, Maven as a build automation tool, and MySQL for the database.
+
+Through the first semester of work on this app, features in the application include:
+
+- A social feed
+- A nutrition tracker
+- A workout tracker
+- A friend's list
+- A user profile with account settings
+- Pictures hosted through Microsoft Blob Storage
+
+It uses a hashing algorithm to store usernames and passwords and JWT tokens to authenticate users when backend endpoints are called. The ultimate goal for this app is to make it to the app store on iOS and Android.
+
+---
+
+## Team Bios
+
+- **Jaison:** I'm a Computer Science major with a minor in Chemistry at Eastern Michigan University. I have experience with Java, Python, and SQL, and I’m passionate about building coding projects that solve real-world problems. My background includes experience in FDA-regulated industries with GMP and GDP compliance. In my free time, I enjoy homebrewing, gaming, and exploring creative storytelling through tabletop roleplaying games.
+
+- **Brianna:**  
+
+- **Rong:**  
+
+- **Jake:**  
