@@ -49,4 +49,4 @@ It uses a hashing algorithm to store usernames and passwords and JWT tokens to a
 
 - **Rong:**  
 
-- **Jake:**  
+- **Jake:**  I'm a computer science major with a SAG (Simulation, Animation and gaming) minor at Eastern Michigan University. I have experience with Java, Python, Maya, and Unity. I code in hopes to provide a strong backbone to future projects, more specifically in relation to game development. Some hobbies I enjoy are gaming, digital art, music, and horror movies.
