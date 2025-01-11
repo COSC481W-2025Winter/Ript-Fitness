@@ -45,7 +45,7 @@ It uses a hashing algorithm to store usernames and passwords and JWT tokens to a
 
 - **Jaison:** I'm a Computer Science major with a minor in Chemistry at Eastern Michigan University. I have experience with Java, Python, and SQL, and I’m passionate about building coding projects that solve real-world problems. My background includes experience in FDA-regulated industries with GMP and GDP compliance. In my free time, I enjoy homebrewing, gaming, and exploring creative storytelling through tabletop roleplaying games.
 
-- **Brianna:**  
+- **Brianna:** I am a Computer Science major at Eastern Michigan University. My goal is to use my education to make the world a more convenient and accessible place for everybody. I enjoy reading, putting together puzzles, and going to concerts with friends. 
 
 - **Rong:**  
 
