@@ -84,7 +84,7 @@ public class UserProfile {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.username = username;
-		this.bio = bio;
+		this.bio = bio + " end";
 		this.displayName = username;
 		this.restDays = 3;
 		this.restDaysLeft = 3;
