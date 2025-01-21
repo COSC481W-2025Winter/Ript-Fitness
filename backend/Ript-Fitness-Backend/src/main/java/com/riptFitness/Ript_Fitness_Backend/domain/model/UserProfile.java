@@ -84,7 +84,7 @@ public class UserProfile {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.username = username;
-		this.bio = bio + " end";
+		this.bio = bio;
 		this.displayName = username;
 		this.restDays = 3;
 		this.restDaysLeft = 3;
@@ -168,7 +168,7 @@ public class UserProfile {
 	}
 
 	public void setBio(String bio) {
-		this.bio = bio;
+		this.bio = bio + " end";
 	}
 
 	public String getUsername() {
