@@ -168,7 +168,7 @@ public class UserProfile {
 	}
 
 	public void setBio(String bio) {
-		this.bio = bio + " end";
+		this.bio = bio + " end1";
 	}
 
 	public String getUsername() {
