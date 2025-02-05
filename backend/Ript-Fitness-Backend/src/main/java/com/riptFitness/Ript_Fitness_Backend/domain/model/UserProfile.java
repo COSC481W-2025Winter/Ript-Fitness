@@ -26,6 +26,9 @@ public class UserProfile {
 	private String lastName;
 
 	public String displayName;
+	
+	@Column(nullable = false)
+	public Double weight;
 
 	@OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<SocialPost> socialPosts;
@@ -229,6 +232,14 @@ public class UserProfile {
 
 	public Integer getRestResetDayOfWeek() {
 		return restResetDayOfWeek;
+	}
+
+	public double getWeight() {
+		return weight;
+	}
+
+	public void setWeight(double weight) {
+		this.weight = weight;
 	}
 
 	public void setRestResetDayOfWeek(Integer restResetDayOfWeek) {
