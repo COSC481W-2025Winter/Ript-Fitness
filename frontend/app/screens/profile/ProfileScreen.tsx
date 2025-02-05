@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import * as Haptics from "expo-haptics";
 import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { ScrollView } from 'react-native-gesture-handler';
 import { DrawerActions, NavigationContainer, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -1058,6 +1059,21 @@ function CustomDrawerContent({ navigation }: any) {
           <View style={styles.drawerItemTextContainer}>
             <Ionicons name="log-out-outline" size={24} color={'#1E1E1E'} />
             <Text style={styles.drawerItemText}>Logout</Text>
+          </View>
+        </TouchableOpacity>
+        // Dark mode button
+        <TouchableOpacity
+          style={styles.drawerItem}
+          onPress={() => {
+            // Handle logout logic here
+            navigation.closeDrawer();
+            //context?.setToken('');
+            // Perform logout actions
+          }}
+        >
+          <View style={styles.drawerItemTextContainer}>
+            <MaterialCommunityIcons name="theme-light-dark" size={24} color={'black'} />
+            <Text style={styles.drawerItemText}>Dark Mode</Text>
           </View>
         </TouchableOpacity>
       </View>
