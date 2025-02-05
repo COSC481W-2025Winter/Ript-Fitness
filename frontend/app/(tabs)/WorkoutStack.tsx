@@ -15,8 +15,6 @@ import EditNoteScreen from '@/app/screens/notes/EditNoteScreen';
 import { AddWorkoutScreen } from '../screens/workout/AddWorkoutScreen';
 import { Note } from '@/components/MyNotes/NotesContext';
 
-import WorkoutTimer from '../screens/WorkoutTimer/WorkoutTimer'; 
-
 const Stack = createStackNavigator();
 
 export type WorkoutStackParamList = {
@@ -60,7 +58,7 @@ export default function WorkoutStack() {
           headerRight: () => <StreakCounter />,
         }}
       />
-       <Stack.Screen
+      <Stack.Screen
         name="StartWorkoutScreen"
         component={StartWorkoutScreen}
         options={({ navigation }) => ({
