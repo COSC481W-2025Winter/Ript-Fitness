@@ -342,7 +342,7 @@ public class UserProfileService {
 	    UserProfile user = userRepository.findByUsername(username)
 	            .orElseThrow(() -> new RuntimeException("User not found"));
 
-	    return WeightHistoryRepository.findUserByUserProfile_OrderByRecordedAt(user.getId());
+	    return weightHistoryRepository.findUserByUserProfileOrderByRecordedAtDesc(user.getId());
 	}
 	
 	 public UserDto updateUserWeight(String username, Double newWeight) {

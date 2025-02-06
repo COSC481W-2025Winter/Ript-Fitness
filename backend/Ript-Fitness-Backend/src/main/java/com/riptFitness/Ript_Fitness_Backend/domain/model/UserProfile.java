@@ -28,7 +28,7 @@ public class UserProfile {
 	public String displayName;
 	
 	@Column(nullable = false)
-	public Double weight;
+	public Double weight =0.0;
 
 	@OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<SocialPost> socialPosts;
