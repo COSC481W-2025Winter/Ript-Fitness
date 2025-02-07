@@ -10,7 +10,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.UserProfileMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Photo;
@@ -340,11 +342,11 @@ public class UserProfileService {
 	
 	public List<WeightHistory> getUserWeightHistory(String username) {
 	    UserProfile user = userRepository.findByUsername(username)
-	            .orElseThrow(() -> new RuntimeException("User not found"));
+	            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-	    return weightHistoryRepository.findUserByUserProfileOrderByRecordedAtDesc(user.getId());
+	    return weightHistoryRepository.findByUserProfileOrderByRecordedAtDesc(user.getId());
 	}
-	
+
 	 public UserDto updateUserWeight(String username, Double newWeight) {
 	        UserProfile user = userRepository.findByUsername(username)
 	                .orElseThrow(() -> new RuntimeException("User not found"));

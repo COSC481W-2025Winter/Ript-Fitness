@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.model.WeightHistory;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AzureBlobService;
@@ -153,10 +154,12 @@ public class UserProfileController {
     }
 	
 	@GetMapping("/weightHistory")
-    public ResponseEntity<List<WeightHistory>> getUserWeightHistory() {
-        String username = getUsernameFromContext();
-        List<WeightHistory> history = userProfileService.getUserWeightHistory(username);
-        return ResponseEntity.ok(history);
-    }
+	public ResponseEntity<List<WeightHistory>> getUserWeightHistory(@RequestParam(required = false) String username) {
+	    if (username == null) {
+	        username = getUsernameFromContext();
+	    }
+	    List<WeightHistory> history = userProfileService.getUserWeightHistory(username);
+	    return ResponseEntity.ok(history);
+	}
 
 }

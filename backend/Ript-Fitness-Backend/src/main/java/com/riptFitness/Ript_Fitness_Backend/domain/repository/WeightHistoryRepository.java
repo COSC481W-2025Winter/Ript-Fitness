@@ -6,11 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.WeightHistory;
 
 public interface WeightHistoryRepository extends JpaRepository<WeightHistory, Long>{
 	//return all weight history from newest to oldest
-	List<WeightHistory> findUserByUserProfileOrderByRecordedAtDesc (Long userID);
+	List<WeightHistory> findByUserProfileOrderByRecordedAtDesc(Long userId);
 	
 	//return last recorded weight before the last udpate
 	@Query("SELECT u FROM WeightHistory u WHERE u.userProfile.id = :userId ORDER BY u.recordedAt DESC LIMIT 1")
