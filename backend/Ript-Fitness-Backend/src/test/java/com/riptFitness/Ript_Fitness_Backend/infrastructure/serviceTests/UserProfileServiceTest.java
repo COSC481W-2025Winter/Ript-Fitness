@@ -324,7 +324,7 @@ public class UserProfileServiceTest {
 	        new WeightHistory() {{ setWeight(165.0); }}
 	    );
 	    
-	    when(weightHistoryRepository.findUserByUserProfileOrderByRecordedAtDesc(anyLong())).thenReturn(history);
+	    when(weightHistoryRepository.findByUserProfileOrderByRecordedAtDesc(anyLong())).thenReturn(history);
 
 	    List<WeightHistory> retrievedHistory = userProfileService.getUserWeightHistory("tom.van");
 
