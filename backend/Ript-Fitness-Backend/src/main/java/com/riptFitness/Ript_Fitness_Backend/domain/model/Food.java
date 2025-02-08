@@ -19,6 +19,7 @@ public class Food {
     public AccountsModel account;
 	
 	//Define columns in the database
+    public String barcode;
 	public String name;
 	public double calories;
 	public double carbs;
