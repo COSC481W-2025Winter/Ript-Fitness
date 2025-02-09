@@ -33,6 +33,8 @@ public class NutritionTrackerService {
 	
 	private AccountsRepository accountsRepository;
     private final RestTemplate restTemplate = new RestTemplate();	
+    
+    private String USDA_API_KEY;
 	
 	//Will be automatically called by dependency injection, you MUST include this constructor 
 	public NutritionTrackerService(NutritionTrackerFoodRepository nutritionTrackerFoodRepository, NutritionTrackerDayRepository nutritionTrackerDayRepository, AccountsService accountsService, AccountsRepository accountsRepository) {
@@ -295,71 +297,109 @@ public class NutritionTrackerService {
 	}
 	
 	public FoodDto getFoodByBarcode(String barcode) {
-	    Food food = nutritionTrackerFoodRepository.findByBarcode(barcode)
-	            .orElseGet(() -> fetchAndStoreFoodFromUSDA(barcode));
+	    Food food = nutritionTrackerFoodRepository.findByBarcode(barcode).orElseGet(() -> {
+	            Food fetchedFood = fetchAndStoreFoodFromUSDA(barcode);
+	            if (fetchedFood == null) {
+	                throw new RuntimeException("Food not found in USDA database for barcode: " + barcode);
+	            }
+	            return fetchedFood;
+	        });
+
 	    return FoodMapper.INSTANCE.toFoodDto(food);
 	}
 
 
-    public Food fetchAndStoreFoodFromUSDA(String barcode) {
-        String url = "https://api.nal.usda.gov/fdc/v1/foods/search?query=" + barcode + "&api_key=" + USDA_API_KEY;
-        try {
-            String jsonResponse = restTemplate.getForObject(url, String.class);
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode rootNode = objectMapper.readTree(jsonResponse);
+	public Food fetchAndStoreFoodFromUSDA(String barcode) {
+	    String brandedUrl = "https://api.nal.usda.gov/fdc/v1/foods/search?query=" + barcode 
+	        + "&dataType=Branded&api_key=" + USDA_API_KEY;
 
-            if (rootNode.has("foods") && rootNode.get("foods").isArray() && rootNode.get("foods").size() > 0) {
-                JsonNode foodNode = rootNode.get("foods").get(0);
-                String description = foodNode.has("description") ? foodNode.get("description").asText() : "Unknown";
+	    String genericUrl = "https://api.nal.usda.gov/fdc/v1/foods/search?query=" + barcode 
+	        + "&dataType=Foundation&api_key=" + USDA_API_KEY;
+	    
+	    String legacyUrl = "https://api.nal.usda.gov/fdc/v1/foods/search?query=" + barcode 
+	            + "&dataType=SRLegacy&api_key=" + USDA_API_KEY;
 
-                Double calories = 0.0, protein = 0.0, carbs = 0.0, fat = 0.0;
-                Double cholesterol = 0.0, saturatedFat = 0.0, transFat = 0.0, sodium = 0.0;
-                Double sugars = 0.0, calcium = 0.0, iron = 0.0, potassium = 0.0;
 
-                for (JsonNode nutrient : foodNode.get("foodNutrients")) {
-                    if (!nutrient.has("nutrientId") || !nutrient.has("value")) continue;
-                    int nutrientId = nutrient.get("nutrientId").asInt();
-                    double value = nutrient.get("value").asDouble();
+	    Food food = fetchFoodFromUSDA(brandedUrl, barcode);
+	    if (food != null) {
+	        return food;
+	    }
 
-                    switch (nutrientId) {
-                        case 1008 -> calories = value;
-                        case 1005 -> carbs = value;
-                        case 1003 -> protein = value;
-                        case 1004 -> fat = value;
-                        case 1253 -> cholesterol = value;
-                        case 1258 -> saturatedFat = value;
-                        case 1257 -> transFat = value;
-                        case 1093 -> sodium = value;
-                        case 2000 -> sugars = value;
-                        case 1087 -> calcium = value;
-                        case 1089 -> iron = value;
-                        case 1092 -> potassium = value;
-                    }
-                }
+	    food = fetchFoodFromUSDA(genericUrl, barcode);
+	    if (food != null) {
+	        return food;
+	    }
 
-                Food foodItem = new Food();
-                foodItem.barcode = barcode;
-                foodItem.name = description;
-                foodItem.calories = calories;
-                foodItem.protein = protein;
-                foodItem.carbs = carbs;
-                foodItem.fat = fat;
-                foodItem.cholesterol = cholesterol;
-                foodItem.saturatedFat = saturatedFat;
-                foodItem.transFat = transFat;
-                foodItem.sodium = sodium;
-                foodItem.sugars = sugars;
-                foodItem.calcium = calcium;
-                foodItem.iron = iron;
-                foodItem.potassium = potassium;
-                foodItem.isDeleted = false;
+	    return fetchFoodFromUSDA(legacyUrl, barcode);
+	}
 
-                return nutritionTrackerFoodRepository.save(foodItem);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Error parsing USDA API response", e);
-        }
-        throw new RuntimeException("Food not found in USDA database for barcode: " + barcode);
-    }
+	private Food fetchFoodFromUSDA(String url, String barcode) {
+	    try {
+	        String jsonResponse = restTemplate.getForObject(url, String.class);
+	        ObjectMapper objectMapper = new ObjectMapper();
+	        JsonNode rootNode = objectMapper.readTree(jsonResponse);
 
+	        if (rootNode.has("foods") && rootNode.get("foods").isArray() && rootNode.get("foods").size() > 0) {
+	            JsonNode foodNode = rootNode.get("foods").get(0);
+	            String description = foodNode.has("description") ? foodNode.get("description").asText() : "Unknown";
+	            String brand = foodNode.has("brandName") ? foodNode.get("brandName").asText() : "Unknown Brand";
+
+	            if (!foodNode.has("foodNutrients") || !foodNode.get("foodNutrients").isArray()) {
+	                throw new RuntimeException("No nutrients found in USDA response.");
+	            }
+
+	            Double calories = 0.0, protein = 0.0, carbs = 0.0, fat = 0.0;
+	            Double cholesterol = 0.0, saturatedFat = 0.0, transFat = 0.0, sodium = 0.0;
+	            Double sugars = 0.0, calcium = 0.0, iron = 0.0, potassium = 0.0;
+
+	            for (JsonNode nutrient : foodNode.get("foodNutrients")) {
+	                if (!nutrient.has("nutrientId") || !nutrient.has("value")) continue;
+
+	                int nutrientId = nutrient.get("nutrientId").asInt();
+	                double value = nutrient.get("value").asDouble();
+
+	                switch (nutrientId) {
+	                    case 1008 -> calories = value;
+	                    case 1005 -> carbs = value;
+	                    case 1003 -> protein = value;
+	                    case 1004 -> fat = value;
+	                    case 1253 -> cholesterol = value;
+	                    case 1258 -> saturatedFat = value;
+	                    case 1257 -> transFat = value;
+	                    case 1093 -> sodium = value;
+	                    case 2000 -> sugars = value;
+	                    case 1087 -> calcium = value;
+	                    case 1089 -> iron = value;
+	                    case 1092 -> potassium = value;
+	                }
+	            }
+
+	            Food foodItem = new Food();
+	            foodItem.barcode = barcode;  
+	            foodItem.name = description;
+	            foodItem.calories = calories;
+	            foodItem.protein = protein;
+	            foodItem.carbs = carbs;
+	            foodItem.fat = fat;
+	            foodItem.cholesterol = cholesterol;
+	            foodItem.saturatedFat = saturatedFat;
+	            foodItem.transFat = transFat;
+	            foodItem.sodium = sodium;
+	            foodItem.sugars = sugars;
+	            foodItem.calcium = calcium;
+	            foodItem.iron = iron;
+	            foodItem.potassium = potassium;
+	            foodItem.isDeleted = false;
+
+	            if (!brand.equals("Unknown Brand")) {
+	                foodItem.name = brand + " - " + description;
+	            }
+
+	            return nutritionTrackerFoodRepository.save(foodItem);
+	        }
+	    } catch (IOException e) {
+	        throw new RuntimeException("Error parsing USDA API response", e);
+	    }
+	    return null;
+	}
 }
