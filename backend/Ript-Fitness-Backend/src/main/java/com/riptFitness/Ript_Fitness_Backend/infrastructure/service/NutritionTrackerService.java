@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -34,7 +35,16 @@ public class NutritionTrackerService {
 	private AccountsRepository accountsRepository;
     private final RestTemplate restTemplate = new RestTemplate();	
     
-    private String USDA_API_KEY;
+    private String usdaApiKey;
+    
+    @Autowired
+    public NutritionTrackerService(String usdaApiKey) {
+        this.usdaApiKey = usdaApiKey;
+    }
+    
+    public String getApiKey() {
+        return usdaApiKey;
+    }
 	
 	//Will be automatically called by dependency injection, you MUST include this constructor 
 	public NutritionTrackerService(NutritionTrackerFoodRepository nutritionTrackerFoodRepository, NutritionTrackerDayRepository nutritionTrackerDayRepository, AccountsService accountsService, AccountsRepository accountsRepository) {
@@ -311,13 +321,13 @@ public class NutritionTrackerService {
 
 	public Food fetchAndStoreFoodFromUSDA(String barcode) {
 	    String brandedUrl = "https://api.nal.usda.gov/fdc/v1/foods/search?query=" + barcode 
-	        + "&dataType=Branded&api_key=" + USDA_API_KEY;
+	        + "&dataType=Branded&api_key=" + usdaApiKey;
 
 	    String genericUrl = "https://api.nal.usda.gov/fdc/v1/foods/search?query=" + barcode 
-	        + "&dataType=Foundation&api_key=" + USDA_API_KEY;
+	        + "&dataType=Foundation&api_key=" + usdaApiKey;
 	    
 	    String legacyUrl = "https://api.nal.usda.gov/fdc/v1/foods/search?query=" + barcode 
-	            + "&dataType=SRLegacy&api_key=" + USDA_API_KEY;
+	            + "&dataType=SRLegacy&api_key=" + usdaApiKey;
 
 
 	    Food food = fetchFoodFromUSDA(brandedUrl, barcode);
