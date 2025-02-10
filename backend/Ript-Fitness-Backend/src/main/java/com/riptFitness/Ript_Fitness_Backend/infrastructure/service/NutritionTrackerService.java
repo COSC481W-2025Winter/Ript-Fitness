@@ -37,21 +37,17 @@ public class NutritionTrackerService {
     
     private String usdaApiKey;
     
-    @Autowired
-    public NutritionTrackerService(String usdaApiKey) {
-        this.usdaApiKey = usdaApiKey;
-    }
-    
     public String getApiKey() {
         return usdaApiKey;
     }
 	
 	//Will be automatically called by dependency injection, you MUST include this constructor 
-	public NutritionTrackerService(NutritionTrackerFoodRepository nutritionTrackerFoodRepository, NutritionTrackerDayRepository nutritionTrackerDayRepository, AccountsService accountsService, AccountsRepository accountsRepository) {
+	public NutritionTrackerService(NutritionTrackerFoodRepository nutritionTrackerFoodRepository, NutritionTrackerDayRepository nutritionTrackerDayRepository, AccountsService accountsService, AccountsRepository accountsRepository, String usdaApiKey) {
 		this.nutritionTrackerFoodRepository = nutritionTrackerFoodRepository;
 		this.nutritionTrackerDayRepository = nutritionTrackerDayRepository;
 		this.accountsService= accountsService;
 		this.accountsRepository = accountsRepository;
+		this.usdaApiKey = usdaApiKey;
 	}
 	
 	//Each method is public and will return a Dto of some sort to the Controller class
