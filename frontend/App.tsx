@@ -25,6 +25,8 @@ import SplashScreen from "@/app/screens/SplashScreen";
 import WelcomeScreen from "@/app/screens/welcome/WelcomeScreen";
 import LoginScreen from "@/app/screens/welcome/LoginScreen";
 import SignupScreen from "@/app/screens/welcome/SignupScreen";
+import TimerScreen from "./app/screens/timer/TimerScreen"; // Import the TimerScreen component
+import MyWorkoutsScreen from '@/app/screens/workout/MyWorkoutsScreen'; // Import the MyWorkoutsScreen component
 
 import { SocialFeedProvider } from "./context/SocialFeedContext";
 
@@ -128,6 +130,23 @@ function MainApp() {
           tabBarIcon: ({ focused, size, color }) => (
             <Ionicons
               name={focused ? "person" : "person-outline"}
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      />
+
+    {/*Defines the Timer screen in the bottom tab navigator with 
+    an icon that changes based on focus state.*/} 
+      {/* Timer Screen */} 
+      <Tab.Screen
+        name="Timer"
+        component={TimerScreen}
+        options={{
+          tabBarIcon: ({ focused, size, color }) => (
+            <Ionicons
+              name={focused ? "timer" : "timer-outline"}
               size={size}
               color={color}
             />
