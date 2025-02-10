@@ -5,9 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +39,9 @@ public class NutritionTrackerService {
     private final RestTemplate restTemplate = new RestTemplate();	
     
     private String usdaApiKey;
+    
+    private static final Logger logger = LoggerFactory.getLogger(NutritionTrackerService.class);
+
     
     public String getApiKey() {
         return usdaApiKey;
@@ -340,8 +346,10 @@ public class NutritionTrackerService {
 	}
 
 	private Food fetchFoodFromUSDA(String url, String barcode) {
+	    logger.info("Fetching food data from USDA API with URL: {}", url);
 	    try {
 	        String jsonResponse = restTemplate.getForObject(url, String.class);
+	        logger.info("USDA API Response: {}", jsonResponse);
 	        ObjectMapper objectMapper = new ObjectMapper();
 	        JsonNode rootNode = objectMapper.readTree(jsonResponse);
 
@@ -349,7 +357,7 @@ public class NutritionTrackerService {
 	            JsonNode foodNode = rootNode.get("foods").get(0);
 	            String description = foodNode.has("description") ? foodNode.get("description").asText() : "Unknown";
 	            String brand = foodNode.has("brandName") ? foodNode.get("brandName").asText() : "Unknown Brand";
-
+	            logger.info("Food found: {}", description);
 	            if (!foodNode.has("foodNutrients") || !foodNode.get("foodNutrients").isArray()) {
 	                throw new RuntimeException("No nutrients found in USDA response.");
 	            }
@@ -383,18 +391,18 @@ public class NutritionTrackerService {
 	            Food foodItem = new Food();
 	            foodItem.barcode = barcode;  
 	            foodItem.name = description;
-	            foodItem.calories = calories;
-	            foodItem.protein = protein;
-	            foodItem.carbs = carbs;
-	            foodItem.fat = fat;
-	            foodItem.cholesterol = cholesterol;
-	            foodItem.saturatedFat = saturatedFat;
-	            foodItem.transFat = transFat;
-	            foodItem.sodium = sodium;
-	            foodItem.sugars = sugars;
-	            foodItem.calcium = calcium;
-	            foodItem.iron = iron;
-	            foodItem.potassium = potassium;
+	            foodItem.calories = (calories != null) ? calories : 0.0;
+	            foodItem.protein = (protein != null) ? protein : 0.0;
+	            foodItem.carbs = (carbs != null) ? carbs : 0.0;
+	            foodItem.fat = (fat != null) ? fat : 0.0;
+	            foodItem.cholesterol = (cholesterol != null) ? cholesterol : 0.0;
+	            foodItem.saturatedFat = (saturatedFat != null) ? saturatedFat : 0.0;
+	            foodItem.transFat = (transFat != null) ? transFat : 0.0;
+	            foodItem.sodium = (sodium != null) ? sodium : 0.0;
+	            foodItem.sugars = (sugars != null) ? sugars : 0.0;
+	            foodItem.calcium = (calcium != null) ? calcium : 0.0;
+	            foodItem.iron = (iron != null) ? iron : 0.0;
+	            foodItem.potassium = (potassium != null) ? potassium : 0.0;
 	            foodItem.isDeleted = false;
 
 	            if (!brand.equals("Unknown Brand")) {
@@ -404,6 +412,7 @@ public class NutritionTrackerService {
 	            return nutritionTrackerFoodRepository.save(foodItem);
 	        }
 	    } catch (IOException e) {
+	        logger.error("Error fetching food from USDA API: {}", e.getMessage(), e);
 	        throw new RuntimeException("Error parsing USDA API response", e);
 	    }
 	    return null;
