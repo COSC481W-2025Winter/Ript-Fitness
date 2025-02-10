@@ -14,6 +14,7 @@ import MyNotesScreen from '@/app/screens/notes/MyNotesScreen';
 import EditNoteScreen from '@/app/screens/notes/EditNoteScreen';
 import { AddWorkoutScreen } from '../screens/workout/AddWorkoutScreen';
 import { Note } from '@/components/MyNotes/NotesContext';
+import { GlobalContext } from '@/context/GlobalContext';
 
 const Stack = createStackNavigator();
 
@@ -33,6 +34,9 @@ export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamL
 
 export default function WorkoutStack() {
   const context = useContext(WorkoutContext);
+  const globContext = useContext(GlobalContext);
+
+  const isDarkMode = globContext?.isDarkMode;
 
   return (
     <Stack.Navigator
@@ -40,6 +44,10 @@ export default function WorkoutStack() {
       screenOptions={{
         headerShown: true,
         headerStyleInterpolator: HeaderStyleInterpolators.forNoAnimation,
+        headerStyle: {
+          backgroundColor: isDarkMode? 'black' : 'white',
+         
+        },
       }}
     >
       <Stack.Screen
@@ -95,6 +103,13 @@ export default function WorkoutStack() {
               />
             </TouchableOpacity>
           ),
+          headerStyle: {
+            backgroundColor: isDarkMode? 'black' : 'white',
+           
+          },
+          headerTitleStyle: {
+            color: isDarkMode? 'white' : 'black',
+          },
           headerTitleAlign: 'center',
         })}
       />

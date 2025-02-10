@@ -22,6 +22,9 @@ import { httpRequests } from "@/api/httpRequests";
 
 export default function MyWorkoutsScreen() {
   const context = useContext(GlobalContext);
+  //const globContext = useContext(GlobalContext);
+  
+    const isDarkMode = context?.isDarkMode;
 
 
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
@@ -271,7 +274,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 10,
-    // backgroundColor: "white", // Light gray background for better contrast
+    //backgroundColor: "white", // Light gray background for better contrast
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+  },
+  darkContainer: {
+    flex: 1,
+    paddingTop: 10,
+    backgroundColor: "black", 
     justifyContent: 'space-evenly',
     alignItems: 'center',
   },
@@ -683,7 +693,7 @@ const styles = StyleSheet.create({
 });
 
 return (
-  <View style={styles.container}>
+  <View testID='screen-container' style={[isDarkMode? styles.darkContainer : styles.container]}>
     {loading ? (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" />

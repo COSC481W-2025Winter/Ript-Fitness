@@ -28,10 +28,11 @@ const FindFriendsScreen = ({ navigation }: any) => {
 const context = useContext(GlobalContext)
 const [loading, setLoading] = useState(false);
 const [adding, setAdding] = useState<number[]>([])
-
+const { isDarkMode } = context ?? {}; 
 
 
 const [potentialFriends, setPotentialFriends] = useState<FriendObject[]>([]);
+
 
 
 
@@ -217,8 +218,11 @@ const updatePotentialFriends = (newFriends: FriendObject[]) => {
   );
 };
 
-const styles = StyleSheet.create({
 
+
+
+const styles = StyleSheet.create({
+  
 
   emptyStateContainer: {
     flex: 1,

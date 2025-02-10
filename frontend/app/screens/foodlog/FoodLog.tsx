@@ -37,6 +37,9 @@ export default function FoodLogScreen() {
      const dayKey = `${userID}_day`;
      const fullDayKey = `${userID}_fullDay`;
 
+     
+    const isDarkMode = context?.isDarkMode;
+
     
     const newDay = async () => {
         try {
@@ -221,7 +224,7 @@ const updateWater = async () => {
         return (context?.userProfile.username);
     }
     return (
-        <SafeAreaView style={styles.flexContainer}>
+        <SafeAreaView style={[isDarkMode? styles.darkFlexContainer : styles.flexContainer]}>
             <View>
                 
              {/* Navbar for Logged, Saved, Add */}
@@ -295,15 +298,15 @@ const updateWater = async () => {
                         title="Water" 
                         label="oz"
                         total={totalWater}
-                        textColor="black"
-                        borderColor="black"
+                        textColor= { isDarkMode? "white" : "black"}
+                        borderColor= { isDarkMode? "white" : "black"}
                         borderWidth={5}
                         fontSize={16}
                         width={100} 
                     ></MacroButton>
                     <View style={styles.plusMinus}>
-                        <Ionicons name="add-circle-outline" size={30} style={styles.waterButton} onPress={() => addWater()}></Ionicons>
-                        <Ionicons name="remove-circle-outline"size={30} style={styles.waterButton} onPress={() => minusWater()}></Ionicons>
+                        <Ionicons name="add-circle-outline" size={30} style={[isDarkMode? styles.darkWaterButton : styles.waterButton]} onPress={() => addWater()}></Ionicons>
+                        <Ionicons name="remove-circle-outline"size={30} style={[isDarkMode? styles.darkWaterButton : styles.waterButton]}  onPress={() => minusWater()}></Ionicons>
                     </View>
                 </View>
             </View> 
@@ -351,6 +354,11 @@ const updateWater = async () => {
 const styles = StyleSheet.create({
     flexContainer: {
         flexGrow: 1, 
+        //backgroundColor: 'black',
+    },
+    darkFlexContainer: {
+        flexGrow: 1, 
+        backgroundColor: 'black',
     },
     pageContainer: {
         flex: 1, 
@@ -457,7 +465,12 @@ const styles = StyleSheet.create({
     }, 
     waterButton: {
       paddingBottom: 10,
+      // color: 'white',
     }, 
+    darkWaterButton: {
+        paddingBottom: 10,
+        color: 'white',
+      }, 
     contentContainer: {
         flexGrow: 1,
     },

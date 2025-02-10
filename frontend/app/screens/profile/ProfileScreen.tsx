@@ -32,7 +32,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DEFAULT_PROFILE_PICTURE from '@/assets/base64/defaultPicture';
 import timeZone from '@/api/timeZone'
 import TimeZone from '@/api/timeZone';
-import { Timer } from 'victory';
+import { Background, Timer } from 'victory';
+import { useColorScheme } from 'react-native';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import { Colors } from '@/constants/Colors';
 
 const Tab = createMaterialTopTabNavigator();
 const Drawer = createDrawerNavigator();
@@ -743,6 +746,12 @@ function ProgressScreen() {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const context = useContext(GlobalContext);
   const [loadingDates, setLoadingDates] = useState<Date[]>([]);
+  const [isDarkMode, setIsDark] = useState(true);
+
+
+  const drawerBackgroundColor = context?.isDarkMode ? '#121212' : '#FFFFFF'; // Dark for dark mode, light for light mode
+  const textColor = context?.isDarkMode ? '#FFF' : '#000'; 
+  const iconColor = context?.isDarkMode ? '#FFF' : '#000';
 
 
   useFocusEffect(
@@ -882,6 +891,7 @@ function ProgressScreen() {
         </React.Fragment>
       );
     });
+  const [isDarkMode, setIsDark] = useState(true);
     return (
       <View style={styles.calendarContainer}>
         <View style={styles.daysContainer}>
@@ -1020,6 +1030,7 @@ function ProgressScreen() {
   );
 }
 
+
 function CustomDrawerContent({ navigation }: any) {
   const drawerNav = async (navigation: any) => {
     navigation.closeDrawer();
@@ -1031,8 +1042,16 @@ function CustomDrawerContent({ navigation }: any) {
   };
 
   const context = useContext(GlobalContext);
+  const [isDarkMode, setIsDark] = useState(true);
+
+
+  const drawerBackgroundColor = context?.isDarkMode ? '#121212' : '#FFFFFF';
+  const textColor = context?.isDarkMode ? '#FFF' : '#000'; 
+  const iconColor = context?.isDarkMode ? '#FFF' : '#000';
+  
+
   return (
-    <View style={styles.drawerContent}>
+    <View style={[styles.drawerContent, { backgroundColor: drawerBackgroundColor}]}>
       <View>
         <TouchableOpacity
           style={styles.drawerItem}
@@ -1043,8 +1062,8 @@ function CustomDrawerContent({ navigation }: any) {
           }}
         >
           <View style={styles.drawerItemTextContainer}>
-            <Ionicons name="settings-outline" size={24} color={'#1E1E1E'} />
-            <Text style={styles.drawerItemText}>Account Settings</Text>
+            <Ionicons name="settings-outline" size={24} color={iconColor} />
+            <Text style={[styles.drawerItemText, {color: textColor}]}>Account Settings</Text>
           </View>
         </TouchableOpacity>
         <TouchableOpacity
@@ -1057,23 +1076,26 @@ function CustomDrawerContent({ navigation }: any) {
           }}
         >
           <View style={styles.drawerItemTextContainer}>
-            <Ionicons name="log-out-outline" size={24} color={'#1E1E1E'} />
-            <Text style={styles.drawerItemText}>Logout</Text>
+            <Ionicons name="log-out-outline" size={24} color={iconColor} />
+            <Text style={[styles.drawerItemText, {color: textColor}]}>Logout</Text>
           </View>
         </TouchableOpacity>
+
         // Dark mode button
         <TouchableOpacity
           style={styles.drawerItem}
           onPress={() => {
-            // Handle logout logic here
-            navigation.closeDrawer();
-            //context?.setToken('');
-            // Perform logout actions
+            // Handle logic here
+            context?.toggleTheme();
+            //navigation.closeDrawer();
           }}
+        
         >
           <View style={styles.drawerItemTextContainer}>
-            <MaterialCommunityIcons name="theme-light-dark" size={24} color={'black'} />
-            <Text style={styles.drawerItemText}>Dark Mode</Text>
+            <MaterialCommunityIcons name={context?.isDarkMode ? 'weather-sunny' : 'weather-night'} size={24} color={iconColor} />
+            <Text style={[styles.drawerItemText, {color: textColor}]}>
+            {context?.isDarkMode ? "Light Mode" : "Dark Mode"}
+            </Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -1086,8 +1108,8 @@ function CustomDrawerContent({ navigation }: any) {
         }}
       >
         <View style={[styles.drawerItemTextContainer, {borderTopWidth: 1, paddingTop: 10, borderBottomWidth: 0, borderTopColor: '#ddd'}]}>
-          <Ionicons name="people-outline" size={24} color={'#1E1E1E'} />
-          <Text style={styles.drawerItemText}>RiptFitness Team</Text>
+          <Ionicons name="people-outline" size={24} color={iconColor} />
+          <Text style={[styles.drawerItemText, {color: textColor}]}>RiptFitness Team</Text>
         </View>
       </TouchableOpacity>
     </View>
@@ -1653,6 +1675,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   container: { backgroundColor: '#fff' },
+  darkContainer: { backgroundColor: 'black' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -1693,7 +1716,7 @@ const styles = StyleSheet.create({
   month: { marginHorizontal: 10, fontSize: 18, fontWeight: 'bold' },
   daysRow: {},
   calendarContainer: {
-    // backgroundColor:"red",
+    //backgroundColor: isDarkMode? 'black' : 'white',
     alignItems: 'center',
     width: '90%',
     aspectRatio: 1.166,
@@ -1748,5 +1771,6 @@ const styles = StyleSheet.create({
     // alignItems:"center",
   },
 });
+
 
 export default ProfileScreen;
