@@ -64,6 +64,15 @@ public class NutritionTrackerServiceTest {
 		foodDto.protein = 30;
 		foodDto.carbs = 40;
 		foodDto.fat = 21;
+		foodDto.cholesterol = 200;
+		foodDto.saturatedFat = 22;
+		foodDto.transFat = 1;
+		foodDto.sodium = 10;
+		foodDto.fiber = 3;
+		foodDto.sugars = 150;
+		foodDto.calcium = 17;
+		foodDto.iron = 2;
+		foodDto.potassium = 11;
 		foodDto.multiplier = 1.0;
 		
 		food = new Food();
@@ -73,6 +82,15 @@ public class NutritionTrackerServiceTest {
 		food.carbs = 40;
 		food.fat = 21;
 		food.multiplier = 1.0;
+		food.cholesterol = 200;
+		food.saturatedFat = 22;
+		food.transFat = 1;
+		food.sodium = 10;
+		food.fiber = 3;
+		food.sugars = 150;
+		food.calcium = 17;
+		food.iron = 2;
+		food.potassium = 11;
 		food.account = account;
 		
 		foodDtoTwo = new FoodDto();
@@ -81,6 +99,15 @@ public class NutritionTrackerServiceTest {
 		foodDtoTwo.protein = 100;
 		foodDtoTwo.carbs = 0;
 		foodDtoTwo.fat = 9;
+		foodDtoTwo.cholesterol = 100;
+		foodDtoTwo.saturatedFat = 39;
+		foodDtoTwo.transFat = 0;
+		foodDtoTwo.sodium = 18;
+		foodDtoTwo.fiber = 30;
+		foodDtoTwo.sugars = 10;
+		foodDtoTwo.calcium = 23;
+		foodDtoTwo.iron = 7;
+		foodDtoTwo.potassium = 13;
 		foodDtoTwo.multiplier = 0.5;
 		
 		foodTwo = new Food();
@@ -89,6 +116,15 @@ public class NutritionTrackerServiceTest {
 		foodTwo.protein = 100;
 		foodTwo.carbs = 0;
 		foodTwo.fat = 9;
+		foodTwo.cholesterol = 100;
+		foodTwo.saturatedFat = 39;
+		foodTwo.transFat = 0;
+		foodTwo.sodium = 18;
+		foodTwo.fiber = 30;
+		foodTwo.sugars = 10;
+		foodTwo.calcium = 23;
+		foodTwo.iron = 7;
+		foodTwo.potassium = 13;
 		foodTwo.multiplier = 0.5;
 				
 		dayDto = new DayDto();
@@ -114,6 +150,18 @@ public class NutritionTrackerServiceTest {
 		assertEquals("Protein bar", result.name);
 		assertEquals(21, result.fat);
 	}
+	@Test
+	void testServiceAddFoodValid2() {
+		when(nutritionTrackerFoodRepository.save(any(Food.class))).thenReturn(food);
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+		when(accountsRepository.findById(1L)).thenReturn(Optional.of(account));
+		
+		FoodDto result = nutritionTrackerServiceForServiceTests.addFood(foodDto);
+		
+		assertNotNull(result);
+		assertEquals("Protein bar", result.name);
+		assertEquals(10, result.sodium);
+	}
 	
 	@Test
 	void testServiceGetFoodStatsValid() {
@@ -125,7 +173,16 @@ public class NutritionTrackerServiceTest {
 		assertNotNull(result);
 		assertEquals(40, result.carbs);
 	}
-	
+	@Test
+	void testServiceGetFoodStatsValid2() {
+		when(nutritionTrackerFoodRepository.findById(anyLong())).thenReturn(Optional.of(food));
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+		
+		FoodDto result = nutritionTrackerServiceForServiceTests.getFoodStats(1L);
+		
+		assertNotNull(result);
+		assertEquals(3, result.fiber);
+	}
 	@Test
 	void testServiceGetFoodStatsInvalidNotInDatabase() {
 		when(nutritionTrackerFoodRepository.findById(1L)).thenReturn(Optional.empty());
@@ -182,6 +239,18 @@ public class NutritionTrackerServiceTest {
 		
 		assertNotNull(result);
 		assertEquals(400, result.calories);
+	}
+	@Test
+	void testServiceEditFoodValid2() {
+		when(nutritionTrackerFoodRepository.findById(1L)).thenReturn(Optional.of(food));
+		when(nutritionTrackerFoodRepository.save(any(Food.class))).thenReturn(food);
+		when(accountsService.getLoggedInUserId()).thenReturn(1L);
+		when(accountsRepository.findById(1L)).thenReturn(Optional.of(account));
+		
+		FoodDto result = nutritionTrackerServiceForServiceTests.editFood(1L, foodDto);
+		
+		assertNotNull(result);
+		assertEquals(2, result.iron);
 	}
 	
 	@Test
@@ -304,6 +373,15 @@ public class NutritionTrackerServiceTest {
 		assertEquals(80, day.totalProtein);
 		assertEquals(40, day.totalCarbs);
 		assertEquals(25, day.totalFat);
+		assertEquals(20, day.totalCalcium);
+		assertEquals(150, day.totalCholesterol);
+		assertEquals(7, day.totalFiber);
+		assertEquals(65, day.totalPotassium);
+		assertEquals(21, day.totalIron);
+		assertEquals(33, day.totalSaturatedFat);
+		assertEquals(2, day.totalTransFat);
+		assertEquals(15, day.totalSugars);
+		assertEquals(23, day.totalSodium);
 	}
 	
 	@Test

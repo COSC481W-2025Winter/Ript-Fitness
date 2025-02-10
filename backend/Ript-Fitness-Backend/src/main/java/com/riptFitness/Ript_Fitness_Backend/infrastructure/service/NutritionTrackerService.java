@@ -272,7 +272,9 @@ public class NutritionTrackerService {
 		if(day == null)
 			throw new IllegalArgumentException("Day cannot be null in calculateTotalDayStats method in CalculateStats class.");
 		
-		int totalCalories = 0, totalProtein = 0, totalCarbs = 0, totalFat = 0;
+		int totalCalories = 0, totalProtein = 0, totalCarbs = 0, totalFat = 0, totalCholesterol = 0;
+		int totalSaturatedFat=0, totalTransFat = 0, totalSodium = 0, totalFiber = 0, totalSugars = 0;
+		int totalCalcium = 0, totalIron = 0, totalPotassium = 0;
 		
 		for(Food food : day.foodsEatenInDay) {
 			if(food.isDeleted)
@@ -281,11 +283,30 @@ public class NutritionTrackerService {
 			totalProtein += food.protein * food.multiplier;
 			totalCarbs += food.carbs * food.multiplier;
 			totalFat += food.fat * food.multiplier;
+			totalCholesterol += food.cholesterol * food.multiplier;
+			totalSaturatedFat += food.saturatedFat * food.multiplier;
+			totalTransFat += food.transFat * food.multiplier;
+			totalSodium += food.sodium * food.multiplier;
+			totalFiber += food.fiber * food.multiplier;
+			totalSugars += food.sugars * food.multiplier;
+			totalCalcium += food.calcium * food.multiplier;
+			totalIron += food.iron * food.multiplier;
+			totalPotassium += food.potassium * food.potassium;
 		}
 		
 		day.calories = totalCalories;
 		day.totalProtein = totalProtein;
 		day.totalCarbs = totalCarbs;
 		day.totalFat = totalFat;
+		day.totalCholesterol = totalCholesterol;
+		day.totalSaturatedFat = totalSaturatedFat;
+		day.totalTransFat = totalTransFat;
+		day.totalSodium = totalSodium;
+		day.totalFiber = totalFiber;
+		day.totalSugars = totalSugars;
+		day.totalCalcium = totalCalcium;
+		day.totalIron = totalIron;
+		day.totalPotassium = totalPotassium;
+		
 	}
 }
