@@ -26,7 +26,8 @@ public class UserProfile {
 	private String lastName;
 
 	public String displayName;
-	
+
+	//all weight in pounds
 	@Column(nullable = false)
 	public Double weight =0.0;
 
