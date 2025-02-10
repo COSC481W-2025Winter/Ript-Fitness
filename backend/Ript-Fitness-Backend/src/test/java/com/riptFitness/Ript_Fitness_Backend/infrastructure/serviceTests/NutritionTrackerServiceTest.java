@@ -373,15 +373,15 @@ public class NutritionTrackerServiceTest {
 		assertEquals(80, day.totalProtein);
 		assertEquals(40, day.totalCarbs);
 		assertEquals(25, day.totalFat);
-		assertEquals(20, day.totalCalcium);
-		assertEquals(150, day.totalCholesterol);
-		assertEquals(7, day.totalFiber);
-		assertEquals(65, day.totalPotassium);
-		assertEquals(21, day.totalIron);
-		assertEquals(33, day.totalSaturatedFat);
-		assertEquals(2, day.totalTransFat);
-		assertEquals(15, day.totalSugars);
-		assertEquals(23, day.totalSodium);
+		assertEquals(28, day.totalCalcium);
+		assertEquals(250, day.totalCholesterol);
+		assertEquals(18, day.totalFiber);
+		assertEquals(290, day.totalPotassium);
+		assertEquals(5, day.totalIron);
+		assertEquals(41, day.totalSaturatedFat);
+		assertEquals(1, day.totalTransFat);
+		assertEquals(155, day.totalSugars);
+		assertEquals(19, day.totalSodium);
 	}
 	
 	@Test
