@@ -98,6 +98,8 @@ JWT_SECRET=
 BLOB_CONNECTION_STRING=
 
 BLOB_CONTAINER_NAME=
+
+USDA_API_KEY=
 - Get the not included information from the professor
 - Once all the information is there, click “Save as type:” and select “All types”
 - Save the file as “.env” in the same directory as the backend src folder (which includes Pom.xml)
