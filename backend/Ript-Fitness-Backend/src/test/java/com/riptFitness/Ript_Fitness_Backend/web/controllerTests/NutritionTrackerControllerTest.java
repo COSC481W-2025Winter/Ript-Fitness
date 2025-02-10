@@ -163,6 +163,7 @@ public class NutritionTrackerControllerTest {
 				.andExpect(jsonPath("$.calories").value(400))
 				.andExpect(jsonPath("$.protein").value(30))
 				.andExpect(jsonPath("$.carbs").value(40))
+				.andExpect(jsonPath("$.fat").value(21))
 				.andExpect(jsonPath("$.cholesterol").value(200))
 				.andExpect(jsonPath("$.saturatedFat").value(22))
 				.andExpect(jsonPath("$.transFat").value(1))
