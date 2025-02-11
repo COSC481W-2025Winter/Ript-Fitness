@@ -25,6 +25,7 @@ public class WeightHistory {
     @JoinColumn(name = "user_id", nullable = false)
     private UserProfile userProfile;  // Links weight history to a user
 
+    //in pounds
     private Double weight;
 
     private LocalDateTime recordedAt = LocalDateTime.now();  // Auto-set timestamp
