@@ -9,7 +9,7 @@ public class UserDto {
 	public String username;
 	public String displayname;
 	public String bio;
-	public Double weight;
+	public Double weight; //in pounds
 	public boolean isDeleted = false;
 	public Integer restDays;
 	public Integer restDaysLeft;
