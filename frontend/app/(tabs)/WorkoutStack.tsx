@@ -130,6 +130,10 @@ export default function WorkoutStack() {
               />
             </TouchableOpacity>
           ),
+
+          headerTitleStyle: {
+            color: isDarkMode? 'white' : 'black',
+          },
           headerTitleAlign: 'center',
         })}
       />
@@ -150,6 +154,10 @@ export default function WorkoutStack() {
               />
             </TouchableOpacity>
           ),
+
+          headerTitleStyle: {
+            color: isDarkMode? 'white' : 'black',
+          },
           headerTitleAlign: 'center',
         })}
       />
@@ -190,6 +198,9 @@ export default function WorkoutStack() {
               />
             </TouchableOpacity>
           ),
+          headerTitleStyle: {
+            color: isDarkMode? 'white' : 'black',
+          },
           headerRight: () => (
             <TouchableOpacity
               onPress={() => context?.setVisible(true)}
@@ -218,6 +229,10 @@ export default function WorkoutStack() {
               />
             </TouchableOpacity>
           ),
+
+          headerTitleStyle: {
+            color: isDarkMode? 'white' : 'black',
+          },
           headerRight: () => (
             <TouchableOpacity
               onPress={() => navigation.navigate('EditNoteScreen', { note: null })}

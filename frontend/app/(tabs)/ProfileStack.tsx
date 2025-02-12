@@ -45,10 +45,10 @@ const Stack = createStackNavigator();
 
 export default function ProfileStack(props: any) {
   const context = useContext(GlobalContext);
-  const themeStyles = context?.isDarkMode ? styles.darkMode : styles.lightMode;
+  const isDarkMode = context?.isDarkMode;
   return (
     <ProfileProvider>
-    <Stack.Navigator initialRouteName="ProfileScreen" screenOptions={{ headerShown: false, cardStyle: themeStyles }}>
+    <Stack.Navigator initialRouteName="ProfileScreen" screenOptions={{ headerShown: false }}>
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} options={{headerShown:false}}/>
       <Stack.Screen name="GraphScreen" component={GraphScreen} options={{headerShown:false}}/>
       <Stack.Screen name="SettingsScreen" component={SettingsScreen} options={{headerShown:false}}/>

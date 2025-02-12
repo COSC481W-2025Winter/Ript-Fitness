@@ -13,7 +13,7 @@ const mockContext = {
   toggleTheme: jest.fn(),
 };
 
-  it('renders all elements correctly', () => {
+  it('renders correctly on MyWorkoutScreen', () => {
     const { getByTestId } = render(
       <NavigationContainer>
         <Stack.Navigator>

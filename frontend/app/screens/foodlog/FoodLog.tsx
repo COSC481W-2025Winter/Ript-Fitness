@@ -316,7 +316,7 @@ const updateWater = async () => {
                     <Ionicons name="today-outline" size={30} onPress={() => addWater()}></Ionicons>
                     <Text style={styles.text}>Start new day log</Text>
                 </View> */}
-                <View style={[styles.box, selectedPage === "Logged" && styles.selectedBox]}>
+                <View style={[isDarkMode? styles.darkBox : styles.box, selectedPage === "Logged" && styles.selectedBox]}>
                     <Text 
                         style={[styles.text, selectedPage === "Logged" && styles.selectedText]} 
                         onPress={() => setSelectedPage("Logged")}
@@ -324,7 +324,7 @@ const updateWater = async () => {
                         Logged
                     </Text>
                 </View>
-                <View style={[styles.box, selectedPage === "Saved" && styles.selectedBox]}>
+                <View style={[isDarkMode? styles.darkBox : styles.box, selectedPage === "Saved" && styles.selectedBox]}>
                     <Text 
                         style={[styles.text, selectedPage === "Saved" && styles.selectedText]} 
                         onPress={() => setSelectedPage("Saved")}
@@ -332,7 +332,7 @@ const updateWater = async () => {
                         Saved
                     </Text>
                 </View>
-                <View style={[styles.box, selectedPage === "Add" && styles.selectedBox]}>
+                <View style={[isDarkMode? styles.darkBox : styles.box, selectedPage === "Add" && styles.selectedBox]}>
                     <Text 
                         style={[styles.text, selectedPage === "Add" && styles.selectedText]} 
                         onPress={() => setSelectedPage("Add")}
@@ -440,6 +440,13 @@ const styles = StyleSheet.create({
         width: '34%',
         alignItems: 'center',
         backgroundColor: 'white',
+        padding: 5,
+    },
+
+    darkBox: {
+        width: '34%',
+        alignItems: 'center',
+        backgroundColor: 'black',
         padding: 5,
     },
 

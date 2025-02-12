@@ -746,8 +746,6 @@ function ProgressScreen() {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const context = useContext(GlobalContext);
   const [loadingDates, setLoadingDates] = useState<Date[]>([]);
-  const [isDarkMode, setIsDark] = useState(true);
-
 
   const drawerBackgroundColor = context?.isDarkMode ? '#121212' : '#FFFFFF'; // Dark for dark mode, light for light mode
   const textColor = context?.isDarkMode ? '#FFF' : '#000'; 

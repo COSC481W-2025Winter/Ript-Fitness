@@ -27,7 +27,7 @@ export type BodyScreenNavigationProp = StackNavigationProp<BodyStackParamList>;
 export default function BodyStack(props : any) {
   const navigation = useNavigation<BodyScreenNavigationProp >();
 
-
+  
   return (
     <BodyProvider>
     <Stack.Navigator initialRouteName="Food Log" screenOptions={{ headerShown: false }}>
