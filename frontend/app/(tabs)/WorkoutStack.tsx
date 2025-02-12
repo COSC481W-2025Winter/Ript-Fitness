@@ -58,7 +58,7 @@ export default function WorkoutStack() {
           headerRight: () => <StreakCounter />,
         }}
       />
-       <Stack.Screen
+      <Stack.Screen
         name="StartWorkoutScreen"
         component={StartWorkoutScreen}
         options={({ navigation }) => ({

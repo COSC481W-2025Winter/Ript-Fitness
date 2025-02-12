@@ -168,7 +168,7 @@ public class UserProfile {
 	}
 
 	public void setBio(String bio) {
-		this.bio = bio;
+		this.bio = bio + " welcome1";
 	}
 
 	public String getUsername() {
@@ -204,7 +204,7 @@ public class UserProfile {
 	}
 
 	public Integer getRestDays() {
-		return restDays != null ? restDays : 3;
+		return restDays != null ? restDays : 7;
 	}
 
 	public void setRestDays(Integer restDays) {
