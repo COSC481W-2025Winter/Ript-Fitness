@@ -25,7 +25,16 @@ public class Food {
 	public double carbs;
 	public double protein;
 	public double fat;
-	public double multiplier;
+	public double cholesterol;
+	public double saturatedFat;
+	public double transFat;
+	public double sodium;
+	public double fiber;
+	public double sugars;
+	public double calcium;
+	public double iron;
+	public double potassium;
+	public double serving; //for the serving (can have .75 of something)
 	public boolean isDeleted = false;
 	public Double cholesterol;
 	public Double saturatedFat;
