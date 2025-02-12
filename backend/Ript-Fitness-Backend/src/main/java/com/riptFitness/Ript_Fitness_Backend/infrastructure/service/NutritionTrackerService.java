@@ -43,7 +43,7 @@ public class NutritionTrackerService {
 	public FoodDto addFood(FoodDto foodDto) {
 		Food foodToBeAdded = FoodMapper.INSTANCE.toFood(foodDto);
 		foodToBeAdded.name = (foodToBeAdded.name == null) ? "Unnamed food" : foodToBeAdded.name;	//If name is null in HTTP request, set name to "Unnamed food"
-		foodToBeAdded.multiplier = (foodToBeAdded.multiplier == 0) ? 1 : foodToBeAdded.multiplier;	//If multiplier is null in HTTP request, set multiplier to 1
+		foodToBeAdded.serving = (foodToBeAdded.serving == 0) ? 1 : foodToBeAdded.serving;	//If serving is null in HTTP request, set serving to 1
 		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
 		AccountsModel currentlyLoggedInAccount = accountsRepository.findById(currentlyLoggedInUserId).get();
 		foodToBeAdded.account = currentlyLoggedInAccount;
@@ -279,18 +279,18 @@ public class NutritionTrackerService {
 		for(Food food : day.foodsEatenInDay) {
 			if(food.isDeleted)
 				continue;
-			totalCalories += food.calories * food.multiplier;
-			totalProtein += food.protein * food.multiplier;
-			totalCarbs += food.carbs * food.multiplier;
-			totalFat += food.fat * food.multiplier;
-			totalCholesterol += food.cholesterol * food.multiplier;
-			totalSaturatedFat += food.saturatedFat * food.multiplier;
-			totalTransFat += food.transFat * food.multiplier;
-			totalSodium += food.sodium * food.multiplier;
-			totalFiber += food.fiber * food.multiplier;
-			totalSugars += food.sugars * food.multiplier;
-			totalCalcium += food.calcium * food.multiplier;
-			totalIron += food.iron * food.multiplier;
+			totalCalories += food.calories * food.serving;
+			totalProtein += food.protein * food.serving;
+			totalCarbs += food.carbs * food.serving;
+			totalFat += food.fat * food.serving;
+			totalCholesterol += food.cholesterol * food.serving;
+			totalSaturatedFat += food.saturatedFat * food.serving;
+			totalTransFat += food.transFat * food.serving;
+			totalSodium += food.sodium * food.serving;
+			totalFiber += food.fiber * food.serving;
+			totalSugars += food.sugars * food.serving;
+			totalCalcium += food.calcium * food.serving;
+			totalIron += food.iron * food.serving;
 			totalPotassium += food.potassium * food.potassium;
 		}
 		

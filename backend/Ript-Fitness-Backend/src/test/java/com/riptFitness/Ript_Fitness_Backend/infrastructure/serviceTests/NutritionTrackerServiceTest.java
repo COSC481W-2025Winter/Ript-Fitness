@@ -1,6 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.serviceTests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -73,7 +74,7 @@ public class NutritionTrackerServiceTest {
 		foodDto.calcium = 17;
 		foodDto.iron = 2;
 		foodDto.potassium = 11;
-		foodDto.multiplier = 1.0;
+		foodDto.serving = 1.0;
 		
 		food = new Food();
 		food.name = "Protein bar";
@@ -81,7 +82,7 @@ public class NutritionTrackerServiceTest {
 		food.protein = 30;
 		food.carbs = 40;
 		food.fat = 21;
-		food.multiplier = 1.0;
+		food.serving = 1.0;
 		food.cholesterol = 200;
 		food.saturatedFat = 22;
 		food.transFat = 1;
@@ -108,7 +109,7 @@ public class NutritionTrackerServiceTest {
 		foodDtoTwo.calcium = 23;
 		foodDtoTwo.iron = 7;
 		foodDtoTwo.potassium = 13;
-		foodDtoTwo.multiplier = 0.5;
+		foodDtoTwo.serving = 0.5;
 		
 		foodTwo = new Food();
 		foodTwo.name = "Chicken breast";
@@ -125,7 +126,7 @@ public class NutritionTrackerServiceTest {
 		foodTwo.calcium = 23;
 		foodTwo.iron = 7;
 		foodTwo.potassium = 13;
-		foodTwo.multiplier = 0.5;
+		foodTwo.serving = 0.5;
 				
 		dayDto = new DayDto();
 		dayDto.foodsEatenInDay = List.of(foodDto, foodDtoTwo);

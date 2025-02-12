@@ -18,6 +18,6 @@ public class FoodDto {
 	public double calcium;
 	public double iron;
 	public double potassium;
-	public double multiplier;
+	public double serving;
 	public boolean isDeleted = false;
 }

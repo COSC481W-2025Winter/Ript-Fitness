@@ -33,6 +33,6 @@ public class Food {
 	public double calcium;
 	public double iron;
 	public double potassium;
-	public double multiplier;
+	public double serving; //for the serving (can have .75 of something)
 	public boolean isDeleted = false;
 }
