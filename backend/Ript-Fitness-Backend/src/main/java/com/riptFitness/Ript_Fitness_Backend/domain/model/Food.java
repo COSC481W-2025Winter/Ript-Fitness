@@ -36,12 +36,5 @@ public class Food {
 	public double potassium;
 	public double serving; //for the serving (can have .75 of something)
 	public boolean isDeleted = false;
-	public Double cholesterol;
-	public Double saturatedFat;
-	public Double transFat;
-	public Double sodium;
-	public Double sugars;
-	public Double calcium;
-	public Double iron;
-	public Double potassium;
+	
 }
