@@ -4,15 +4,14 @@ import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PortalProvider } from "@gorhom/portal";
 import "react-native-gesture-handler";
-import React, { useContext, useState, useEffect } from "react";
-//import { MD3DarkTheme, DefaultTheme, Provider as PaperProvider } from "react-native-paper";
+import React, { useContext, useState } from "react";
 import { MenuProvider } from "react-native-popup-menu";
-import { DarkTheme, NavigationContainer, DefaultTheme } from "@react-navigation/native";
+import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import {
   createStackNavigator,
   StackNavigationProp,
 } from "@react-navigation/stack";
-import { View, Text, StatusBar, ActivityIndicator, useColorScheme } from "react-native";
+import { View, Text, StatusBar, ActivityIndicator } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import SocialStack from "./app/(tabs)/SocialStack";
@@ -38,7 +37,6 @@ import {
 
 import { WorkoutProvider } from "./context/WorkoutContext";
 import FoodLogScreen from "./app/screens/foodlog/FoodLog";
-import { Style } from "victory";
 
 // Suppress specific Reanimated warnings using LogBox
 LogBox.ignoreLogs([
@@ -52,23 +50,6 @@ configureReanimatedLogger({
   strict: false, // Disable strict mode to reduce warnings
 });
 
-/*
-const [isDarkMode, setIsDarkMode] = useState(false);
-const toggleTheme = () => {
-  setIsDarkMode(!isDarkMode);
-};
-const colorScheme = useColorScheme();
-useEffect(() => {
-  setIsDarkMode(colorScheme === 'dark');
-}, [colorScheme]);
-import { Appearance } from 'react-native';
-useEffect(() => {
-  const subscription = Appearance.addChangeListener(({ colorScheme }) => {
-    setIsDarkMode(colorScheme === 'dark');
-  });
-  return () => subscription.remove();
-}, []);
-*/
 
 // Define types for the navigation stack
 export type RootStackParamList = {
