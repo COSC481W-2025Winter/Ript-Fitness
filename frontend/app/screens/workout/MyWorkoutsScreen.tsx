@@ -33,6 +33,7 @@ export default function MyWorkoutsScreen() {
   const [loading, setLoading] = useState<boolean>(true); // State for loading
   const [isTracking, setIsTracking] = useState<boolean>(false);
   const [checkboxStates, setCheckboxState] = useState<{ [key: string]: boolean }>({});
+
   // Stores the interval IDs for each set's timer.
   const [startTime, setStartTime] = useState<{ [key: string]: ReturnType<typeof setInterval> }>({});
   // Stores the formatted time ranges for each set.
@@ -86,7 +87,7 @@ export default function MyWorkoutsScreen() {
         delete updated[setKey]; // Remove the timer reference for the set.
         return updated;
     });
-  
+
     // Saves the elapsed time for the specific set key.
     if (currentTimer !== null) {
       const elapsedSeconds = currentTimer; // Get the total elapsed time in seconds.
@@ -99,8 +100,8 @@ export default function MyWorkoutsScreen() {
         [setKey]: formattedTime,
       }));
 
-      //Updates the time range in current view
-      setTimeRanges((prev) => {
+       //Updates the time range in current view
+       setTimeRanges((prev) => {
         const updatedTimeRanges = {
           ...prev,
           [setKey]: formattedTime, // Assign the formatted time to the corresponding set.
@@ -112,7 +113,7 @@ export default function MyWorkoutsScreen() {
     // Reset active set and timer state after stopping the timer.
       setActiveSet(null);
       setCurrentTimer(null);
-  };
+  }
   
   const openModal = (workout: Workout) => {
     setSelectedWorkout(workout);
@@ -404,6 +405,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginHorizontal: 5,
   }, 
+
   deleteButton: {
     backgroundColor: "#F2505D", // Subtle red for delete
     width: '30%',
@@ -648,7 +650,7 @@ const styles = StyleSheet.create({
     flex: 1,
   }, 
   setValue: {
-    fontSize: 14, // Sets the font size to 14.
+    fontSize: 14,
     color: "#555",
     textAlign: "center",
     flex: 1,
@@ -659,6 +661,7 @@ const styles = StyleSheet.create({
     flex: 1, 
     textAlign: "center",
   },
+
   addSetButton: {
     // backgroundColor: "#56C97B",
     paddingTop: 3,
@@ -784,14 +787,14 @@ return (
           showsVerticalScrollIndicator= {false}
           renderItem={({ item }) => (
             <View style={styles.workoutItem}>
-              <Text style={styles.workoutName}>{String(item.name)}</Text> 
+              <Text style={styles.workoutName}>{String(item.name)}</Text>
               <View style={styles.buttonGroup}>
               <TouchableOpacity
                   style={styles.deleteButton}
                   onPress={() =>
                     Alert.alert(
                       "Confirm Delete",
-                      `Are you sure you want to delete the workout "${String(item.name)}"?`, // Confirmation message for deleting a workout.
+                      `Are you sure you want to delete the workout "${String(item.name)}"?`,
                       [
                         { text: "Cancel", style: "cancel" },
                         {
@@ -806,14 +809,17 @@ return (
                   <Text style={styles.buttonText}>Delete</Text>
                   {/* <Ionicons name="trash-outline" size={25} color="#F2505D"></Ionicons> */}
                 </TouchableOpacity>
-                <TouchableOpacity  // Open view modal
-                  style={styles.viewButton} onPress={() => openModal(item)} > 
+                <TouchableOpacity
+                  style={styles.viewButton}
+                  onPress={() => openModal(item)} // Open view modal
+                >
                   <Text style={styles.viewButtonText}>View</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.startButton}
                   onPress={() => startWorkout(item)} // Open start workout modal
-                > <Text style={styles.buttonText}>Start</Text>  // Displays the "Start" text with the button text style.
+                >
+                  <Text style={styles.buttonText}>Start</Text>
                   {/* <Ionicons name="arrow-up-circle" size={60} color="#21BFBF"></Ionicons> */}
                 </TouchableOpacity>
               </View>
@@ -875,7 +881,7 @@ return (
                     <View style={styles.inputHeaderContainer}>
                       <Text style={styles.inputHeader}>Set</Text>
                       <Text style={styles.inputHeader}>Reps</Text>
-                      <Text style={styles.inputHeader}>Weight</Text>
+                      <Text style={styles.inputHeader}>     Weight</Text>
                       <Text style={styles.inputHeader}></Text>
                     </View>
                     <FlatList
@@ -890,12 +896,11 @@ return (
                       }
                       renderItem={({ item: setItem, index: setIndex }) => (
                         <View style={styles.setRow}>
-                          // Displays set number, reps, weight, and recorded time range.
-                          <Text style={styles.setLabel}>{setIndex + 1}</Text>
+                          <Text style={styles.setLabel}>  {setIndex + 1}</Text>
                           <Text style={styles.setValue}>{setItem.reps ?? "N/A"}</Text>
                           <Text style={styles.setValue}>{setItem.weight !== null ? `${setItem.weight} lbs` : "N/A"} lbs</Text>
                           <Text style={styles.setValue}>{setItem.timeRange}</Text> {/* keep Time Range */}
-                          
+
                           {/* Reps Label and Input */}
                           <View style={styles.inputContainer}>
                             {/* <Text style={styles.inputLabel}></Text> */}
@@ -930,6 +935,7 @@ return (
                             />
                           </View>
 
+                          
                           <TouchableOpacity
                             style={styles.removeSetButton}
                             onPress={() => {
@@ -985,7 +991,7 @@ return (
                     </Text>
                     <View style={styles.setRow}>
                       <Text style={[styles.setLabel, { flex: 0.5, textAlign: "left", paddingLeft: 10 }]}>Set</Text>
-                      <Text style={[styles.setValueTitle, { flex: 1, textAlign: "center", paddingHorizontal: 5 }]}> Reps</Text>
+                      <Text style={[styles.setValueTitle, { flex: 1, textAlign: "center", paddingHorizontal: 5 }]}>Reps</Text>
                       <Text style={[styles.setValueTitle, { flex: 1, textAlign: "center", paddingHorizontal: 5 }]}>Weight</Text>
                       <Text style={[styles.setValueTitle, { flex: 1.2, textAlign: "left", paddingRight: 10 }]}>Time</Text>
                     </View>
@@ -993,24 +999,36 @@ return (
                       data={item.reps.map((_, setIndex) => ({
                         reps: item.reps[setIndex],
                         weight: item.weight[setIndex],
-                        // Retrieves the time range for the set, defaulting to "Not Started" if unavailable.
+                         // Retrieves the time range for the set, defaulting to "Not Started" if unavailable.
                         timeRange: timeRanges[`${selectedWorkout?.id}-${item.exerciseId}-${setIndex}`] || "Not Started",
                       }))}
                       keyExtractor={(setItem, setIndex) =>
                         `set-${item.exerciseId}-${setIndex}`
                       }
-                      renderItem={({ item: setItem, index: setIndex }) => {
+                      renderItem={({
+                        item: setItem,
+                        index: setIndex,
+                      }) => {
                         const setKey = `${selectedWorkout?.id}-${item.exerciseId}-${setIndex}`;
                         const isActive = activeSet === setKey; // Check if the current set is being timed.
-                        return (
-                          <View key={`set-${exerciseIndex}-${setIndex}`} style={styles.setRow}>
-                            <Text style={styles.setLabel}>{setIndex + 1}</Text>
-                            <Text style={styles.setValue}>{setItem.reps ?? "N/A"}</Text>
-                            <Text style={styles.setValue}>{item.weight[setIndex]} lbs</Text>
-                            <Text style={styles.setValue}>{setItem.timeRange}</Text> {/* Display recorded time range */}
-                            
-                            {/* Start and Stop button */}
-                            {!isActive ? (
+                                              
+                     return(
+                        <View style={styles.setRow}>
+                          <Text style={styles.setLabel}>
+                            {setIndex + 1}
+                          </Text>
+                          <Text style={styles.setValue}>
+                            {setItem.reps ?? "N/A"}
+                          </Text>
+                          <Text style={styles.setValue}>
+                            {item.weight[setIndex]} lbs
+                          </Text>
+                          <Text style={styles.setValue}>
+                            {setItem.timeRange}         {/* Display recorded time range */}
+                          </Text>
+
+                          {/* Start and Stop button */}
+                          {!isActive ? (
                               <TouchableOpacity
                                 style={[styles.startButton, { width: 40, height: 30, padding: 3 }]} // Adjusts start button size and padding
                                 onPress={() => {
@@ -1033,9 +1051,9 @@ return (
                                   <Text style={styles.buttonText}>Stop</Text>
                                 </TouchableOpacity>
                               )}
-                          </View>
-                        );
-                      }}
+                        </View>
+                      )}
+                      }
                     />
                   </View>
                 )}
@@ -1082,10 +1100,11 @@ return (
                   <Text style={styles.exerciseName}>{item.nameOfExercise}</Text>
                   <View style={styles.labelRow}>
                       <Text style={styles.setLabel}>Set</Text>
-                      <Text style={styles.setValueTitleStart}>Reps </Text>
+                      <Text style={styles.setValueTitleStart}>Reps</Text>
                       <Text style={styles.setValueTitleStart}>Weight</Text>
                       <Text style={styles.setValueTitle}>  Time</Text>
                       <Ionicons style={styles.setLabelIcon} name="checkmark" size={24} color="#555" />
+                      {/* <Text style={styles.setValueTitleStart}>Finish</Text> */}
                   </View>
                   
                   {/* Replace the nested FlatList with map() */}
@@ -1093,44 +1112,43 @@ return (
                     const setKey = `${selectedWorkout?.id}-${item.exerciseId}-${setIndex}`; // Unique key for each set
                     const isActive = activeSet === setKey; // Check if the current set is being timed
                     const timeRange = workoutContext?.timeRanges[setKey] || "Not Started"; // Retrieve the time range from context
-
+                    
                     return (
-                      // Render a row for each set, displaying set number, reps, weight, and recorded time range
                       <View key={`set-${exerciseIndex}-${setIndex}`} style={styles.setRow}>
-                        <Text style={styles.setLabel}>{setIndex + 1}</Text>
+                        <Text style={styles.setLabel}> {setIndex + 1}</Text>
                         <Text style={styles.setValue}>{rep}</Text>
                         <Text style={styles.setValue}>{item.weight[setIndex]} lbs</Text>
                         <Text style={styles.setValue}>{timeRange}</Text>
 
-                        {/* Checkbox */}
-                        <TouchableOpacity
-                          style={styles.checkBox}
-                          onPress={() => {
-                            const key = `${exerciseIndex}-${setIndex}`;
-                            setCheckboxState((prev) => ({
-                              ...prev,
-                              [key]: !prev[key],
-                            }));
-                          }}
+                      {/* Checkbox */}
+                      <TouchableOpacity
+                        style={styles.checkBox}
+                        onPress={() => {
+                          const key = `${exerciseIndex}-${setIndex}`;
+                          setCheckboxState((prev) => ({
+                            ...prev,
+                            [key]: !prev[key],
+                          }));
+                        }}
+                      >
+                        <Text
+                          style={
+                            checkboxStates[`${exerciseIndex}-${setIndex}`]
+                              ? styles.checked
+                              : styles.unchecked
+                          }
                         >
-                          <Text
-                            style={
-                              checkboxStates[`${exerciseIndex}-${setIndex}`]
-                                ? styles.checked
-                                : styles.unchecked
-                            }
-                          >
-                            {checkboxStates[`${exerciseIndex}-${setIndex}`] ? "✔" : " "}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    );
+                        {checkboxStates[`${exerciseIndex}-${setIndex}`] ? "✔" : " "}
+                        </Text>
+                      </TouchableOpacity>
+                    </View> 
+                    );                 
                   })}
                 </View>
               )}
             />
 
-        <TouchableOpacity
+         <TouchableOpacity
                 style={styles.finishButton}
                 onPress={async () => {
                   await logWorkout();
