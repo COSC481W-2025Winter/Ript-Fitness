@@ -19,6 +19,7 @@ public class Food {
     public AccountsModel account;
 	
 	//Define columns in the database
+    public String barcode;
 	public String name;
 	public double calories;
 	public double carbs;
@@ -35,4 +36,5 @@ public class Food {
 	public double potassium;
 	public double serving; //for the serving (can have .75 of something)
 	public boolean isDeleted = false;
+	
 }
