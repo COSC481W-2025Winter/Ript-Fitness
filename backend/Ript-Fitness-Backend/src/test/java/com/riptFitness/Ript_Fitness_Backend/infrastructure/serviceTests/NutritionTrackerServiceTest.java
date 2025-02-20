@@ -81,7 +81,7 @@ public class NutritionTrackerServiceTest {
 		food.calories = 400.0;
 		food.protein = 30.0;
 		food.carbs = 40.0;
-		food.fat = 2.01;
+		food.fat = 21.0;
 		food.serving = 1.0;
 		food.cholesterol = 200.0;
 		food.saturatedFat = 22.0;
@@ -149,7 +149,7 @@ public class NutritionTrackerServiceTest {
 		
 		assertNotNull(result);
 		assertEquals("Protein bar", result.name);
-		assertEquals(21, result.fat);
+		assertEquals(21.0, result.fat);
 	}
 	@Test
 	void testServiceAddFoodValid2() {
