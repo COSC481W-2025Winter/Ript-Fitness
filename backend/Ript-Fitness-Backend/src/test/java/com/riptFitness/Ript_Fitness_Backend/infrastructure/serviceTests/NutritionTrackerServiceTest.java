@@ -78,20 +78,20 @@ public class NutritionTrackerServiceTest {
 		
 		food = new Food();
 		food.name = "Protein bar";
-		food.calories = 400;
-		food.protein = 30;
-		food.carbs = 40;
-		food.fat = 21;
+		food.calories = 400.0;
+		food.protein = 30.0;
+		food.carbs = 40.0;
+		food.fat = 2.01;
 		food.serving = 1.0;
-		food.cholesterol = 200;
-		food.saturatedFat = 22;
-		food.transFat = 1;
-		food.sodium = 10;
-		food.fiber = 3;
-		food.sugars = 150;
-		food.calcium = 17;
-		food.iron = 2;
-		food.potassium = 11;
+		food.cholesterol = 200.0;
+		food.saturatedFat = 22.0;
+		food.transFat = 1.0;
+		food.sodium = 10.0;
+		food.fiber = 3.0;
+		food.sugars = 150.0;
+		food.calcium = 17.0;
+		food.iron = 2.0;
+		food.potassium = 11.0;
 		food.account = account;
 		
 		foodDtoTwo = new FoodDto();
@@ -113,19 +113,19 @@ public class NutritionTrackerServiceTest {
 		
 		foodTwo = new Food();
 		foodTwo.name = "Chicken breast";
-		foodTwo.calories = 500;
-		foodTwo.protein = 100;
-		foodTwo.carbs = 0;
-		foodTwo.fat = 9;
-		foodTwo.cholesterol = 100;
-		foodTwo.saturatedFat = 39;
-		foodTwo.transFat = 0;
-		foodTwo.sodium = 18;
-		foodTwo.fiber = 30;
-		foodTwo.sugars = 10;
-		foodTwo.calcium = 23;
-		foodTwo.iron = 7;
-		foodTwo.potassium = 13;
+		foodTwo.calories = 500.0;
+		foodTwo.protein = 100.0;
+		foodTwo.carbs = 0.0;
+		foodTwo.fat = 9.0;
+		foodTwo.cholesterol = 100.0;
+		foodTwo.saturatedFat = 39.0;
+		foodTwo.transFat = 0.0;
+		foodTwo.sodium = 18.0;
+		foodTwo.fiber = 30.0;
+		foodTwo.sugars = 10.0;
+		foodTwo.calcium = 23.0;
+		foodTwo.iron = 7.0;
+		foodTwo.potassium = 13.0;
 		foodTwo.serving = 0.5;
 				
 		dayDto = new DayDto();
