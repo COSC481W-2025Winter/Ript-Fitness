@@ -24,6 +24,7 @@ import { WorkoutContext } from "@/context/WorkoutContext";  // Import WorkoutCon
 export default function MyWorkoutsScreen() {
   const context = useContext(GlobalContext);
   const workoutContext = useContext(WorkoutContext); // Access workout data and state using WorkoutContext.
+  const isDarkMode = context?.isDarkMode;
 
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
