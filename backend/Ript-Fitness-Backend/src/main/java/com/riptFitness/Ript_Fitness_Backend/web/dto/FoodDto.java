@@ -20,4 +20,5 @@ public class FoodDto {
 	public Double potassium;
 	public Double serving;
 	public boolean isDeleted = false;
+	
 }
