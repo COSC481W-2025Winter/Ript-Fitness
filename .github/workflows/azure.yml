@@ -97,6 +97,6 @@ jobs:
         app-name: Ript-Fitness   # Your Azure Web App name
         app-settings-json: >
           [
-            {"name": "USDA_API_KEY", "value": "${{ secrets.USDA_API_KEY }}", "slotSetting": false},
+            {"name": "USDA_API_KEY", "value": "${{ secrets.USDA_API_KEY }}", "slotSetting": false}
           ]
 
