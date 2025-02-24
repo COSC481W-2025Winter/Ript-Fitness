@@ -56,10 +56,26 @@ public class NutritionTrackerService {
 	}
 	
 	//Each method is public and will return a Dto of some sort to the Controller class
-	
+	  
 	//Adds a Food object to the database
 	public FoodDto addFood(FoodDto foodDto) {
 		Food foodToBeAdded = FoodMapper.INSTANCE.toFood(foodDto);
+		
+		//default null fields to zero
+		foodToBeAdded.calories = (foodToBeAdded.calories == null) ? 0.0 : foodToBeAdded.calories;
+	    foodToBeAdded.carbs = (foodToBeAdded.carbs == null) ? 0.0 : foodToBeAdded.carbs;
+	    foodToBeAdded.protein = (foodToBeAdded.protein == null) ? 0.0 : foodToBeAdded.protein;
+	    foodToBeAdded.fat = (foodToBeAdded.fat == null) ? 0.0 : foodToBeAdded.fat;
+	    foodToBeAdded.fiber = (foodToBeAdded.fiber == null) ? 0.0 : foodToBeAdded.fiber;
+	    foodToBeAdded.iron = (foodToBeAdded.iron == null) ? 0.0 : foodToBeAdded.iron;
+	    foodToBeAdded.sodium = (foodToBeAdded.sodium == null) ? 0.0 : foodToBeAdded.sodium;
+	    foodToBeAdded.sugars = (foodToBeAdded.sugars == null) ? 0.0 : foodToBeAdded.sugars;
+	    foodToBeAdded.potassium = (foodToBeAdded.potassium == null) ? 0.0 : foodToBeAdded.potassium;
+	    foodToBeAdded.calcium = (foodToBeAdded.calcium == null) ? 0.0 : foodToBeAdded.calcium;
+	    foodToBeAdded.cholesterol = (foodToBeAdded.cholesterol == null) ? 0.0 : foodToBeAdded.cholesterol;
+	    foodToBeAdded.saturatedFat = (foodToBeAdded.saturatedFat == null) ? 0.0 : foodToBeAdded.saturatedFat;
+		foodToBeAdded.transFat = (foodToBeAdded.transFat == null) ? 0.0 : foodToBeAdded.transFat;
+		
 		foodToBeAdded.name = (foodToBeAdded.name == null) ? "Unnamed food" : foodToBeAdded.name;	//If name is null in HTTP request, set name to "Unnamed food"
 		foodToBeAdded.serving = (foodToBeAdded.serving == 0) ? 1 : foodToBeAdded.serving;	//If serving is null in HTTP request, set serving to 1
 		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
@@ -449,7 +465,5 @@ public class NutritionTrackerService {
 	        throw new RuntimeException("Error parsing USDA API response", e);
 	    }
 	}
-
-
 
 }
