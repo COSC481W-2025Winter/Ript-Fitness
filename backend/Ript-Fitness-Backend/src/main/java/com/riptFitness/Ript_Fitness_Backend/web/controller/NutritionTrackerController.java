@@ -31,11 +31,26 @@ public class NutritionTrackerController {
 	}
 	
 	//To call this endpoint, use URL: localhost:8080/nutritionCalculator/addFood. Include a FoodDto object in JSON form in body of request, this object will be added to database
+//	@PostMapping("/addFood")
+//	public ResponseEntity<FoodDto> addFood(@RequestBody FoodDto foodDto){
+//		FoodDto savedFoodObject = nutritionTrackerService.addFood(foodDto);
+//		return new ResponseEntity<>(savedFoodObject, HttpStatus.CREATED);
+//	}
+	
 	@PostMapping("/addFood")
-	public ResponseEntity<FoodDto> addFood(@RequestBody FoodDto foodDto){
-		FoodDto savedFoodObject = nutritionTrackerService.addFood(foodDto);
-		return new ResponseEntity<>(savedFoodObject, HttpStatus.CREATED);
+	public ResponseEntity<FoodDto> addFood(@RequestBody FoodDto foodDto) {
+	    try {
+	        System.out.println("Received request to add food: " + foodDto); // Log incoming request
+	        FoodDto savedFoodObject = nutritionTrackerService.addFood(foodDto);
+	        System.out.println("Successfully saved food: " + savedFoodObject); // Log successful save
+	        return new ResponseEntity<>(savedFoodObject, HttpStatus.CREATED);
+	    } catch (Exception e) {
+	        System.err.println("Error saving food: " + e.getMessage()); // Log error to console
+	        e.printStackTrace(); // Print full error trace
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+	    }
 	}
+
 	
 	//localhost:8080/nutritionCalculator/getFood/{INSERT FOOD ID NUMBER HERE}, body is empty in this request
 	@GetMapping("/getFood/{foodId}")

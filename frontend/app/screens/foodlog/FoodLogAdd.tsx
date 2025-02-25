@@ -118,7 +118,7 @@ const FoodLogAddPage = () => {
             protein: foodProtein,
             carbs: foodCarbs,  
             fat: foodFat, 
-            multiplier: foodServings, 
+            serving: foodServings, 
             isDeleted: false, 
         };
         
@@ -155,7 +155,7 @@ const FoodLogAddPage = () => {
             protein: foodProtein,
             carbs: foodCarbs,  
             fat: foodFat, 
-            multiplier: foodServings, 
+            serving: foodServings, 
             isDeleted: false, 
         };
 
