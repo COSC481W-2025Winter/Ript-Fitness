@@ -239,26 +239,25 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
 
 const styles = StyleSheet.create({
   foodItemContainer: {
-    padding: 20,
+    padding: 3,
     backgroundColor: '#EDEDED',
     alignSelf: 'center',
     alignItems: 'center',
-    borderRadius: 5,
-    marginBottom: 5,
-    marginTop: 7,
-    // borderBottomWidth: 1,
-    // borderColor: 'black',
+    borderRadius: 3,
+    marginBottom: 1,
+    marginTop: 1,
     flexDirection: 'row',
   },
   foodName: {
-    fontSize: 16,
+    fontSize: 10,
     fontWeight: 'bold',
   },
   foodTextRight: {
     position: 'absolute',
-    right: 10,
+    right: 5,
     flexDirection: 'row',
-    marginTop: 23,
+    marginTop: 8,
+    fontSize: 10,
   },
   modalOverlay: {
     flex: 1,
@@ -283,16 +282,13 @@ const styles = StyleSheet.create({
   },
   modalTitleEdit: {
     fontSize: 18,
-    // backgroundColor: '#D9D9D9',
     width: '80%',
     borderRadius: 5,
-    // textAlign: 'center',
     color: '#B6B6B6',
     fontWeight: 'bold',
     marginBottom: 20,
   },
   repInputEdit: {
-    // fontSize: 16,
     fontSize: Platform.OS === "ios" ? 16 : 14,
     backgroundColor: '#D9D9D9',
     width: '20%',
