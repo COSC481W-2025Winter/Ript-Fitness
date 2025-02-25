@@ -57,8 +57,6 @@ const FoodLogLoggedPage = () => {
      const foodTodayKey = `${userID}_foodTodayDetails`;
      const dayKey = `${userID}_day`;
 
-     const isDarkMode = context?.isDarkMode;
-
 
 
     // Function to fetch food details
@@ -282,7 +280,7 @@ const logFoodToDay = async (food: Food) => {
 
 
     return cached && foodDetails.length > 0 ? (
-        <View style={[isDarkMode ? styles.darkBottomContainer : styles.bottomContainer]}>
+        <View style={styles.bottomContainer}>
             <FlatList<Food>
                 data={foodDetails}
                 renderItem={renderItem}
@@ -297,7 +295,7 @@ const logFoodToDay = async (food: Food) => {
         </View>
      ) : foodDetails.length === 0 ? (
         <View>
-            <Text style={[isDarkMode? styles.darkMessage : styles.message]}>No food items found.</Text>
+            <Text style={styles.message}>No food items found.</Text>
         </View>
      ) : (
 // {/* THIS IS THE NEW STUFF FOR THE ADD PAGE*/}
@@ -338,24 +336,13 @@ const styles = StyleSheet.create({
     },
     bottomContainer: {
         height: '100%',
-        backgroundColor: '#fff',
-    }, 
-    darkBottomContainer: {
-        height: '100%',
-        backgroundColor: 'black',
+        backgroundColor: '#fff'
     }, 
     message: {
         textAlign: 'center', 
         fontWeight: 'bold', 
         fontSize: 20,
         padding: 30,
-    },
-    darkMessage: {
-        textAlign: 'center', 
-        fontWeight: 'bold', 
-        fontSize: 20,
-        padding: 30,
-        color: 'white',
     },
     swipeDeleteButton: {
         backgroundColor: 'red',
