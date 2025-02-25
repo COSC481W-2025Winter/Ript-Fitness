@@ -4,6 +4,7 @@ import BodyDiagram from '@/components/BodyDiagram';
 import { httpRequests } from '@/api/httpRequests'; // Use named import
 import AuthContext, { useAuth } from '../../../context/AuthContext'; // Adjust the path to the actual location of AuthContext
 import { ScrollView } from 'react-native';
+
 // Define the BodyPart type
 export type BodyPart = 'Abdomen' | 'Legs' | 'Arms' | 'Back' | 'Shoulders'; // Example of defining BodyPart as a type
 
@@ -15,10 +16,14 @@ export default function BodyFocusScreen() {
   const [selectedExercises, setSelectedExercises] = useState<Set<string>>(new Set());
   const [isFrontView, setIsFrontView] = useState(true);
   const [loading, setLoading] = useState(false);
+  //assisted with this section
   const [workoutData, setWorkoutData] = useState<{
     front?: { [key in BodyPart]?: string[] };
     back?: { [key in BodyPart]?: string[] };
-  }>({});
+  }>({
+    front: {},
+    back: {},
+  });
   const [error, setError] = useState<string | null>(null);
   const { token } = useAuth(); //Access the context data with the defined type
   
@@ -34,8 +39,8 @@ const bodyPartToType: { [key in BodyPart]: number[] } = {
 
 // Fetch workouts from backend API when a body part is selected
 useEffect(() => {
+  if (!selectedPart) return;// prevents selectedPart from being null
   const fetchWorkouts = async () => {
-    if (!token || !selectedPart) return;
     setLoading(true);
     setError(null);
 
@@ -48,20 +53,18 @@ useEffect(() => {
       let allExercises: string[] = [];
 
       for (const type of exerciseTypes) {
-        console.log(`Fetching workouts for type: ${type}`);
-        const response = await fetch(
-          `${httpRequests.getBaseURL()}/exercises/getByType/3`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`, // Use the token from context
-            },
-          }
-        );
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        console.log(`\n=======================\nFetching workouts for type: ${type}`);
+        console.log(`\n=======================\n API Call: ${httpRequests.getBaseURL()}/exercises/getByType/${type}`);
+        const response = await httpRequests.get(`/exercises/getByType/${type}`, token);
+        
+        if (!response.ok) {
+          const errorText = await response.text();  // Read the response text
+          console.error(` API Error: ${response.status} - ${errorText}`);
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }  
         
         const responseData = await response.json();
-        console.log("API Response:", responseData);
+        console.log("\n=======================\nAPI Response:", responseData);
 
         // ExerciseTypeToName is no longer used here; instead, the name returned by the backend is used.
         const exercisesWithNames = responseData.map((exercise: any) => exercise.nameOfExercise);
@@ -69,7 +72,26 @@ useEffect(() => {
         allExercises = [...allExercises, ...exercisesWithNames];
       }
 
-      setWorkoutData(prev => ({ ...prev, [selectedPart]: allExercises })); // Store data
+       //assisted with this section
+      setWorkoutData(prev => {
+        if (isFrontView) {
+          return {
+            ...prev,
+            front: {
+              ...prev.front,
+              [selectedPart]: allExercises,
+            },
+          };
+        } else {
+          return {
+            ...prev,
+            back: {
+              ...prev.back,
+              [selectedPart]: allExercises,
+            },
+          };
+        }
+      });
     } catch (err: any) {
       console.error("Fetch error:", err);
       setError(err.message || 'Failed to fetch workout data');
@@ -167,7 +189,7 @@ useEffect(() => {
         <BodyDiagram
           onBodyPartClick={handleBodyPartClick}
           imageSource={isFrontView ? require('@/assets/images/body-diagram.png') : require('@/assets/images/body-diagram-back.png')}
-          isFrontView={isFrontView}  // 传递 isFrontView 状态
+          isFrontView={isFrontView}  
         />
       </View>
 
@@ -199,6 +221,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
+    backgroundColor: "rgba(0, 0, 7, 0.82)", 
   },
   exerciseContainer: {  // Controls the layout of the selected exercises section
     marginTop: 480,     // Adjusts the vertical position of the section
