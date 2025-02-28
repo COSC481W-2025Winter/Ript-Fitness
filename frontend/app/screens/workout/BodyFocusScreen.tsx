@@ -1,147 +1,113 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, Modal, Button, FlatList, TouchableOpacity } from 'react-native';
 import BodyDiagram from '@/components/BodyDiagram';
 
 // Define a type for valid body parts
-export type BodyPart = "Legs" | "Arms" | "Abdomen"| "Back" | "Shoulders";
+type BodyPart = 'Legs' | 'Arms' | 'Abdomen' | 'Back' | 'Shoulders';
 
 export default function BodyFocusScreen() {
-  const [selectedPart, setSelectedPart] = useState<BodyPart | "">("");
+  // State variables to manage selected body part, exercise list, modal visibility, and view mode
+  const [selectedPart, setSelectedPart] = useState<BodyPart | ''>('');
   const [exerciseList, setExerciseList] = useState<Set<string>>(new Set());
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedExercises, setSelectedExercises] = useState<Set<string>>(new Set());
   const [isFrontView, setIsFrontView] = useState(true);
 
-  // Exercise data for front and back views
+  // Exercise data categorized by front and back views
   const exercises = {
     front: {
-      Legs: ["Squats", "Lunges", "Leg Press", "Deadlifts"],
-      Arms: ["Bicep Curl", "Pull-ups", "Incline Dumbbell Curl", "Bent-over Rows"],
-      Abdomen: ["Crunches", "Plank", "Russian Twists", "Leg Raises"],
+      Legs: ['Squats', 'Lunges', 'Leg Press', 'Deadlifts'],
+      Arms: ['Bicep Curl', 'Pull-ups', 'Incline Dumbbell Curl', 'Bent-over Rows'],
+      Abdomen: ['Crunches', 'Plank', 'Russian Twists', 'Leg Raises'],
     },
     back: {
-      Back: ["Lat Pulldown", "Bent-over Rows", "Pull-ups", "Face Pulls", "Seated Cable Rows", "Reverse Flys", "Hyperextensions"],
-      Shoulders: ["Overhead Press", "Arnold Press", "Lateral Raises", "Front Raises", "Reverse Pec Deck", "Shrugs", "Upright Rows"],
+      Back: ['Lat Pulldown', 'Bent-over Rows', 'Pull-ups', 'Face Pulls', 'Seated Cable Rows', 'Reverse Flys', 'Hyperextensions'],
+      Shoulders: ['Overhead Press', 'Arnold Press', 'Lateral Raises', 'Front Raises', 'Reverse Pec Deck', 'Shrugs', 'Upright Rows'],
     },
   };
 
-  // Handle body part selection and display modal
+  // Handles body part selection and opens the modal if valid
   const handleBodyPartClick = (part: BodyPart) => {
-   // Prevent modal from opening if the user clicks "Back" or "Shoulders" while in front view
-  if (isFrontView && (part === "Back" || part === "Shoulders")) {
-    return;
-  }
-
-  // Prevent modal from opening if the user clicks anything other than "Back" or "Shoulders" while in back view
-  if (!isFrontView && part !== "Back" && part !== "Shoulders") {
-    return;
-  }
-    setSelectedPart(part); 
+    if (isFrontView && (part === 'Back' || part === 'Shoulders')) return;
+    if (!isFrontView && part !== 'Back' && part !== 'Shoulders') return;
+    setSelectedPart(part);
     setModalVisible(true);
   };
 
-  // Toggle selection of exercises
+  // Toggles selection of exercises in the modal
   const toggleExerciseSelection = (exercise: string) => {
     setSelectedExercises(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(exercise)) {
-        newSet.delete(exercise);
-      } else {
-        newSet.add(exercise);
-      }
+      newSet.has(exercise) ? newSet.delete(exercise) : newSet.add(exercise);
       return newSet;
     });
   };
 
-  // Save selected exercises
+  // Saves selected exercises to the main exercise list and closes the modal
   const saveSelectedExercises = () => {
-    selectedExercises.forEach(exercise => exerciseList.add(exercise));
-    setExerciseList(new Set(exerciseList)); // Update exercise list
-    setSelectedExercises(new Set()); // Clear selected exercises
+    setExerciseList(prev => new Set([...prev, ...selectedExercises]));
+    setSelectedExercises(new Set());
     setModalVisible(false);
   };
 
-  // Clear all selected exercises
+  // Clears all selected exercises and resets the selected body part
   const clearAllExercises = () => {
-    setExerciseList(new Set()); // Clear exercise list
-    setSelectedPart(""); // Clear selected body part
+    setExerciseList(new Set());
+    setSelectedPart('');
   };
 
-  //Toggle between front and back view
+  // Toggles between front and back body diagram views
   const toggleView = () => {
     setIsFrontView(prev => !prev);
-    setSelectedPart(""); // Clear selected body part when switching
+    setSelectedPart('');
   };
 
-  // Get the appropriate exercises for the selected body part
+  // Retrieves the appropriate exercise list based on the selected body part and view mode
   const selectedExercisesList = isFrontView
     ? exercises.front[selectedPart as keyof typeof exercises.front] || []
     : exercises.back[selectedPart as keyof typeof exercises.back] || [];
 
   return (
     <View style={styles.container}>
-      {/* Display selected exercises */}
-      <View style={{ marginTop: 485 }}>  // Adjust marginTop to control positioning
-      <Text style={styles.exerciseTitle}>
-        Selected Exercises: <Text style={styles.selectedBodyPart}></Text>
-      </Text>
-      <FlatList
-        data={[...exerciseList]} // Convert Set to an array
-        renderItem={({ item }) => <Text style={styles.exerciseText}>• {item}</Text>}
-        keyExtractor={(item, index) => index.toString()}
-        numColumns={2} //  Limit to 2 items per row
-        scrollEnabled={false} //Disable scrolling
-        contentContainerStyle={styles.exerciseListContainer}
-        style={{ maxHeight: 6 * 30 }} // Limit to a maximum of 6 rows, each around 30px
-      />
-    <View style={{ alignItems: 'center', marginTop: 10 }}> 
-      <TouchableOpacity onPress={toggleView} style={styles.toggleButton}>
-        <Text style={styles.toggleButtonText}>
-          {isFrontView ? "Switch to Back View" : "Switch to Front View"}
-        </Text>
-      </TouchableOpacity>
-    </View>
-       {/* Add "Clear All" button */}
+      {/* Displays the selected exercises */}
+      <View style={styles.exerciseContainer}>
+        <Text style={styles.exerciseTitle}>Selected Exercises:</Text>
+        <FlatList
+          data={[...exerciseList]}
+          renderItem={({ item }) => <Text style={styles.exerciseText}>• {item}</Text>}
+          keyExtractor={(item, index) => index.toString()}
+          numColumns={2}
+          scrollEnabled={false}
+          contentContainerStyle={styles.exerciseListContainer}
+        />
+        <TouchableOpacity onPress={toggleView} style={styles.toggleButton}>
+          <Text style={styles.toggleButtonText}>{isFrontView ? 'Switch to Back View' : 'Switch to Front View'}</Text>
+        </TouchableOpacity>
         {exerciseList.size > 0 && (
-            <View style={{ alignItems: 'center', marginTop: 10 }}>  // Center the button
-              <TouchableOpacity 
-                onPress={clearAllExercises} 
-                style={styles.clearButton}
-              >
-                <Text style={styles.clearButtonText}>Clear All</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+          <TouchableOpacity onPress={clearAllExercises} style={styles.clearButton}>
+            <Text style={styles.clearButtonText}>Clear All</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
+      {/* Displays the interactive body diagram */}
       <View style={styles.bodyDiagramContainer}>
         <BodyDiagram
-        onBodyPartClick={handleBodyPartClick} 
-        imageSource={isFrontView ? require('@/assets/images/body-diagram.png') : require('@/assets/images/body-diagram-back.png')}
+          onBodyPartClick={handleBodyPartClick}
+          imageSource={isFrontView ? require('@/assets/images/body-diagram.png') : require('@/assets/images/body-diagram-back.png')}
         />
       </View>
-      
-      {/* Modal for exercise selection */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
+
+       {/* Modal for selecting exercises */}
+      <Modal animationType="slide" transparent visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalView}>
           <Text style={styles.modalTitle}>Select Exercises for {selectedPart}</Text>
           <FlatList
             data={selectedExercisesList}
             renderItem={({ item }) => (
-              <View style={styles.exerciseOption}>
-                <Button
-                  title={item}
-                  onPress={() => toggleExerciseSelection(item)}
-                  color={selectedExercises.has(item) ? "green" : "blue"}
-                />
-              </View>
+              <Button title={item} onPress={() => toggleExerciseSelection(item)} color={selectedExercises.has(item) ? 'green' : 'blue'} />
             )}
-            keyExtractor={(item) => item}
+            keyExtractor={item => item}
             contentContainerStyle={styles.exerciseListContainer}
           />
           <TouchableOpacity onPress={saveSelectedExercises} style={styles.customButton}>
@@ -151,16 +117,23 @@ export default function BodyFocusScreen() {
         </View>
       </Modal>
     </View>
-    );
-  }
+  );
+}
 
-// Styles
+// Styles for the component
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
+  exerciseContainer: {  // Controls the layout of the selected exercises section
+    marginTop: 500,     // Adjusts the vertical position of the section
+    alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: 20,
+  },
+
   exerciseTitle: {
     fontWeight: 'bold',
     fontSize: 16,
@@ -202,7 +175,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#21BFBF',
     padding: 8,
     borderRadius: 5,
-    marginTop: 5,
+    marginTop: 10,
     alignItems: 'center',
     width: 150,  
     height: 30, 
@@ -257,7 +230,7 @@ const styles = StyleSheet.create({
     borderRadius: 30, 
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 5, 
+    marginTop: 10, 
   },
   
   clearButtonText: {
