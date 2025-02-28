@@ -4,7 +4,6 @@ import BodyDiagram from '@/components/BodyDiagram';
 import { httpRequests } from '@/api/httpRequests'; // Use named import
 import AuthContext, { useAuth } from '../../../context/AuthContext'; // Adjust the path to the actual location of AuthContext
 import { ScrollView } from 'react-native';
-
 // Define the BodyPart type
 export type BodyPart = 'Abdomen' | 'Legs' | 'Arms' | 'Back' | 'Shoulders'; // Example of defining BodyPart as a type
 
@@ -16,14 +15,16 @@ export default function BodyFocusScreen() {
   const [selectedExercises, setSelectedExercises] = useState<Set<string>>(new Set());
   const [isFrontView, setIsFrontView] = useState(true);
   const [loading, setLoading] = useState(false);
+  
   //assisted with this section
   const [workoutData, setWorkoutData] = useState<{
-    front?: { [key in BodyPart]?: string[] };
-    back?: { [key in BodyPart]?: string[] };
+    front: { [key in BodyPart]?: string[] };
+    back: { [key in BodyPart]?: string[] };
   }>({
     front: {},
     back: {},
   });
+  
   const [error, setError] = useState<string | null>(null);
   const { token } = useAuth(); //Access the context data with the defined type
   
@@ -55,13 +56,22 @@ useEffect(() => {
       for (const type of exerciseTypes) {
         console.log(`\n=======================\nFetching workouts for type: ${type}`);
         console.log(`\n=======================\n API Call: ${httpRequests.getBaseURL()}/exercises/getByType/${type}`);
-        const response = await httpRequests.get(`/exercises/getByType/${type}`, token);
-        
+        const response = await fetch(
+          `$164.76.74.93:8080/exercises/getByType/${type}`,
+          //164.76.74.93:8080/exercisesWithNames.getByType/${type},
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json", //required to receive the json
+              Authorization: `Bearer ${token}`, // Use the token from context
+            },
+          }
+        );
         if (!response.ok) {
           const errorText = await response.text();  // Read the response text
           console.error(` API Error: ${response.status} - ${errorText}`);
           throw new Error(`HTTP error! Status: ${response.status}`);
-        }  
+        }        
         
         const responseData = await response.json();
         console.log("\n=======================\nAPI Response:", responseData);
@@ -72,7 +82,7 @@ useEffect(() => {
         allExercises = [...allExercises, ...exercisesWithNames];
       }
 
-       //assisted with this section
+        //assisted with this section
       setWorkoutData(prev => {
         if (isFrontView) {
           return {
@@ -92,7 +102,7 @@ useEffect(() => {
           };
         }
       });
-    } catch (err: any) {
+          } catch (err: any) {
       console.error("Fetch error:", err);
       setError(err.message || 'Failed to fetch workout data');
     } finally {
@@ -228,6 +238,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     paddingHorizontal: 20,
+    
   },
 
   exerciseTitle: {
@@ -285,7 +296,7 @@ const styles = StyleSheet.create({
 
   modalView: {
     margin: 60,
-    backgroundColor: 'white',
+    backgroundColor: "rgba(4, 4, 25, 0.73)",
     borderRadius: 90,
     padding: 30,
     alignItems: 'center',
