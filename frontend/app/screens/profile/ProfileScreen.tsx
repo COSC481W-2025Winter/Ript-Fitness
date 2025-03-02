@@ -12,6 +12,7 @@ import {
   TouchableWithoutFeedback,
   Alert,
   Platform,
+  Switch,
 } from 'react-native';
 import * as Haptics from "expo-haptics";
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -1081,22 +1082,21 @@ function CustomDrawerContent({ navigation }: any) {
         </TouchableOpacity>
 
         // Dark mode button
-        <TouchableOpacity
-          style={styles.drawerItem}
-          onPress={() => {
+        
+          <View style={styles.drawerItemTextContainer}>
+          <Switch 
+          value={context?.isDarkMode}
+          //style={styles.drawerItem}
+          onValueChange={() => {
             // Handle logic here
             context?.toggleTheme();
-            //navigation.closeDrawer();
           }}
-        
-        >
-          <View style={styles.drawerItemTextContainer}>
+        />
             <MaterialCommunityIcons name={context?.isDarkMode ? 'weather-sunny' : 'weather-night'} size={24} color={iconColor} />
             <Text style={[styles.drawerItemText, {color: textColor}]}>
             {context?.isDarkMode ? "Light Mode" : "Dark Mode"}
             </Text>
           </View>
-        </TouchableOpacity>
       </View>
       <TouchableOpacity
         style={styles.drawerItem}
