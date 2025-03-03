@@ -119,12 +119,12 @@ public class NutritionTrackerController {
         return ResponseEntity.ok(foodDto);
     }
 	
-	@GetMapping("/weeklyTrends")
+	@GetMapping("/getWeeklyTrends")
 	public ResponseEntity<Map<LocalDate, Map<String, Double>>> getNutritionTrendsLastWeek(){
 		return ResponseEntity.ok(nutritionTrackerService.getNutritionTrendsfor7Days());
 	}
 	
-	@GetMapping("/monthlyTrends")
+	@GetMapping("/getMonthlyTrends")
 	public ResponseEntity<Map<LocalDate, Map<String, Double>>> getNutritionTrendsLastMonth(){
 		return ResponseEntity.ok(nutritionTrackerService.getNutritionTrendsfor30Days());
 	}

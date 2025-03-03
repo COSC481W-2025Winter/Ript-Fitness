@@ -461,14 +461,21 @@ public class NutritionTrackerService {
 		
 		return days.stream().collect(Collectors.toMap(
 	            day -> day.getDate(),
-	            day -> Map.of(
-	                "calories", day.calories,
-	                "protein", day.totalProtein,
-	                "carbs", day.totalCarbs,
-	                "fat", day.totalFat,
-	                "sodium", day.totalSodium,
-	                "fiber", day.totalFiber,
-	                "sugars", day.totalSugars)
+	            day -> {
+	                Map<String, Double> nutritionMap = new HashMap<>();
+	                nutritionMap.put("calories", day.calories);
+	                nutritionMap.put("protein", day.totalProtein);
+	                nutritionMap.put("carbs", day.totalCarbs);
+	                nutritionMap.put("fat", day.totalFat);
+	                nutritionMap.put("sodium", day.totalSodium);
+	                nutritionMap.put("fiber", day.totalFiber);
+	                nutritionMap.put("sugars", day.totalSugars);
+	                return nutritionMap;
+	            },
+	            (existing, newEntry) -> { // Handle duplicate dates by summing values
+	                newEntry.forEach((key, value) -> existing.merge(key, value, Double::sum));
+	                return existing;
+	            }
 				));
 	}
 	
@@ -489,6 +496,10 @@ public class NutritionTrackerService {
 	                nutritionMap.put("fiber", day.totalFiber);
 	                nutritionMap.put("sugars", day.totalSugars);
 	                return nutritionMap;
+	            },
+	            (existing, newEntry) -> { // Handle duplicate dates by summing values
+	                newEntry.forEach((key, value) -> existing.merge(key, value, Double::sum));
+	                return existing;
 	            }
 				));
 	}
