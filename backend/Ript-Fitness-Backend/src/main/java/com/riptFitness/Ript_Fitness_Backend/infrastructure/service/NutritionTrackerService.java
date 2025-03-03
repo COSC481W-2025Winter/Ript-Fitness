@@ -1,9 +1,13 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -450,6 +454,44 @@ public class NutritionTrackerService {
 	    }
 	}
 
+	public Map<LocalDate, Map<String, Double>> getNutritionTrendsfor7Days(){
+		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
+		LocalDate sevenDaysAgo = LocalDate.now().minusDays(7);
+		List<Day> days = nutritionTrackerDayRepository.findLastXDays(currentlyLoggedInUserId, sevenDaysAgo);
+		
+		return days.stream().collect(Collectors.toMap(
+	            day -> day.getDate(),
+	            day -> Map.of(
+	                "calories", day.calories,
+	                "protein", day.totalProtein,
+	                "carbs", day.totalCarbs,
+	                "fat", day.totalFat,
+	                "sodium", day.totalSodium,
+	                "fiber", day.totalFiber,
+	                "sugars", day.totalSugars)
+				));
+	}
+	
+	public Map<LocalDate, Map<String, Double>> getNutritionTrendsfor30Days(){
+		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
+		LocalDate sevenDaysAgo = LocalDate.now().minusDays(30);
+		List<Day> days = nutritionTrackerDayRepository.findLastXDays(currentlyLoggedInUserId, sevenDaysAgo);
+		
+		return days.stream().collect(Collectors.toMap(
+	            day -> day.getDate(),
+	            day -> {
+	                Map<String, Double> nutritionMap = new HashMap<>();
+	                nutritionMap.put("calories", day.calories);
+	                nutritionMap.put("protein", day.totalProtein);
+	                nutritionMap.put("carbs", day.totalCarbs);
+	                nutritionMap.put("fat", day.totalFat);
+	                nutritionMap.put("sodium", day.totalSodium);
+	                nutritionMap.put("fiber", day.totalFiber);
+	                nutritionMap.put("sugars", day.totalSugars);
+	                return nutritionMap;
+	            }
+				));
+	}
 
 
 }
