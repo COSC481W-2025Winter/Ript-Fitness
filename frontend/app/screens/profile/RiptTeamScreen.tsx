@@ -42,61 +42,61 @@ const data = [
     title: "Developer"
   },
   {
-    id: 9,
+    id: 6,
     name: "Christopher Pichler",
     imageSrc: require('@/assets/images/team_photos/christopher_p.png'),
     title: "Lead Developer"
   },
   {
-    id: 10,
+    id: 7,
     name: "Tom Van den Bulck",
     imageSrc: require('@/assets/images/team_photos/tom.jpg'),
     title: "Co-Lead Developer"
   },
   {
-    id: 11,
+    id: 8,
     name: "Nathan Halash",
     imageSrc: require('@/assets/images/team_photos/nathan.jpg'),
     title: "Developer"
   },
   {
-    id: 12,
+    id: 9,
     name: "Christopher Martus",
     imageSrc: require('@/assets/images/team_photos/christopher_m.jpg'),
     title: "Developer"
   },
   {
-    id: 13,
+    id: 10,
     name: "Christina Trotta",
     imageSrc: require('@/assets/images/team_photos/tina.jpg'),
     title: "Database Developer"
   },
   {
-    id: 14,
+    id: 11,
     name: "Jaison Eccleston",
     imageSrc: require('@/assets/images/team_photos/Jaison.jpeg'),
     title: "Developer"
   },
   {
-    id: 6,
+    id: 12,
     name: "Brianna Smith",
     imageSrc: require('@/assets/images/team_photos/brianna.jpg'),
     title: "Developer"
   },
   {
-    id: 15,
+    id: 13,
     name: "Maryam Judeh",
     imageSrc: require('@/assets/images/team_photos/placeholder.png'),
     title: "Developer"
   },
   {
-    id: 7,
+    id: 14,
     name: "Rong Hu",
     imageSrc: require('@/assets/images/team_photos/placeholder.png'),
     title: "Developer"
   },
   {
-    id: 8,
+    id: 15,
     name: "Jake Phaydavong",
     imageSrc: require('@/assets/images/team_photos/placeholder.png'),
     title: "Developer"
@@ -144,19 +144,19 @@ function TeamScreen({ filteredData }: TeamScreenProps) {
 }
 
 
-function FrontendScreen() {
-  const frontendMembers = data.filter((item) => item.id <= 8);
+function FallScreen() {
+  const fallMembers = data.filter((item) => item.id <= 10);
 
   return (
-    <TeamScreen filteredData={frontendMembers} />
+    <TeamScreen filteredData={fallMembers} />
   );
 }
 
-function BackendScreen() {
-  const backendMembers = data.filter((item) => item.id > 8);
+function WinterScreen() {
+  const winterMembers = data.filter((item) => item.id > 10);
 
   return (
-    <TeamScreen filteredData={backendMembers} />
+    <TeamScreen filteredData={winterMembers} />
   );
 }
 
@@ -185,16 +185,18 @@ const RiptTeamScreen = ({ navigation }: any) => {
               source={require('@/assets/images/team-photo-1.jpg')}/>
         </View>
         <View style={{ height: 500 }}>
-          <Tab.Navigator
+          
+            <Tab.Navigator
             screenOptions={{
               tabBarLabelStyle: { fontSize: 14, fontWeight: 'bold', color: isDarkMode ? 'white' : 'black' },
               tabBarStyle: { backgroundColor: isDarkMode? 'black' : '#fff' },
               tabBarIndicatorStyle: { backgroundColor: '#21BFBF', height: 3, },
-            }}
-          >
-            <Tab.Screen name="Front-end" component={FrontendScreen} />
-            <Tab.Screen name="Back-end" component={BackendScreen} />
+            }}>
+
+            <Tab.Screen name="Fall" component={FallScreen} />
+            <Tab.Screen name="Winter" component={WinterScreen} />
           </Tab.Navigator>
+
         </View>
       </View>
     </View>
