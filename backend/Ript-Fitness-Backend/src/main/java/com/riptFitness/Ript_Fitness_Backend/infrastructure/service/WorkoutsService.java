@@ -1,5 +1,6 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,6 +47,12 @@ public class WorkoutsService {
         Workouts newWorkout = new Workouts();
         newWorkout.setName(workoutsDto.getName());
         newWorkout.setAccount(account); 
+        
+        if (workoutsDto.getWorkoutDate() != null) {
+            newWorkout.setWorkoutDate(workoutsDto.getWorkoutDate());
+        } else {
+            newWorkout.setWorkoutDate(LocalDate.now());
+        }
 
         List<ExerciseModel> exercises = new ArrayList<>();
 
@@ -74,8 +81,6 @@ public class WorkoutsService {
 
         return responseDto;
     }
-
-
 
 
 	// Retrieve a single workout object based on a workout Id
