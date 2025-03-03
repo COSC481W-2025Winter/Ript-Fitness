@@ -42,35 +42,65 @@ const data = [
     title: "Developer"
   },
   {
-    id: 6,
+    id: 9,
     name: "Christopher Pichler",
     imageSrc: require('@/assets/images/team_photos/christopher_p.png'),
     title: "Lead Developer"
   },
   {
-    id: 7,
+    id: 10,
     name: "Tom Van den Bulck",
     imageSrc: require('@/assets/images/team_photos/tom.jpg'),
     title: "Co-Lead Developer"
   },
   {
-    id: 8,
+    id: 11,
     name: "Nathan Halash",
     imageSrc: require('@/assets/images/team_photos/nathan.jpg'),
     title: "Developer"
   },
   {
-    id: 9,
+    id: 12,
     name: "Christopher Martus",
     imageSrc: require('@/assets/images/team_photos/christopher_m.jpg'),
     title: "Developer"
   },
   {
-    id: 10,
+    id: 13,
     name: "Christina Trotta",
     imageSrc: require('@/assets/images/team_photos/tina.jpg'),
     title: "Database Developer"
   },
+  {
+    id: 14,
+    name: "Jaison Eccleston",
+    imageSrc: require('@/assets/images/team_photos/Jaison.jpeg'),
+    title: "Developer"
+  },
+  {
+    id: 6,
+    name: "Brianna Smith",
+    imageSrc: require('@/assets/images/team_photos/brianna.jpg'),
+    title: "Developer"
+  },
+  {
+    id: 15,
+    name: "Maryam Judeh",
+    imageSrc: require('@/assets/images/team_photos/placeholder.png'),
+    title: "Developer"
+  },
+  {
+    id: 7,
+    name: "Rong Hu",
+    imageSrc: require('@/assets/images/team_photos/placeholder.png'),
+    title: "Developer"
+  },
+  {
+    id: 8,
+    name: "Jake Phaydavong",
+    imageSrc: require('@/assets/images/team_photos/placeholder.png'),
+    title: "Developer"
+  }
 ];
 
 interface TeamMember {
@@ -115,7 +145,7 @@ function TeamScreen({ filteredData }: TeamScreenProps) {
 
 
 function FrontendScreen() {
-  const frontendMembers = data.filter((item) => item.id <= 5);
+  const frontendMembers = data.filter((item) => item.id <= 8);
 
   return (
     <TeamScreen filteredData={frontendMembers} />
@@ -123,7 +153,7 @@ function FrontendScreen() {
 }
 
 function BackendScreen() {
-  const backendMembers = data.filter((item) => item.id > 5);
+  const backendMembers = data.filter((item) => item.id > 8);
 
   return (
     <TeamScreen filteredData={backendMembers} />
