@@ -1,30 +1,85 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, Button, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Modal, Button, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import BodyDiagram from '@/components/BodyDiagram';
-
-// Define a type for valid body parts
-type BodyPart = 'Legs' | 'Arms' | 'Abdomen' | 'Back' | 'Shoulders';
+import { httpRequests } from '@/api/httpRequests'; // Use named import
+import AuthContext, { useAuth } from '../../../context/AuthContext'; // Adjust the path to the actual location of AuthContext
+import { ScrollView } from 'react-native';
+// Define the BodyPart type
+export type BodyPart = 'Abdomen' | 'Legs' | 'Arms' | 'Back' | 'Shoulders'; // Example of defining BodyPart as a type
 
 export default function BodyFocusScreen() {
-  // State variables to manage selected body part, exercise list, modal visibility, and view mode
-  const [selectedPart, setSelectedPart] = useState<BodyPart | ''>('');
+ // State variables to manage selected body part, exercise list, modal visibility, and view mode
+  const [selectedPart, setSelectedPart] = useState<BodyPart | null>(null);
   const [exerciseList, setExerciseList] = useState<Set<string>>(new Set());
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedExercises, setSelectedExercises] = useState<Set<string>>(new Set());
   const [isFrontView, setIsFrontView] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [workoutData, setWorkoutData] = useState<{
+    front?: { [key in BodyPart]?: string[] };
+    back?: { [key in BodyPart]?: string[] };
+  }>({});
+  const [error, setError] = useState<string | null>(null);
+  const { token } = useAuth(); //Access the context data with the defined type
+  
 
-  // Exercise data categorized by front and back views
-  const exercises = {
-    front: {
-      Legs: ['Squats', 'Lunges', 'Leg Press', 'Deadlifts'],
-      Arms: ['Bicep Curl', 'Pull-ups', 'Incline Dumbbell Curl', 'Bent-over Rows'],
-      Abdomen: ['Crunches', 'Plank', 'Russian Twists', 'Leg Raises'],
-    },
-    back: {
-      Back: ['Lat Pulldown', 'Bent-over Rows', 'Pull-ups', 'Face Pulls', 'Seated Cable Rows', 'Reverse Flys', 'Hyperextensions'],
-      Shoulders: ['Overhead Press', 'Arnold Press', 'Lateral Raises', 'Front Raises', 'Reverse Pec Deck', 'Shrugs', 'Upright Rows'],
-    },
+// Map BodyPart to backend `exerciseType`
+const bodyPartToType: { [key in BodyPart]: number[] } = {
+  Arms: [1],
+  Shoulders: [2],
+  Legs: [5],
+  Abdomen: [4],
+  Back: [6,7],
+};
+
+// Fetch workouts from backend API when a body part is selected
+useEffect(() => {
+  const fetchWorkouts = async () => {
+    if (!token || !selectedPart) return;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const exerciseTypes = bodyPartToType[selectedPart]; // Get exercise type
+      if (!exerciseTypes) {
+        throw new Error(`Invalid body part: ${selectedPart}`);
+      }
+
+      let allExercises: string[] = [];
+
+      for (const type of exerciseTypes) {
+        console.log(`Fetching workouts for type: ${type}`);
+        const response = await fetch(
+          `${httpRequests.getBaseURL()}/exercises/getByType/3`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`, // Use the token from context
+            },
+          }
+        );
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        
+        const responseData = await response.json();
+        console.log("API Response:", responseData);
+
+        // ExerciseTypeToName is no longer used here; instead, the name returned by the backend is used.
+        const exercisesWithNames = responseData.map((exercise: any) => exercise.nameOfExercise);
+
+        allExercises = [...allExercises, ...exercisesWithNames];
+      }
+
+      setWorkoutData(prev => ({ ...prev, [selectedPart]: allExercises })); // Store data
+    } catch (err: any) {
+      console.error("Fetch error:", err);
+      setError(err.message || 'Failed to fetch workout data');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  fetchWorkouts();
+}, [selectedPart,token]); // Run when `selectedPart` changes
 
   // Handles body part selection and opens the modal if valid
   const handleBodyPartClick = (part: BodyPart) => {
@@ -53,19 +108,30 @@ export default function BodyFocusScreen() {
   // Clears all selected exercises and resets the selected body part
   const clearAllExercises = () => {
     setExerciseList(new Set());
-    setSelectedPart('');
+    setSelectedExercises(new Set()); // Clear the selections in the modal.
+    setSelectedPart(null); // Clear the selected body part.
   };
 
   // Toggles between front and back body diagram views
   const toggleView = () => {
-    setIsFrontView(prev => !prev);
-    setSelectedPart('');
+    setIsFrontView(prev => {
+      const newView = !prev;
+      // If switching to the back view while a front-view body part is selected, clear the selection.
+      if (newView === false && (selectedPart === "Legs" || selectedPart === "Arms" || selectedPart === "Abdomen")) {
+        setSelectedPart(null);
+      }
+      // If switching to the front view while a back-view body part is selected, clear the selection.
+      if (newView === true && (selectedPart === "Back" || selectedPart === "Shoulders")) {
+        setSelectedPart(null);
+      }
+      return newView;
+    });
   };
 
   // Retrieves the appropriate exercise list based on the selected body part and view mode
   const selectedExercisesList = isFrontView
-    ? exercises.front[selectedPart as keyof typeof exercises.front] || []
-    : exercises.back[selectedPart as keyof typeof exercises.back] || [];
+    ? workoutData.front?.[selectedPart as BodyPart] || []
+    : workoutData.back?.[selectedPart as BodyPart] || [];
 
   return (
     <View style={styles.container}>
@@ -80,14 +146,20 @@ export default function BodyFocusScreen() {
           scrollEnabled={false}
           contentContainerStyle={styles.exerciseListContainer}
         />
-        <TouchableOpacity onPress={toggleView} style={styles.toggleButton}>
-          <Text style={styles.toggleButtonText}>{isFrontView ? 'Switch to Back View' : 'Switch to Front View'}</Text>
-        </TouchableOpacity>
-        {exerciseList.size > 0 && (
-          <TouchableOpacity onPress={clearAllExercises} style={styles.clearButton}>
-            <Text style={styles.clearButtonText}>Clear All</Text>
+        
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity onPress={toggleView} style={styles.toggleButton}>
+            <Text style={styles.toggleButtonText}>{isFrontView ? 'Switch to Back View' : 'Switch to Front View'}</Text>
           </TouchableOpacity>
-        )}
+          
+          <View style={{ width: 10 }} />
+          
+          {exerciseList.size > 0 && (
+            <TouchableOpacity onPress={clearAllExercises} style={styles.clearButton}>
+              <Text style={styles.clearButtonText}>Clear All</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       {/* Displays the interactive body diagram */}
@@ -95,6 +167,7 @@ export default function BodyFocusScreen() {
         <BodyDiagram
           onBodyPartClick={handleBodyPartClick}
           imageSource={isFrontView ? require('@/assets/images/body-diagram.png') : require('@/assets/images/body-diagram-back.png')}
+          isFrontView={isFrontView}  // 传递 isFrontView 状态
         />
       </View>
 
@@ -128,7 +201,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   exerciseContainer: {  // Controls the layout of the selected exercises section
-    marginTop: 500,     // Adjusts the vertical position of the section
+    marginTop: 480,     // Adjusts the vertical position of the section
     alignItems: 'center',
     width: '100%',
     paddingHorizontal: 20,
@@ -165,7 +238,7 @@ const styles = StyleSheet.create({
   },
   bodyDiagramContainer: {
     position: 'absolute',
-    top: 480,  // Adjust this value to move the body diagram up or down
+    top: 470,  // Adjust this value to move the body diagram up or down
     left: 0,
     right: 0,
     alignItems: 'center',
