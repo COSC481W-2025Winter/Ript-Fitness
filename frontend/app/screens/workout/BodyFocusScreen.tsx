@@ -24,7 +24,6 @@ export default function BodyFocusScreen() {
     front: {},
     back: {},
   });
-  
   const [error, setError] = useState<string | null>(null);
   const { token } = useAuth(); //Access the context data with the defined type
   
@@ -54,19 +53,10 @@ useEffect(() => {
       let allExercises: string[] = [];
 
       for (const type of exerciseTypes) {
+
         console.log(`\n=======================\nFetching workouts for type: ${type}`);
         console.log(`\n=======================\n API Call: ${httpRequests.getBaseURL()}/exercises/getByType/${type}`);
-        const response = await fetch(
-          `$164.76.74.93:8080/exercises/getByType/${type}`,
-          //164.76.74.93:8080/exercisesWithNames.getByType/${type},
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json", //required to receive the json
-              Authorization: `Bearer ${token}`, // Use the token from context
-            },
-          }
-        );
+        const response = await httpRequests.get(`/exercises/getByType/${type}`, token);
         if (!response.ok) {
           const errorText = await response.text();  // Read the response text
           console.error(` API Error: ${response.status} - ${errorText}`);
@@ -102,7 +92,7 @@ useEffect(() => {
           };
         }
       });
-          } catch (err: any) {
+    } catch (err: any) {
       console.error("Fetch error:", err);
       setError(err.message || 'Failed to fetch workout data');
     } finally {
@@ -238,7 +228,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     paddingHorizontal: 20,
-    
   },
 
   exerciseTitle: {
