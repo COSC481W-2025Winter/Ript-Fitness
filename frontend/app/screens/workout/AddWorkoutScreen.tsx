@@ -22,6 +22,7 @@ import { WorkoutContext } from '@/context/WorkoutContext';
 import { Text } from 'react-native';
 import CustomSearchBar from '@/components/custom/CustomSearchBar';
 import { center } from '@shopify/react-native-skia';
+import MyWorkoutsScreen from './MyWorkoutsScreen';
 
 
 function getColor(type : number) : string  {
@@ -132,6 +133,7 @@ export function AddWorkoutScreen() {
 */
 
    const submitWorkout = async () => {
+    
     try {
     setSubmitting(true)
     let WorkoutExercises = [];
@@ -169,6 +171,7 @@ export function AddWorkoutScreen() {
     }
     console.log(WorkoutExercises)
     const pushingWorkout = {name: text, exerciseIds: WorkoutExercises}
+    //console.log("name of workout " , text)
     console.log(JSON.stringify(pushingWorkout))
       const response = await fetch(`${httpRequests.getBaseURL()}/workouts/addWorkout`, {
         method: 'POST', // Set method to POST
@@ -248,7 +251,14 @@ const addExercise = () => {
       return updatedExercises;
     });
 }
-
+//next 7 lines from ChatGPT
+const handleSubmit = () => {
+  if (text.trim() === '') {
+    alert("A workout name is required.");
+    return;
+  }
+  submitWorkout(); // Call the original function if validation passes
+};
   //reset fields
   //setExercises((prev) => [...prev, newExercise]);
   context?.setVisible(false)
@@ -562,11 +572,19 @@ const addExercise = () => {
       <View style={styles.submitView}>
           <TouchableOpacity 
             onPress={submitWorkout} 
+            // onPress={() => {
+            //   if (text.trim() !== '') {
+            //     submitWorkout();
+            //   } else {
+            //       alert("A workout name is required.");
+            //   }
+          //}}
             style={[
               styles.button,
               exercises.length === 0 && styles.buttonDisabled
             ]}
-            disabled={exercises.length === 0}
+            disabled={exercises.length === 0 || text.trim() === ''}
+            
           >
             <View style={styles.submitButtonView}>
               <ThemedText 
