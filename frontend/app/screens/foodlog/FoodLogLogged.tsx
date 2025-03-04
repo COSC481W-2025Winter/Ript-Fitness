@@ -16,7 +16,7 @@ interface Food {
     protein: number;
     carbs: number;
     fat: number;
-    multiplier: number;
+    serving: number;
     isDelted: boolean;
 }
 
@@ -29,7 +29,7 @@ const FoodItem: React.FC<{ food: Food; saveFoodChanges: (food: Food) => void; lo
             protein={food.protein}
             carbs={food.carbs}
             fat={food.fat}
-            multiplier={food.multiplier}
+            serving={food.serving}
             saveFoodChanges={(updatedFood) => saveFoodChanges(updatedFood)}
             logFoodToDay={(updatedFood) => logFoodToDay(updatedFood)}
             textColor="black"
@@ -56,8 +56,6 @@ const FoodLogLoggedPage = () => {
 
      const foodTodayKey = `${userID}_foodTodayDetails`;
      const dayKey = `${userID}_day`;
-
-     const isDarkMode = context?.isDarkMode;
 
 
 
@@ -136,7 +134,7 @@ const saveFoodChanges = async (updatedFood: Food) => {
       }
       
       // Specify the desired order of keys
-      const keysOrder = ["name", "calories", "protein", "carbs", "fat", "multiplier", "isDeleted"];
+      const keysOrder = ["name", "calories", "protein", "carbs", "fat", "serving", "isDeleted"];
       
       // Serialize updatedFood with the desired key order
       const body = customJSONStringify(updatedFood, keysOrder);
@@ -282,7 +280,7 @@ const logFoodToDay = async (food: Food) => {
 
 
     return cached && foodDetails.length > 0 ? (
-        <View style={[isDarkMode ? styles.darkBottomContainer : styles.bottomContainer]}>
+        <View style={styles.bottomContainer}>
             <FlatList<Food>
                 data={foodDetails}
                 renderItem={renderItem}
@@ -297,7 +295,7 @@ const logFoodToDay = async (food: Food) => {
         </View>
      ) : foodDetails.length === 0 ? (
         <View>
-            <Text style={[isDarkMode? styles.darkMessage : styles.message]}>No food items found.</Text>
+            <Text style={styles.message}>No food items found.</Text>
         </View>
      ) : (
 // {/* THIS IS THE NEW STUFF FOR THE ADD PAGE*/}
@@ -338,24 +336,13 @@ const styles = StyleSheet.create({
     },
     bottomContainer: {
         height: '100%',
-        backgroundColor: '#fff',
-    }, 
-    darkBottomContainer: {
-        height: '100%',
-        backgroundColor: 'black',
+        backgroundColor: '#fff'
     }, 
     message: {
         textAlign: 'center', 
         fontWeight: 'bold', 
         fontSize: 20,
         padding: 30,
-    },
-    darkMessage: {
-        textAlign: 'center', 
-        fontWeight: 'bold', 
-        fontSize: 20,
-        padding: 30,
-        color: 'white',
     },
     swipeDeleteButton: {
         backgroundColor: 'red',

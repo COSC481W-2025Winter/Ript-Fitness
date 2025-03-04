@@ -39,6 +39,7 @@ import {
 
 import { WorkoutProvider } from "./context/WorkoutContext";
 import FoodLogScreen from "./app/screens/foodlog/FoodLog";
+import { AuthProvider } from "./context/AuthContext"; 
 
 // Suppress specific Reanimated warnings using LogBox
 LogBox.ignoreLogs([
@@ -220,6 +221,7 @@ export default function App() {
       <MenuProvider>
         <NavigationContainer>
           <PortalProvider>
+           <AuthProvider>  {/* add AuthProvider */}
             <GlobalProvider>
               <StreakProvider>
                 <NotesProvider>
@@ -233,7 +235,7 @@ export default function App() {
                 </NotesProvider>
               </StreakProvider>
             </GlobalProvider>
-            
+            </AuthProvider>
           </PortalProvider>
         </NavigationContainer>
       </MenuProvider>
