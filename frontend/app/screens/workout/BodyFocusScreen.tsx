@@ -15,8 +15,7 @@ export default function BodyFocusScreen() {
   const [selectedExercises, setSelectedExercises] = useState<Set<string>>(new Set());
   const [isFrontView, setIsFrontView] = useState(true);
   const [loading, setLoading] = useState(false);
-  
-  //assisted with this section
+
   const [workoutData, setWorkoutData] = useState<{
     front: { [key in BodyPart]?: string[] };
     back: { [key in BodyPart]?: string[] };
@@ -24,6 +23,7 @@ export default function BodyFocusScreen() {
     front: {},
     back: {},
   });
+
   const [error, setError] = useState<string | null>(null);
   const { token } = useAuth(); //Access the context data with the defined type
   
@@ -71,7 +71,6 @@ useEffect(() => {
         allExercises = [...allExercises, ...exercisesWithNames];
       }
 
-        //assisted with this section
       setWorkoutData(prev => {
         if (isFrontView) {
           return {
