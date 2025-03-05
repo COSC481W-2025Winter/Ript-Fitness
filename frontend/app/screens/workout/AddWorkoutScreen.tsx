@@ -571,20 +571,19 @@ const handleSubmit = () => {
       {/* Create Workout Button */}
       <View style={styles.submitView}>
           <TouchableOpacity 
-            onPress={submitWorkout} 
-            // onPress={() => {
-            //   if (text.trim() !== '') {
-            //     submitWorkout();
-            //   } else {
-            //       alert("A workout name is required.");
-            //   }
-          //}}
+          //ChatGPT helped with the new on press functionality to prevent empty workout names
+            onPress={() => {
+              if (text.trim() === '') {
+                alert("Error: Workout Name cannot be empty")
+              }else{
+                submitWorkout();
+              }
+            }}
             style={[
               styles.button,
               exercises.length === 0 && styles.buttonDisabled
             ]}
-            disabled={exercises.length === 0 || text.trim() === ''}
-            
+            disabled={exercises.length === 0}
           >
             <View style={styles.submitButtonView}>
               <ThemedText 
