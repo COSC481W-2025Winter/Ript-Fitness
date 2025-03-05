@@ -15,10 +15,16 @@ export default function BodyFocusScreen() {
   const [selectedExercises, setSelectedExercises] = useState<Set<string>>(new Set());
   const [isFrontView, setIsFrontView] = useState(true);
   const [loading, setLoading] = useState(false);
+  
+  //chatGPT assisted with this section
   const [workoutData, setWorkoutData] = useState<{
-    front?: { [key in BodyPart]?: string[] };
-    back?: { [key in BodyPart]?: string[] };
-  }>({});
+    front: { [key in BodyPart]?: string[] };
+    back: { [key in BodyPart]?: string[] };
+  }>({
+    front: {},
+    back: {},
+  });
+  
   const [error, setError] = useState<string | null>(null);
   const { token } = useAuth(); //Access the context data with the defined type
   
@@ -75,8 +81,27 @@ useEffect(() => {
         allExercises = [...allExercises, ...exercisesWithNames];
       }
 
-      setWorkoutData(prev => ({ ...prev, [selectedPart]: allExercises })); // Store data
-    } catch (err: any) {
+        //chatGPT assisted with this section
+      setWorkoutData(prev => {
+        if (isFrontView) {
+          return {
+            ...prev,
+            front: {
+              ...prev.front,
+              [selectedPart]: allExercises,
+            },
+          };
+        } else {
+          return {
+            ...prev,
+            back: {
+              ...prev.back,
+              [selectedPart]: allExercises,
+            },
+          };
+        }
+      });
+          } catch (err: any) {
       console.error("Fetch error:", err);
       setError(err.message || 'Failed to fetch workout data');
     } finally {
