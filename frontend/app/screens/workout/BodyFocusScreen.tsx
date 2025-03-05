@@ -53,7 +53,6 @@ useEffect(() => {
       let allExercises: string[] = [];
 
       for (const type of exerciseTypes) {
-
         console.log(`\n=======================\nFetching workouts for type: ${type}`);
         console.log(`\n=======================\n API Call: ${httpRequests.getBaseURL()}/exercises/getByType/${type}`);
         const response = await httpRequests.get(`/exercises/getByType/${type}`, token);
