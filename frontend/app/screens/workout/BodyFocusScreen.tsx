@@ -34,8 +34,8 @@ const bodyPartToType: { [key in BodyPart]: number[] } = {
 
 // Fetch workouts from backend API when a body part is selected
 useEffect(() => {
+  if (!selectedPart) return;// prevents selectedPart from being null
   const fetchWorkouts = async () => {
-    if (!token || !selectedPart) return;
     setLoading(true);
     setError(null);
 
@@ -48,20 +48,26 @@ useEffect(() => {
       let allExercises: string[] = [];
 
       for (const type of exerciseTypes) {
-        console.log(`Fetching workouts for type: ${type}`);
+        console.log(`\n=======================\nFetching workouts for type: ${type}`);
+        console.log(`\n=======================\n API Call: ${httpRequests.getBaseURL()}/exercises/getByType/${type}`);
         const response = await fetch(
-          `${httpRequests.getBaseURL()}/exercises/getByType/3`,
+          `${httpRequests.getBaseURL()}/exercises/getByType/${type}`,
           {
             method: "GET",
             headers: {
+              "Content-Type": "application/json", //required to receive the json
               Authorization: `Bearer ${token}`, // Use the token from context
             },
           }
         );
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok) {
+          const errorText = await response.text();  // Read the response text
+          console.error(` API Error: ${response.status} - ${errorText}`);
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }        
         
         const responseData = await response.json();
-        console.log("API Response:", responseData);
+        console.log("\n=======================\nAPI Response:", responseData);
 
         // ExerciseTypeToName is no longer used here; instead, the name returned by the backend is used.
         const exercisesWithNames = responseData.map((exercise: any) => exercise.nameOfExercise);
