@@ -198,7 +198,7 @@ useEffect(() => {
         <BodyDiagram
           onBodyPartClick={handleBodyPartClick}
           imageSource={isFrontView ? require('@/assets/images/body-diagram.png') : require('@/assets/images/body-diagram-back.png')}
-          isFrontView={isFrontView}  // 传递 isFrontView 状态
+          isFrontView={isFrontView}  
         />
       </View>
 
@@ -230,12 +230,14 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
+    backgroundColor: "rgba(0, 0, 7, 0.82)", 
   },
   exerciseContainer: {  // Controls the layout of the selected exercises section
     marginTop: 480,     // Adjusts the vertical position of the section
     alignItems: 'center',
     width: '100%',
     paddingHorizontal: 20,
+    
   },
 
   exerciseTitle: {
@@ -293,7 +295,7 @@ const styles = StyleSheet.create({
 
   modalView: {
     margin: 60,
-    backgroundColor: 'white',
+    backgroundColor: "rgba(4, 4, 25, 0.73)",
     borderRadius: 90,
     padding: 30,
     alignItems: 'center',
