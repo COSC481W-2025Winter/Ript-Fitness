@@ -16,6 +16,7 @@ export default function BodyFocusScreen() {
   const [isFrontView, setIsFrontView] = useState(true);
   const [loading, setLoading] = useState(false);
 
+  //assisted with this section
   const [workoutData, setWorkoutData] = useState<{
     front: { [key in BodyPart]?: string[] };
     back: { [key in BodyPart]?: string[] };
@@ -71,6 +72,7 @@ useEffect(() => {
         allExercises = [...allExercises, ...exercisesWithNames];
       }
 
+        //assisted with this section
       setWorkoutData(prev => {
         if (isFrontView) {
           return {
