@@ -13,6 +13,7 @@ type MacroButtonProps = {
   fontSize?: number;
   onPress?: () => void;
   underlineOnPress?: boolean;
+  containerStyle?: ViewStyle;  // ✅ 新增 `containerStyle` 允许外部覆盖样式
 };
 
 const MacroButton: React.FC<MacroButtonProps> = ({ title, backgroundColor, borderColor, borderWidth, width, textColor, fontSize, total, label}) => {
