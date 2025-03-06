@@ -53,10 +53,12 @@ useEffect(() => {
 
       let allExercises: string[] = [];
 
+      //164.76.74.93:8080/exercisesWithNames.getByType/${type},
       for (const type of exerciseTypes) {
         console.log(`\n=======================\nFetching workouts for type: ${type}`);
         console.log(`\n=======================\n API Call: ${httpRequests.getBaseURL()}/exercises/getByType/${type}`);
         const response = await httpRequests.get(`/exercises/getByType/${type}`, token);
+
         if (!response.ok) {
           const errorText = await response.text();  // Read the response text
           console.error(` API Error: ${response.status} - ${errorText}`);
