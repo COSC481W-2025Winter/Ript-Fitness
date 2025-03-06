@@ -3,6 +3,7 @@
     "react-native-svg": "^15.11.1"
   },
   "devDependencies": {
-    "@svgr/webpack": "^8.1.0"
+    "@svgr/webpack": "^8.1.0",
+    "expo": "^52.0.37"
   }
 }
