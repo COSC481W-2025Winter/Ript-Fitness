@@ -16,7 +16,7 @@ interface Food {
     protein: number;
     carbs: number;
     fat: number;
-    multiplier: number;
+    serving: number;
     isDelted: boolean;
 }
 
@@ -29,7 +29,7 @@ const FoodItem: React.FC<{ food: Food; saveFoodChanges: (food: Food) => void; lo
             protein={food.protein}
             carbs={food.carbs}
             fat={food.fat}
-            multiplier={food.multiplier}
+            serving={food.serving}
             saveFoodChanges={(updatedFood) => saveFoodChanges(updatedFood)}
             logFoodToDay={(updatedFood) => logFoodToDay(updatedFood)}
             textColor="black"
@@ -136,7 +136,7 @@ const saveFoodChanges = async (updatedFood: Food) => {
       }
       
       // Specify the desired order of keys
-      const keysOrder = ["name", "calories", "protein", "carbs", "fat", "multiplier", "isDeleted"];
+      const keysOrder = ["name", "calories", "protein", "carbs", "fat", "serving", "isDeleted"];
       
       // Serialize updatedFood with the desired key order
       const body = customJSONStringify(updatedFood, keysOrder);
