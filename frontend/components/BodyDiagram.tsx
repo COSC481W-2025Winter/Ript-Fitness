@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     width: 9,
     height: 9,
     borderRadius: 25,
-    backgroundColor: 'rgba(73, 245, 219, 0.5)',
+    backgroundColor: 'rgb(6, 245, 209)',
   },
   circle1: { top: '33%', left: '34%' }, //left arm
   circle2: { top: '76%', left: '55%' }, //right leg

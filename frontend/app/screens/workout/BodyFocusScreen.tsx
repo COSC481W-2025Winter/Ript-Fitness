@@ -24,7 +24,7 @@ export default function BodyFocusScreen() {
     front: {},
     back: {},
   });
-  
+
   const [error, setError] = useState<string | null>(null);
   const { token } = useAuth(); //Access the context data with the defined type
   
@@ -40,9 +40,9 @@ const bodyPartToType: { [key in BodyPart]: number[] } = {
 
 // Fetch workouts from backend API when a body part is selected
 useEffect(() => {
-  let isMounted = true; // ✅ Prevents setting state after unmount
+  let isMounted = true; // Prevents setting state after unmount
 
-  if (!selectedPart || !token) return; // ✅ Ensures `useEffect` only runs when both `selectedPart` and `token` exist
+  if (!selectedPart || !token) return; // Ensures `useEffect` only runs when both `selectedPart` and `token` exist
 
   const fetchWorkouts = async () => {
     setLoading(true);
@@ -211,6 +211,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
+    backgroundColor: "rgba(0, 0, 7, 0.82)", 
   },
   exerciseContainer: {  // Controls the layout of the selected exercises section
     marginTop: 480,     // Adjusts the vertical position of the section
@@ -274,7 +275,7 @@ const styles = StyleSheet.create({
 
   modalView: {
     margin: 60,
-    backgroundColor: 'white',
+    backgroundColor: "rgba(4, 4, 25, 0.73)",
     borderRadius: 90,
     padding: 30,
     alignItems: 'center',
