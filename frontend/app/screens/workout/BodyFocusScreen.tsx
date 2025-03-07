@@ -15,7 +15,7 @@ export default function BodyFocusScreen() {
   const [selectedExercises, setSelectedExercises] = useState<Set<string>>(new Set());
   const [isFrontView, setIsFrontView] = useState(true);
   const [loading, setLoading] = useState(false);
-  
+
   //chatGPT assisted with this section
   const [workoutData, setWorkoutData] = useState<{
     front: { [key in BodyPart]?: string[] };
@@ -40,7 +40,10 @@ const bodyPartToType: { [key in BodyPart]: number[] } = {
 
 // Fetch workouts from backend API when a body part is selected
 useEffect(() => {
-  if (!selectedPart) return;// prevents selectedPart from being null
+  let isMounted = true; // ✅ Prevents setting state after unmount
+
+  if (!selectedPart || !token) return; // ✅ Ensures `useEffect` only runs when both `selectedPart` and `token` exist
+
   const fetchWorkouts = async () => {
     setLoading(true);
     setError(null);
@@ -56,61 +59,39 @@ useEffect(() => {
       for (const type of exerciseTypes) {
         console.log(`\n=======================\nFetching workouts for type: ${type}`);
         console.log(`\n=======================\n API Call: ${httpRequests.getBaseURL()}/exercises/getByType/${type}`);
-        const response = await fetch(
-          `${httpRequests.getBaseURL()}/exercises/getByType/${type}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json", //required to receive the json
-              Authorization: `Bearer ${token}`, // Use the token from context
-            },
-          }
-        );
-        if (!response.ok) {
-          const errorText = await response.text();  // Read the response text
-          console.error(` API Error: ${response.status} - ${errorText}`);
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }        
-        
-        const responseData = await response.json();
-        console.log("\n=======================\nAPI Response:", responseData);
 
-        // ExerciseTypeToName is no longer used here; instead, the name returned by the backend is used.
-        const exercisesWithNames = responseData.map((exercise: any) => exercise.nameOfExercise);
+        const response = await httpRequests.get(`/exercises/getByType/${type}`, token);
 
-        allExercises = [...allExercises, ...exercisesWithNames];
+        if (isMounted && response) {
+          const exercisesWithNames = response.map((exercise: any) => exercise.nameOfExercise);
+          allExercises = [...allExercises, ...exercisesWithNames];
+        }
       }
 
-        //chatGPT assisted with this section
-      setWorkoutData(prev => {
-        if (isFrontView) {
-          return {
-            ...prev,
-            front: {
-              ...prev.front,
-              [selectedPart]: allExercises,
-            },
-          };
-        } else {
-          return {
-            ...prev,
-            back: {
-              ...prev.back,
-              [selectedPart]: allExercises,
-            },
-          };
-        }
-      });
-          } catch (err: any) {
+      if (isMounted) {
+        setWorkoutData(prev => ({
+          ...prev,
+          [isFrontView ? 'front' : 'back']: {
+            ...prev[isFrontView ? 'front' : 'back'],
+            [selectedPart]: allExercises,
+          },
+        }));
+      }
+    } catch (err: any) {
       console.error("Fetch error:", err);
-      setError(err.message || 'Failed to fetch workout data');
+      if (isMounted) setError(err.message || "Failed to fetch workout data");
     } finally {
-      setLoading(false);
+      if (isMounted) setLoading(false);
     }
   };
 
   fetchWorkouts();
-}, [selectedPart,token]); // Run when `selectedPart` changes
+
+  return () => {
+    isMounted = false; // Prevents memory leaks
+  };
+}, [selectedPart, token]); // Now correctly dependent on `selectedPart` and `token`
+
 
   // Handles body part selection and opens the modal if valid
   const handleBodyPartClick = (part: BodyPart) => {
@@ -172,7 +153,7 @@ useEffect(() => {
         <FlatList
           data={[...exerciseList]}
           renderItem={({ item }) => <Text style={styles.exerciseText}>• {item}</Text>}
-          keyExtractor={(item, index) => index.toString()}
+          keyExtractor={(item, index) => `${item}-${index}`}
           numColumns={2}
           scrollEnabled={false}
           contentContainerStyle={styles.exerciseListContainer}
