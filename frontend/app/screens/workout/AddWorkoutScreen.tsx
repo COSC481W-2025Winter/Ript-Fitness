@@ -200,7 +200,14 @@ export function AddWorkoutScreen() {
       throw error; // Throw the error for further handling if needed
     }
    }
-   
+ 
+const submitTheWorkout = (wname: String) => {
+    if (wname.trim() === '') {
+      Alert.alert("Error: Workout Name cannot be empty")
+    }else{
+      submitWorkout();
+    }
+  }
 const viewWorkoutDetails = (id : any) => {
   navigation.navigate("ApiScreen", {})
 }
@@ -251,14 +258,7 @@ const addExercise = () => {
       return updatedExercises;
     });
 }
-//next 7 lines from ChatGPT
-const handleSubmit = () => {
-  if (text.trim() === '') {
-    alert("A workout name is required.");
-    return;
-  }
-  submitWorkout(); // Call the original function if validation passes
-};
+
   //reset fields
   //setExercises((prev) => [...prev, newExercise]);
   context?.setVisible(false)
@@ -521,6 +521,7 @@ const handleSubmit = () => {
           <TextInput
             placeholder="Workout Name"
             placeholderTextColor={'#B6B6B6'}
+            value={text} // or any state variable you're using (from ChatGPT)
             autoCapitalize='words'
             style={[isDarkMode? styles.darkInputStyle : styles.inputStyle]}
             onChangeText={setText}
@@ -572,12 +573,12 @@ const handleSubmit = () => {
       <View style={styles.submitView}>
           <TouchableOpacity 
           //ChatGPT helped with the new on press functionality to prevent empty workout names
-            onPress={() => {
-              if (text.trim() === '') {
-                alert("Error: Workout Name cannot be empty")
-              }else{
-                submitWorkout();
-              }
+            onPress={() => { (submitTheWorkout(text))
+              // if (text.trim() === '') {
+              //   Alert.alert("Error: Workout Name cannot be empty")
+              // }else{
+              //   submitWorkout();
+              // }
             }}
             style={[
               styles.button,
