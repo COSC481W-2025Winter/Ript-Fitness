@@ -101,6 +101,11 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "#fff",
   },
+  darkContainer: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: "black",
+  },
   row: {
     marginBottom: 20,
     padding: 10,
@@ -136,7 +141,7 @@ const styles = StyleSheet.create({
   button: {
     paddingVertical: 8,
     paddingHorizontal: 15,
-    backgroundColor: "#007bff",
+    backgroundColor: "#21BFBF",
     borderRadius: 6,
   },
   buttonText: {
