@@ -15,7 +15,7 @@ import EditNoteScreen from '@/app/screens/notes/EditNoteScreen';
 import { AddWorkoutScreen } from '../screens/workout/AddWorkoutScreen';
 import { Note } from '@/components/MyNotes/NotesContext';
 import { GlobalContext } from '@/context/GlobalContext';
-
+import WorkoutTrendScreen from '@/app/screens/workout/WorkoutTrendScreen';
 const Stack = createStackNavigator();
 
 export type WorkoutStackParamList = {
@@ -28,6 +28,8 @@ export type WorkoutStackParamList = {
   EditNoteScreen: { note:Note | null };
   RiptWorkoutScreen: {};
   WorkoutDetailScreen: {};
+  WorkoutTrendScreen: {};  
+  NutritionTrendScreen: {}; 
 };
 
 export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamList>;
@@ -244,6 +246,26 @@ export default function WorkoutStack() {
           headerTitleAlign: 'center',
         })}
       />
+      <Stack.Screen
+        name="WorkoutTrendScreen"
+        component={WorkoutTrendScreen}
+        options={({ navigation }) => ({
+          title: 'Workout Trends',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={[styles.leftButton, styles.button, styles.buttonSize]}
+            > 
+              <TabBarIcon name="arrow-back-outline" size={30} color="#454343" />
+            </TouchableOpacity>  
+          ), 
+          headerTitleStyle: {
+            color: isDarkMode ? 'white' : 'black',
+          },
+          headerTitleAlign: 'center',
+        })} 
+      />
+      
     </Stack.Navigator>
   );
 }
