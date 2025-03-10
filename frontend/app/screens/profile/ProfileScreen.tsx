@@ -1083,19 +1083,20 @@ function CustomDrawerContent({ navigation }: any) {
 
         // Dark mode button
         
-          <View style={styles.drawerItemTextContainer}>
-          <Switch 
+          <View style={styles.switchDrawerItemTextContainer}>
+          
+            <MaterialCommunityIcons name={context?.isDarkMode ? 'weather-sunny' : 'weather-night'} size={24} color={iconColor} />
+            <Text style={[styles.drawerItemText, {color: textColor, justifyContent: 'flex-start'}]}>
+            {context?.isDarkMode ? "Light Mode" : "Dark Mode"}
+            </Text>
+            <Switch 
           value={context?.isDarkMode}
-          //style={styles.drawerItem}
+          style={styles.switchDrawerItem}
           onValueChange={() => {
             // Handle logic here
             context?.toggleTheme();
           }}
         />
-            <MaterialCommunityIcons name={context?.isDarkMode ? 'weather-sunny' : 'weather-night'} size={24} color={iconColor} />
-            <Text style={[styles.drawerItemText, {color: textColor}]}>
-            {context?.isDarkMode ? "Light Mode" : "Dark Mode"}
-            </Text>
           </View>
       </View>
       <TouchableOpacity
@@ -1530,6 +1531,13 @@ const styles = StyleSheet.create({
     // borderTopWidth: 1,
     // borderTopColor: '#ddd',
   },
+  switchDrawerItem: {
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingBottom: 10,
+    paddingLeft: 150,
+
+  },
   drawerItemText: {
     fontSize: 18,
     paddingLeft: 5,
@@ -1540,6 +1548,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
     paddingBottom: 10
+  },
+  switchDrawerItemTextContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    paddingBottom: 10,
+    paddingLeft: 10,
+    paddingTop: 10
   },
   postsContainer: {
     flex: 1,
