@@ -22,6 +22,7 @@ import { WorkoutContext } from '@/context/WorkoutContext';
 import { Text } from 'react-native';
 import CustomSearchBar from '@/components/custom/CustomSearchBar';
 import { center } from '@shopify/react-native-skia';
+import MyWorkoutsScreen from './MyWorkoutsScreen';
 
 
 function getColor(type : number) : string  {
@@ -132,6 +133,7 @@ export function AddWorkoutScreen() {
 */
 
    const submitWorkout = async () => {
+    
     try {
     setSubmitting(true)
     let WorkoutExercises = [];
@@ -169,6 +171,7 @@ export function AddWorkoutScreen() {
     }
     console.log(WorkoutExercises)
     const pushingWorkout = {name: text, exerciseIds: WorkoutExercises}
+    //console.log("name of workout " , text)
     console.log(JSON.stringify(pushingWorkout))
       const response = await fetch(`${httpRequests.getBaseURL()}/workouts/addWorkout`, {
         method: 'POST', // Set method to POST
@@ -197,7 +200,14 @@ export function AddWorkoutScreen() {
       throw error; // Throw the error for further handling if needed
     }
    }
-   
+ 
+const submitTheWorkout = (wname: String) => {
+    if (wname.trim() === '') {
+      Alert.alert("Error: Workout Name cannot be empty")
+    }else{
+      submitWorkout();
+    }
+  }
 const viewWorkoutDetails = (id : any) => {
   navigation.navigate("ApiScreen", {})
 }
@@ -511,6 +521,7 @@ const addExercise = () => {
           <TextInput
             placeholder="Workout Name"
             placeholderTextColor={'#B6B6B6'}
+            value={text} // or any state variable you're using (from ChatGPT)
             autoCapitalize='words'
             style={[isDarkMode? styles.darkInputStyle : styles.inputStyle]}
             onChangeText={setText}
@@ -561,7 +572,14 @@ const addExercise = () => {
       {/* Create Workout Button */}
       <View style={styles.submitView}>
           <TouchableOpacity 
-            onPress={submitWorkout} 
+          //ChatGPT helped with the new on press functionality to prevent empty workout names
+            onPress={() => { (submitTheWorkout(text))
+              // if (text.trim() === '') {
+              //   Alert.alert("Error: Workout Name cannot be empty")
+              // }else{
+              //   submitWorkout();
+              // }
+            }}
             style={[
               styles.button,
               exercises.length === 0 && styles.buttonDisabled

@@ -123,17 +123,18 @@ const handleAddWorkout = async () => {
     return;
   }
 
-  // Validate workout name
-  if (!workoutName.trim()) {
-    Alert.alert('Error', 'Workout name is required.');
-    return;
-  }
+
 
   // Validate that at least one exercise exists
   if (!workout.exercises || workout.exercises.length === 0) {
     Alert.alert('Error', 'No exercises found in this workout.');
     return;
   }
+    // Validate workout name
+    if (!workoutName.trim()) {
+      Alert.alert('Error', 'Workout name is required.');
+      return;
+    }
 
   // Validate that userProfile is available
   if (!userProfile || !userProfile.id) {
