@@ -22,7 +22,6 @@ import { httpRequests } from "@/api/httpRequests";
 
 export default function MyWorkoutsScreen() {
   const context = useContext(GlobalContext);
-  const navigation = useNavigation<MyWorkoutsScreenNavigationProp>();
 
 
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
