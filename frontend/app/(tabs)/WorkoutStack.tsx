@@ -15,7 +15,6 @@ import EditNoteScreen from '@/app/screens/notes/EditNoteScreen';
 import { AddWorkoutScreen } from '../screens/workout/AddWorkoutScreen';
 import { Note } from '@/components/MyNotes/NotesContext';
 import { GlobalContext } from '@/context/GlobalContext';
-import WorkoutTrendScreen from '@/app/screens/workout/WorkoutTrendScreen';
 import BodyFocusScreen from '@/app/screens/workout/BodyFocusScreen';
 
 const Stack = createStackNavigator();
