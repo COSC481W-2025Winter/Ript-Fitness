@@ -15,6 +15,7 @@ import EditNoteScreen from '@/app/screens/notes/EditNoteScreen';
 import { AddWorkoutScreen } from '../screens/workout/AddWorkoutScreen';
 import { Note } from '@/components/MyNotes/NotesContext';
 import { GlobalContext } from '@/context/GlobalContext';
+import BodyFocusScreen from '@/app/screens/workout/BodyFocusScreen';
 
 const Stack = createStackNavigator();
 
@@ -28,6 +29,7 @@ export type WorkoutStackParamList = {
   EditNoteScreen: { note:Note | null };
   RiptWorkoutScreen: {};
   WorkoutDetailScreen: {};
+  BodyFocusScreen: {};
 };
 
 export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamList>;
@@ -212,6 +214,14 @@ export default function WorkoutStack() {
           headerTitleAlign: 'center',
         })}
       />
+
+
+      <Stack.Screen
+        name="BodyFocusScreen"
+        component={BodyFocusScreen}
+        options={{ title: 'Body Focus' }}
+      />
+
       <Stack.Screen
         name="MyNotesScreen"
         component={MyNotesScreen}
