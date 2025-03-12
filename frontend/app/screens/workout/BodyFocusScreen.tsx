@@ -179,7 +179,7 @@ useEffect(() => {
         <BodyDiagram
           onBodyPartClick={handleBodyPartClick}
           imageSource={isFrontView ? require('@/assets/images/body-diagram.png') : require('@/assets/images/body-diagram-back.png')}
-          isFrontView={isFrontView}  // 传递 isFrontView 状态
+          isFrontView={isFrontView} 
         />
       </View>
 
@@ -193,6 +193,7 @@ useEffect(() => {
               <Button title={item} onPress={() => toggleExerciseSelection(item)} color={selectedExercises.has(item) ? 'green' : 'blue'} />
             )}
             keyExtractor={item => item}
+            numColumns={2}
             contentContainerStyle={styles.exerciseListContainer}
           />
           <TouchableOpacity onPress={saveSelectedExercises} style={styles.customButton}>
@@ -239,7 +240,6 @@ const styles = StyleSheet.create({
   },
   exerciseListContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'space-around',
     maxHeight: 180, // Limit list to 6 rows, each around 30px
   },
