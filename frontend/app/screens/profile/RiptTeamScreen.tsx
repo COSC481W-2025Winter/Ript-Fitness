@@ -15,55 +15,55 @@ const data = [
     id: 1,
     name: "Evan Snowgold",
     imageSrc: require('@/assets/images/team_photos/evan.jpg'),
-    title: "Lead Developer"
+    title: "Lead Frontend Developer"
   },
   {
     id: 2,
     name: "Rob Hewison",
     imageSrc: require('@/assets/images/team_photos/rob.jpg'),
-    title: "Developer"
+    title: "Frontend Developer"
   },
   {
     id: 3,
     name: "Natalie Hoang",
     imageSrc: require('@/assets/images/team_photos/natalie.jpg'),
-    title: "Developer"
+    title: "Frontend Developer"
   },
   {
     id: 4,
     name: "Michael Shahine",
     imageSrc: require('@/assets/images/team_photos/michael.jpg'),
-    title: "Developer"
+    title: "Frontend Developer"
   },
   {
     id: 5,
     name: "Ciara Wheeler",
     imageSrc: require('@/assets/images/team_photos/ciara.jpg'),
-    title: "Developer"
+    title: "Frontend Developer"
   },
   {
     id: 6,
     name: "Christopher Pichler",
     imageSrc: require('@/assets/images/team_photos/christopher_p.png'),
-    title: "Lead Developer"
+    title: "Lead Backend Developer"
   },
   {
     id: 7,
     name: "Tom Van den Bulck",
     imageSrc: require('@/assets/images/team_photos/tom.jpg'),
-    title: "Co-Lead Developer"
+    title: "Co-Lead Backend Developer"
   },
   {
     id: 8,
     name: "Nathan Halash",
     imageSrc: require('@/assets/images/team_photos/nathan.jpg'),
-    title: "Developer"
+    title: "Backend Developer"
   },
   {
     id: 9,
     name: "Christopher Martus",
     imageSrc: require('@/assets/images/team_photos/christopher_m.jpg'),
-    title: "Developer"
+    title: "Backend Developer"
   },
   {
     id: 10,
@@ -75,31 +75,31 @@ const data = [
     id: 11,
     name: "Jaison Eccleston",
     imageSrc: require('@/assets/images/team_photos/Jaison.jpeg'),
-    title: "Developer"
+    title: "Lead Database Developer"
   },
   {
     id: 12,
     name: "Brianna Smith",
     imageSrc: require('@/assets/images/team_photos/brianna.jpg'),
-    title: "Developer"
+    title: "Frontend Developer"
   },
   {
     id: 13,
     name: "Maryam Judeh",
     imageSrc: require('@/assets/images/team_photos/placeholder.png'),
-    title: "Developer"
+    title: "Backend Developer"
   },
   {
     id: 14,
     name: "Rong Hu",
     imageSrc: require('@/assets/images/team_photos/placeholder.png'),
-    title: "Developer"
+    title: "Frontend Developer"
   },
   {
     id: 15,
     name: "Jake Phaydavong",
     imageSrc: require('@/assets/images/team_photos/placeholder.png'),
-    title: "Developer"
+    title: "Frontend Developer"
   }
 ];
 
