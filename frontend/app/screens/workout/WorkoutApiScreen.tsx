@@ -95,6 +95,21 @@ export default function WorkoutApiScreen() {
         </View>
       </TouchableOpacity>
 
+      
+      {/* Workout Trend */}
+      <TouchableOpacity 
+        style={styles.button} 
+        onPress={() => navigation.navigate('WorkoutTrendScreen', {})} 
+      >
+        <View style={styles.iconStyles}>
+          <MaterialCommunityIcons name="chart-line" size={32} color="#aef1f1" />
+        </View>
+        <View style={{ justifyContent: 'flex-start' }}>
+            <Text style={styles.buttonText}>Workout Trend</Text>
+            <Text style={{ color: '#757575', }}>Track your progress</Text>
+        </View>
+      </TouchableOpacity>
+
       {/* Start Workout */}
       <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('StartWorkoutScreen', { })} >
         <Text style={[styles.buttonText, {color: '#fff'}]}>Start Live Workout</Text>
