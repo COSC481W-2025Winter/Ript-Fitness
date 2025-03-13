@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, FlatList } from "react-native";
+import { GlobalContext } from '@/context/GlobalContext';
+
 
 // define CurrentEditing type
 type CurrentEditing = {
@@ -16,6 +18,9 @@ const TimerScreen = () => {
   const [seconds, setSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [currentEditing, setCurrentEditing] = useState<CurrentEditing>(null);
+
+  const context = useContext(GlobalContext);
+  const isDarkMode = context?.isDarkMode;  
 
   useEffect(() => {
     let timer: number | NodeJS.Timeout | undefined;
@@ -64,13 +69,13 @@ const TimerScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={isDarkMode?styles.darkContainer:styles.container}>
       <FlatList
         data={workoutData}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View style={styles.row}>
-            <Text style={styles.exercise}>{item.exercise}</Text>
+          <View style={isDarkMode?styles.darkRow:styles.row}>
+            <Text style={isDarkMode?styles.darkExercise:styles.exercise}>{item.exercise}</Text>
             {item.time.map((t, index) => {
               const isActive = currentEditing?.rowId === item.id && currentEditing?.setIndex === index;
               return (
@@ -87,7 +92,7 @@ const TimerScreen = () => {
       />
       <View style={styles.timerContainer}>
         <Text style={styles.timer}>{new Date(seconds * 1000).toISOString().substr(11, 8)}</Text>
-        <TouchableOpacity style={[styles.mainButton, { backgroundColor: isRunning ? "red" : "green" }]} onPress={isRunning ? stopTimer : resetTimer}> 
+        <TouchableOpacity style={[styles.mainButton, { backgroundColor: isRunning ? "red" : "#21BFBF" }]} onPress={isRunning ? stopTimer : resetTimer}> 
           <Text style={styles.mainButtonText}>{isRunning ? "Stop" : "Reset"}</Text>
         </TouchableOpacity>
       </View>
@@ -114,11 +119,23 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: "#f9f9f9",
   },
+  darkRow: {
+    marginBottom: 20,
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: "#333",
+  },
   exercise: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 10,
     color: "#333",
+  },
+  darkExercise: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "white",
   },
   timeRow: {
     flexDirection: "row",
@@ -152,6 +169,11 @@ const styles = StyleSheet.create({
   timerContainer: {
     alignItems: "center",
     marginTop: 20,
+  },
+  darkTimerContainer: {
+    alignItems: "center",
+    marginTop: 20,
+    backgroundColor: '#333'
   },
   timer: {
     fontSize: 40,
