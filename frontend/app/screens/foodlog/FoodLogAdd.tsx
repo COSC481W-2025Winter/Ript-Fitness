@@ -357,22 +357,22 @@ const FoodLogAddPage = () => {
     return(
 
         <KeyboardAwareScrollView 
-            style={{ flex: 1, backgroundColor: '#fff' }}
+            style={{ flex: 1, backgroundColor: isDarkMode? 'black' : '#fff' }}
             //behavior={Platform.OS === "ios" ? "padding" : "height"} , justifyContent: 'space-between'
             //keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0} // Adjust this value based on your header height
         > 
             <ScrollView 
-                style={{maxHeight: '100%', marginTop: 10, marginHorizontal: 5, marginBottom: 0, backgroundColor: '#fff'}} 
+                style={{maxHeight: '100%', marginTop: 10, marginHorizontal: 5, marginBottom: 0, backgroundColor: isDarkMode? 'black' : '#fff'}} 
                 contentContainerStyle={{  }}
             >
-                    <Text style={styles.label}>Nutrition Facts</Text>
+                    <Text style={isDarkMode? styles.darkLabel: styles.label}>Nutrition Facts</Text>
                     <Text style={styles.description}>Enter the details from the label</Text>
 
                 {/* Input fields */}
-                <View style = {styles.rowStart}>
-                    <Text style={styles.inputLabel}>Name</Text>
+                <View style = {isDarkMode? styles.darkRowStart:styles.rowStart}>
+                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Name</Text>
                     <TextInput
-                        style={styles.input}
+                        style={isDarkMode? styles.darkInput:styles.input}
                         placeholder={!validName ? "Food name required" : "Add Name"}
                         placeholderTextColor={!validName ? 'red' : '#999'}
                         value={foodName}
@@ -381,10 +381,10 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style = {styles.row}>
-                    <Text style={styles.inputLabel}>Calories</Text>
+                <View style = {isDarkMode? styles.darkRow: styles.row}>
+                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Calories</Text>
                     <TextInput
-                        style={styles.input}
+                        style={isDarkMode? styles.darkInput:styles.input}
                         keyboardType="numeric"
                         value={foodCalories}
                         onChangeText={handleCaloriesChange}
@@ -394,10 +394,10 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style = {styles.row}>
-                    <Text style={styles.inputLabel}>Fat (g)</Text>
+                <View style = {isDarkMode? styles.darkRow: styles.row}>
+                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Fat (g)</Text>
                     <TextInput
-                        style={styles.input}
+                        style={isDarkMode? styles.darkInput:styles.input}
                         keyboardType="numeric"
                         value={foodFat}
                         onChangeText={handleFatChange}
@@ -407,10 +407,10 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style = {styles.row}>
-                    <Text style={styles.inputLabel}>Carbs (g)</Text>
+                <View style = {isDarkMode? styles.darkRow: styles.row}>
+                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Carbs (g)</Text>
                     <TextInput
-                        style={styles.input}
+                        style={isDarkMode? styles.darkInput:styles.input}
                         keyboardType="numeric"
                         value={foodCarbs}
                         onChangeText={handleCarbsChange}
@@ -420,10 +420,10 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style = {styles.row}>
-                    <Text style={styles.inputLabel}>Protein (g)</Text>
+                <View style = {isDarkMode? styles.darkRow: styles.row}>
+                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Protein (g)</Text>
                     <TextInput
-                    style={styles.input}
+                    style={isDarkMode? styles.darkInput:styles.input}
                     keyboardType="numeric"
                     value={foodProtein}
                     onChangeText={handleProteinChange}
@@ -433,10 +433,10 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style = {styles.row}>
-                    <Text style={styles.inputLabel}>Servings:</Text>
+                <View style = {isDarkMode? styles.darkRow: styles.row}>
+                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Servings:</Text>
                     <TextInput
-                        style={styles.input}
+                        style={isDarkMode? styles.darkInput:styles.input}
                         keyboardType="numeric"
                         value={foodServings}
                         onChangeText={handleServingsChange}
@@ -497,6 +497,11 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
       },
+      darkLabel: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: 'white'
+      },
       description: {
         fontSize: 15,
       },
@@ -513,11 +518,29 @@ const styles = StyleSheet.create({
     //   inputInvalid: {
     //     borderColor: 'red',
     // },
+    darkInput: {
+        flex: 1,
+        // borderWidth: 1,
+        // borderColor: 'white',
+        padding: 5,
+        marginVertical: 2,
+        // borderRadius: 2,
+        textAlign: 'right',
+        // backgroundColor:'red'
+        color: 'white'
+      },
       inputLabel: {
         marginLeft: 20,
         fontSize: 16,
         marginRight: 10, // Space between the label and input
         width: '30%', // Adjust width based on your layout needs
+      },
+      darkInputLabel: {
+        marginLeft: 20,
+        fontSize: 16,
+        marginRight: 10, // Space between the label and input
+        width: '30%', // Adjust width based on your layout needs
+        color: 'white'
       },
       rowStart: {
         flexDirection: 'row', // Align items in a row
@@ -532,6 +555,19 @@ const styles = StyleSheet.create({
         width: '90%',
         alignSelf: 'center',
       },
+      darkRowStart: {
+        flexDirection: 'row', // Align items in a row
+        alignItems: 'center', // Vertically center the text and input
+        marginTop: 10, 
+        padding: 7,
+        gap: 20,
+        borderTopColor: 'white', 
+        borderBottomColor: 'white',
+        borderBottomWidth: 1,
+        borderTopWidth: 1,
+        width: '90%',
+        alignSelf: 'center',
+      },
       row: {
         flexDirection: 'row', // Align items in a row
         alignItems: 'center', // Vertically center the text and input
@@ -539,6 +575,17 @@ const styles = StyleSheet.create({
         gap: 20,
         // borderTopColor: 'white', 
         borderBottomColor: 'black',
+        borderBottomWidth: 1, 
+        width: '90%',
+        alignSelf: 'center',
+      }, 
+      darkRow: {
+        flexDirection: 'row', // Align items in a row
+        alignItems: 'center', // Vertically center the text and input
+        padding: 7, 
+        gap: 20,
+        // borderTopColor: 'white', 
+        borderBottomColor: 'white',
         borderBottomWidth: 1, 
         width: '90%',
         alignSelf: 'center',
