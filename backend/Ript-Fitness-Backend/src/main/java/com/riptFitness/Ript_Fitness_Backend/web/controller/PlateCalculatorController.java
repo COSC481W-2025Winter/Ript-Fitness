@@ -20,9 +20,10 @@ public class PlateCalculatorController {
         this.plateCalculatorService = plateCalculatorService;
     }
 
-    @GetMapping("/plates")
+    @GetMapping(value = "/plates", produces = "application/json")
     public PlateCombinationDto getPlateCombination(@RequestParam double weight) {
         List<Double> platesOnOneSide = plateCalculatorService.getPlatesFor(weight);
         return new PlateCombinationDto(weight, platesOnOneSide);
     }
+
 }
