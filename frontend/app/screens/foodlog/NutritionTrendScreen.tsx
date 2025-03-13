@@ -4,7 +4,6 @@ import { LineChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { FontAwesome5 } from "@expo/vector-icons"; // Ensure FontAwesome is imported
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -110,15 +109,15 @@ export default function NutritionTrendScreen() {
 
   // Calculate total amount (display total if no data point is clicked)
   const calculateTotal = (dataArray: { value: number; date: string }[]) =>
-    dataArray.reduce((a, b) => a + b.value, 0).toFixed(2);
+    Math.round(dataArray.reduce((a, b) => a + b.value, 0));
 
   // Calculate total amount (display total if no data point is clicked)
   const totalValues = selectedDayIndex !== null
     ? {
-        total_calories: dataSource.calories[selectedDayIndex].value,
-        total_protein: dataSource.protein[selectedDayIndex].value,
-        total_carbs: dataSource.carbs[selectedDayIndex].value,
-        total_fat: dataSource.fat[selectedDayIndex].value,
+        total_calories:  Math.round(dataSource.calories[selectedDayIndex].value), //used Math.round make the value integer type 
+        total_protein:  Math.round(dataSource.protein[selectedDayIndex].value),
+        total_carbs:  Math.round(dataSource.carbs[selectedDayIndex].value),
+        total_fat:  Math.round(dataSource.fat[selectedDayIndex].value),
       }
     : {
         total_calories: calculateTotal(dataSource.calories),
@@ -253,18 +252,20 @@ const chartConfig = {
         <Switch value={isThirtyDays} onValueChange={() => {
           setIsThirtyDays(!isThirtyDays);
           setSelectedDayIndex(null); // Reset selection when switching
+          setClickedDotIndex(null); // Reset dot state
         }} />
         <Text style={styles.switchLabel}>30 Days</Text>
       </View>
 
   {/* Calories Line Chart (with click interaction) */}
-  <Text style={[styles.chartTitle, { marginBottom: 7 }]}>Calories Trend</Text>
+  <Text style={[styles.chartTitle, { marginBottom: 7 }]}>Calories</Text>
 
       <View style={styles.chartContainer}>
           {/* Additional shadow layer (only visible when `calories` is selected) */}
-          { selectedMetric === "calories" && (<View style={styles.shadowEffect} /> )}
+          { selectedMetric === "calories" && (
+              <View style={styles.shadowEffect} />
+          )}
       </View>
-
       <Animated.View style={{ opacity: chartAnimation }}>
         <LineChart
           data={{
@@ -282,15 +283,17 @@ const chartConfig = {
           bezier
           withVerticalLines={false}
           withDots={true}
+          style={styles.chart} // Add styles.chart
           onDataPointClick={({ index }) => handleDotClickWithAnimation(index)} //Use click event with animation
           renderDotContent={({ x, y, index, indexData }) => 
             renderBrightDot({ x, y, index, indexData, datasetKey: "calories-dataset" }) // Manually pass datasetKey
           }       
         />
       </Animated.View>
+    
       
  {/* Protein, Carbs, Fat Line Chart */}
-  <Text style={[styles.chartTitle, { marginTop: 25 }]}>Protein, Carbs & Fat Trend</Text>
+  <Text style={[styles.chartTitle, { marginTop: 25 }]}>Protein, Carbs & Fat</Text>
       <View style={styles.chartContainer}>
     {/* Additional shadow layer (only visible when the corresponding metric is selected) */}
     {selectedMetric && (
@@ -348,17 +351,14 @@ const chartConfig = {
 
         {/* Add time range indicator */}
         <View style={styles.timeRangeContainer}>
-        <Text style={styles.timeRangeText}>
-        {selectedDayIndex !== null ? "1 Day" : isThirtyDays ? "30 Days" : "7 Days"}
-        </Text>
-         {selectedDayIndex === null && ( // Only show in 7 Days and 30 Days view
-          <FontAwesome5 name="plus" size={12} color="#fff" style={styles.icon} />
-        )}       
+            <Text style={styles.timeRangeText}>
+            {selectedDayIndex !== null ? "1 Day" : isThirtyDays ? "30 Days" : "7 Days"}
+            </Text>     
         </View>
 
-      <View style={styles.rowContainer}>
-        <TouchableOpacity 
-        style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }} 
+    <View style={styles.rowContainer}>
+      <TouchableOpacity 
+        style={[styles.column, { flexDirection: "row", alignItems: "center", marginBottom: 8 }]}
         onPress={() => handleMetricClick("calories")}>
           <View style={[styles.dot, 
           { backgroundColor: metricColors.calories,
@@ -366,13 +366,14 @@ const chartConfig = {
             height: selectedMetric === "calories" ? 16 : 10,
             borderRadius: selectedMetric === "calories" ? 8 : 4,
           }]} />
-          <Text style={styles.totalText}>
-            Calories: <Text style={styles.totalValue}>{totalValues.total_calories}</Text>
-          </Text>
-        </TouchableOpacity>
+        <View style={{flexDirection:"row", alignItems: "center"}}>
+          <Text style={styles.totalText}> Calories: </Text>
+          <Text style={styles.totalValue}>{totalValues.total_calories}</Text>
+        </View>
+      </TouchableOpacity>
 
         <TouchableOpacity 
-        style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }} 
+        style={[styles.column, { flexDirection: "row", alignItems: "center", marginBottom: 8 }]}
         onPress={() => handleMetricClick("protein")}>
           <View style={[styles.dot, 
             { backgroundColor: metricColors.protein,
@@ -380,16 +381,17 @@ const chartConfig = {
               height: selectedMetric === "protein" ? 16 : 10,
               borderRadius: selectedMetric === "protein" ? 8 : 4,
             }]} />
-          <Text style={styles.totalText}>
-            Protein: <Text style={styles.totalValue}>{totalValues.total_protein}g</Text>
-          </Text>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Text style={styles.totalText}>Protein: </Text>
+          <Text style={styles.totalValue}>{totalValues.total_protein} g</Text>
+        </View>
         </TouchableOpacity>
       </View>
 
       
       <View style={styles.rowContainer}>
         <TouchableOpacity 
-          style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }} 
+          style={[styles.column, { flexDirection: "row", alignItems: "center", marginBottom: 8 }]}
           onPress={() => handleMetricClick("carbs")}>
             <View style={[styles.dot, 
             { backgroundColor: metricColors.carbs,
@@ -397,15 +399,15 @@ const chartConfig = {
               height: selectedMetric === "carbs" ? 16 : 10,
               borderRadius: selectedMetric === "carbs" ? 8 : 4,
             }]} />
-          
-          <Text style={styles.totalText}>
-            Carbs: <Text style={styles.totalValue}>{totalValues.total_carbs}g</Text>
-          </Text>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Text style={styles.totalText}>Carbs: </Text>
+          <Text style={styles.totalValue}>{totalValues.total_carbs} g</Text>
+        </View>
         </TouchableOpacity>
 
           
         <TouchableOpacity 
-          style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }} 
+          style={[styles.column, { flexDirection: "row", alignItems: "center", marginBottom: 8 }]}
           onPress={() => handleMetricClick("fat")}>
             <View style={[styles.dot, 
             { backgroundColor: metricColors.fat,
@@ -413,9 +415,10 @@ const chartConfig = {
               height: selectedMetric === "fat" ? 16 : 10,
               borderRadius: selectedMetric === "fat" ? 8 : 4,
             }]} />
-          <Text style={styles.totalText}>
-            Fat: <Text style={styles.totalValue}>{totalValues.total_fat}g</Text>
-          </Text>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Text style={styles.totalText}>Fat: </Text>
+          <Text style={styles.totalValue}>{totalValues.total_fat} g</Text>
+        </View>
         </TouchableOpacity>
       </View>
     </View>
@@ -426,13 +429,25 @@ const chartConfig = {
 
 //Styles
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "rgba(0, 0, 7, 0.82)", padding: 20 },
+  container: { flex: 1, backgroundColor: "rgba(0, 0, 7, 0.9)", padding: 20 },
   header: { fontSize: 22, fontWeight: "bold", textAlign: "center", color: "#48efff", marginBottom: 20 },
   switchContainer: { flexDirection: "row", justifyContent: "center", alignItems: "center", marginBottom: 20 },
   switchLabel: { fontSize: 16, marginHorizontal: 10, fontWeight: "bold", color: "#48efff" },
-  chart: { marginVertical: 10,  marginTop: -6, borderRadius: 16, alignSelf: "center", },
+  chart: { marginVertical: 10,  marginTop: -6, borderRadius: 16, alignSelf: "center",elevation: 4, },
   totalContainer: { marginTop: 20, alignItems: "center" },
-  rowContainer: { flexDirection: "row", justifyContent: "space-between", width: "100%", marginBottom: 10 },
+  rowContainer: { 
+    flexDirection: "row", 
+    width: "100%", 
+    marginBottom: 10,
+    justifyContent: "space-between", // modify space-between
+    alignItems: "flex-start", // Ensure vertical alignment
+  },
+  column: { 
+    width: 160, //Distribute width evenly for each column
+    paddingHorizontal: 10, // Adjust padding
+    flexDirection: "row", // Ensure child elements are arranged horizontally
+    alignItems: "center", // Vertically center align dots and text
+  },
   totalText: { fontSize: 16, fontWeight: "bold", color: "#48efff" },
   totalValue: { fontSize: 18, fontWeight: "bold", color: "#fff" },
   //Background style for time range
@@ -488,14 +503,14 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 20,
     left: 10,
-    width: screenWidth - 60,
-    height: 150,
-    backgroundColor: "rgba(255, 69, 58, 0.2)", // Add a shadow effect to the selected line
+    width: screenWidth - 55,
+    height: 153,
+    backgroundColor: "rgba(255, 69, 58, 0.3)", // Add a shadow effect to the selected line
     borderRadius: 10,
     shadowColor: "red",
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.6,
-    shadowRadius: 8,
+    shadowRadius: 15, //Larger value for softer shadow
     elevation: 8, 
     transform: [{ translateY: -5 }, { scale: 1.02 }], // Slightly enlarge & float
   },
