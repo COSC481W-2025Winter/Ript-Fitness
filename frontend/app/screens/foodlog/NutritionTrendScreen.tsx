@@ -175,9 +175,9 @@ export default function NutritionTrendScreen() {
         width: clickedDotIndex === index ? 19 : 11,
         height: clickedDotIndex === index ? 19 : 11,
         borderRadius: clickedDotIndex === index ? 10 : 6,
-        backgroundColor: clickedDotIndex === index ? "hsl(180, 100%, 70%)" : "hsla(180, 91.10%, 69.00%, 0.90)", // 未点击时非常明亮
+        backgroundColor: clickedDotIndex === index ? "hsl(180, 100%, 70%)" : "hsla(180, 91.10%, 69.00%, 0.90)", // Very bright when not clicked
         borderWidth: clickedDotIndex === index ? 2 : 1, // Border even when not clicked
-        borderColor: clickedDotIndex === index ? "rgba(255, 255, 255, 0.8)" : "rgba(255, 255, 255, 0.6)", // 未点击时也有明亮边框
+        borderColor: clickedDotIndex === index ? "rgba(255, 255, 255, 0.8)" : "rgba(255, 255, 255, 0.6)", // Bright border even when not clicked
         shadowColor: "#ffffff", // Add glow effect
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: clickedDotIndex === index ? 0.9 : glowAnimation, //Use dynamic glow when not clicked
