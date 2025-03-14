@@ -8,7 +8,7 @@ type ScannerProps = {
 };
 
 const Scanner: React.FC<ScannerProps> = ({ onClose, onScan }) => {
-  const [facing, setFacing] = useState<'front' | 'back'>('back');
+  const facing: 'front' | 'back' = 'back';
   const [permission, requestPermission] = useCameraPermissions();
   const [scannedData, setScannedData] = useState<string | null>(null);
 
@@ -25,10 +25,6 @@ const Scanner: React.FC<ScannerProps> = ({ onClose, onScan }) => {
     );
   }
 
-  function toggleCameraFacing() {
-    setFacing(current => (current === 'back' ? 'front' : 'back'));
-  }
-
   function handleBarCodeScanned({ data, type }: { data: string; type: string }) {
     if (!scannedData) {
       setScannedData(data);
@@ -42,7 +38,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose, onScan }) => {
     <View style={styles.container}>
       <CameraView
         style={styles.camera}
-        facing={facing}
+        facing="back"
         onBarcodeScanned={handleBarCodeScanned}
         barcodeScannerSettings={{
           barcodeTypes: [
@@ -54,11 +50,6 @@ const Scanner: React.FC<ScannerProps> = ({ onClose, onScan }) => {
           ],
         }}
       >
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip Camera</Text>
-          </TouchableOpacity>
-        </View>
       </CameraView>
 
       <Button title="Close Scanner" onPress={onClose} />

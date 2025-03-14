@@ -44,9 +44,14 @@ const FoodLogAddPage = () => {
      const dayKey = `${userID}_day`;
 
      async function fetchFoodData(barcode: string) {
+        const token = context?.data?.token;
+        if (!token) {
+            console.error("Token is undefined.");
+            return;
+        }
         try {
             // Use httpRequests.get instead of fetch + response.status
-            const data = await httpRequests.get(`/nutritionCalculator/getFoodByBarcode/${barcode}`, context.data.token);
+            const data = await httpRequests.get(`/nutritionCalculator/getFoodByBarcode/${barcode}`, token);
 
             // If no data or missing name, show alert
             if (!data || !data.name) {
