@@ -1,63 +1,66 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle, View } from 'react-native'
+import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 
-type barcodeScannerProps = {
+type BarcodeScannerProps = {
   title: string;
   backgroundColor?: string;
   borderColor?: string;
   borderWidth?: number;
-  width?: number,
-  height?: number,
+  width?: number;
+  height?: number;
   textColor?: string;
   fontSize?: number;
   onPress?: () => void;
   underlineOnPress?: boolean;
+  style?: ViewStyle;
 };
 
-const barcodeScannerButton: React.FC<barcodeScannerProps> = ({ title, backgroundColor, borderColor, borderWidth, width, textColor, fontSize, onPress, underlineOnPress = false }) => {
-    const [isPressed, setIsPressed] = useState(false);
-  
-    const buttonStyle: ViewStyle = {
-    backgroundColor: backgroundColor,
-    borderColor: borderColor,
-    borderWidth: borderWidth,
-    width: width || 'auto'
+const BarcodeScannerButton: React.FC<BarcodeScannerProps> = ({
+  title,
+  backgroundColor = "#21BFBF",
+  borderColor = "#21BFBF",
+  borderWidth = 2,
+  width = 200,  // Default width
+  height = 60,  // Default height
+  textColor = "#fff",
+  fontSize = 15,
+  onPress,
+  underlineOnPress = false,
+  style
+}) => {
+  const [isPressed, setIsPressed] = useState(false);
+
+  const buttonStyle: ViewStyle = {
+    backgroundColor,
+    borderColor,
+    borderWidth,
+    width,
+    height,  // ✅ Ensure height is passed
+    borderRadius: 10,  // ✅ Make it more rectangular, not oval
+    justifyContent: 'center',
+    alignItems: 'center',
   };
 
   const textStyle: TextStyle = {
-    color: textColor || '#fff',
-    fontSize: fontSize || 15,
+    color: textColor,
+    fontSize,
     fontWeight: 'bold',
+    textDecorationLine: underlineOnPress ? 'underline' : 'none',
   };
 
   return (
     <TouchableOpacity
-      style={[styles.circle, buttonStyle]}
-      onPressIn={() => setIsPressed(true)} // Set pressed state to true on press in
+      style={[buttonStyle, style]}  
+      onPressIn={() => setIsPressed(true)}
       onPressOut={() => {
         setIsPressed(false);
-        if (onPress) onPress(); // Call onPress when released
+        if (onPress) onPress();
       }}
       activeOpacity={0.7}
     >
-      <Text style={[textStyle]}>{title}</Text>
+      <Text style={textStyle}>{title}</Text>
     </TouchableOpacity>
   );
 };
 
-const styles = StyleSheet.create({
-    circle: {
-        width: 100, // Diameter of the circle
-        height: 50,
-        borderRadius: 30, // Half of the width/height to make it a circle
-        justifyContent: 'center', // Center the text vertically
-        alignItems: 'center', // Center the text horizontally
-        marginRight: 10,
-        marginLeft: 10,
-        marginTop: 5,
-        marginBottom: 5,
-    },
-   
-});
-
-export default barcodeScannerButton 
+export default BarcodeScannerButton;

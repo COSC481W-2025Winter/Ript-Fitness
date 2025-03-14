@@ -11,6 +11,7 @@ import { GlobalContext } from "@/context/GlobalContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { AlignJustify } from "react-native-feather";
 
 //Need to figure out how to get the day to work on login and then not switch until the next day 
 
@@ -78,17 +79,23 @@ const FoodLogAddPage = () => {
                 style={{maxHeight: '100%', marginTop: 10, marginHorizontal: 5, marginBottom: 0, backgroundColor: '#fff'}} 
                 contentContainerStyle={{}}
             >
-                <Text style={styles.label}>Nutrition Facts</Text>
-                <Text style={styles.description}>Enter the details from the label or scan a barcode.</Text>
-
-                {/* Barcode Scanner Button */}
-                <View style={styles.row}>
+                {/* Barcode Scanner Button chatGPT assisted with this section */}
+                <View style={styles.nutritionHeader}>
+                    <Text style={styles.label}>Nutrition Facts</Text>
                     <BarcodeScannerButton 
-                        title="Scan Barcode"
+                        title="Scan"
                         backgroundColor="#21BFBF"
-                        onPress={() => setScannerVisible(true)} 
+                        onPress={() => setScannerVisible(true)}
+                        style={{
+                            width: 140,
+                            height:50,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            paddingVertical: 10,
+                        }}
                     />
                 </View>
+                <Text style={styles.description}>Enter the details from the label or scan a barcode.</Text>
 
                 {/* Scanner Modal */}
                 <Modal visible={scannerVisible} animationType="slide">
@@ -505,6 +512,10 @@ const FoodLogAddPage = () => {
                 contentContainerStyle={{  }}
             >
                     <Text style={styles.label}>Nutrition Facts</Text>
+                    <BarcodeScannerButton 
+                        title="Scan" 
+                        backgroundColor="#21bfbf"
+                        onPress={() => setScannerVisible(true)}/>
                     <Text style={styles.description}>Enter the details from the label</Text>
 
                 {/* Input fields */}
@@ -687,7 +698,18 @@ const styles = StyleSheet.create({
         alignItems: 'center', // Vertically center the text and input
         justifyContent: 'center',
         marginVertical: 5,
+      },
+
+      nutritionHeader: {
+        flexDirection: 'row',  
+        alignItems: 'center',  
+        justifyContent: 'space-between',  
+        paddingHorizontal: 10,  
+        marginBottom: 5,  
+        width: '100%',  
       }
+      
+      
 })
 
 export default FoodLogAddPage;
