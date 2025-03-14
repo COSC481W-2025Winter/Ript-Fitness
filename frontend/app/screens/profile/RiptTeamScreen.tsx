@@ -92,7 +92,7 @@ const data = [
   {
     id: 14,
     name: "Rong Hu",
-    imageSrc: require('@/assets/images/team_photos/placeholder.png'),
+    imageSrc: require('@/assets/images/team_photos/ronghu.jpg'),
     title: "Frontend Developer"
   },
   {
