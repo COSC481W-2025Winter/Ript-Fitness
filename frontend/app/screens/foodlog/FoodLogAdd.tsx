@@ -1,8 +1,11 @@
 
 import { TextInput, StyleSheet, ScrollView, Text, View, KeyboardAvoidingView, Platform, TouchableOpacity, Dimensions, Button, Alert  } from "react-native";
 import React, { useContext, useEffect, useState } from 'react';
+import { Modal } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 import AddFoodButton from "@/components/foodlog/AddFoodButton";
+import BarcodeScannerButton from "@/components/foodlog/BarcodeScannerButton";
+import  Scanner  from "@/components/foodlog/scanner";
 import { httpRequests } from "@/api/httpRequests";
 import { GlobalContext } from "@/context/GlobalContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -27,6 +30,7 @@ const FoodLogAddPage = () => {
     const [totalWater, setTotalWater] = useState(0);
     const [day, setDay] = useState();
     const context = useContext(GlobalContext);
+    const [scannerVisible, setScannerVisible] = useState(false);
     const isDarkMode = context?.isDarkMode;
 
 
@@ -38,8 +42,143 @@ const FoodLogAddPage = () => {
      const foodKey = `${userID}_foodDetails`;
      const dayKey = `${userID}_day`;
 
+     async function fetchFoodData(barcode: string) {
+        try {
+            // Use httpRequests.get instead of fetch + response.status
+            const data = await httpRequests.get(`/nutritionCalculator/getFoodByBarcode/${barcode}`, context.data.token);
 
+            // If no data or missing name, show alert
+            if (!data || !data.name) {
+                Alert.alert("Error", "Food not found in database.");
+                return;
+            }
 
+            // Update states with the returned data
+            setFoodName(data.name || "Unknown");
+            setCalories(data.calories?.toString() || "0");
+            setCarbs(data.carbs?.toString() || "0");
+            setProtein(data.protein?.toString() || "0");
+            setFat(data.fat?.toString() || "0");
+
+            Alert.alert("Success", `Food Found: ${data.name}`);
+        } catch (error) {
+            console.error("Error fetching food data:", error);
+            Alert.alert("Error", "Failed to fetch food details.");
+        }
+    }
+
+    return(
+
+        <KeyboardAwareScrollView 
+            style={{ flex: 1, backgroundColor: '#fff' }}
+            // behavior={Platform.OS === "ios" ? "padding" : "height"}
+            // keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+        > 
+            <ScrollView 
+                style={{maxHeight: '100%', marginTop: 10, marginHorizontal: 5, marginBottom: 0, backgroundColor: '#fff'}} 
+                contentContainerStyle={{}}
+            >
+                <Text style={styles.label}>Nutrition Facts</Text>
+                <Text style={styles.description}>Enter the details from the label or scan a barcode.</Text>
+
+                {/* Barcode Scanner Button */}
+                <View style={styles.row}>
+                    <BarcodeScannerButton 
+                        title="Scan Barcode"
+                        backgroundColor="#21BFBF"
+                        onPress={() => setScannerVisible(true)} 
+                    />
+                </View>
+
+                {/* Scanner Modal */}
+                <Modal visible={scannerVisible} animationType="slide">
+                    <Scanner 
+                        onClose={() => setScannerVisible(false)}
+                        onScan={(barcode) => fetchFoodData(barcode)}
+                    />
+                </Modal>
+
+                {/* Input fields */}
+                <View style={styles.rowStart}>
+                    <Text style={styles.inputLabel}>Name</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Add Name"
+                        placeholderTextColor="#999"
+                        value={foodName}
+                        onChangeText={(text) => setFoodName(text)}
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Calories</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodCalories}
+                        onChangeText={(text) => setCalories(text)}
+                        placeholder="Add Calories"
+                        placeholderTextColor="#999"
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Fat (g)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodFat}
+                        onChangeText={(text) => setFat(text)}
+                        placeholder="Add Grams"
+                        placeholderTextColor="#999"
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Carbs (g)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodCarbs}
+                        onChangeText={(text) => setCarbs(text)}
+                        placeholder="Add Grams"
+                        placeholderTextColor="#999"
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Protein (g)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodProtein}
+                        onChangeText={(text) => setProtein(text)}
+                        placeholder="Add Grams"
+                        placeholderTextColor="#999"
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Servings:</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodServings}
+                        onChangeText={(text) => setServings(text)}
+                        placeholder="Add Servings"
+                        placeholderTextColor="#999"
+                    />
+                </View>
+                
+            </ScrollView>
+            
+            {/* Save buttons */}
+            <View style={styles.buttonRow}>
+                {/* handleFoodDataSaveOnly and handleFoodDataSaveAddDay remain unchanged */}
+                {/* Just ensure your "ValidateAllFields()" logic is placed accordingly */}
+            </View>
+        </KeyboardAwareScrollView>
+    )
 
     const setTotalForDay = async () => {
         console.log("the day is: ", day);
