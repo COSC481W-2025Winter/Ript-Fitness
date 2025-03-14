@@ -20,7 +20,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { DrawerActions, NavigationContainer, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { httpRequests } from '@/api/httpRequests';
-import { GlobalContext, ProfileObject } from '@/context/GlobalContext';
+import { GlobalContext, ProfileObject, Workout, Exercise } from '@/context/GlobalContext';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { ProfileScreenNavigationProp } from '../../(tabs)/ProfileStack';
 import GraphScreen from './GraphScreen';
@@ -774,6 +774,17 @@ function ProgressScreen() {
   const renderCalendarDay = (day: number, month: number, year: number, type: number) => {
     let myStyle;
     let textStyle;
+
+    const [modalVisible, setModalVisible] = useState(false);
+
+  const handlePress = () => {
+    setModalVisible(true); // Show the modal when the text is clicked
+  };
+
+  const closeModal = () => {
+    setModalVisible(false); // Close the modal
+  };
+
     if (day == 0) {
       spacerKey++;
       day = spacerKey;
@@ -794,7 +805,26 @@ function ProgressScreen() {
     }
     return (
       <View style={[styles.day, myStyle]} key={day}>
-        <Text style={[styles.dayText, textStyle]}>{day}</Text>
+        <TouchableOpacity onPress={handlePress}>
+          <Text style={[styles.dayText, textStyle]}>{day}</Text>
+        </TouchableOpacity>
+
+        <Modal
+        visible={modalVisible}
+        transparent={true} // Makes the background dimmed
+        animationType="fade" // Adds animation to the modal appearance
+        onRequestClose={closeModal} // Android back button behavior
+      >
+        <TouchableWithoutFeedback onPress={closeModal}>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)', borderRadius: 8 }}>
+            <TouchableWithoutFeedback>
+              <View style={{ width: 300, height: 200, backgroundColor: isDarkMode?'#333':'white', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+                <Text>This is the modal content!</Text>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
       </View>
     );
   };
