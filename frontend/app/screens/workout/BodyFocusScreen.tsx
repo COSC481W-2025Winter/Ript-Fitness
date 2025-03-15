@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Modal, Button, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect,useRef } from 'react';
+import { View, Text, StyleSheet, Modal, Button, FlatList, TouchableOpacity, ActivityIndicator,PanResponder, Animated } from 'react-native';
 import BodyDiagram from '@/components/BodyDiagram';
 import { httpRequests } from '@/api/httpRequests'; // Use named import
 import AuthContext, { useAuth } from '../../../context/AuthContext'; // Adjust the path to the actual location of AuthContext
 import { ScrollView } from 'react-native';
+
+
 // Define the BodyPart type
 export type BodyPart = 'Abdomen' | 'Legs' | 'Arms' | 'Back' | 'Shoulders'; // Example of defining BodyPart as a type
 
@@ -16,6 +18,13 @@ export default function BodyFocusScreen() {
   const [isFrontView, setIsFrontView] = useState(true);
   const [loading, setLoading] = useState(false);
 
+ // State for tutorial overlay
+ const [showTutorial, setShowTutorial] = useState(true); // Show tutorial on first load
+ const [tutorialOpacity] = useState(new Animated.Value(1)); // For fade-out animation
+
+ // Ref to trigger animation in BodyDiagram
+ const bodyDiagramRef = useRef<{ triggerAllAnimations:() => void }>(null);
+  
   //chatGPT assisted with this section
   const [workoutData, setWorkoutData] = useState<{
     front: { [key in BodyPart]?: string[] };
@@ -92,6 +101,22 @@ useEffect(() => {
   };
 }, [selectedPart, token]); // Now correctly dependent on `selectedPart` and `token`
 
+// Auto-hide tutorial after 3 seconds
+useEffect(() => {
+  if (showTutorial) {
+    const timer = setTimeout(() => {
+      Animated.timing(tutorialOpacity, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowTutorial(false);
+      });
+    }, 3000); // Hide after 3 seconds
+
+    return () => clearTimeout(timer);
+  }
+}, [showTutorial]);
 
   // Handles body part selection and opens the modal if valid
   const handleBodyPartClick = (part: BodyPart) => {
@@ -125,7 +150,12 @@ useEffect(() => {
   };
 
   // Toggles between front and back body diagram views
-  const toggleView = () => {
+  const toggleView = (direction: 'left' | 'right') => {
+    // Trigger animation in BodyDiagram
+    if (bodyDiagramRef.current) {
+      bodyDiagramRef.current.triggerAllAnimations();
+    }
+    
     setIsFrontView(prev => {
       const newView = !prev;
       // If switching to the back view while a front-view body part is selected, clear the selection.
@@ -140,13 +170,38 @@ useEffect(() => {
     });
   };
 
+  // PanResponder for handling swipe gestures
+  const panResponder = PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onPanResponderMove: () => {
+      // When the user starts swiping, hide the tutorial immediately
+      if (showTutorial) {
+        Animated.timing(tutorialOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }).start(() => {
+          setShowTutorial(false);
+        });
+      }
+    },
+    onPanResponderRelease: (evt, gestureState) => {
+      const { dx } = gestureState;
+      if (dx > 50) {
+        toggleView('right');
+      } else if (dx < -50) {
+        toggleView('left');
+      }
+    },
+  });
+
   // Retrieves the appropriate exercise list based on the selected body part and view mode
   const selectedExercisesList = isFrontView
     ? workoutData.front?.[selectedPart as BodyPart] || []
     : workoutData.back?.[selectedPart as BodyPart] || [];
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} {...panResponder.panHandlers}>
       {/* Displays the selected exercises */}
       <View style={styles.exerciseContainer}>
         <Text style={styles.exerciseTitle}>Selected Exercises:</Text>
@@ -159,13 +214,8 @@ useEffect(() => {
           contentContainerStyle={styles.exerciseListContainer}
         />
         
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <TouchableOpacity onPress={toggleView} style={styles.toggleButton}>
-            <Text style={styles.toggleButtonText}>{isFrontView ? 'Switch to Back View' : 'Switch to Front View'}</Text>
-          </TouchableOpacity>
-          
-          <View style={{ width: 10 }} />
-          
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+          {/* Remove the toggle button and rely on swipe gestures */}
           {exerciseList.size > 0 && (
             <TouchableOpacity onPress={clearAllExercises} style={styles.clearButton}>
               <Text style={styles.clearButtonText}>Clear All</Text>
@@ -177,9 +227,11 @@ useEffect(() => {
       {/* Displays the interactive body diagram */}
       <View style={styles.bodyDiagramContainer}>
         <BodyDiagram
+          ref={bodyDiagramRef}
           onBodyPartClick={handleBodyPartClick}
           imageSource={isFrontView ? require('@/assets/images/body-diagram.png') : require('@/assets/images/body-diagram-back.png')}
           isFrontView={isFrontView} 
+          triggerAnimation={() => bodyDiagramRef.current?.triggerAllAnimations()}
         />
       </View>
 
@@ -190,7 +242,8 @@ useEffect(() => {
           <FlatList
             data={selectedExercisesList}
             renderItem={({ item }) => (
-              <Button title={item} onPress={() => toggleExerciseSelection(item)} color={selectedExercises.has(item) ? 'green' : 'blue'} />
+              <Button title={item} onPress={() => toggleExerciseSelection(item)} 
+                      color={selectedExercises.has(item) ? 'rgb(19, 245, 61)' : 'rgb(23, 220, 220)'} />
             )}
             keyExtractor={item => item}
             numColumns={2}
@@ -199,9 +252,19 @@ useEffect(() => {
           <TouchableOpacity onPress={saveSelectedExercises} style={styles.customButton}>
             <Text style={styles.customButtonText}>Save Selected Exercises</Text>
           </TouchableOpacity>
-          <Button title="Close" onPress={() => setModalVisible(false)} />
+          <Button title="Close" onPress={() => setModalVisible(false)}/>
         </View>
       </Modal>
+
+    {/* Tutorial Overlay */}
+    {showTutorial && (
+        <Animated.View style={[styles.tutorialOverlay, { opacity: tutorialOpacity }]}>
+          <Text style={styles.tutorialText}>
+          ← Swipe 180° →
+          </Text>
+        </Animated.View>
+      )}
+
     </View>
   );
 }
@@ -215,7 +278,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 7, 0.82)", 
   },
   exerciseContainer: {  // Controls the layout of the selected exercises section
-    marginTop: 480,     // Adjusts the vertical position of the section
+    marginTop: 510,     // Adjusts the vertical position of the section
     alignItems: 'center',
     width: '100%',
     paddingHorizontal: 20,
@@ -251,7 +314,7 @@ const styles = StyleSheet.create({
   },
   bodyDiagramContainer: {
     position: 'absolute',
-    top: 470,  // Adjust this value to move the body diagram up or down
+    top: 490,  // Adjust this value to move the body diagram up or down
     left: 0,
     right: 0,
     alignItems: 'center',
@@ -266,6 +329,11 @@ const styles = StyleSheet.create({
     width: 150,  
     height: 30, 
     justifyContent: 'center',
+    shadowColor: '#21BFBF', // Glow color matches the button
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 60, // For Android
   },
   toggleButtonText: {
     fontSize: 14,
@@ -324,6 +392,22 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
+
+  // Styles for tutorial overlay
+  tutorialOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tutorialText: {
+    fontSize: 20,
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
 });
-
-
