@@ -35,7 +35,7 @@ const BarcodeScannerButton: React.FC<BarcodeScannerProps> = ({
     borderColor,
     borderWidth,
     width,
-    height,  // ✅ Ensure height is passed
+    height,  // Ensure height is passed
     borderRadius: 10,  // ✅ Make it more rectangular, not oval
     justifyContent: 'center',
     alignItems: 'center',

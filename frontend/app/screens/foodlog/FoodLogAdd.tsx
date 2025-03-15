@@ -73,125 +73,6 @@ const FoodLogAddPage = () => {
         }
     }
 
-    return(
-
-        <KeyboardAwareScrollView 
-            style={{ flex: 1, backgroundColor: '#fff' }}
-            // behavior={Platform.OS === "ios" ? "padding" : "height"}
-            // keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
-        > 
-            <ScrollView 
-                style={{maxHeight: '100%', marginTop: 10, marginHorizontal: 5, marginBottom: 0, backgroundColor: '#fff'}} 
-                contentContainerStyle={{}}
-            >
-                {/* Barcode Scanner Button chatGPT assisted with this section */}
-                <View style={styles.nutritionHeader}>
-                    <Text style={styles.label}>Nutrition Facts</Text>
-                    <BarcodeScannerButton 
-                        title="Scan"
-                        backgroundColor="#21BFBF"
-                        onPress={() => setScannerVisible(true)}
-                        style={{
-                            width: 140,
-                            height:50,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            paddingVertical: 10,
-                        }}
-                    />
-                </View>
-                <Text style={styles.description}>Enter the details from the label or scan a barcode.</Text>
-
-                {/* Scanner Modal */}
-                <Modal visible={scannerVisible} animationType="slide">
-                    <Scanner 
-                        onClose={() => setScannerVisible(false)}
-                        onScan={(barcode) => fetchFoodData(barcode)}
-                    />
-                </Modal>
-
-                {/* Input fields */}
-                <View style={styles.rowStart}>
-                    <Text style={styles.inputLabel}>Name</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Add Name"
-                        placeholderTextColor="#999"
-                        value={foodName}
-                        onChangeText={(text) => setFoodName(text)}
-                    />
-                </View>
-
-                <View style={styles.row}>
-                    <Text style={styles.inputLabel}>Calories</Text>
-                    <TextInput
-                        style={styles.input}
-                        keyboardType="numeric"
-                        value={foodCalories}
-                        onChangeText={(text) => setCalories(text)}
-                        placeholder="Add Calories"
-                        placeholderTextColor="#999"
-                    />
-                </View>
-
-                <View style={styles.row}>
-                    <Text style={styles.inputLabel}>Fat (g)</Text>
-                    <TextInput
-                        style={styles.input}
-                        keyboardType="numeric"
-                        value={foodFat}
-                        onChangeText={(text) => setFat(text)}
-                        placeholder="Add Grams"
-                        placeholderTextColor="#999"
-                    />
-                </View>
-
-                <View style={styles.row}>
-                    <Text style={styles.inputLabel}>Carbs (g)</Text>
-                    <TextInput
-                        style={styles.input}
-                        keyboardType="numeric"
-                        value={foodCarbs}
-                        onChangeText={(text) => setCarbs(text)}
-                        placeholder="Add Grams"
-                        placeholderTextColor="#999"
-                    />
-                </View>
-
-                <View style={styles.row}>
-                    <Text style={styles.inputLabel}>Protein (g)</Text>
-                    <TextInput
-                        style={styles.input}
-                        keyboardType="numeric"
-                        value={foodProtein}
-                        onChangeText={(text) => setProtein(text)}
-                        placeholder="Add Grams"
-                        placeholderTextColor="#999"
-                    />
-                </View>
-
-                <View style={styles.row}>
-                    <Text style={styles.inputLabel}>Servings:</Text>
-                    <TextInput
-                        style={styles.input}
-                        keyboardType="numeric"
-                        value={foodServings}
-                        onChangeText={(text) => setServings(text)}
-                        placeholder="Add Servings"
-                        placeholderTextColor="#999"
-                    />
-                </View>
-                
-            </ScrollView>
-            
-            {/* Save buttons */}
-            <View style={styles.buttonRow}>
-                {/* handleFoodDataSaveOnly and handleFoodDataSaveAddDay remain unchanged */}
-                {/* Just ensure your "ValidateAllFields()" logic is placed accordingly */}
-            </View>
-        </KeyboardAwareScrollView>
-    )
-
     const setTotalForDay = async () => {
         console.log("the day is: ", day);
         const thisDay = await AsyncStorage.getItem(dayKey);
@@ -509,136 +390,156 @@ const FoodLogAddPage = () => {
 
         <KeyboardAwareScrollView 
             style={{ flex: 1, backgroundColor: '#fff' }}
-            //behavior={Platform.OS === "ios" ? "padding" : "height"} , justifyContent: 'space-between'
-            //keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0} // Adjust this value based on your header height
+            // behavior={Platform.OS === "ios" ? "padding" : "height"}
+            // keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
         > 
             <ScrollView 
                 style={{maxHeight: '100%', marginTop: 10, marginHorizontal: 5, marginBottom: 0, backgroundColor: '#fff'}} 
-                contentContainerStyle={{  }}
+                contentContainerStyle={{}}
             >
+                {/* Barcode Scanner Button chatGPT assisted with this section */}
+                <View style={styles.nutritionHeader}>
                     <Text style={styles.label}>Nutrition Facts</Text>
                     <BarcodeScannerButton 
-                        title="Scan" 
-                        backgroundColor="#21bfbf"
-                        onPress={() => setScannerVisible(true)}/>
-                    <Text style={styles.description}>Enter the details from the label</Text>
+                        title="Scan"
+                        backgroundColor="#21BFBF"
+                        onPress={() => setScannerVisible(true)}
+                        style={{
+                            width: 140,
+                            height:50,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            paddingVertical: 10,
+                        }}
+                    />
+                </View>
+                <Text style={styles.description}>Enter the details from the label or scan a barcode.</Text>
+
+                {/* Scanner Modal */}
+                <Modal visible={scannerVisible} animationType="slide">
+                    <Scanner 
+                        onClose={() => setScannerVisible(false)}
+                        onScan={(barcode) => fetchFoodData(barcode)}
+                    />
+                </Modal>
 
                 {/* Input fields */}
-                <View style = {styles.rowStart}>
+                <View style={styles.rowStart}>
                     <Text style={styles.inputLabel}>Name</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder={!validName ? "Food name required" : "Add Name"}
-                        placeholderTextColor={!validName ? 'red' : '#999'}
+                        placeholder="Add Name"
+                        placeholderTextColor="#999"
                         value={foodName}
-                        onChangeText={handleFoodNameChange}
-                        onBlur={() => handleBlur('foodName', foodName)}
+                        onChangeText={(text) => setFoodName(text)}
                     />
                 </View>
 
-                <View style = {styles.row}>
+                <View style={styles.row}>
                     <Text style={styles.inputLabel}>Calories</Text>
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
                         value={foodCalories}
-                        onChangeText={handleCaloriesChange}
-                        placeholder={"Add Calories"}
-                        placeholderTextColor={'#999'}
-                        // onBlur={() => handleBlur('calories', foodCalories)}
+                        onChangeText={(text) => setCalories(text)}
+                        placeholder="Add Calories"
+                        placeholderTextColor="#999"
                     />
                 </View>
 
-                <View style = {styles.row}>
+                <View style={styles.row}>
                     <Text style={styles.inputLabel}>Fat (g)</Text>
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
                         value={foodFat}
-                        onChangeText={handleFatChange}
-                        placeholder={"Add Grams"}
-                        placeholderTextColor={'#999'}
-                        // onBlur={() => handleBlur('fat', foodFat)}
+                        onChangeText={(text) => setFat(text)}
+                        placeholder="Add Grams"
+                        placeholderTextColor="#999"
                     />
                 </View>
 
-                <View style = {styles.row}>
+                <View style={styles.row}>
                     <Text style={styles.inputLabel}>Carbs (g)</Text>
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
                         value={foodCarbs}
-                        onChangeText={handleCarbsChange}
-                        placeholder={"Add Grams"}
-                        placeholderTextColor={'#999'}
-                        // onBlur={() => handleBlur('carbs', foodCarbs)}
+                        onChangeText={(text) => setCarbs(text)}
+                        placeholder="Add Grams"
+                        placeholderTextColor="#999"
                     />
                 </View>
 
-                <View style = {styles.row}>
+                <View style={styles.row}>
                     <Text style={styles.inputLabel}>Protein (g)</Text>
                     <TextInput
-                    style={styles.input}
-                    keyboardType="numeric"
-                    value={foodProtein}
-                    onChangeText={handleProteinChange}
-                    placeholder={"Add Grams"}
-                    placeholderTextColor={'#999'}
-                    //    onBlur={() => handleBlur('protein', foodProtein)}
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodProtein}
+                        onChangeText={(text) => setProtein(text)}
+                        placeholder="Add Grams"
+                        placeholderTextColor="#999"
                     />
                 </View>
 
-                <View style = {styles.row}>
+                <View style={styles.row}>
                     <Text style={styles.inputLabel}>Servings:</Text>
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
                         value={foodServings}
-                        onChangeText={handleServingsChange}
-                        placeholder={"Add Servings"}
-                        placeholderTextColor={'#999'}
-                        // onBlur={() => handleBlur('servings', foodServings)}
+                        onChangeText={(text) => setServings(text)}
+                        placeholder="Add Servings"
+                        placeholderTextColor="#999"
+                    />
+                </View>
+
+                {/* Save button */}
+                <View style={styles.buttonRow}>
+                    <AddFoodButton   
+                        title="Save Food" 
+                        textColor="white"
+                        backgroundColor="#21BFBF"
+                        borderColor="#21BFBF"
+                        borderWidth={0}
+                        fontSize={16}
+                        width={150}
+                        onPress={() => {
+                            if ((validateAllFields())) {
+                                handleFoodDataSaveOnly();
+                            } else {
+                                alert("A food name is required.");
+                            }
+                        }} 
+                />
+                <AddFoodButton   
+                        title="Log Food Today" 
+                        textColor="#21BFBF"
+                        backgroundColor="white"
+                        borderColor="#21BFBF"
+                        borderWidth={2}
+                        fontSize={16}
+                        width={150}
+                        onPress={() => {
+                            if (validateAllFields()) {
+                                handleFoodDataSaveAddDay();
+                            } else {
+                                alert("A food name is required.");
+                            }
+                        }} 
                     />
                 </View>
                 
             </ScrollView>
-            {/* Save button */}
+            
+            {/* Save buttons */}
             <View style={styles.buttonRow}>
-                    <AddFoodButton   
-                            title="Save Food" 
-                            textColor="white"
-                            backgroundColor="#21BFBF"
-                            borderColor="#21BFBF"
-                            borderWidth={0}
-                            fontSize={16}
-                            width={150}
-                            onPress={() => {
-                                if ((validateAllFields())) {
-                                    handleFoodDataSaveOnly();
-                                } else {
-                                    alert("A food name is required.");
-                                }
-                            }} 
-                    />
-                    <AddFoodButton   
-                            title="Log Food Today" 
-                            textColor="#21BFBF"
-                            backgroundColor="white"
-                            borderColor="#21BFBF"
-                            borderWidth={2}
-                            fontSize={16}
-                            width={150}
-                            onPress={() => {
-                                if (validateAllFields()) {
-                                    handleFoodDataSaveAddDay();
-                                } else {
-                                    alert("A food name is required.");
-                                }
-                            }} 
-                    />
-                </View>
+                {/* handleFoodDataSaveOnly and handleFoodDataSaveAddDay remain unchanged */}
+                {/* Just ensure your "ValidateAllFields()" logic is placed accordingly */}
+            </View>
         </KeyboardAwareScrollView>
-    );
+    )
 };
 const styles = StyleSheet.create({
     addFoodContainer: { 
