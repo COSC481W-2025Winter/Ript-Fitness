@@ -1,16 +1,40 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Image, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import React, { useState, useEffect, useRef,forwardRef, useImperativeHandle } from 'react';
+import { View, Image, StyleSheet, TouchableOpacity, Animated,Text } from 'react-native';
 import { BodyPart } from '@/app/screens/workout/BodyFocusScreen';
+
+// Define the type for the ref
+interface BodyDiagramRef {
+    triggerAllAnimations: () => void;
+}
 
 interface BodyDiagramProps {
   onBodyPartClick: (part: BodyPart) => void;
   imageSource: any;
   isFrontView: boolean;  // Newly added isFrontView
+  triggerAnimation?: () => void; // Callback to trigger animation from parent
 }
 
-const BodyDiagram: React.FC<BodyDiagramProps> = ({ onBodyPartClick, imageSource, isFrontView }) => {
+const BodyDiagram = forwardRef<BodyDiagramRef, BodyDiagramProps>(
+      ({ onBodyPartClick, imageSource, isFrontView, triggerAnimation }, ref) => {
   const [selectedPart, setSelectedPart] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
+
+  // Create animated values for each body part's line and text position
+  const lineAnimations = useRef({
+    Abdomen: { x: new Animated.Value(0), y: new Animated.Value(0) },
+    Legs: { x: new Animated.Value(0), y: new Animated.Value(0) },
+    Arms: { x: new Animated.Value(0), y: new Animated.Value(0) },
+    Back: { x: new Animated.Value(0), y: new Animated.Value(0) },
+    Shoulders: { x: new Animated.Value(0), y: new Animated.Value(0) },
+  }).current;
+
+  const textAnimations = useRef({
+    Abdomen: { x: new Animated.Value(0), y: new Animated.Value(0) },
+    Legs: { x: new Animated.Value(0), y: new Animated.Value(0) },
+    Arms: { x: new Animated.Value(0), y: new Animated.Value(0) },
+    Back: { x: new Animated.Value(0), y: new Animated.Value(0) },
+    Shoulders: { x: new Animated.Value(0), y: new Animated.Value(0) },
+  }).current;
 
   const handlePress = (part: BodyPart) => {
     setSelectedPart(part);
@@ -48,6 +72,13 @@ const BodyDiagram: React.FC<BodyDiagramProps> = ({ onBodyPartClick, imageSource,
     });
   };
 
+//Trigger animation when view changes
+useEffect(() => {
+  if (typeof triggerAnimation === 'function') {
+    triggerAnimation(); // Call the passed triggerAnimation function
+  }
+}, [isFrontView]); // Add isFrontView to dependencies
+
   useEffect(() => {
     if (!isAnimating) {
       startCircleAnimation();
@@ -75,28 +106,151 @@ const BodyDiagram: React.FC<BodyDiagramProps> = ({ onBodyPartClick, imageSource,
     { id: 8, style: styles.circle8, animation: circleAnimations[7] },
   ];
 
+  // Define touch areas corresponding to text and line with expansion directions
+  const touchAreas: { part: BodyPart; touchStyle: any; label: string; lineStyle: any; textStyle: any }[] = [
+    // Front view: Abdomen (right), LegsLeft (left), ArmsLeft (left)
+    { part: 'Abdomen', touchStyle: styles.abdomen, label: 'Abdomen', lineStyle: styles.lineAbdomen, textStyle: styles.textAbdomen},
+    { part: 'Legs', touchStyle: styles.legsLeft, label: 'Leg', lineStyle: styles.lineLegsLeft, textStyle: styles.textLegsLeft },
+    { part: 'Legs', touchStyle: styles.legsRight, label: '', lineStyle: null, textStyle: null },
+    { part: 'Arms', touchStyle: styles.armsLeft, label: 'Arm', lineStyle: styles.lineArmsLeft, textStyle: styles.textArmsLeft },
+    { part: 'Arms', touchStyle: styles.armsRight, label: '', lineStyle: null, textStyle: null },
+    
+    // Back view: Back (right), ShouldersLeft (left)
+    { part: 'Back', touchStyle: styles.back, label: 'Back', lineStyle: styles.lineBack, textStyle: styles.textBack },
+    { part: 'Shoulders', touchStyle: styles.shouldersLeft, label: 'Shoulder', lineStyle: styles.lineShouldersLeft, textStyle: styles.textShouldersLeft },
+    { part: 'Shoulders', touchStyle: styles.shouldersRight, label: '', lineStyle: null, textStyle: null },
+  ];
+
+  // Filter touch areas based on isFrontView
+  const visibleTouchAreas = touchAreas.filter(({ part }) => {
+    const isVisible = isFrontView
+      ? ['Abdomen', 'Legs', 'Arms'].includes(part)
+      : ['Back', 'Shoulders'].includes(part);
+    console.log(`Part: ${part}, isVisible: ${isVisible}, isFrontView: ${isFrontView}`);
+    return isVisible;
+  });
+
+  // Trigger animation for all lines and texts
+  const triggerAllAnimations = () => {
+    const animationConfig = {
+      Abdomen: isFrontView ? 20 : 0, // Right in Front, no move in Back
+      Legs: isFrontView ? -20 : 0,   
+      Arms: isFrontView ? -20 : 0,   
+      Back: !isFrontView ? 20 : 0,   
+      Shoulders: !isFrontView ? -20 : 0, 
+    };
+
+    Object.keys(animationConfig).forEach((part) => {
+      const expandX = animationConfig[part as keyof typeof animationConfig];
+      Animated.parallel([
+        Animated.timing(lineAnimations[part as BodyPart].x, {
+          toValue: expandX,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(textAnimations[part as BodyPart].x, {
+          toValue: expandX,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(lineAnimations[part as BodyPart].y, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(textAnimations[part as BodyPart].y, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setTimeout(() => {
+          Animated.parallel([
+            Animated.timing(lineAnimations[part as BodyPart].x, {
+              toValue: 0,
+              duration: 300,
+              useNativeDriver: true,
+            }),
+            Animated.timing(textAnimations[part as BodyPart].x, {
+              toValue: 0,
+              duration: 300,
+              useNativeDriver: true,
+            }),
+            Animated.timing(lineAnimations[part as BodyPart].y, {
+              toValue: 0,
+              duration: 300,
+              useNativeDriver: true,
+            }),
+            Animated.timing(textAnimations[part as BodyPart].y, {
+              toValue: 0,
+              duration: 300,
+              useNativeDriver: true,
+            }),
+          ]).start();
+        }, 500); // 2 seconds delay
+      });
+    });
+  };
+
+  // Expose the triggerAllAnimations method via the ref
+  useImperativeHandle(ref, () => ({
+    triggerAllAnimations,
+  }));
+
   return (
     <View style={styles.container}>
       {/* Background human body image */}
       <Image source={imageSource} style={styles.image} resizeMode="contain" />
-
-      {/* Transparent touch areas */}
-      <TouchableOpacity style={[styles.touchable, styles.abdomen, selectedPart === "Abdomen" && styles.selected]} onPress={() => handlePress("Abdomen")} />
-      <TouchableOpacity style={[styles.touchable, styles.legsLeft, selectedPart === "Legs" && styles.selected]} onPress={() => handlePress("Legs")} />
-      <TouchableOpacity style={[styles.touchable, styles.legsRight, selectedPart === "Legs" && styles.selected]} onPress={() => handlePress("Legs")} />
-      <TouchableOpacity style={[styles.touchable, styles.armsLeft, selectedPart === "Arms" && styles.selected]} onPress={() => handlePress("Arms")} />
-      <TouchableOpacity style={[styles.touchable, styles.armsRight, selectedPart === "Arms" && styles.selected]} onPress={() => handlePress("Arms")} />
-      <TouchableOpacity style={[styles.touchable, styles.back, selectedPart === "Back" && styles.selected]} onPress={() => handlePress("Back")} />
-      <TouchableOpacity style={[styles.touchable, styles.shouldersLeft, selectedPart === "Shoulders" && styles.selected]} onPress={() => handlePress("Shoulders")} />
-      <TouchableOpacity style={[styles.touchable, styles.shouldersRight, selectedPart === "Shoulders" && styles.selected]} onPress={() => handlePress("Shoulders")} />
-
-      {/* Render circles only for the current view */}
+      
+      {/* Render circles first (below touch areas) */}
       {(isFrontView ? frontCircles : backCircles).map(({ id, style, animation }) => (
         <Animated.View key={id} style={[styles.circle, style, animatedStyle(animation)]} />
       ))}
+
+      {/* Transparent touch areas */}
+      {visibleTouchAreas.map(({ part, touchStyle, label, lineStyle, textStyle }) => (
+        <React.Fragment key={part + label}>
+          {textStyle && typeof textStyle === 'object' && (
+            <Animated.Text
+              style={[
+                styles.label,
+                textStyle,
+                {
+                  transform: [
+                    { translateX: textAnimations[part].x },
+                    { translateY: textAnimations[part].y },
+                  ],
+                },
+              ]}
+            >
+              {label}
+            </Animated.Text>
+          )}
+
+          <TouchableOpacity
+            style={[styles.touchable, touchStyle, selectedPart === part && styles.selected]}
+            onPress={() => handlePress(part)}
+          />
+          {/* Render only when lineStyle is an object */}
+          {lineStyle && typeof lineStyle === 'object' && (
+            <Animated.View
+              style={[
+                styles.line,
+                lineStyle,
+                {
+                  transform: [
+                    { translateX: lineAnimations[part].x },
+                    { translateY: lineAnimations[part].y },
+                  ],
+                },
+              ]}
+            />
+          )}
+        </React.Fragment>
+      ))} 
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -112,18 +266,16 @@ const styles = StyleSheet.create({
   },
   touchable: {
     position: 'absolute',
-    width: 80,
-    height: 80,
-    backgroundColor: 'rgba(0,0,0,0)',
+    backgroundColor: 'rgb(0, 0, 0, 0)',
   },
-  abdomen: { top: '31%', left: '40%' },
-  legsRight: { top: '65%', left: '53%' },
-  legsLeft: { top: '65%', left: '28%' },
-  armsLeft: { top: '25%', left: '20%' },
-  armsRight: { top: '25%', left: '60%' },
-  back: { top: '20%', left: '40%' },
-  shouldersLeft: { top: '5%', left: '25%' },
-  shouldersRight: { top: '5%', left: '55%' },
+  abdomen: { top: '40%', left: '43%', width: 200, height: 30 },
+  legsRight: { top: '73%', left: '48%',width: 50, height: 30 },
+  legsLeft: { top: '73%', left: '16%',width: 130, height: 30 },
+  armsLeft: { top: '28%', left: '7%',width: 130, height: 30 },
+  armsRight: { top: '24%', left: '58%',width: 50, height: 50 },
+  back: { top: '27%', left: '45%',width: 160, height: 35 },
+  shouldersLeft: { top: '15%', left: '3%',width: 165, height: 35 },
+  shouldersRight: { top: '16%', left: '53%',width: 50, height: 35 },
   selected: {
     backgroundColor: 'rgba(0, 0, 0, 0)',
   },
@@ -136,14 +288,46 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     backgroundColor: 'rgb(6, 245, 209)',
   },
-  circle1: { top: '33%', left: '34%' }, //left arm
+  circle1: { top: '30%', left: '35%' }, //left arm
   circle2: { top: '76%', left: '55%' }, //right leg
   circle3: { top: '76%', left: '42%' }, // left leg
-  circle4: { top: '33%', left: '63%' }, //right arm
+  circle4: { top: '30%', left: '62%' }, //right arm
   circle5: { top: '43%', left: '49%' }, //abdomen 
   circle6: { top: '18%', left: '39%' }, //left shoulder
   circle7: { top: '18%', left: '58%' }, //right shoulder
   circle8: { top: '30%', left: '49%' }, //back
+
+ // Line styles (connecting touch area and text)
+line: {
+  position: 'absolute',
+  width: 50,
+  height: 1,
+  backgroundColor: 'rgb(6, 245, 209)',
+},
+lineAbdomen: { top: 184, left: 230 }, 
+lineLegsLeft: { top: 323, left: 105 }, 
+//lineLegsRight: { top: 323, left: 238 }, 
+lineArmsLeft: { top: 131, left: 75 }, 
+//lineArmsRight: { top: 131, left: 265 }, 
+lineBack: { top: 129, left: 229 }, 
+lineShouldersLeft: { top: 80, left: 95 }, 
+//lineShouldersRight: { top: 61, left: 288 }, 
+
+// Label styles
+label: {
+  position: 'absolute',
+  fontSize: 16,
+  color: 'rgb(6, 245, 209)',
+  textAlign: 'center',
+},
+textAbdomen: { top: 173, left: 294 }, 
+textLegsLeft: { top: 313, left: 70 }, 
+//textLegsRight: { top: 316, left: 305 }, 
+textArmsLeft: { top: 121, left: 37 }, 
+//textArmsRight: { top: 145, left: 360 },
+textBack: { top: 119, left: 285 }, 
+textShouldersLeft: { top: 69, left: 25 }, 
+//textShouldersRight: { top: 61, left: 338 }, 
 });
 
 export default BodyDiagram;
