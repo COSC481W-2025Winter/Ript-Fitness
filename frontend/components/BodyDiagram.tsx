@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef,forwardRef, useImperativeHandle } from 'react';
 import { View, Image, StyleSheet, TouchableOpacity, Animated,Text } from 'react-native';
 import { BodyPart } from '@/app/screens/workout/BodyFocusScreen';
+import Svg, { Path } from 'react-native-svg'; // 引入 react-native-svg
 
 // Define the type for the ref
 interface BodyDiagramRef {
@@ -21,7 +22,9 @@ const BodyDiagram = forwardRef<BodyDiagramRef, BodyDiagramProps>(
 
   // Create animated values for each body part's line and text position
   const lineAnimations = useRef({
-    Abdomen: { x: new Animated.Value(0), y: new Animated.Value(0) },
+    Core: { x: new Animated.Value(0), y: new Animated.Value(0) },
+    Chest: { x: new Animated.Value(0), y: new Animated.Value(0) },
+    Cardio: { x: new Animated.Value(0), y: new Animated.Value(0) },
     Legs: { x: new Animated.Value(0), y: new Animated.Value(0) },
     Arms: { x: new Animated.Value(0), y: new Animated.Value(0) },
     Back: { x: new Animated.Value(0), y: new Animated.Value(0) },
@@ -29,7 +32,9 @@ const BodyDiagram = forwardRef<BodyDiagramRef, BodyDiagramProps>(
   }).current;
 
   const textAnimations = useRef({
-    Abdomen: { x: new Animated.Value(0), y: new Animated.Value(0) },
+    Core: { x: new Animated.Value(0), y: new Animated.Value(0) },
+    Chest: { x: new Animated.Value(0), y: new Animated.Value(0) },
+    Cardio: { x: new Animated.Value(0), y: new Animated.Value(0) },
     Legs: { x: new Animated.Value(0), y: new Animated.Value(0) },
     Arms: { x: new Animated.Value(0), y: new Animated.Value(0) },
     Back: { x: new Animated.Value(0), y: new Animated.Value(0) },
@@ -43,7 +48,7 @@ const BodyDiagram = forwardRef<BodyDiagramRef, BodyDiagramProps>(
   };
 
   const circleAnimations = useRef(
-    Array.from({ length: 8 }, () => new Animated.Value(0))
+    Array.from({ length: 10 }, () => new Animated.Value(0))
   ).current;
 
   const startCircleAnimation = () => {
@@ -97,6 +102,8 @@ useEffect(() => {
     { id: 3, style: styles.circle3, animation: circleAnimations[2] },
     { id: 4, style: styles.circle4, animation: circleAnimations[3] },
     { id: 5, style: styles.circle5, animation: circleAnimations[4] },
+    { id: 9, style: styles.circle9, animation: circleAnimations[8] }, // 添加 circle9
+    { id: 10, style: styles.circle10, animation: circleAnimations[9] }, // 添加 circle10
   ];
 
   // **Dynamic circles for the back view**
@@ -108,8 +115,10 @@ useEffect(() => {
 
   // Define touch areas corresponding to text and line with expansion directions
   const touchAreas: { part: BodyPart; touchStyle: any; label: string; lineStyle: any; textStyle: any }[] = [
-    // Front view: Abdomen (right), LegsLeft (left), ArmsLeft (left)
-    { part: 'Abdomen', touchStyle: styles.abdomen, label: 'Abdomen', lineStyle: styles.lineAbdomen, textStyle: styles.textAbdomen},
+    // Front view: Core (right), LegsLeft (left), ArmsLeft (left), Chest (right),Cardio (right)
+    { part: 'Core', touchStyle: styles.Core, label: 'Core', lineStyle: styles.lineCore, textStyle: styles.textCore},
+    { part: 'Chest', touchStyle: styles.Chest, label: 'Chest', lineStyle: styles.lineChest, textStyle: styles.textChest},
+    { part: 'Cardio', touchStyle: styles.Cardio, label: 'Cardio', lineStyle: null, textStyle: styles.textCardio},
     { part: 'Legs', touchStyle: styles.legsLeft, label: 'Leg', lineStyle: styles.lineLegsLeft, textStyle: styles.textLegsLeft },
     { part: 'Legs', touchStyle: styles.legsRight, label: '', lineStyle: null, textStyle: null },
     { part: 'Arms', touchStyle: styles.armsLeft, label: 'Arm', lineStyle: styles.lineArmsLeft, textStyle: styles.textArmsLeft },
@@ -124,7 +133,7 @@ useEffect(() => {
   // Filter touch areas based on isFrontView
   const visibleTouchAreas = touchAreas.filter(({ part }) => {
     const isVisible = isFrontView
-      ? ['Abdomen', 'Legs', 'Arms'].includes(part)
+      ? ['Core', 'Legs', 'Arms','Chest','Cardio'].includes(part)
       : ['Back', 'Shoulders'].includes(part);
     console.log(`Part: ${part}, isVisible: ${isVisible}, isFrontView: ${isFrontView}`);
     return isVisible;
@@ -133,8 +142,10 @@ useEffect(() => {
   // Trigger animation for all lines and texts
   const triggerAllAnimations = () => {
     const animationConfig = {
-      Abdomen: isFrontView ? 20 : 0, // Right in Front, no move in Back
-      Legs: isFrontView ? -20 : 0,   
+      Core: isFrontView ? 20 : 0, // Right in Front, no move in Back
+      Legs: isFrontView ? -20 : 0,
+      Chest: isFrontView ? 20 : 0,
+      Cardio: isFrontView ? 20 : 0,   
       Arms: isFrontView ? -20 : 0,   
       Back: !isFrontView ? 20 : 0,   
       Shoulders: !isFrontView ? -20 : 0, 
@@ -268,7 +279,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     backgroundColor: 'rgb(0, 0, 0, 0)',
   },
-  abdomen: { top: '40%', left: '43%', width: 200, height: 30 },
+  Core: { top: '40%', left: '43%', width: 200, height: 30 },
+  Chest: { top: '20%', left: '43%', width: 200, height: 30 },
+  Cardio: { top: '50%', left: '43%', width: 200, height: 30 },
   legsRight: { top: '73%', left: '48%',width: 50, height: 30 },
   legsLeft: { top: '73%', left: '16%',width: 130, height: 30 },
   armsLeft: { top: '28%', left: '7%',width: 130, height: 30 },
@@ -292,10 +305,12 @@ const styles = StyleSheet.create({
   circle2: { top: '76%', left: '55%' }, //right leg
   circle3: { top: '76%', left: '42%' }, // left leg
   circle4: { top: '30%', left: '62%' }, //right arm
-  circle5: { top: '43%', left: '49%' }, //abdomen 
+  circle5: { top: '43%', left: '49%' }, //Core
   circle6: { top: '18%', left: '39%' }, //left shoulder
   circle7: { top: '18%', left: '58%' }, //right shoulder
   circle8: { top: '30%', left: '49%' }, //back
+  circle9: { top: '23%', left: '54%' }, //Chest
+  circle10: { top: '6%', left: '76%',width: 9, height: 9, borderRadius: 25,backgroundColor: 'red' }, //Cardio
 
  // Line styles (connecting touch area and text)
 line: {
@@ -304,7 +319,9 @@ line: {
   height: 1,
   backgroundColor: 'rgb(6, 245, 209)',
 },
-lineAbdomen: { top: 184, left: 230 }, 
+lineCore: { top: 184, left: 230 }, 
+lineChest: { top: 100, left: 230 },
+lineCardio: { top: 30, left: 267 },
 lineLegsLeft: { top: 323, left: 105 }, 
 //lineLegsRight: { top: 323, left: 238 }, 
 lineArmsLeft: { top: 131, left: 75 }, 
@@ -320,7 +337,9 @@ label: {
   color: 'rgb(6, 245, 209)',
   textAlign: 'center',
 },
-textAbdomen: { top: 173, left: 294 }, 
+textCore: { top: 173, left: 294 }, 
+textChest: { top: 90, left: 294 }, 
+textCardio: { top: 20, left: 320 }, 
 textLegsLeft: { top: 313, left: 70 }, 
 //textLegsRight: { top: 316, left: 305 }, 
 textArmsLeft: { top: 121, left: 37 }, 
