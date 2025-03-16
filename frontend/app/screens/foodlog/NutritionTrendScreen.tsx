@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView, Switch, Animated, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Switch, Animated, TouchableOpacity,ActivityIndicator, Alert } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -21,24 +22,74 @@ interface DataItem {
   date: string;
 }
 
-// Generate data for 7 days and 30 days (moderate fluctuations)
-const generateData = (min: number, max: number, days: number) => {
-  return Array.from({ length: days }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (days - 1) + i); // Start from "days" ago
-    return {
-      value: Number((Math.random() * (max - min) + min + Math.sin(i) * 10).toFixed(2)),
-      date: date.toISOString().split("T")[0], // Date (format: YYYY-MM-DD)
-    };
-  });
-};
+// Define the interface for nutrition summary
+interface NutritionSummary {
+  calories: number[]; // 每日值数组
+  protein: number[];
+  carbs: number[];
+  fat: number[];
+  total_calories?: number; // 可选总和
+  total_protein?: number;
+  total_carbs?: number;
+  total_fat?: number;
+}
+
+// Define the interface for API response
+interface NutritionData {
+  daily: NutritionSummary;
+  weekly: NutritionSummary;
+  monthly: NutritionSummary;
+}
 
 // Get labels for the last 30 days (display every 5 days)
-const getLast30DaysLabels = (data: DataItem[]) => {
-  return data.map((item, i) => 
-    i % 5 === 0 ? new Date(item.date).toLocaleString("en-US", { month: "short", day: "2-digit" }) : ""
+const getLast30DaysLabels = (data: number[]) => {
+  if (!data || data.length === 0) return Array(7).fill(""); // 默认返回 7 个空标签
+  const labels = Array(data.length).fill(""); // 确保长度匹配
+  return data.map((_, i) =>
+    i % 5 === 0 ? new Date(Date.now() - (data.length - 1 - i) * 24 * 60 * 60 * 1000).toLocaleString("en-US", { month: "short", day: "2-digit" }) : ""
   );
 };
+
+// 检测数据是否是以 date 为分类的格式
+function isDateBasedFormat(data: any): boolean {
+  // 如果数据是对象且不是数组，且键是日期格式（例如 "2023-10-01"）
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+    const keys = Object.keys(data);
+    // 检查第一个键是否符合日期格式（例如 "YYYY-MM-DD"）
+    if (keys.length > 0) {
+      const firstKey = keys[0];
+      const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+      return datePattern.test(firstKey);
+    }
+  }
+  return false;
+}
+
+// 将以 date 为分类的格式转换为以 category 为分类的格式
+function convertDateToCategoryFormat(data: { [date: string]: { calories: number, protein: number, carbs: number, fat: number }, 
+      totals?: { total_calories: number, total_protein: number, total_carbs: number, total_fat: number } }): NutritionSummary {
+  const result: NutritionSummary = {
+    calories: [],
+    protein: [],
+    carbs: [],
+    fat: [],
+    total_calories: data.totals?.total_calories || 0, // 从后端返回的数据中提取总和
+    total_protein: data.totals?.total_protein || 0,
+    total_carbs: data.totals?.total_carbs || 0,
+    total_fat: data.totals?.total_fat || 0,
+  };
+
+  // 按日期顺序遍历数据
+  const sortedDates = Object.keys(data).filter(key => key !== 'totals').sort(); // 确保日期按顺序排列，排除 totals 字段
+  sortedDates.forEach((date) => {
+    result.calories.push(data[date].calories);
+    result.protein.push(data[date].protein);
+    result.carbs.push(data[date].carbs);
+    result.fat.push(data[date].fat);
+  });
+
+  return result;
+}
 
 export default function NutritionTrendScreen() {
   const [isThirtyDays, setIsThirtyDays] = useState(false);
@@ -46,42 +97,86 @@ export default function NutritionTrendScreen() {
   const [selectedDayIndex, setSelectedDayIndex] = useState<number | null>(null); // Selected data point index
   const [clickedDotIndex, setClickedDotIndex] = useState<number | null>(null); //State for clicked dot
   const [selectedMetric, setSelectedMetric] = useState<string | null>(null); // Currently selected metric
+  const [data, setData] = useState<NutritionData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigation = useNavigation();
   // Add a scale animation value in the component
   const [dotScale] = useState(new Animated.Value(1));
   // Add a glow animation value for breathing light effect
   const [glowAnimation] = useState(new Animated.Value(0.5));
 
-  // Pre-store 7-day and 30-day data to prevent regeneration when switching
-  const [sevenDayData] = useState<{
-    calories: DataItem[];
-    protein: DataItem[];
-    carbs: DataItem[];
-    fat: DataItem[];
-  }>({
-    calories: generateData(1700, 2100, 7),
-    protein: generateData(60, 120, 7),
-    carbs: generateData(160, 280, 7),
-    fat: generateData(40, 90, 7),
-  });
+  // API endpoints
+  const WEEKLY_TRENDS_URL = 'http://ript-fitness-app.azurewebsites.net/Calculator/getWeeklyTrends';
+  const MONTHLY_TRENDS_URL = 'http://ript-fitness-app.azurewebsites.net/nutritionCalculator/getMonthlyTrends';
+  const TOKEN = 'eyJhBcOi0JUZiN1Nj9.eYzdWi0IjSt...'; // 替换为实际 token 或从 .env 获取
 
-  const [thirtyDayData] = useState<{
-    calories: DataItem[];
-    protein: DataItem[];
-    carbs: DataItem[];
-    fat: DataItem[];
-  }>({
-    calories: generateData(1700, 2100, 30),
-    protein: generateData(60, 120, 30),
-    carbs: generateData(160, 280, 30),
-    fat: generateData(40, 90, 30),
-  });
+  // Fetch data from backend
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+
+      const url = isThirtyDays ? MONTHLY_TRENDS_URL : WEEKLY_TRENDS_URL;
+
+      try {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${TOKEN}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        console.log('Response status:', response.status); // 调试日志
+        if (!response.ok) {
+          throw new Error(`Failed to fetch data. Status: ${response.status}`);
+        }
+
+        const fetchedData = await response.json();
+        console.log("Fetched data from backend:", JSON.stringify(fetchedData, null, 2));
+
+        if (!fetchedData || !fetchedData.daily || !fetchedData.weekly || !fetchedData.monthly) {
+          throw new Error("Invalid response format from server.");
+        }
+        
+
+        // 如果后端返回的数据是以 date 为分类的格式，需要转换
+        // 否则直接使用 fetchedData
+        let nutritionData: NutritionData;
+        if (isDateBasedFormat(fetchedData)) {
+          const convertedDaily = convertDateToCategoryFormat(fetchedData.daily);
+          const convertedWeekly = convertDateToCategoryFormat(fetchedData.weekly);
+          const convertedMonthly = convertDateToCategoryFormat(fetchedData.monthly);
+
+          nutritionData = {
+            daily: convertedDaily,
+            weekly: convertedWeekly,
+            monthly: convertedMonthly,
+          };
+        } else {
+          nutritionData = fetchedData; // 假设后端返回的数据已经是 NutritionData 格式
+        }
+
+        setData(nutritionData);
+      } catch (err: any) {
+        console.error('Fetch error:', err.message);
+        setError('Failed to fetch nutrition data. Please try again.');
+        Alert.alert('Error', 'Failed to fetch nutrition data. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [isThirtyDays]);
+
 
   useEffect(() => {
     Animated.timing(chartAnimation, {
       toValue: 1,
       duration: 2000,
-      useNativeDriver: false,
+      useNativeDriver: true,
     }).start();
   }, [isThirtyDays]);
 
@@ -103,28 +198,51 @@ export default function NutritionTrendScreen() {
     ).start();
   }, [glowAnimation]);
 
+// Select data source
+const dataSource = data
+? {
+    calories: isThirtyDays ? data.monthly.calories : data.daily.calories,
+    protein: isThirtyDays ? data.monthly.protein : data.daily.protein,
+    carbs: isThirtyDays ? data.monthly.carbs : data.daily.carbs,
+    fat: isThirtyDays ? data.monthly.fat : data.daily.fat,
+  }
+: {
+    calories: [1801, 1830, 1700, 1600, 1800, 1850, 1100], // Fallback 7 days
+    protein: [70, 75, 65, 60, 70, 80, 50],
+    carbs: [200, 210, 190, 180, 200, 220, 150],
+    fat: [50, 55, 45, 40, 50, 60, 30],
+  };  
+
+  console.log('dataSource:', dataSource); // 调试日志
+
   // Select data source and dynamically generate labels
-  const dataSource = isThirtyDays ? thirtyDayData : sevenDayData; // Select 7-day or 30-day data
-  const labels = isThirtyDays ? getLast30DaysLabels(dataSource.calories) : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const labels = isThirtyDays
+    ? getLast30DaysLabels(dataSource.calories)
+    : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-  // Calculate total amount (display total if no data point is clicked)
-  const calculateTotal = (dataArray: { value: number; date: string }[]) =>
-    Math.round(dataArray.reduce((a, b) => a + b.value, 0));
+    console.log('labels:', labels); // 调试日志
 
-  // Calculate total amount (display total if no data point is clicked)
-  const totalValues = selectedDayIndex !== null
-    ? {
-        total_calories:  Math.round(dataSource.calories[selectedDayIndex].value), //used Math.round make the value integer type 
-        total_protein:  Math.round(dataSource.protein[selectedDayIndex].value),
-        total_carbs:  Math.round(dataSource.carbs[selectedDayIndex].value),
-        total_fat:  Math.round(dataSource.fat[selectedDayIndex].value),
-      }
-    : {
-        total_calories: calculateTotal(dataSource.calories),
-        total_protein: calculateTotal(dataSource.protein),
-        total_carbs: calculateTotal(dataSource.carbs),
-        total_fat: calculateTotal(dataSource.fat),
-      };
+  // 
+  const totalValues = {
+    daily: {
+      total_calories: selectedDayIndex !== null ? dataSource.calories[selectedDayIndex] : (data ? data.daily.calories[0] : 1800),
+      total_protein: selectedDayIndex !== null ? dataSource.protein[selectedDayIndex] : (data ? data.daily.protein[0] : 70),
+      total_carbs: selectedDayIndex !== null ? dataSource.carbs[selectedDayIndex] : (data ? data.daily.carbs[0] : 200),
+      total_fat: selectedDayIndex !== null ? dataSource.fat[selectedDayIndex] : (data ? data.daily.fat[0] : 50),
+    },
+    weekly: {
+      total_calories: data ? data.weekly.total_calories : 12600,
+      total_protein: data ? data.weekly.total_protein : 490,
+      total_carbs: data ? data.weekly.total_carbs : 1400,
+      total_fat: data ? data.weekly.total_fat : 350,
+    },
+    monthly: {
+      total_calories: data ? data.monthly.total_calories : 54000,
+      total_protein: data ? data.monthly.total_protein : 2100,
+      total_carbs: data ? data.monthly.total_carbs : 6000,
+      total_fat: data ? data.monthly.total_fat : 1500,
+    },
+  };
 
   const handleMetricClick = (metric: string) => {
     setSelectedMetric(selectedMetric === metric ? null : metric); // Clicking again deselects
@@ -242,10 +360,24 @@ const chartConfig = {
   },
 };
 
+if (loading) {
+  return (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#48efff" />
+    </View>
+  );
+}
+
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.header}>Nutrition Trend</Text>
+      {/* 显示错误信息，但不阻止渲染 LineChart */}
+      {error && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
 
+      <Text style={styles.header}>Nutrition Trend</Text>
       {/* Toggle between 7 days and 30 days */}
       <View style={styles.switchContainer}>
         <Text style={styles.switchLabel}>7 Days</Text>
@@ -272,7 +404,7 @@ const chartConfig = {
             labels: labels, 
             datasets: [{  
                         key: "calories-dataset", // Add unique key
-                        data: dataSource.calories.map(item => item.value), // Use value field 
+                        data: dataSource.calories, // Use value field 
                         strokeWidth: selectedMetric === "calories" ? 5 : 3, //  Bold when selected
                         color: () => selectedMetric === "calories" ? "rgb(246, 57, 48)" : "rgb(235, 27, 16)", // Brighten when selected
                       }],               
@@ -310,17 +442,17 @@ const chartConfig = {
             datasets: [
               { 
                 key: "protein-dataset", 
-                data: dataSource.protein.map(item => item.value), 
+                data: dataSource.protein, 
                 strokeWidth: selectedMetric === "protein" ? 6 : 2, //Bold when selected
                 color: () => selectedMetric === "protein" ? "rgb(4, 187, 248)" : "rgba(0, 191, 255, 0.89)", },
               { 
                 key: "carbs-dataset", 
-                data: dataSource.carbs.map(item => item.value), 
+                data: dataSource.carbs, 
                 strokeWidth: selectedMetric === "carbs" ? 6 : 2, // Bold when selected
                 color: () => selectedMetric === "carbs" ? "rgba(50, 205, 50, 1)" : "rgba(50, 205, 50, 0.89)", },
               { 
                 key: "fat-dataset", 
-                data: dataSource.fat.map(item => item.value), 
+                data: dataSource.fat, 
                 strokeWidth: selectedMetric === "fat" ? 6 : 2, // Bold when selected
                 color: () => selectedMetric === "fat" ? "rgba(255, 165, 0, 1)" : "rgba(255, 166, 0, 0.98)", },
             ],
@@ -335,9 +467,9 @@ const chartConfig = {
           renderDotContent={({ x, y, index }) => {
             // Iterate through datasets to find the corresponding datasetKey
             let datasetKey = "";
-            if (dataSource.protein.includes(dataSource.protein[index])) datasetKey = "protein-dataset";
-            else if (dataSource.carbs.includes(dataSource.carbs[index])) datasetKey = "carbs-dataset";
-            else if (dataSource.fat.includes(dataSource.fat[index])) datasetKey = "fat-dataset";
+            if (index < dataSource.protein.length) datasetKey = "protein-dataset";
+            else if (index < dataSource.protein.length + dataSource.carbs.length) datasetKey = "carbs-dataset";
+            else if (index < dataSource.protein.length + dataSource.carbs.length + dataSource.fat.length) datasetKey = "fat-dataset";
       
             return renderNormalDot({ x, y, index, indexData: index, datasetKey }); // Pass `indexData`
           }}
@@ -368,7 +500,8 @@ const chartConfig = {
           }]} />
         <View style={{flexDirection:"row", alignItems: "center"}}>
           <Text style={styles.totalText}> Calories: </Text>
-          <Text style={styles.totalValue}>{totalValues.total_calories}</Text>
+          <Text style={styles.totalValue}>
+            {selectedDayIndex !== null ? totalValues.daily.total_calories : (isThirtyDays ? totalValues.monthly.total_calories : totalValues.weekly.total_calories)}</Text>
         </View>
       </TouchableOpacity>
 
@@ -383,7 +516,8 @@ const chartConfig = {
             }]} />
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Text style={styles.totalText}>Protein: </Text>
-          <Text style={styles.totalValue}>{totalValues.total_protein} g</Text>
+          <Text style={styles.totalValue}>
+            {selectedDayIndex !== null ? totalValues.daily.total_protein : (isThirtyDays ? totalValues.monthly.total_protein : totalValues.weekly.total_protein)} g</Text>
         </View>
         </TouchableOpacity>
       </View>
@@ -401,7 +535,8 @@ const chartConfig = {
             }]} />
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Text style={styles.totalText}>Carbs: </Text>
-          <Text style={styles.totalValue}>{totalValues.total_carbs} g</Text>
+          <Text style={styles.totalValue}>
+            {selectedDayIndex !== null ? totalValues.daily.total_carbs : (isThirtyDays ? totalValues.monthly.total_carbs : totalValues.weekly.total_carbs)} g</Text>
         </View>
         </TouchableOpacity>
 
@@ -417,7 +552,8 @@ const chartConfig = {
             }]} />
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Text style={styles.totalText}>Fat: </Text>
-          <Text style={styles.totalValue}>{totalValues.total_fat} g</Text>
+          <Text style={styles.totalValue}>
+            {selectedDayIndex !== null ? totalValues.daily.total_fat : (isThirtyDays ? totalValues.monthly.total_fat : totalValues.weekly.total_fat)} g</Text>
         </View>
         </TouchableOpacity>
       </View>
@@ -520,5 +656,33 @@ const styles = StyleSheet.create({
     alignItems: "center", 
     width: screenWidth - 40, 
     marginHorizontal: 0, 
+  },
+    loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 7, 0.9)",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 7, 0.9)",
+    marginTop: -10,
+  },
+  errorText: {
+    color: "#ff4444",
+    fontSize: 12,
+    marginBottom: 10,
+  },
+  retryButton: {
+    backgroundColor: "#48efff",
+    padding: 10,
+    borderRadius: 5,
+  },
+  retryButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
