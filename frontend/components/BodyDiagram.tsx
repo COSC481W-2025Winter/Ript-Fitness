@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef,forwardRef, useImperativeHandle } from 'react';
 import { View, Image, StyleSheet, TouchableOpacity, Animated,Text } from 'react-native';
 import { BodyPart } from '@/app/screens/workout/BodyFocusScreen';
-import Svg, { Path } from 'react-native-svg'; // 引入 react-native-svg
 
 // Define the type for the ref
 interface BodyDiagramRef {
@@ -102,8 +101,8 @@ useEffect(() => {
     { id: 3, style: styles.circle3, animation: circleAnimations[2] },
     { id: 4, style: styles.circle4, animation: circleAnimations[3] },
     { id: 5, style: styles.circle5, animation: circleAnimations[4] },
-    { id: 9, style: styles.circle9, animation: circleAnimations[8] }, // 添加 circle9
-    { id: 10, style: styles.circle10, animation: circleAnimations[9] }, // 添加 circle10
+    { id: 9, style: styles.circle9, animation: circleAnimations[8] }, // add circle9
+    { id: 10, style: styles.circle10, animation: circleAnimations[9] }, // add circle10
   ];
 
   // **Dynamic circles for the back view**
@@ -277,11 +276,11 @@ const styles = StyleSheet.create({
   },
   touchable: {
     position: 'absolute',
-    backgroundColor: 'rgb(0, 0, 0, 0)',
+    backgroundColor: 'rgba(0, 0, 0,0)',
   },
   Core: { top: '40%', left: '43%', width: 200, height: 30 },
-  Chest: { top: '20%', left: '43%', width: 200, height: 30 },
-  Cardio: { top: '50%', left: '43%', width: 200, height: 30 },
+  Chest: { top: '20%', left: '50%', width: 150, height: 30 },
+  Cardio: { top: '4%', left: '70%', width: 90, height: 30 },
   legsRight: { top: '73%', left: '48%',width: 50, height: 30 },
   legsLeft: { top: '73%', left: '16%',width: 130, height: 30 },
   armsLeft: { top: '28%', left: '7%',width: 130, height: 30 },
