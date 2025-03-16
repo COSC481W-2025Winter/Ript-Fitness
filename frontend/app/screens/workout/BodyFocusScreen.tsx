@@ -7,7 +7,7 @@ import { ScrollView } from 'react-native';
 
 
 // Define the BodyPart type
-export type BodyPart = 'Abdomen' | 'Legs' | 'Arms' | 'Back' | 'Shoulders'; // Example of defining BodyPart as a type
+export type BodyPart = 'Core' | 'Legs' | 'Arms' | 'Back' | 'Shoulders'| 'Chest'| 'Cardio'; // Example of defining BodyPart as a type
 
 export default function BodyFocusScreen() {
  // State variables to manage selected body part, exercise list, modal visibility, and view mode
@@ -43,8 +43,10 @@ const bodyPartToType: { [key in BodyPart]: number[] } = {
   Arms: [1],
   Shoulders: [2],
   Legs: [5],
-  Abdomen: [4],
+  Core: [4],
   Back: [6,7],
+  Chest: [3],
+  Cardio:[8]
 };
 
 // Fetch workouts from backend API when a body part is selected
@@ -159,7 +161,8 @@ useEffect(() => {
     setIsFrontView(prev => {
       const newView = !prev;
       // If switching to the back view while a front-view body part is selected, clear the selection.
-      if (newView === false && (selectedPart === "Legs" || selectedPart === "Arms" || selectedPart === "Abdomen")) {
+      if (newView === false 
+        && (selectedPart === "Legs" || selectedPart === "Arms" || selectedPart === "Core"|| selectedPart === "Chest"|| selectedPart === "Cardio")) {
         setSelectedPart(null);
       }
       // If switching to the front view while a back-view body part is selected, clear the selection.
