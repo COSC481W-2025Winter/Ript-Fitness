@@ -148,7 +148,11 @@ export default function MyWorkoutsScreen() {
       Alert.alert("Error", "No workout selected to save.");
       return;
     }
- 
+    //refer to AddWorkoutScreen starting on line 138 for following 4 lines, from there the code was copy, pasted, and then adjusted
+     if(workoutName.trim() === ''){
+       Alert.alert("Error", "Workout Name cannot be empty");
+       return;
+     }
     try {
       // Fetch the workout ID
       const workoutId = await fetchWorkoutById(selectedWorkout.name);

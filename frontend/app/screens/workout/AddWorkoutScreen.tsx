@@ -134,6 +134,14 @@ export function AddWorkoutScreen() {
    const submitWorkout = async () => {
     try {
     setSubmitting(true)
+
+    //I was trying to put the check in places throughout the code, but ChatGPT recommended putting it here
+    if(text.trim() === ''){
+      Alert.alert("Error", "Workout Name cannot be empty");
+      //these two lines are specifically from ChatGPT
+      setSubmitting(false);
+      return;
+    }
     let WorkoutExercises = [];
     for (let i =0; i<exercises.length; i++) {
       const currentExercise = {
