@@ -118,6 +118,23 @@ function MainApp() {
         }}
       />
 
+      {/*Defines the Timer screen in the bottom tab navigator with 
+    an icon that changes based on focus state.*/} 
+      {/* Timer Screen */} 
+      <Tab.Screen
+        name="Timer"
+        component={TimerScreen}
+        options={{
+          tabBarIcon: ({ focused, size, color }) => (
+            <Ionicons
+              name={focused ? "timer" : "timer-outline"}
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      />
+
       <Tab.Screen
         name="Food"
         component={BodyStack}
@@ -146,22 +163,7 @@ function MainApp() {
         }}
       />
 
-    {/*Defines the Timer screen in the bottom tab navigator with 
-    an icon that changes based on focus state.*/} 
-      {/* Timer Screen */} 
-      <Tab.Screen
-        name="Timer"
-        component={TimerScreen}
-        options={{
-          tabBarIcon: ({ focused, size, color }) => (
-            <Ionicons
-              name={focused ? "timer" : "timer-outline"}
-              size={size}
-              color={color}
-            />
-          ),
-        }}
-      />
+    
     </Tab.Navigator>
   );
 }
