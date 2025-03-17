@@ -12,6 +12,7 @@ import {
   TouchableWithoutFeedback,
   Alert,
   Platform,
+  Switch,
 } from 'react-native';
 import * as Haptics from "expo-haptics";
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -1082,22 +1083,22 @@ function CustomDrawerContent({ navigation }: any) {
         </TouchableOpacity>
 
         // Dark mode button
-        <TouchableOpacity
-          style={styles.drawerItem}
-          onPress={() => {
-            // Handle logic here
-            context?.toggleTheme();
-            //navigation.closeDrawer();
-          }}
         
-        >
-          <View style={styles.drawerItemTextContainer}>
+          <View style={styles.switchDrawerItemTextContainer}>
+          
             <MaterialCommunityIcons name={context?.isDarkMode ? 'weather-sunny' : 'weather-night'} size={24} color={iconColor} />
-            <Text style={[styles.drawerItemText, {color: textColor}]}>
+            <Text style={[styles.drawerItemText, {color: textColor, justifyContent: 'flex-start'}]}>
             {context?.isDarkMode ? "Light Mode" : "Dark Mode"}
             </Text>
+            <Switch 
+          value={context?.isDarkMode}
+          style={styles.switchDrawerItem}
+          onValueChange={() => {
+            // Handle logic here
+            context?.toggleTheme();
+          }}
+        />
           </View>
-        </TouchableOpacity>
       </View>
       <TouchableOpacity
         style={styles.drawerItem}
@@ -1549,6 +1550,13 @@ const styles = StyleSheet.create({
     // borderTopWidth: 1,
     // borderTopColor: '#ddd',
   },
+  switchDrawerItem: {
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingBottom: 10,
+    paddingLeft: 150,
+
+  },
   drawerItemText: {
     fontSize: 18,
     paddingLeft: 5,
@@ -1559,6 +1567,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
     paddingBottom: 10
+  },
+  switchDrawerItemTextContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    paddingBottom: 10,
+    paddingLeft: 10,
+    paddingTop: 10
   },
   postsContainer: {
     flex: 1,
