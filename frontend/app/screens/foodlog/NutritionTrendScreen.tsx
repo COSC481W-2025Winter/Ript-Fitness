@@ -4,7 +4,11 @@ import { LineChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { httpRequests } from "@/api/httpRequests";
+import { GlobalContext } from "@/context/GlobalContext";
 
+const context = useContext(GlobalContext);
+const userID = context?.data.token; 
 const screenWidth = Dimensions.get("window").width;
 
 // Color mapping for metrics
@@ -138,11 +142,6 @@ export default function NutritionTrendScreen() {
   const [dotScale] = useState(new Animated.Value(1));
   const [glowAnimation] = useState(new Animated.Value(0.5));
 
-  const WEEKLY_TRENDS_URL = 'http://ript-fitness-app.azurewebsites.net/Calculator/getWeeklyTrends';
-  const MONTHLY_TRENDS_URL = 'http://ript-fitness-app.azurewebsites.net/nutritionCalculator/getMonthlyTrends';
-  const DAILY_TRENDS_URL = 'http://ript-fitness-app.azurewebsites.net/nutritionCalculator/getDailyTrends'; // 假设的每日数据 URL
-  const TOKEN = 'eyJhBcOi0JUZiN1Nj9.eYzdWi0IjSt...';
-
   /**
    * Fetches nutrition trend data from the backend based on the selected time range.
    * Updates the data state with the fetched results, handles loading and error states,
@@ -153,28 +152,25 @@ export default function NutritionTrendScreen() {
       setLoading(true);
       setError(null);
 
-      const url = isThirtyDays ? MONTHLY_TRENDS_URL : DAILY_TRENDS_URL; // Use daily trends for 7-day view
-
-      try {
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${TOKEN}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        console.log('Response status:', response.status);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch data. Status: ${response.status}`);
-        }
-
-        const fetchedData = await response.json();
-        console.log("Fetched data from backend:", JSON.stringify(fetchedData, null, 2));
-
-        if (!fetchedData || !fetchedData.daily || !fetchedData.weekly || !fetchedData.monthly) {
-          throw new Error("Invalid response format from server.");
-        }
+    try {
+                const response = await fetch(`${httpRequests.getBaseURL()}/workouts/getWeeklyWorkouts`, { 
+                    method: 'GET', 
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${context?.data.token}`,
+                      },
+                    body: JSON.stringify(foodData),
+                 }, 
+                 );
+                 if (response.status === 201) {
+                     Alert.alert("Success", 'Food data saved successfully!');
+                   } else {
+                     Alert.alert("Error", 'Failed to save food data');
+                   }
+             } catch (error) {
+                   console.log('Error', 'An error occurred. Please try again.');
+             }
+            };
 
         // Convert data based on its structure
         const nutritionData: NutritionData = {
