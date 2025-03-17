@@ -298,9 +298,9 @@ const handleAddWorkout = async () => {
         data={workout.exercises}
         keyExtractor={(_, index) => index.toString()}
         renderItem={({ item }) => (
-          <View style={styles.exercise}>
-            <Text style={styles.nameOfExercise}>{item.exercise}</Text>
-            <Text style={styles.exerciseText}>
+          <View style={isDarkMode?styles.darkExercise:styles.exercise}>
+            <Text style={isDarkMode?styles.darkNameOfExercise: styles.nameOfExercise}>{item.exercise}</Text>
+            <Text style={isDarkMode?styles.darkExerciseText:styles.exerciseText}>
               {item.sets} sets x {item.reps} reps | {item.weight} lbs
             </Text>
           </View>
@@ -367,6 +367,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginVertical: 5,
   },
+  darkExercise: {
+    padding: 15,
+    backgroundColor: '#333333',
+    borderRadius: 10,
+    marginVertical: 5,
+  },
   exerciseText: {
     fontSize: 18,
     color: '#000000',
@@ -375,6 +381,15 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#000000',
+  },
+  darkExerciseText: {
+    fontSize: 18,
+    color: '#666666',
+  },
+  darkNameOfExercise: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
   },
   textWrapper: {
     alignSelf: 'center',
