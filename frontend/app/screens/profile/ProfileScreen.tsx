@@ -34,11 +34,12 @@ import timeZone from '@/api/timeZone'
 import TimeZone from '@/api/timeZone';
 import { Background, Timer } from 'victory';
 import { useColorScheme } from 'react-native';
-import { useThemeColor } from '@/hooks/useThemeColor';
-import { Colors } from '@/constants/Colors';
+import { WorkoutContext } from "@/context/WorkoutContext";  // Import WorkoutContext for managing workout data and state.
+
 
 const Tab = createMaterialTopTabNavigator();
 const Drawer = createDrawerNavigator();
+
 
 function getDateRange() {
   // Get the current date
@@ -752,6 +753,10 @@ function ProgressScreen() {
   const [loadingDates, setLoadingDates] = useState<Date[]>([]);
 
   const isDarkMode = context?.isDarkMode;
+  const [workoutName, setWorkoutName] = useState<string>("");
+  const workoutContext = useContext(WorkoutContext); // Access workout data and state using WorkoutContext.
+
+  
 
   useFocusEffect(
     useCallback(() => {
@@ -779,11 +784,48 @@ function ProgressScreen() {
 
   const handlePress = () => {
     setModalVisible(true); // Show the modal when the text is clicked
+    const fetchWorkoutById = async (workoutName: string): Promise<number | undefined> => {
+      try {
+        const response = await fetch(
+          `${httpRequests.getBaseURL()}/workouts/getUsersWorkouts/0/10000`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${context?.data.token}`,
+            },
+          }
+        );
+  
+  
+        if (!response.ok) {
+          throw new Error(`Failed to fetch workouts: ${response.statusText}`);
+        }
+  
+  
+        const workouts = await response.json();
+        const matchedWorkout = workouts.find(
+          (workout: any) => workout.name === workoutName
+        );
+  
+  
+        return matchedWorkout ? matchedWorkout.workoutsId : undefined;
+      } catch (error) {
+        console.error("Error fetching workout by name:", error);
+        return undefined;
+      }
+    };
   };
 
   const closeModal = () => {
     setModalVisible(false); // Close the modal
   };
+
+  const logMore = async (navigation: any) => {
+    setModalVisible(false);
+    //navigation.navigate('MyWorkoutScreen');
+  };
+
+  
 
     if (day == 0) {
       spacerKey++;
@@ -810,18 +852,30 @@ function ProgressScreen() {
         </TouchableOpacity>
 
         <Modal
-        visible={modalVisible}
-        transparent={true} // Makes the background dimmed
-        animationType="fade" // Adds animation to the modal appearance
-        onRequestClose={closeModal} // Android back button behavior
-      >
+          visible={modalVisible}
+          transparent={true} // Makes the background dimmed
+          animationType="fade" // Adds animation to the modal appearance
+          onRequestClose={closeModal} // Android back button behavior
+        >
         <TouchableWithoutFeedback onPress={closeModal}>
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)', borderRadius: 8 }}>
-            <TouchableWithoutFeedback>
-              <View style={{ width: 300, height: 200, backgroundColor: isDarkMode?'#333':'white', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-                <Text>This is the modal content!</Text>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+              <View style={{ width: '80%', minHeight: 200, backgroundColor: isDarkMode?'#666':'white', alignItems: 'center', padding: 20, borderRadius: 8 }}>
+                <Text>You've logged </Text>
+                <FlatList
+                          style={{alignContent: 'flex-start'}}
+                          data={context?.workouts || []}
+                          keyExtractor={(item, index) =>
+                            item.id ? `workout-${item.id}-${index}` : `workout-${index}`
+                          }
+                          renderItem={({ item }) => (
+                                        <Text style={styles.bio}>{String(item.name)}</Text>
+                                                )}
+
+                />
+                <TouchableOpacity onPress={handlePress} style={styles.logMoreButton}>
+                  <Text>Log More</Text>
+                </TouchableOpacity>
               </View>
-            </TouchableWithoutFeedback>
           </View>
         </TouchableWithoutFeedback>
       </Modal>
@@ -1849,6 +1903,17 @@ const styles = StyleSheet.create({
     padding: 0,
     margin: 0,
   },
+  logMoreButton: {
+    marginTop: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: '#21BFBF',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5,
+  },
+
 });
 
 
