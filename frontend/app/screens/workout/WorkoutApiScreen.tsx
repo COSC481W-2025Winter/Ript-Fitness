@@ -5,6 +5,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { useNavigation } from '@react-navigation/native';
 import { WorkoutScreenNavigationProp } from '@/app/(tabs)/WorkoutStack';
 import { GlobalContext } from '@/context/GlobalContext';
+import flameImage from '@/assets/images/flame.svg';
+import MuscleIcon from '@/assets/images/muscle.svg';
 
 //https://ionic.io/ionicons
 // used this for icons npm install react-native-vector-icons
@@ -95,6 +97,19 @@ export default function WorkoutApiScreen() {
         </View>
       </TouchableOpacity>
 
+     {/* Body Focus */}
+      <TouchableOpacity 
+        style={styles.button} 
+        onPress={() => navigation.navigate('BodyFocusScreen', {})} 
+      >
+        <View style={styles.iconStyles}>
+            <MuscleIcon width={32} height={32} />
+        </View>
+        <View style={{ justifyContent: 'flex-start' }}>
+          <Text style={styles.buttonText}>Body Focus</Text>
+          <Text style={{ color: '#757575', }}>Body-based workouts</Text>
+        </View>
+      </TouchableOpacity>
       
       {/* Workout Trend */}
       <TouchableOpacity 

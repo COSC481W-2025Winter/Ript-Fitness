@@ -60,18 +60,51 @@ public class NutritionTrackerService {
 	}
 	
 	//Each method is public and will return a Dto of some sort to the Controller class
-	
-	//Adds a Food object to the database
+	  
+	// Adds a Food object to the database
 	public FoodDto addFood(FoodDto foodDto) {
+		Logger logger = LoggerFactory.getLogger(NutritionTrackerService.class);
+
+		logger.info("Received addFood request: ", foodDto);
 		Food foodToBeAdded = FoodMapper.INSTANCE.toFood(foodDto);
-		foodToBeAdded.name = (foodToBeAdded.name == null) ? "Unnamed food" : foodToBeAdded.name;	//If name is null in HTTP request, set name to "Unnamed food"
-		foodToBeAdded.serving = (foodToBeAdded.serving == 0) ? 1 : foodToBeAdded.serving;	//If serving is null in HTTP request, set serving to 1
+		logger.info("Mapped Food object: ", foodToBeAdded);
+
+		// default null fields to zero
+		foodToBeAdded.calories = (foodToBeAdded.calories == null || foodDto.calories.toString().isEmpty()) ? 0.0 : foodToBeAdded.calories;
+		foodToBeAdded.carbs = (foodToBeAdded.carbs == null || foodDto.carbs.toString().isEmpty()) ? 0.0 : foodToBeAdded.carbs;
+		foodToBeAdded.protein = (foodToBeAdded.protein == null || foodDto.protein.toString().isEmpty()) ? 0.0 : foodToBeAdded.protein;
+		foodToBeAdded.fat = (foodToBeAdded.fat == null || foodDto.fat.toString().isEmpty()) ? 0.0 : foodToBeAdded.fat;
+		foodToBeAdded.fiber = (foodToBeAdded.fiber == null || foodDto.fiber.toString().isEmpty()) ? 0.0 : foodToBeAdded.fiber;
+		foodToBeAdded.iron = (foodToBeAdded.iron == null || foodDto.iron.toString().isEmpty()) ? 0.0 : foodToBeAdded.iron;
+		foodToBeAdded.sodium = (foodToBeAdded.sodium == null || foodDto.sodium.toString().isEmpty()) ? 0.0 : foodToBeAdded.sodium;
+		foodToBeAdded.sugars = (foodToBeAdded.sugars == null || foodDto.sugars.toString().isEmpty()) ? 0.0 : foodToBeAdded.sugars;
+		foodToBeAdded.potassium = (foodToBeAdded.potassium == null || foodDto.potassium.toString().isEmpty()) ? 0.0 : foodToBeAdded.potassium;
+		foodToBeAdded.calcium = (foodToBeAdded.calcium == null || foodDto.calcium.toString().isEmpty()) ? 0.0 : foodToBeAdded.calcium;
+		foodToBeAdded.cholesterol = (foodToBeAdded.cholesterol == null || foodDto.cholesterol.toString().isEmpty()) ? 0.0 : foodToBeAdded.cholesterol;
+		foodToBeAdded.saturatedFat = (foodToBeAdded.saturatedFat == null || foodDto.saturatedFat.toString().isEmpty()) ? 0.0 : foodToBeAdded.saturatedFat;
+		foodToBeAdded.transFat = (foodToBeAdded.transFat == null || foodDto.transFat.toString().isEmpty()) ? 0.0 : foodToBeAdded.transFat;
+
+		logger.info("After setting defaults: ", foodToBeAdded);
+
+		foodToBeAdded.name = (foodToBeAdded.name == null) ? "Unnamed food" : foodToBeAdded.name; // If name is null in HTTP request, set name to "Unnamed food"
+		logger.info("Final name value: ", foodToBeAdded.name);
+
+		foodToBeAdded.serving = (foodToBeAdded.serving == null || foodDto.serving == 0) ? 1 : foodToBeAdded.serving; // If serving is null in HTTP request, set serving to 1
+		logger.info("Final serving value: ", foodToBeAdded.serving);
+
 		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
 		AccountsModel currentlyLoggedInAccount = accountsRepository.findById(currentlyLoggedInUserId).get();
+		logger.info("Account successfully retrieved: ", foodToBeAdded.account);
+
 		foodToBeAdded.account = currentlyLoggedInAccount;
+		logger.info("Final food object before saving: ", foodToBeAdded);
+
 		foodToBeAdded = nutritionTrackerFoodRepository.save(foodToBeAdded);
+		logger.info("Returning response: ", FoodMapper.INSTANCE.toFoodDto(foodToBeAdded));
+
 		return FoodMapper.INSTANCE.toFoodDto(foodToBeAdded);
 	}
+	
 	
 	//Gets a specific row's values from the Food table (with id = foodId) and returns it to the controller class
 	public FoodDto getFoodStats(Long foodId) {
@@ -370,11 +403,11 @@ public class NutritionTrackerService {
 	}
 
 	private Food fetchFoodFromUSDA(String url, String barcode) {
-	    logger.info("Fetching food data from USDA API with URL: {}", url);
+	    logger.info("Fetching food data from USDA API with URL: ", url);
 	    
 	    try {
 	        String jsonResponse = restTemplate.getForObject(url, String.class);
-	        logger.info("USDA API Response: {}", jsonResponse);
+	        logger.info("USDA API Response: ", jsonResponse);
 	        ObjectMapper objectMapper = new ObjectMapper();
 	        JsonNode rootNode = objectMapper.readTree(jsonResponse);
 
@@ -391,7 +424,7 @@ public class NutritionTrackerService {
 	            JsonNode foodNode = rootNode.get("foods").get(0);
 	            description = foodNode.has("description") ? foodNode.get("description").asText() : "Unknown";
 	            brand = foodNode.has("brandName") ? foodNode.get("brandName").asText() : "Unknown Brand";
-	            logger.info("Food found: {}", description);
+	            logger.info("Food found: ", description);
 
 	            if (foodNode.has("servingSize") && !foodNode.get("servingSize").isNull()) {
 	                serving = foodNode.get("servingSize").asDouble(); //  Extract serving size safely
@@ -449,7 +482,7 @@ public class NutritionTrackerService {
 
 	        return nutritionTrackerFoodRepository.save(foodItem);
 	    } catch (IOException e) {
-	        logger.error("Error fetching food from USDA API: {}", e.getMessage(), e);
+	        logger.error("Error fetching food from USDA API: ", e.getMessage(), e);
 	        throw new RuntimeException("Error parsing USDA API response", e);
 	    }
 	}
@@ -503,6 +536,5 @@ public class NutritionTrackerService {
 	            }
 				));
 	}
-
 
 }

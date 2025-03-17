@@ -86,6 +86,4 @@ public class Workouts {
 		this.workoutDate = workoutDate;
 	}
 
-	
-
 }

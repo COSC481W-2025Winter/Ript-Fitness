@@ -10,7 +10,7 @@ type LogFoodButtonProps = {
   protein: number;
   carbs: number;
   fat: number;
-  multiplier: number;
+  serving: number;
   saveFoodChanges: (updatedFood: any) => void;
   logFoodToDay: (foodData: any) => void;
   backgroundColor?: string;
@@ -30,7 +30,7 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
   protein,
   carbs,
   fat,
-  multiplier,
+  serving,
   saveFoodChanges,
   logFoodToDay,
   backgroundColor,
@@ -49,7 +49,7 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
   const [tempProtein, setTempProtein] = useState(protein);
   const [tempCarbs, setTempCarbs] = useState(carbs);
   const [tempFat, setTempFat] = useState(fat);
-  const [tempMultiplier, setTempMultiplier] = useState(multiplier);
+  const [tempServing, setTempServing] = useState(serving);
 
   // Original states to revert if the user does not save
   const [thisName, setName] = useState(name);
@@ -57,7 +57,7 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
   const [thisProtein, setProtein] = useState(protein);
   const [thisCarbs, setCarbs] = useState(carbs);
   const [thisFat, setFat] = useState(fat);
-  const [thisMultiplier, setMultiplier] = useState(multiplier);
+  const [thisServing, setServing] = useState(serving);
 
   const toggleEditMode = () => setIsFoodEditMode((prev) => !prev);
 
@@ -69,7 +69,7 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
       protein: tempProtein, 
       carbs: tempCarbs, 
       fat: tempFat, 
-      multiplier: tempMultiplier,
+      serving: tempServing,
       isDeleted: false,
     };
     // call the parent function
@@ -81,7 +81,7 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
     setProtein(tempProtein);
     setCarbs(tempCarbs);
     setFat(tempFat);
-    setMultiplier(tempMultiplier);
+    setServing(tempServing);
 
     setIsFoodEditMode(false);
   };
@@ -94,7 +94,7 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
       protein: tempProtein, 
       carbs: tempCarbs, 
       fat: tempFat, 
-      multiplier: tempMultiplier,
+      serving: tempServing,
       isDeleted: false,
     };
     // call the parent function
@@ -111,7 +111,7 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
     setTempProtein(thisProtein);
     setTempCarbs(thisCarbs);
     setTempFat(thisFat);
-    setTempMultiplier(thisMultiplier);
+    setTempServing(thisServing);
     setIsFoodEditMode(false);
     setFoodModalVisible(false);
   };
@@ -180,7 +180,7 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
                   [tempProtein, setTempProtein],
                   [tempCarbs, setTempCarbs],
                   [tempFat, setTempFat],
-                  [tempMultiplier, setTempMultiplier],
+                  [tempServing, setTempServing],
                 ];
 
                 const [value, setValue] = stateMappings[index]; // Deconstruct state and setter
@@ -239,26 +239,25 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
 
 const styles = StyleSheet.create({
   foodItemContainer: {
-    padding: 20,
+    padding: 3,
     backgroundColor: '#EDEDED',
     alignSelf: 'center',
     alignItems: 'center',
-    borderRadius: 5,
-    marginBottom: 5,
-    marginTop: 7,
-    // borderBottomWidth: 1,
-    // borderColor: 'black',
+    borderRadius: 3,
+    marginBottom: 1,
+    marginTop: 1,
     flexDirection: 'row',
   },
   foodName: {
-    fontSize: 16,
+    fontSize: 10,
     fontWeight: 'bold',
   },
   foodTextRight: {
     position: 'absolute',
-    right: 10,
+    right: 5,
     flexDirection: 'row',
-    marginTop: 23,
+    marginTop: 8,
+    fontSize: 10,
   },
   modalOverlay: {
     flex: 1,
@@ -283,16 +282,13 @@ const styles = StyleSheet.create({
   },
   modalTitleEdit: {
     fontSize: 18,
-    // backgroundColor: '#D9D9D9',
     width: '80%',
     borderRadius: 5,
-    // textAlign: 'center',
     color: '#B6B6B6',
     fontWeight: 'bold',
     marginBottom: 20,
   },
   repInputEdit: {
-    // fontSize: 16,
     fontSize: Platform.OS === "ios" ? 16 : 14,
     backgroundColor: '#D9D9D9',
     width: '20%',
