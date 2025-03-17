@@ -101,7 +101,7 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef, CreatePostSheetProps>(
 
         }}
       >
-        <View style={isDarkMode? styles.darkContainer : styles.container}>
+        <View style={isDarkMode? styles.darkContainer : styles.container} testID="create-post-sheet">
           <View style={styles.header}>
             <TouchableOpacity
               style={styles.cancelButton}
