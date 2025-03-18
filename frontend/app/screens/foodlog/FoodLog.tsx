@@ -25,6 +25,15 @@ export default function FoodLogScreen() {
     const [totalProtein, setTotalProtein] = useState(0);
     const [totalWater, setTotalWater] = useState(0);
     const [dayIndex, setDayIndex] = useState(0);
+    const [totalCholesterol, setTotalCholesterol] = useState(0);
+    const [totalSaturatedFat, setTotalSaturatedFat] = useState(0);
+    const [totalTransFat, setTotalTransFat] = useState(0);
+    const [totalSodium, setTotalSodium] = useState(0);
+    const [totalFiber, setTotalFiber] = useState(0);
+    const [totalSugars, setTotalSugars] = useState(0);
+    const [totalCalcium, setTotalCalcium] = useState(0);
+    const [totalIron, setTotalIron] = useState(0);
+    const [totalPotassium, setTotalPotassium] = useState(0);
     const [day, setDay] = useState<number | null>(null);
     const context = useContext(GlobalContext);
     const [cached, setCached] = useState(false);
@@ -74,6 +83,15 @@ export default function FoodLogScreen() {
         setTotalCarbs(0);
         setTotalFat(0); 
         setTotalWater(0);
+        setTotalCholesterol(0);
+        setTotalSaturatedFat(0);
+        setTotalTransFat(0);
+        setTotalSodium(0);
+        setTotalFiber(0);
+        setTotalSugars(0);
+        setTotalCalcium(0);
+        setTotalIron(0);
+        setTotalPotassium(0);
     };
 
     const setTotalForDay = async () => {
@@ -106,6 +124,15 @@ export default function FoodLogScreen() {
                 setTotalFat(dayData.totalFat);
                 // setTotalWater(dayData.totalWaterConsumed);
                 setCached(true);
+                setTotalCholesterol(dayData.totalCholesterol);
+                setTotalSaturatedFat(dayData.totalSaturatedFat);
+                setTotalTransFat(dayData.totalTransFat);
+                setTotalSodium(dayData.totalSodium);
+                setTotalFiber(dayData.totalFiber);
+                setTotalSugars(dayData.totalSugars);
+                setTotalCalcium(dayData.Calcium);
+                setTotalIron(dayData.totalIron);
+                setTotalPotassium(dayData.totalPotassium);
 
                 await AsyncStorage.setItem(dayKey, JSON.stringify(dayData.id));
                 setDay(dayData.id);
@@ -153,6 +180,15 @@ export default function FoodLogScreen() {
         setTotalCarbs(totalCarbs);
         setTotalProtein(totalProtein);
         setTotalWater(totalWater);
+        setTotalCholesterol(totalCholesterol);
+        setTotalSaturatedFat(totalSaturatedFat);
+        setTotalTransFat(totalTransFat);
+        setTotalSodium(totalSodium);
+        setTotalFiber(totalFiber);
+        setTotalSugars(totalSugars);
+        setTotalCalcium(totalCalcium);
+        setTotalIron(totalIron);
+        setTotalPotassium(totalPotassium);
     };
 
 
@@ -308,6 +344,104 @@ const updateWater = async () => {
                         <Ionicons name="add-circle-outline" size={30} style={[isDarkMode? styles.darkWaterButton : styles.waterButton]} onPress={() => addWater()}></Ionicons>
                         <Ionicons name="remove-circle-outline"size={30} style={[isDarkMode? styles.darkWaterButton : styles.waterButton]}  onPress={() => minusWater()}></Ionicons>
                     </View>
+                </View>
+
+                                {/* Add the new variables here */}
+                <View style={styles.macroRow}>
+                    <MacroButton
+                        title="Cholesterol" 
+                        label="mg"
+                        total={totalCholesterol}
+                        textColor="#FF5733"
+                        borderColor="#FF5733"
+                        borderWidth={5}
+                        fontSize={16}
+                        width={100} 
+                    ></MacroButton>
+                    <MacroButton
+                        title="Saturated Fat" 
+                        label="g"
+                        total={totalSaturatedFat}
+                        textColor="#8E44AD"
+                        borderColor="#8E44AD"
+                        borderWidth={5}
+                        fontSize={16}
+                        width={100} 
+                    ></MacroButton>
+                    <MacroButton
+                        title="Trans Fat" 
+                        label="g"
+                        total={totalTransFat}
+                        textColor="#D35400"
+                        borderColor="#D35400"
+                        borderWidth={5}
+                        fontSize={16}
+                        width={100} 
+                    ></MacroButton>
+                </View>
+                <View style={styles.macroRow}>
+                    <MacroButton
+                        title="Sodium" 
+                        label="mg"
+                        total={totalSodium}
+                        textColor="#1ABC9C"
+                        borderColor="#1ABC9C"
+                        borderWidth={5}
+                        fontSize={16}
+                        width={100} 
+                    ></MacroButton>
+                    <MacroButton
+                        title="Fiber" 
+                        label="g"
+                        total={totalFiber}
+                        textColor="#2C3E50"
+                        borderColor="#2C3E50"
+                        borderWidth={5}
+                        fontSize={16}
+                        width={100} 
+                    ></MacroButton>
+                    <MacroButton
+                        title="Sugars" 
+                        label="g"
+                        total={totalSugars}
+                        textColor="#F39C12"
+                        borderColor="#F39C12"
+                        borderWidth={5}
+                        fontSize={16}
+                        width={100} 
+                    ></MacroButton>
+                </View>
+                <View style={styles.macroRow}>
+                    <MacroButton
+                        title="Calcium" 
+                        label="mg"
+                        total={totalCalcium}
+                        textColor="#16A085"
+                        borderColor="#16A085"
+                        borderWidth={5}
+                        fontSize={16}
+                        width={100} 
+                    ></MacroButton>
+                    <MacroButton
+                        title="Iron" 
+                        label="mg"
+                        total={totalIron}
+                        textColor="#E74C3C"
+                        borderColor="#E74C3C"
+                        borderWidth={5}
+                        fontSize={16}
+                        width={100} 
+                    ></MacroButton>
+                    <MacroButton
+                        title="Potassium" 
+                        label="mg"
+                        total={totalPotassium}
+                        textColor="#2980B9"
+                        borderColor="#2980B9"
+                        borderWidth={5}
+                        fontSize={16}
+                        width={100} 
+                    ></MacroButton>
                 </View>
             </View> 
              

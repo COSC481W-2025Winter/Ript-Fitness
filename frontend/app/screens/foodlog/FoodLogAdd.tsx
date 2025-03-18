@@ -20,11 +20,31 @@ const FoodLogAddPage = () => {
     const [foodCarbs, setCarbs] = useState('');
     const [foodProtein, setProtein] = useState('');
     const [foodServings, setServings] = useState('');
+    const [foodCholesterol, setCholesterol] = useState('');
+    const [foodSaturatedFat, setSaturatedFat] = useState('');
+    const [foodTransFat, setTransFat] = useState('');
+    const [foodSodium, setSodium] = useState('');
+    const [foodFiber, setFiber] = useState('');
+    const [foodSugars, setSugars] = useState('');
+    const [foodCalcium, setCalcium] = useState('');
+    const [foodIron, setIron] = useState('');
+    const [foodPotassium, setPotassium] = useState('');
+
     const [totalCalories, setTotalCalories] = useState(0);
     const [totalFat, setTotalFat] = useState(0);
     const [totalCarbs, setTotalCarbs] = useState(0);
     const [totalProtein, setTotalProtein] = useState(0);
     const [totalWater, setTotalWater] = useState(0);
+    const [totalCholesterol, setTotalCholesterol] = useState(0);
+    const [totalSaturatedFat, setTotalSaturatedFat] = useState(0);
+    const [totalTransFat, setTotalTransFat] = useState(0);
+    const [totalSodium, setTotalSodium] = useState(0);
+    const [totalFiber, setTotalFiber] = useState(0);
+    const [totalSugars, setTotalSugars] = useState(0);
+    const [totalCalcium, setTotalCalcium] = useState(0);
+    const [totalIron, setTotalIron] = useState(0);
+    const [totalPotassium, setTotalPotassium] = useState(0);
+
     const [day, setDay] = useState();
     const context = useContext(GlobalContext);
     const isDarkMode = context?.isDarkMode;
@@ -69,6 +89,16 @@ const FoodLogAddPage = () => {
                 setTotalProtein(dayData.totalProtein);
                 setTotalFat(dayData.totalFat);
                 // updateMacros(dayData.calories, dayData.totalFat, dayData.totalCarbs, dayData.totalProtein);
+                setTotalCholesterol(dayData.totalCholesterol);
+                setTotalSaturatedFat(dayData.totalSaturatedFat);
+                setTotalTransFat(dayData.totalTransFat);
+                setTotalSodium(dayData.totalSodium);
+                setTotalFiber(dayData.totalFiber);
+                setTotalSugars(dayData.totalSugars);
+                setTotalCalcium(dayData.totalCalcium);
+                setTotalIron(dayData.totalIron);
+                setTotalPotassium(dayData.totalPotassium);
+
             } else {
                 console.log('Failed to get day');
                 return; 
@@ -118,6 +148,15 @@ const FoodLogAddPage = () => {
             protein: foodProtein,
             carbs: foodCarbs,  
             fat: foodFat, 
+            cholestreol: foodCholesterol,
+            saturatedfat: foodSaturatedFat,
+            transfat: foodTransFat,
+            sodium: foodSodium,
+            fiber: foodFiber,
+            sugar: foodSugars,
+            calcium: foodCalcium,
+            iron: foodIron,
+            potassium: foodPotassium,
             serving: foodServings, 
             isDeleted: false, 
         };
@@ -155,6 +194,15 @@ const FoodLogAddPage = () => {
             protein: foodProtein,
             carbs: foodCarbs,  
             fat: foodFat, 
+            cholestreol: foodCholesterol,
+            saturatedfat: foodSaturatedFat,
+            transfat: foodTransFat,
+            sodium: foodSodium,
+            fiber: foodFiber,
+            sugar: foodSugars,
+            calcium: foodCalcium,
+            iron: foodIron,
+            potassium: foodPotassium,
             serving: foodServings, 
             isDeleted: false, 
         };
@@ -234,6 +282,16 @@ const FoodLogAddPage = () => {
         setFat('');
         setCarbs('');
         setProtein('');
+        setCholesterol('');
+        setSaturatedFat('');
+        setTransFat('');
+        setSodium('');
+        setFiber('');
+        setSugars('');
+        setCalcium('');
+        setIron('');
+        setPotassium('');
+
     };
 
 
@@ -243,6 +301,15 @@ const FoodLogAddPage = () => {
     const [validCarbs, setValidCarbs] = useState(true);
     const [validProtein, setValidProtein] = useState(true);
     const [validServings, setValidServings] = useState(true);
+    const [validCholesterol, setValidCholesterol] = useState(true);
+    const [validSaturatedFat, setValidSaturatedFat] = useState(true);
+    const [validTransFat, setValidTransFat] = useState(true);
+    const [validSodium, setValidSodium] = useState(true);
+    const [validFiber, setValidFiber] = useState(true);
+    const [validSugars, setValidSugars] = useState(true);
+    const [validCalcium, setValidCalcium] = useState(true);
+    const [validIron, setValidIron] = useState(true);
+    const [validPotassium, setValidPotassium] = useState(true);
     const [validName, setValidName] = useState(true);
 
     const handleFoodNameChange = (text: string) => {
@@ -299,6 +366,97 @@ const FoodLogAddPage = () => {
             setValidServings(false);
         }
     };
+
+    const handleCholesterolChange = (text: string) => {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+            setCholesterol(text);
+            setValidCholesterol(true);
+        } else {
+            setCholesterol('');
+            setValidCholesterol(false);
+        }
+    };
+    
+    const handleSaturatedFatChange = (text: string) => {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+            setSaturatedFat(text);
+            setValidSaturatedFat(true);
+        } else {
+            setSaturatedFat('');
+            setValidSaturatedFat(false);
+        }
+    };
+    
+    const handleTransFatChange = (text: string) => {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+            setTransFat(text);
+            setValidTransFat(true);
+        } else {
+            setTransFat('');
+            setValidTransFat(false);
+        }
+    };
+    
+    const handleSodiumChange = (text: string) => {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+            setSodium(text);
+            setValidSodium(true);
+        } else {
+            setSodium('');
+            setValidSodium(false);
+        }
+    };
+    
+    const handleFiberChange = (text: string) => {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+            setFiber(text);
+            setValidFiber(true);
+        } else {
+            setFiber('');
+            setValidFiber(false);
+        }
+    };
+    
+    const handleSugarsChange = (text: string) => {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+            setSugars(text);
+            setValidSugars(true);
+        } else {
+            setSugars('');
+            setValidSugars(false);
+        }
+    };
+    
+    const handleCalciumChange = (text: string) => {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+            setCalcium(text);
+            setValidCalcium(true);
+        } else {
+            setCalcium('');
+            setValidCalcium(false);
+        }
+    };
+    
+    const handleIronChange = (text: string) => {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+            setIron(text);
+            setValidIron(true);
+        } else {
+            setIron('');
+            setValidIron(false);
+        }
+    };
+    
+    const handlePotassiumChange = (text: string) => {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+            setPotassium(text);
+            setValidPotassium(true);
+        } else {
+            setPotassium('');
+            setValidPotassium(false);
+        }
+    };
+    
 
     const validateAllFields = () => {
         const isNameValid = foodName.trim().length > 0;
@@ -432,6 +590,115 @@ const FoodLogAddPage = () => {
                     //    onBlur={() => handleBlur('protein', foodProtein)}
                     />
                 </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Cholesterol (mg)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodCholesterol}
+                        onChangeText={handleCholesterolChange}
+                        placeholder={"Add Cholesterol"}
+                        placeholderTextColor={'#999'}
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Saturated Fat (g)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodSaturatedFat}
+                        onChangeText={handleSaturatedFatChange}
+                        placeholder={"Add Saturated Fat"}
+                        placeholderTextColor={'#999'}
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Trans Fat (g)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodTransFat}
+                        onChangeText={handleTransFatChange}
+                        placeholder={"Add Trans Fat"}
+                        placeholderTextColor={'#999'}
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Sodium (mg)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodSodium}
+                        onChangeText={handleSodiumChange}
+                        placeholder={"Add Sodium"}
+                        placeholderTextColor={'#999'}
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Fiber (g)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodFiber}
+                        onChangeText={handleFiberChange}
+                        placeholder={"Add Fiber"}
+                        placeholderTextColor={'#999'}
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Sugars (g)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodSugars}
+                        onChangeText={handleSugarsChange}
+                        placeholder={"Add Sugars"}
+                        placeholderTextColor={'#999'}
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Calcium (mg)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodCalcium}
+                        onChangeText={handleCalciumChange}
+                        placeholder={"Add Calcium"}
+                        placeholderTextColor={'#999'}
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Iron (mg)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodIron}
+                        onChangeText={handleIronChange}
+                        placeholder={"Add Iron"}
+                        placeholderTextColor={'#999'}
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Potassium (mg)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodPotassium}
+                        onChangeText={handlePotassiumChange}
+                        placeholder={"Add Potassium"}
+                        placeholderTextColor={'#999'}
+                    />
+                </View>
+
 
                 <View style = {styles.row}>
                     <Text style={styles.inputLabel}>Servings:</Text>
