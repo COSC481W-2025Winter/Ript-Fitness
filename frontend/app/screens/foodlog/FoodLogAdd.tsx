@@ -128,6 +128,16 @@ const FoodLogAddPage = () => {
                 setTotalCarbs(dayData.totalCarbs);
                 setTotalProtein(dayData.totalProtein);
                 setTotalFat(dayData.totalFat);
+                setTotalCholesterol(dayData.totalCholesterol);
+                setTotalSaturatedFat(dayData.totalSaturatedFat);
+                setTotalTransFat(dayData.totalTransFat);
+                setTotalSodium(dayData.totalSodium);
+                setTotalFiber(dayData.totalFiber);
+                setTotalSugars(dayData.totalSugars);
+                setTotalCalcium(dayData.totalCalcium);
+                setTotalIron(dayData.totalIron);
+                setTotalPotassium(dayData.totalPotassium);
+
                 // updateMacros(dayData.calories, dayData.totalFat, dayData.totalCarbs, dayData.totalProtein);
             } else {
                 console.log('Failed to get day');
