@@ -12,6 +12,7 @@ import {
   TouchableWithoutFeedback,
   Alert,
   Platform,
+  Switch,
 } from 'react-native';
 import * as Haptics from "expo-haptics";
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -426,6 +427,7 @@ function PostsScreen() {
 
   const [AllPostsLoaded, setAllPostsLoaded] = useState(false);
 
+
   let [currentEndIndex, setCurrentEndIndex] = useState(postsPerLoad);
 
   interface Post {
@@ -662,7 +664,7 @@ function PostsScreen() {
   );
 
   const renderPostItem = ({ item: post }: { item: Post }) => (
-    <View style={styles.postItem}>
+    <View style={isDarkMode?styles.darkPostItem:styles.postItem}>
       <Image
         source={{
           uri: `data:image/png;base64,${
@@ -674,13 +676,13 @@ function PostsScreen() {
         style={styles.postAvatar}
       />
       <View style={styles.postContent}>
-        <Text style={styles.postText}>{post.content}</Text>
+        <Text style={isDarkMode?styles.darkPostText:styles.postText}>{post.content}</Text>
         <View style={styles.postFooter}>
           <TouchableOpacity style={styles.likeCommentContainer} onPress={() => {toggleLike(post)}}>
             <Ionicons name="heart" size={24} color={post.userIDsOfLikes.includes(Number(context?.userProfile.id)) ? "#FF3B30" : "#B1B6C0"} />
-            <Text style={styles.likeCounter}>{post.userIDsOfLikes.length}</Text>
+            <Text style={isDarkMode?styles.darkLikeCounter:styles.likeCounter}>{post.userIDsOfLikes.length}</Text>
           </TouchableOpacity>
-          <Text style={styles.dateText}>{TimeZone.convertToTimeZone(post.dateTimeCreated, TimeZone.get())}</Text>
+          <Text style={isDarkMode?styles.darkDateText:styles.dateText}>{TimeZone.convertToTimeZone(post.dateTimeCreated, TimeZone.get())}</Text>
         </View>
       </View>
     </View>
@@ -1081,22 +1083,22 @@ function CustomDrawerContent({ navigation }: any) {
         </TouchableOpacity>
 
         // Dark mode button
-        <TouchableOpacity
-          style={styles.drawerItem}
-          onPress={() => {
-            // Handle logic here
-            context?.toggleTheme();
-            //navigation.closeDrawer();
-          }}
         
-        >
-          <View style={styles.drawerItemTextContainer}>
+          <View style={styles.switchDrawerItemTextContainer}>
+          
             <MaterialCommunityIcons name={context?.isDarkMode ? 'weather-sunny' : 'weather-night'} size={24} color={iconColor} />
-            <Text style={[styles.drawerItemText, {color: textColor}]}>
+            <Text style={[styles.drawerItemText, {color: textColor, justifyContent: 'flex-start'}]}>
             {context?.isDarkMode ? "Light Mode" : "Dark Mode"}
             </Text>
+            <Switch 
+          value={context?.isDarkMode}
+          style={styles.switchDrawerItem}
+          onValueChange={() => {
+            // Handle logic here
+            context?.toggleTheme();
+          }}
+        />
           </View>
-        </TouchableOpacity>
       </View>
       <TouchableOpacity
         style={styles.drawerItem}
@@ -1198,7 +1200,7 @@ const MainScreen = () => {
           </TouchableWithoutFeedback>
 
           {/* Modal Content */}
-          <View style={styles.popup}>
+          <View style={isDarkMode?styles.darkPopup:styles.popup}>
             <ScrollView
               contentContainerStyle={styles.scrollViewContent}
               showsVerticalScrollIndicator={false}
@@ -1445,6 +1447,24 @@ const styles = StyleSheet.create({
     width: '90%',
     alignSelf: 'center',
   },
+  darkPopup: {
+    padding: 20,
+    backgroundColor: '#222',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    zIndex: 5,
+    marginTop: 20,
+    position: 'absolute',
+    top: 0, // Adjust as needed
+    bottom: 0,
+    height: '30%',
+    width: '90%',
+    alignSelf: 'center',
+  },
   friendRequestItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1530,6 +1550,13 @@ const styles = StyleSheet.create({
     // borderTopWidth: 1,
     // borderTopColor: '#ddd',
   },
+  switchDrawerItem: {
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingBottom: 10,
+    paddingLeft: 150,
+
+  },
   drawerItemText: {
     fontSize: 18,
     paddingLeft: 5,
@@ -1540,6 +1567,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
     paddingBottom: 10
+  },
+  switchDrawerItemTextContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    paddingBottom: 10,
+    paddingLeft: 10,
+    paddingTop: 10
   },
   postsContainer: {
     flex: 1,
@@ -1556,6 +1590,11 @@ const styles = StyleSheet.create({
   postText: {
     fontSize: 16,
     marginBottom: 10,
+  },
+  darkPostText: {
+    fontSize: 16,
+    marginBottom: 10,
+    color:'white'
   },
   postFooter: {
     flexDirection: 'row',
@@ -1584,6 +1623,17 @@ const styles = StyleSheet.create({
   dateText: {
     bottom: 0,
     right: 15,
+  },
+  darkLikeCounter: {
+    color: 'white',
+    padding: 7,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  darkDateText: {
+    bottom: 0,
+    right: 15,
+    color: '#666'
   },
   avatarView: {
     height: '100%',
@@ -1633,6 +1683,14 @@ const styles = StyleSheet.create({
     backgroundColor:"#eee",
     borderWidth:1,
     borderColor:"#ddd",
+    borderRadius:10,
+    flexDirection:"row",
+  },
+  darkPostItem: {
+    marginBottom:10,
+    width:"90%",
+    minHeight:80,
+    backgroundColor:"#333333",
     borderRadius:10,
     flexDirection:"row",
   },
@@ -1710,7 +1768,7 @@ const styles = StyleSheet.create({
   darkName: { fontSize: 20, fontWeight: 'bold', marginTop: 10, color: 'white'},
 
   bio: { fontSize: 13, marginTop: 3, textAlign: 'center' },
-  darkBio: { fontSize: 13, marginTop: 3, textAlign: 'center', color: 'white' },
+  darkBio: { fontSize: 13, marginTop: 3, textAlign: 'center', color: '#888' },
 
   friendsContainer: { },
   friendsSection: { flexDirection: 'row', marginTop: 10},

@@ -5,6 +5,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { useNavigation } from '@react-navigation/native';
 import { WorkoutScreenNavigationProp } from '@/app/(tabs)/WorkoutStack';
 import { GlobalContext } from '@/context/GlobalContext';
+import flameImage from '@/assets/images/flame.svg';
+import MuscleIcon from '@/assets/images/muscle.svg';
 
 //https://ionic.io/ionicons
 // used this for icons npm install react-native-vector-icons
@@ -32,7 +34,7 @@ export default function WorkoutApiScreen() {
       </View>
       <View style={styles.lineBreak}></View>
       {/* My Workouts */}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('MyWorkoutsScreen', { })}  > 
+      <TouchableOpacity style={isDarkMode? styles.darkButton: styles.button} onPress={() => navigation.navigate('MyWorkoutsScreen', { })}  > 
         {/* <Ionicons name="heart" size={35} color="#F2505D" /> */}
         {/* <Image 
         style={styles.image}
@@ -43,13 +45,13 @@ export default function WorkoutApiScreen() {
           <MaterialCommunityIcons name="bookmark" size={32} color="#aef1f1" />
         </View>
         <View style={{ justifyContent: 'flex-start' }}>
-          <Text style={styles.buttonText}>My Workouts</Text>
+          <Text style={isDarkMode? styles.darkButtonText:styles.buttonText}>My Workouts</Text>
           <Text style={{ color: '#757575', }}>View your workouts</Text>
         </View>
       </TouchableOpacity>
 
       {/* Add Workout */}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AddWorkoutScreen', { })}  >
+      <TouchableOpacity style={isDarkMode? styles.darkButton: styles.button} onPress={() => navigation.navigate('AddWorkoutScreen', { })}  >
         {/* <Image 
         style={styles.image}
           source={require('@/assets/images/dashboard-widgets-add.png')}
@@ -59,13 +61,13 @@ export default function WorkoutApiScreen() {
           <MaterialCommunityIcons name="plus" size={32} color="#aef1f1" />
         </View>
         <View style={{ justifyContent: 'flex-start' }}>
-          <Text style={styles.buttonText}>Add Workout</Text>
+          <Text style={isDarkMode? styles.darkButtonText:styles.buttonText}>Add Workout</Text>
           <Text style={{ color: '#757575', }}>Create a workout</Text>
         </View>
       </TouchableOpacity>
       
       {/* Ript Workouts */}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('RiptWorkoutScreen', { })}  >
+      <TouchableOpacity style={isDarkMode? styles.darkButton: styles.button} onPress={() => navigation.navigate('RiptWorkoutScreen', { })}  >
       {/* <Image 
         style={styles.image}
         source={require('@/assets/images/secondary.png')}
@@ -75,13 +77,13 @@ export default function WorkoutApiScreen() {
           <MaterialCommunityIcons name="dumbbell" size={32} color="#aef1f1" />
         </View>
         <View style={{ justifyContent: 'flex-start' }}>
-          <Text style={styles.buttonText}>Ript Workouts</Text>
+          <Text style={isDarkMode? styles.darkButtonText:styles.buttonText}>Ript Workouts</Text>
           <Text style={{ color: '#757575', }}>Explore Ript workouts</Text>
         </View>
       </TouchableOpacity>
       
       {/* My Notes */}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('MyNotesScreen', { })} >
+      <TouchableOpacity style={isDarkMode? styles.darkButton: styles.button} onPress={() => navigation.navigate('MyNotesScreen', { })} >
       {/* <Image 
         style={styles.image}
         source={require('@/assets/images/my-notes.png')}
@@ -90,11 +92,24 @@ export default function WorkoutApiScreen() {
           <MaterialCommunityIcons name="notebook" size={32} color="#aef1f1" />    
         </View>
         <View style={{ justifyContent: 'flex-start' }}>
-          <Text style={styles.buttonText}>My Notes</Text>
+          <Text style={isDarkMode? styles.darkButtonText:styles.buttonText}>My Notes</Text>
           <Text style={{ color: '#757575', }}>Write down anything</Text>
         </View>
       </TouchableOpacity>
 
+     {/* Body Focus */}
+      <TouchableOpacity 
+        style={styles.button} 
+        onPress={() => navigation.navigate('BodyFocusScreen', {})} 
+      >
+        <View style={styles.iconStyles}>
+            <MuscleIcon width={32} height={32} />
+        </View>
+        <View style={{ justifyContent: 'flex-start' }}>
+          <Text style={styles.buttonText}>Body Focus</Text>
+          <Text style={{ color: '#757575', }}>Body-based workouts</Text>
+        </View>
+      </TouchableOpacity>
       
       {/* Workout Trend */}
       <TouchableOpacity 
@@ -174,7 +189,20 @@ const styles = StyleSheet.create({
     padding: 17,
     backgroundColor: '#fff',
     // backgroundColor: '#2493BF',
-    // backgroundColor: '#F2F2F2',
+    // backgroundColor: '#444444',
+    borderRadius: 20,
+    marginVertical: 5,
+    marginHorizontal: 5,
+  },
+  darkButton: {
+    width: '45%',
+    height: 150,
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    padding: 17,
+    backgroundColor: '#333333',
+    // backgroundColor: '#2493BF',
+    // backgroundColor: '#444444',
     borderRadius: 20,
     marginVertical: 5,
     marginHorizontal: 5,
@@ -204,14 +232,20 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 10,
   },
-  // can add more button colors if needed for each button 
-  // overall I like the UI tho
   buttonText: {
     // paddingTop: 10,
     fontSize: 18,
     fontWeight: 'bold',
     // color: '#FFFF',
     color: '#303030',
+    textAlign: 'center',
+
+  },
+  darkButtonText: {
+    // paddingTop: 10,
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFF',
     textAlign: 'center',
 
   },
