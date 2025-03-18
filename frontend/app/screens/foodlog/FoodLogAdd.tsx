@@ -397,8 +397,23 @@ const FoodLogAddPage = () => {
                 style={{maxHeight: '100%', marginTop: 10, marginHorizontal: 5, marginBottom: 0, backgroundColor: isDarkMode? 'black' : '#fff'}} 
                 contentContainerStyle={{  }}
             >
-                    <Text style={isDarkMode? styles.darkLabel: styles.label}>Nutrition Facts</Text>
-                    <Text style={styles.description}>Enter the details from the label</Text>
+                    <View style={styles.nutritionHeader}>
+                <Text style={isDarkMode ? styles.darkLabel : styles.label}>Nutrition Facts</Text>
+                <BarcodeScannerButton 
+                    title="Scan"
+                    backgroundColor="#21BFBF"
+                    onPress={() => setScannerVisible(true)}
+                    style={{
+                        width: 140,
+                        height: 50,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        paddingVertical: 10,
+                    }}
+                />
+                </View>
+                <Text style={isDarkMode ? styles.darkDescription : styles.description}>Enter the details from the label or scan a barcode</Text>
+
 
                 {/* Input fields */}
                 <View style = {isDarkMode? styles.darkRowStart:styles.rowStart}>
@@ -516,6 +531,12 @@ const FoodLogAddPage = () => {
                 
             </ScrollView>
             
+            <Modal visible={scannerVisible} animationType="slide">
+                <Scanner 
+                    onClose={() => setScannerVisible(false)}
+                    onScan={(barcode) => fetchFoodData(barcode)}
+                />
+            </Modal>
             {/* Save buttons */}
             <View style={styles.buttonRow}>
                 {/* handleFoodDataSaveOnly and handleFoodDataSaveAddDay remain unchanged */}
@@ -618,6 +639,10 @@ const styles = StyleSheet.create({
         width: '90%',
         alignSelf: 'center',
       }, 
+      darkDescription: {
+        fontSize: 15,
+        color: 'white',
+      },      
       darkRow: {
         flexDirection: 'row', // Align items in a row
         alignItems: 'center', // Vertically center the text and input
