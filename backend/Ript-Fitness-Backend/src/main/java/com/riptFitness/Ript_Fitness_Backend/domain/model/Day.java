@@ -57,4 +57,9 @@ public class Day {
     protected void onCreate() {
     	date = LocalDate.now();
     }
+    
+    public LocalDate getDate() {
+        return date;
+    }
+
 }

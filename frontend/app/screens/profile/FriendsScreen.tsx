@@ -116,8 +116,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
     backgroundColor: 'black',
   },
   title: { fontSize: 20, fontWeight: 'bold' },
@@ -135,7 +133,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: '#333',
   },
   profileImage: { width: 40, height: 40, borderRadius: 20, marginRight: 12 },
   friendName: {

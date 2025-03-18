@@ -17,11 +17,13 @@ interface Food {
     protein: number;
     carbs: number;
     fat: number;
-    multiplier: number;
+    serving: number;
     isDeleted: boolean;
 }
 
 const FoodItem: React.FC<{ food: Food; saveFoodChanges: (food: Food) => void; logFoodToDay: (food: Food) => void}> =  ({ food, saveFoodChanges, logFoodToDay}) => {    
+    const context = useContext(GlobalContext);
+    const isDarkMode = context?.isDarkMode;
     return(
         <LogFoodButton 
             id={food.id}
@@ -30,7 +32,7 @@ const FoodItem: React.FC<{ food: Food; saveFoodChanges: (food: Food) => void; lo
             protein={food.protein}
             carbs={food.carbs}
             fat={food.fat}
-            multiplier={food.multiplier}
+            serving={food.serving}
             saveFoodChanges={(updatedFood) => saveFoodChanges(updatedFood)}
             logFoodToDay={(updatedFood) => logFoodToDay(updatedFood)}
             textColor="black"
@@ -123,7 +125,7 @@ const FoodLogSavedPage = () => {
           }
           
           // Specify the desired order of keys
-          const keysOrder = ["name", "calories", "protein", "carbs", "fat", "multiplier", "isDeleted"];
+          const keysOrder = ["name", "calories", "protein", "carbs", "fat", "serving", "isDeleted"];
           
           // Serialize updatedFood with the desired key order
           const body = customJSONStringify(updatedFood, keysOrder);
@@ -360,7 +362,7 @@ const FoodLogSavedPage = () => {
                 }}
         />
         </View>
-            <Text style={styles.message}>No food items logged.</Text>
+            <Text style={isDarkMode? styles.darkMessage:styles.message}>No food items logged.</Text>
         </View>
     ) : (
         <View style={[isDarkMode ? styles.darkBottomContainer : styles.bottomContainer]}>
@@ -452,6 +454,13 @@ const styles = StyleSheet.create({
         fontWeight: 'bold', 
         fontSize: 20,
         padding: 30,
+    }, 
+    darkMessage: {
+        textAlign: 'center', 
+        fontWeight: 'bold', 
+        fontSize: 20,
+        padding: 30,
+        color: 'white'
     }, 
     swipeDeleteButton: {
         backgroundColor: 'red',
