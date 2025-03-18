@@ -27,6 +27,10 @@ public interface WorkoutsRepository extends JpaRepository <Workouts, Long> {
 	
 	@Query("SELECT w FROM Workouts w WHERE w.account.id = :accountId AND w.workoutDate >= :startDate AND w.isDeleted = false ORDER BY w.workoutDate ASC")
 		List<Workouts> findWorkoutsByDateRange(@Param("accountId") Long accountId, @Param("startDate") LocalDate startDate);
+	
+	@Query("SELECT w FROM Workouts w WHERE w.account.id = :accountId AND w.workoutDate = :date AND w.isDeleted = false")
+	List<Workouts> findWorkoutsByDate(@Param("accountId") Long accountId, @Param("date") LocalDate date);
+
 
 
 }
