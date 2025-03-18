@@ -787,9 +787,11 @@ function ProgressScreen() {
   const handlePress = () => {
     setModalVisible(true); // Show the modal when the text is clicked
     const fetchWorkoutById = async (workoutName: string): Promise<number | undefined> => {
+      const selectedDate = new Date (year, month, day);
+      const formattedDate = formatDateForBackend(selectedDate);
       try {
         const response = await fetch(
-          `${httpRequests.getBaseURL()}/workouts/getUsersWorkouts/0/10000`,
+          `${httpRequests.getBaseURL()}/workouts/getUsersWorkoutsByDate/${formattedDate}`,
           {
             method: "GET",
             headers: {
@@ -817,6 +819,14 @@ function ProgressScreen() {
       }
     };
   };
+
+  function formatDateForBackend(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  
 
   const closeModal = () => {
     setModalVisible(false); // Close the modal
