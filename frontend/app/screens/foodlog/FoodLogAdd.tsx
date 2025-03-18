@@ -712,6 +712,23 @@ const FoodLogAddPage = () => {
                         // onBlur={() => handleBlur('servings', foodServings)}
                     />
                 </View>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
                 
             </ScrollView>
             {/* Save button */}
