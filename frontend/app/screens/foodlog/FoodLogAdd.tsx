@@ -632,7 +632,7 @@ const FoodLogAddPage = () => {
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
-                        value={foodSodium}
+                        value={sodium}
                         onChangeText={handleSodiumChange}
                         placeholder={"Add Sodium"}
                         placeholderTextColor={'#999'}
@@ -712,23 +712,6 @@ const FoodLogAddPage = () => {
                         // onBlur={() => handleBlur('servings', foodServings)}
                     />
                 </View>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                
                 
             </ScrollView>
             {/* Save button */}

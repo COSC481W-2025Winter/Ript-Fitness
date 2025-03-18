@@ -13,11 +13,18 @@ import { ProfileScreenNavigationProp } from "@/app/(tabs)/ProfileStack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { TouchableOpacity } from "react-native";
 
+// Importing the navigation prop type from BodyStack,
+// which defines the type structure for navigation in this stack.
+import { BodyScreenNavigationProp } from "@/app/(tabs)/BodyStack"; 
+                                                                    
 
 
 export default function FoodLogScreen() {
-
-    const navigation = useNavigation<ProfileScreenNavigationProp>();
+    
+    // Initializing the navigation object with the BodyScreenNavigationProp type,
+    // ensuring type safety when navigating between screens within BodyStack.
+    const navigation = useNavigation<BodyScreenNavigationProp>();
+    
     const [selectedPage, setSelectedPage] = useState("Logged"); // Track selected page
     const [totalCalories, setTotalCalories] = useState(0);
     const [totalFat, setTotalFat] = useState(0);
@@ -37,6 +44,8 @@ export default function FoodLogScreen() {
     const [day, setDay] = useState<number | null>(null);
     const context = useContext(GlobalContext);
     const [cached, setCached] = useState(false);
+    const [isPressed, setIsPressed] = useState(false);
+
 
      // Prefix all keys with user ID (assuming it's stored in context)
      const userID = context?.data.token; 
@@ -274,8 +283,10 @@ const updateWater = async () => {
                         // onPress={() => changeDayBackWard()}
                 />
                      <Ionicons name={"calendar-clear-outline"} size={24} color={"white"}></Ionicons> */}
+                    
                     <Text style={styles.whiteText}>Food Log</Text>
                     <Text style={styles.newDayButton} onPress={() => newDay()}>Start New Day</Text>
+                    
                     {/* <Ionicons color="white" name="add-circle-outline"size={35} style={styles.plusButton} onPress={() => newDay()}></Ionicons> */}
                     {/* <Ionicons 
                         name={"chevron-forward-outline"} 
@@ -319,7 +330,28 @@ const updateWater = async () => {
                         width={100} 
                     ></MacroButton>
                 </View>
+            
                 <View style={styles.macroRow}>
+                <TouchableOpacity 
+                        style={[
+                            styles.trendButton, 
+                            isPressed && { backgroundColor: "rgba(21, 160, 160, 1)" },{ opacity: 1 }
+                        ]}
+                        activeOpacity={1}  // Ensure the button does not become transparent when pressed
+                        disabled={false}   // Ensure the button is enabled
+                        onPress={() => navigation.navigate("NutritionTrendScreen")} // Navigate on press
+                        onPressIn={() => setIsPressed(true)}
+                        onPressOut={() => setIsPressed(false)}
+                        >
+                         {/* Add an upward trend Icon 📈 */}
+                        <Ionicons name="trending-up" size={24} color="white" style={{ marginTop: -9 }} />
+                        {/* Wrap Text with View and adjust marginTop */}
+                        <View style={{ marginTop: -1, alignItems: 'center' }}> 
+                            <Text style={styles.trendButtonText}>Nutrition</Text>
+                            <Text style={styles.trendButtonText}>Trend</Text>
+                        </View> 
+                    </TouchableOpacity>
+                    
                     <MacroButton
                         title="Fat" 
                         label="g"
@@ -329,7 +361,7 @@ const updateWater = async () => {
                         borderWidth={5}
                         fontSize={16}
                         width={100} 
-                    ></MacroButton>
+                    ></MacroButton>              
                     <MacroButton
                         title="Water" 
                         label="oz"
@@ -444,7 +476,7 @@ const updateWater = async () => {
                     ></MacroButton>
                 </View>
             </View> 
-             
+        
             <View style={styles.dataBar}>
                 {/* <View style={styles.align}>
                     <Ionicons name="today-outline" size={30} onPress={() => addWater()}></Ionicons>
@@ -522,8 +554,8 @@ const styles = StyleSheet.create({
         elevation: 5,
         shadowColor: "#000",
         shadowOffset: {
-          width: 0,
-          height: 2,
+            width: 0,
+            height: 2,
         },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
@@ -552,7 +584,10 @@ const styles = StyleSheet.create({
     }, 
     macroRow: {
         flexDirection: 'row',
-        justifyContent: 'center', 
+        justifyContent: 'space-evenly', 
+        alignItems:"center",
+        width: "90%",
+        alignSelf: "center",    
     }, 
     dataBar: {
         width: '100%', 
@@ -602,7 +637,7 @@ const styles = StyleSheet.create({
     plusMinus: {
       paddingTop: 20,
       position: 'absolute',
-      right: 50,
+      right: -12,
     }, 
     waterButton: {
       paddingBottom: 10,
@@ -617,6 +652,36 @@ const styles = StyleSheet.create({
     },
     startDayButton: {
         alignContent: 'center',
-    }
+    },
 
+    trendButton: {
+        marginLeft: 1,  
+        paddingVertical: 30,
+        paddingHorizontal: 15,
+        backgroundColor: "rgba(8, 228, 228, 0.4)", 
+        borderWidth: 4, 
+        borderColor: "rgba(33, 191, 191, 0.55)",
+        elevation: 5,  // Android shadow
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        width: 100,
+        height:100,
+        borderRadius: 50,
+        marginTop:5,
+        justifyContent: "center",
+        alignItems: "center",
+        marginHorizontal: 10, 
+    },
+    
+    trendButtonText: {
+        color: "rgba(0, 51, 102, 1)", 
+        fontSize: 14, 
+        fontWeight: "bold",
+        textAlign: "center",
+        textShadowColor: "rgba(0, 0, 0, 0.1)", 
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 2,
+    }
 })

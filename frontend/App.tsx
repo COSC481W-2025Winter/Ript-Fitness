@@ -39,6 +39,7 @@ import {
 
 import { WorkoutProvider } from "./context/WorkoutContext";
 import FoodLogScreen from "./app/screens/foodlog/FoodLog";
+import { AuthProvider } from "./context/AuthContext"; 
 
 // Suppress specific Reanimated warnings using LogBox
 LogBox.ignoreLogs([
@@ -117,6 +118,23 @@ function MainApp() {
         }}
       />
 
+      {/*Defines the Timer screen in the bottom tab navigator with 
+    an icon that changes based on focus state.*/} 
+      {/* Timer Screen */} 
+      <Tab.Screen
+        name="Timer"
+        component={TimerScreen}
+        options={{
+          tabBarIcon: ({ focused, size, color }) => (
+            <Ionicons
+              name={focused ? "timer" : "timer-outline"}
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      />
+
       <Tab.Screen
         name="Food"
         component={BodyStack}
@@ -145,22 +163,7 @@ function MainApp() {
         }}
       />
 
-    {/*Defines the Timer screen in the bottom tab navigator with 
-    an icon that changes based on focus state.*/} 
-      {/* Timer Screen */} 
-      <Tab.Screen
-        name="Timer"
-        component={TimerScreen}
-        options={{
-          tabBarIcon: ({ focused, size, color }) => (
-            <Ionicons
-              name={focused ? "timer" : "timer-outline"}
-              size={size}
-              color={color}
-            />
-          ),
-        }}
-      />
+    
     </Tab.Navigator>
   );
 }
@@ -220,6 +223,7 @@ export default function App() {
       <MenuProvider>
         <NavigationContainer>
           <PortalProvider>
+           <AuthProvider>  {/* add AuthProvider */}
             <GlobalProvider>
               <StreakProvider>
                 <NotesProvider>
@@ -233,7 +237,7 @@ export default function App() {
                 </NotesProvider>
               </StreakProvider>
             </GlobalProvider>
-            
+            </AuthProvider>
           </PortalProvider>
         </NavigationContainer>
       </MenuProvider>

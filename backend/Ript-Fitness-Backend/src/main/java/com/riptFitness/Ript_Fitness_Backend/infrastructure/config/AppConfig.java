@@ -36,9 +36,6 @@ public class AppConfig {
 	    if (apiKey == null || apiKey.isEmpty()) {
 	        apiKey = System.getenv("USDA_API_KEY"); // Check if available in system env
 	    }
-
-	    System.out.println("Final API Key: " + (apiKey != null ? apiKey : "NOT_SET")); // Debugging output
-
 	    return apiKey;
 	}
 

@@ -31,6 +31,8 @@ interface Food {
 }
 
 const FoodItem: React.FC<{ food: Food; saveFoodChanges: (food: Food) => void; logFoodToDay: (food: Food) => void}> =  ({ food, saveFoodChanges, logFoodToDay}) => {    
+    const context = useContext(GlobalContext);
+    const isDarkMode = context?.isDarkMode;
     return(
         <LogFoodButton 
             id={food.id}
@@ -377,7 +379,7 @@ const FoodLogSavedPage = () => {
                 }}
         />
         </View>
-            <Text style={styles.message}>No food items logged.</Text>
+            <Text style={isDarkMode? styles.darkMessage:styles.message}>No food items logged.</Text>
         </View>
     ) : (
         <View style={[isDarkMode ? styles.darkBottomContainer : styles.bottomContainer]}>
@@ -469,6 +471,13 @@ const styles = StyleSheet.create({
         fontWeight: 'bold', 
         fontSize: 20,
         padding: 30,
+    }, 
+    darkMessage: {
+        textAlign: 'center', 
+        fontWeight: 'bold', 
+        fontSize: 20,
+        padding: 30,
+        color: 'white'
     }, 
     swipeDeleteButton: {
         backgroundColor: 'red',

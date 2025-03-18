@@ -1,7 +1,9 @@
 package com.riptFitness.Ript_Fitness_Backend.web.controller;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -131,4 +133,14 @@ public class NutritionTrackerController {
         FoodDto foodDto = nutritionTrackerService.getFoodByBarcode(barcode);
         return ResponseEntity.ok(foodDto);
     }
+	
+	@GetMapping("/getWeeklyTrends")
+	public ResponseEntity<Map<LocalDate, Map<String, Double>>> getNutritionTrendsLastWeek(){
+		return ResponseEntity.ok(nutritionTrackerService.getNutritionTrendsfor7Days());
+	}
+	
+	@GetMapping("/getMonthlyTrends")
+	public ResponseEntity<Map<LocalDate, Map<String, Double>>> getNutritionTrendsLastMonth(){
+		return ResponseEntity.ok(nutritionTrackerService.getNutritionTrendsfor30Days());
+	}
 }
