@@ -4,6 +4,8 @@ import BodyDiagram from '@/components/BodyDiagram';
 import { httpRequests } from '@/api/httpRequests'; // Use named import
 import AuthContext, { useAuth } from '../../../context/AuthContext'; // Adjust the path to the actual location of AuthContext
 import { ScrollView } from 'react-native';
+import { useContext } from 'react';
+import { GlobalContext } from '@/context/GlobalContext';
 
 
 // Define the BodyPart type
@@ -35,8 +37,8 @@ export default function BodyFocusScreen() {
   });
 
   const [error, setError] = useState<string | null>(null);
-  const { token } = useAuth(); //Access the context data with the defined type
-  
+  const context = useContext(GlobalContext);
+  const token = context?.data?.token; //Access the context data with the defined type
 
 // Map BodyPart to backend `exerciseType`
 const bodyPartToType: { [key in BodyPart]: number[] } = {
@@ -53,7 +55,10 @@ const bodyPartToType: { [key in BodyPart]: number[] } = {
 useEffect(() => {
   let isMounted = true; // Prevents setting state after unmount
 
-  if (!selectedPart || !token) return; // Ensures `useEffect` only runs when both `selectedPart` and `token` exist
+  if (!selectedPart || token.trim() === "") {
+    return;
+  }
+  
 
   const fetchWorkouts = async () => {
     setLoading(true);
@@ -68,8 +73,7 @@ useEffect(() => {
       let allExercises: string[] = [];
 
       for (const type of exerciseTypes) {
-        console.log(`\n=======================\nFetching workouts for type: ${type}`);
-        console.log(`\n=======================\n API Call: ${httpRequests.getBaseURL()}/exercises/getByType/${type}`);
+        
 
         const response = await httpRequests.get(`/exercises/getByType/${type}`, token);
 
@@ -101,7 +105,9 @@ useEffect(() => {
   return () => {
     isMounted = false; // Prevents memory leaks
   };
-}, [selectedPart, token]); // Now correctly dependent on `selectedPart` and `token`
+}, [selectedPart, token]);
+
+
 
 // Auto-hide tutorial after 3 seconds
 useEffect(() => {
@@ -122,11 +128,20 @@ useEffect(() => {
 
   // Handles body part selection and opens the modal if valid
   const handleBodyPartClick = (part: BodyPart) => {
-    if (isFrontView && (part === 'Back' || part === 'Shoulders')) return;
-    if (!isFrontView && part !== 'Back' && part !== 'Shoulders') return;
+    console.warn("handleBodyPartClick invoked with:", part);
+    if (isFrontView && (part === 'Back' || part === 'Shoulders')) {
+      console.warn("Ignored: Front view cannot select Back or Shoulders");
+      return;
+    }
+    if (!isFrontView && part !== 'Back' && part !== 'Shoulders') {
+      console.warn("Ignored: Back view allows only Back or Shoulders");
+      return;
+    }
     setSelectedPart(part);
+    console.warn("selectedPart state set to:", part);
     setModalVisible(true);
   };
+  
 
   // Toggles selection of exercises in the modal
   const toggleExerciseSelection = (exercise: string) => {
@@ -138,8 +153,12 @@ useEffect(() => {
   };
 
   // Saves selected exercises to the main exercise list and closes the modal
-  const saveSelectedExercises = () => {
-    setExerciseList(prev => new Set([...prev, ...selectedExercises]));
+    const saveSelectedExercises = () => {
+      setExerciseList(prev => {
+        const combined = new Set([...prev, ...selectedExercises]);
+        return combined;
+    });
+    
     setSelectedExercises(new Set());
     setModalVisible(false);
   };
@@ -203,15 +222,21 @@ useEffect(() => {
     ? workoutData.front?.[selectedPart as BodyPart] || []
     : workoutData.back?.[selectedPart as BodyPart] || [];
 
+// Flatten just in case items are arrays or weirdly structured
+const flattened = [...exerciseList].flat().map(e => String(e).trim());
+const uniqueExerciseList = Array.from(new Set(flattened));
+
+
   return (
     <View style={styles.container} {...panResponder.panHandlers}>
       {/* Displays the selected exercises */}
       <View style={styles.exerciseContainer}>
         <Text style={styles.exerciseTitle}>Selected Exercises:</Text>
         <FlatList
-          data={[...exerciseList]}
+          data={uniqueExerciseList}
           renderItem={({ item }) => <Text style={styles.exerciseText}>• {item}</Text>}
-          keyExtractor={(item, index) => `${item}-${index}`}
+          keyExtractor={(item, index) => `exercise-${item.replace(/\s+/g, "_")}-${index}`}
+
           numColumns={2}
           scrollEnabled={false}
           contentContainerStyle={styles.exerciseListContainer}
