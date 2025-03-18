@@ -10,6 +10,15 @@ type LogFoodButtonProps = {
   protein: number;
   carbs: number;
   fat: number;
+  cholesterol: number;
+  saturatedFat: number;
+  transFat: number;
+  sodium: number;
+  fiber: number;
+  sugars: number;
+  calcium: number;
+  iron: number;
+  potassium: number;
   serving: number;
   saveFoodChanges: (updatedFood: any) => void;
   logFoodToDay: (foodData: any) => void;
@@ -31,6 +40,15 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
   carbs,
   fat,
   serving,
+  cholesterol,
+  saturatedFat,
+  transFat,
+  sodium,
+  fiber,
+  sugars,
+  calcium,
+  iron,
+  potassium,
   saveFoodChanges,
   logFoodToDay,
   backgroundColor,
@@ -49,6 +67,15 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
   const [tempProtein, setTempProtein] = useState(protein);
   const [tempCarbs, setTempCarbs] = useState(carbs);
   const [tempFat, setTempFat] = useState(fat);
+  const [tempCholesterol, setTempCholesterol] = useState(fat);
+  const [tempSaturatedFat, setTempSaturatedFat] = useState(fat);
+  const [tempTransFat, setTempTransFat] = useState(fat);
+  const [tempSodium, setTempSodium] = useState(fat);
+  const [tempFiber, setTempFiber] = useState(fat);
+  const [tempSugars, setTempSugars] = useState(fat);
+  const [tempCalcium, setTempCalcium] = useState(fat);
+  const [tempIron, setTempIron] = useState(fat);
+  const [tempPotassium, setTempPotassium] = useState(fat);
   const [tempServing, setTempServing] = useState(serving);
 
   // Original states to revert if the user does not save
@@ -57,6 +84,16 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
   const [thisProtein, setProtein] = useState(protein);
   const [thisCarbs, setCarbs] = useState(carbs);
   const [thisFat, setFat] = useState(fat);
+  const [thisCholesterol, setCholesterol] = useState(fat);
+  const [thisSaturatedFat, setSaturatedFat] = useState(fat);
+  const [thisTransFat, setTransFat] = useState(fat);
+  const [thisSodium, setSodium] = useState(fat);
+  const [thisFiber, setFiber] = useState(fat);
+  const [thisSugars, setSugars] = useState(fat);
+  const [thisCalcium, setCalcium] = useState(fat);
+  const [thisIron, setIron] = useState(fat);
+  const [thisPotassium, setPotassium] = useState(fat);
+
   const [thisServing, setServing] = useState(serving);
 
   const toggleEditMode = () => setIsFoodEditMode((prev) => !prev);
@@ -69,6 +106,15 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
       protein: tempProtein, 
       carbs: tempCarbs, 
       fat: tempFat, 
+      cholesterol: tempCholesterol,
+      saturatedFat: tempSaturatedFat,
+      transFat: tempTransFat,
+      sodium: tempSodium,
+      fiber: tempFiber,
+      sugars: tempSugars,
+      calcium: tempCalcium,
+      iron: tempIron,
+      potassium: tempPotassium,
       serving: tempServing,
       isDeleted: false,
     };
@@ -81,6 +127,15 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
     setProtein(tempProtein);
     setCarbs(tempCarbs);
     setFat(tempFat);
+    setCholesterol(tempCholesterol);
+    setSaturatedFat(tempSaturatedFat);
+    setTransFat(tempTransFat);
+    setSodium(tempSodium);
+    setFiber(tempFiber);
+    setSugars(tempSugars);
+    setCalcium(tempCalcium);
+    setIron(tempIron);
+    setPotassium(tempPotassium);
     setServing(tempServing);
 
     setIsFoodEditMode(false);
@@ -94,6 +149,15 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
       protein: tempProtein, 
       carbs: tempCarbs, 
       fat: tempFat, 
+      cholesterol: tempCholesterol,
+      saturatedFat: tempSaturatedFat,
+      transFat: tempTransFat,
+      sodium: tempSodium,
+      fiber: tempFiber,
+      sugars: tempSugars,
+      calcium: tempCalcium,
+      iron: tempIron,
+      potassium: tempPotassium,
       serving: tempServing,
       isDeleted: false,
     };
@@ -111,6 +175,15 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
     setTempProtein(thisProtein);
     setTempCarbs(thisCarbs);
     setTempFat(thisFat);
+    setTempCholesterol(thisCholesterol);
+    setTempSaturatedFat(thisSaturatedFat);
+    setTempTransFat(thisTransFat);
+    setTempSodium(thisSodium);
+    setTempFiber(thisSodium);
+    setTempSugars(thisSugars);
+    setTempCalcium(thisCalcium);
+    setTempIron(thisIron);
+    setTempPotassium(thisPotassium);
     setTempServing(thisServing);
     setIsFoodEditMode(false);
     setFoodModalVisible(false);
@@ -170,7 +243,7 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
               </View>
 
               {/* Map through stateMappings for numerical values */}
-              {['Calories', 'Protein', 'Carbs', 'Fat', 'Servings'].map((label, index) => {
+              {['Calories', 'Protein', 'Carbs', 'Fat', 'cholesterol', 'transFat', 'sodium', 'fiber', 'sugars', 'calcium', 'iron', 'potassium', 'Servings'].map((label, index) => {
                 // Define state mappings for numerical fields only
                 const stateMappings: [
                   number,
@@ -180,7 +253,17 @@ const LogFoodButton: React.FC<LogFoodButtonProps> = ({
                   [tempProtein, setTempProtein],
                   [tempCarbs, setTempCarbs],
                   [tempFat, setTempFat],
+                  [tempCholesterol, setTempCholesterol],
+                  [tempSaturatedFat, setTempSaturatedFat],
+                  [tempTransFat, setTempTransFat],
+                  [tempSodium, setTempSodium],
+                  [tempFiber, setTempFiber],
+                  [tempSugars, setTempSugars],
+                  [tempCalcium, setTempCalcium],
+                  [tempIron, setTempIron],
+                  [tempPotassium, setTempPotassium],
                   [tempServing, setTempServing],
+                  
                 ];
 
                 const [value, setValue] = stateMappings[index]; // Deconstruct state and setter
