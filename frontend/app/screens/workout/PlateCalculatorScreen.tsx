@@ -1,44 +1,49 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
 
 const PlateCalculatorScreen = () => {
-  const [weight, setWeight] = useState('');
-  const [plates, setPlates] = useState(null);
+  const [weight, setWeight] = useState("");
+  const [plates, setPlates] = useState<number[] | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Function to handle weight plate calculation
-  const calculatePlates = async () => {
-    const parsedWeight = parseFloat(weight);
-    
-    if (isNaN(parsedWeight) || parsedWeight <= 0) {
-      Alert.alert('Error', 'Please enter a valid weight greater than 0.');
+  // Define available plate weights (standard)
+  const plateSizes = [45, 35, 25, 10, 5, 2.5]; // lbs
+  const barbellWeight = 45; // Standard Olympic barbell
+
+  // Function to calculate plates
+  const calculatePlates = () => {
+    let targetWeight = parseFloat(weight);
+
+    if (isNaN(targetWeight) || targetWeight <= barbellWeight) {
+      Alert.alert("Error", "Enter a valid weight above 45 lbs (barbell weight).");
       return;
     }
 
     setLoading(true);
 
-    try {
-      // Replace with your actual backend URL
-      const response = await fetch(`https://ript-fitness.azurewebsites.net/api/plates?weight=${parsedWeight}`);
+    setTimeout(() => {
+      const weightPerSide = (targetWeight - barbellWeight) / 2; // Each side of bar
+      let remainingWeight = weightPerSide;
+      let selectedPlates: number[] = [];
 
-      if (response.ok) {
-        const data = await response.json();
-
-        // Ensure correct response format
-        if (!data || !Array.isArray(data.platesOnOneSide)) {
-          throw new Error("Invalid response from server.");
+      for (let plate of plateSizes) {
+        while (remainingWeight >= plate) {
+          selectedPlates.push(plate);
+          remainingWeight -= plate;
         }
-
-        setPlates(data.platesOnOneSide);
-      } else {
-        Alert.alert('Error', 'Failed to calculate plates. Please try again.');
       }
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Error', 'Something went wrong. Please check your connection.');
-    } finally {
+
+      setPlates(selectedPlates);
       setLoading(false);
-    }
+    }, 500); // Simulate small delay for better UI feedback
   };
 
   return (
@@ -54,7 +59,11 @@ const PlateCalculatorScreen = () => {
       />
 
       <TouchableOpacity onPress={calculatePlates} style={styles.button}>
-        {loading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.buttonText}>Calculate Plates</Text>}
+        {loading ? (
+          <ActivityIndicator size="small" color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Calculate Plates</Text>
+        )}
       </TouchableOpacity>
 
       {plates !== null && (
@@ -81,40 +90,40 @@ const PlateCalculatorScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
   },
   input: {
-    width: '80%',
+    width: "80%",
     height: 40,
-    borderColor: 'gray',
+    borderColor: "gray",
     borderWidth: 1,
     marginBottom: 20,
     paddingLeft: 10,
     borderRadius: 8,
   },
   button: {
-    backgroundColor: '#2493BF',
+    backgroundColor: "#2493BF",
     padding: 10,
     borderRadius: 8,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
   },
   plateList: {
     marginTop: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   resultTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   resultText: {
     fontSize: 16,

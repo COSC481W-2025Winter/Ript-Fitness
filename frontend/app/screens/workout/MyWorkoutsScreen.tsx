@@ -20,11 +20,14 @@ import { Ionicons } from "@expo/vector-icons";
 import Stopwatch from "./Stopwatch";
 import { httpRequests } from "@/api/httpRequests";
 import { WorkoutContext } from "@/context/WorkoutContext";  // Import WorkoutContext for managing workout data and state.
+import { useNavigation } from "@react-navigation/native";
 
 export default function MyWorkoutsScreen() {
   const context = useContext(GlobalContext);
   const workoutContext = useContext(WorkoutContext); // Access workout data and state using WorkoutContext.
+  const navigation = useNavigation();
   const isDarkMode = context?.isDarkMode;
+  
 
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
