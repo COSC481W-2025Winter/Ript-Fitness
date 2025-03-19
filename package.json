@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "react-native-svg": "^15.11.1"
+  },
+  "devDependencies": {
+    "@svgr/webpack": "^8.1.0"
+  }
+}

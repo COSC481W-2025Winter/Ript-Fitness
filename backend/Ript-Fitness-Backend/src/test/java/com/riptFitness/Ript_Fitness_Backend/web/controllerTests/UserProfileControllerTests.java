@@ -216,7 +216,7 @@ public class UserProfileControllerTests {
 	}
 
 	@Test
-	public void testGetUserWeightHistory_UserNotFound_Returns500() throws Exception {
+	public void testGetUserWeightHistory_UserNotFound_Returns() throws Exception {
 	    when(userProfileService.getUserWeightHistory("invalidUser"))
 	        .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
@@ -224,6 +224,7 @@ public class UserProfileControllerTests {
 	            .param("username", "invalidUser")
 	            .header("Authorization", token))
 	        .andExpect(status().isInternalServerError())  
-	        .andExpect(content().string("An unexpected error has occured. Message: 404 NOT_FOUND \"User not found\""));	}
+	        .andExpect(content().string("An unexpected error has occurred. Message: 404 NOT_FOUND \"User not found\""));
+	    }
 
 }

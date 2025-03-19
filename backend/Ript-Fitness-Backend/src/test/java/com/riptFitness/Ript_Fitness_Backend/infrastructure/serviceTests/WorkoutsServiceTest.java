@@ -3,13 +3,17 @@ package com.riptFitness.Ript_Fitness_Backend.infrastructure.serviceTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -107,6 +111,7 @@ public class WorkoutsServiceTest {
         workout.name = ("Test Workout");
         workout.setAccount(account);
         workout.setExercises(exercises);
+        workout.setWorkoutDate(LocalDate.now());
         
         // Set the workout in the exercise after initializing workout
         exercise.setWorkout(workout);
@@ -115,6 +120,7 @@ public class WorkoutsServiceTest {
         workout2.workoutsId = (2L);
         workout2.name = ("Workout 2");
         workout2.setAccount(account);
+        workout2.setWorkoutDate(LocalDate.now().minusDays(2));
         // Add exercises if needed
     }
 
@@ -371,4 +377,69 @@ public class WorkoutsServiceTest {
         
         assertThrows(RuntimeException.class, () -> workoutsService.deleteWorkout(100L));
     }
+    
+	 @Test
+	    public void testGetWeeklyWorkoutTrends() {
+	        when(accountsService.getLoggedInUserId()).thenReturn(1L);
+	        when(workoutsRepository.findWorkoutsByDateRange(any(Long.class), any(LocalDate.class)))
+	                .thenReturn(Collections.singletonList(workout));
+
+	        Map<LocalDate, List<WorkoutsDto>> result = workoutsService.getWeeklyWorkoutTrends();
+
+	        assertNotNull(result);
+	        assertFalse(result.isEmpty());
+	    }
+
+	    @Test
+	    public void testGetMonthlyWorkoutTrends() {
+	        when(accountsService.getLoggedInUserId()).thenReturn(1L);
+	        when(workoutsRepository.findWorkoutsByDateRange(any(Long.class), any(LocalDate.class)))
+	                .thenReturn(Collections.singletonList(workout));
+
+	        Map<LocalDate, List<WorkoutsDto>> result = workoutsService.getMonthlyWorkoutTrends();
+
+	        assertNotNull(result);
+	        assertFalse(result.isEmpty());
+	    }
+	    
+	    @Test
+	    public void testGetWorkoutDataByDate() {
+	        // Arrange
+	        LocalDate targetDate = LocalDate.of(2025, 3, 18); // Test date
+
+	        // Mock logged-in user
+	        when(accountsService.getLoggedInUserId()).thenReturn(1L);
+
+	        // Create workout matching the target date
+	        Workouts workoutForDate = new Workouts();
+	        workoutForDate.workoutsId = 3L;
+	        workoutForDate.name = "Workout For Date";
+	        workoutForDate.setAccount(account);
+	        workoutForDate.setWorkoutDate(targetDate);
+
+	        List<Workouts> workoutsList = Collections.singletonList(workoutForDate);
+
+	        // Mock repository call
+	        when(workoutsRepository.findWorkoutsByDate(1L, targetDate)).thenReturn(workoutsList);
+
+	        // Mock mapper
+	        when(workoutsMapper.toWorkoutsDto(workoutForDate)).thenAnswer(invocation -> {
+	            Workouts w = invocation.getArgument(0);
+	            WorkoutsDto dto = new WorkoutsDto();
+	            dto.setWorkoutsId(w.workoutsId);
+	            dto.setName(w.getName());
+	            dto.setWorkoutDate(w.getWorkoutDate());
+	            return dto;
+	        });
+
+	        // Act
+	        List<WorkoutsDto> result = workoutsService.getWorkoutDataByDate(targetDate);
+
+	        // Assert
+	        assertNotNull(result);
+	        assertEquals(1, result.size());
+	        assertEquals("Workout For Date", result.get(0).getName());
+	        assertEquals(targetDate, result.get(0).getWorkoutDate());
+	    }
+
 }

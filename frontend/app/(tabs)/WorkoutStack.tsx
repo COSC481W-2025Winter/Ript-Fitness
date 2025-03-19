@@ -14,6 +14,9 @@ import MyNotesScreen from '@/app/screens/notes/MyNotesScreen';
 import EditNoteScreen from '@/app/screens/notes/EditNoteScreen';
 import { AddWorkoutScreen } from '../screens/workout/AddWorkoutScreen';
 import { Note } from '@/components/MyNotes/NotesContext';
+import { GlobalContext } from '@/context/GlobalContext';
+import BodyFocusScreen from '@/app/screens/workout/BodyFocusScreen';
+import WorkoutTrendScreen from '@/app/screens/workout/WorkoutTrendScreen';
 
 const Stack = createStackNavigator();
 
@@ -27,12 +30,17 @@ export type WorkoutStackParamList = {
   EditNoteScreen: { note:Note | null };
   RiptWorkoutScreen: {};
   WorkoutDetailScreen: {};
+  BodyFocusScreen: {};
+  WorkoutTrendScreen: {};  
 };
 
 export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamList>;
 
 export default function WorkoutStack() {
   const context = useContext(WorkoutContext);
+  const globContext = useContext(GlobalContext);
+
+  const isDarkMode = globContext?.isDarkMode;
 
   return (
     <Stack.Navigator
@@ -40,6 +48,10 @@ export default function WorkoutStack() {
       screenOptions={{
         headerShown: true,
         headerStyleInterpolator: HeaderStyleInterpolators.forNoAnimation,
+        headerStyle: {
+          backgroundColor: isDarkMode? 'black' : 'white',
+         
+        },
       }}
     >
       <Stack.Screen
@@ -95,6 +107,13 @@ export default function WorkoutStack() {
               />
             </TouchableOpacity>
           ),
+          headerStyle: {
+            backgroundColor: isDarkMode? 'black' : 'white',
+           
+          },
+          headerTitleStyle: {
+            color: isDarkMode? 'white' : 'black',
+          },
           headerTitleAlign: 'center',
         })}
       />
@@ -115,6 +134,10 @@ export default function WorkoutStack() {
               />
             </TouchableOpacity>
           ),
+
+          headerTitleStyle: {
+            color: isDarkMode? 'white' : 'black',
+          },
           headerTitleAlign: 'center',
         })}
       />
@@ -135,6 +158,10 @@ export default function WorkoutStack() {
               />
             </TouchableOpacity>
           ),
+
+          headerTitleStyle: {
+            color: isDarkMode? 'white' : 'black',
+          },
           headerTitleAlign: 'center',
         })}
       />
@@ -175,6 +202,9 @@ export default function WorkoutStack() {
               />
             </TouchableOpacity>
           ),
+          headerTitleStyle: {
+            color: isDarkMode? 'white' : 'black',
+          },
           headerRight: () => (
             <TouchableOpacity
               onPress={() => context?.setVisible(true)}
@@ -186,6 +216,34 @@ export default function WorkoutStack() {
           headerTitleAlign: 'center',
         })}
       />
+
+
+      <Stack.Screen
+        name="BodyFocusScreen"
+        component={BodyFocusScreen}
+        options={{ title: 'Body Focus' }}
+      />
+
+      <Stack.Screen
+        name="WorkoutTrendScreen"
+        component={WorkoutTrendScreen}
+        options={({ navigation }) => ({
+          title: 'Workout Trends',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={[styles.leftButton, styles.button, styles.buttonSize]}
+            > 
+              <TabBarIcon name="arrow-back-outline" size={30} color="#454343" />
+            </TouchableOpacity>  
+          ), 
+          headerTitleStyle: {
+            color: isDarkMode ? 'white' : 'black',
+          },
+          headerTitleAlign: 'center',
+        })} 
+      />
+
       <Stack.Screen
         name="MyNotesScreen"
         component={MyNotesScreen}
@@ -203,6 +261,10 @@ export default function WorkoutStack() {
               />
             </TouchableOpacity>
           ),
+
+          headerTitleStyle: {
+            color: isDarkMode? 'white' : 'black',
+          },
           headerRight: () => (
             <TouchableOpacity
               onPress={() => navigation.navigate('EditNoteScreen', { note: null })}
@@ -214,6 +276,7 @@ export default function WorkoutStack() {
           headerTitleAlign: 'center',
         })}
       />
+      
     </Stack.Navigator>
   );
 }

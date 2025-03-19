@@ -1,6 +1,8 @@
 package com.riptFitness.Ript_Fitness_Backend.web.controller;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -58,5 +60,24 @@ public class WorkoutsController {
         WorkoutsDto deletedWorkout = workoutsService.deleteWorkout(workoutId);
         return ResponseEntity.ok(deletedWorkout);
     }
+    
+	//Endpoint for getting last 7 days of workouts
+	@GetMapping("/getWeeklyWorkouts")
+	public ResponseEntity<Map<LocalDate, List<WorkoutsDto>>> getDetailedWorkoutTrendsFor7Days() {
+        return ResponseEntity.ok(workoutsService.getWeeklyWorkoutTrends());
+    }
 	
+	//Endpoint for getting last 7 days of workouts
+	@GetMapping("/getMonthlyWorkouts")
+	public ResponseEntity<Map<LocalDate, List<WorkoutsDto>>> getDetailedWorkoutTrendsFor30Days() {
+        return ResponseEntity.ok(workoutsService.getMonthlyWorkoutTrends());
+    }
+	
+	@GetMapping("/getWorkoutsByDate/{date}")
+	public ResponseEntity<List<WorkoutsDto>> getWorkoutDataByDate(@PathVariable String date) {
+	    LocalDate parsedDate = LocalDate.parse(date);
+	    List<WorkoutsDto> data = workoutsService.getWorkoutDataByDate(parsedDate);
+	    return ResponseEntity.ok(data);
+	}
+
 }

@@ -54,6 +54,7 @@ export function AddWorkoutScreen() {
   const [exerciseToEdit, setExerciseToEdit] = useState<Exercise | null>(null);
   const [editing, setEditing] = useState(-1);
 
+
   useEffect(() => {
     console.log('Exercises changed:', exercises);
   }, [exercises]); // Re-run effect whenever exercises updates
@@ -134,6 +135,14 @@ export function AddWorkoutScreen() {
    const submitWorkout = async () => {
     try {
     setSubmitting(true)
+
+    //I was trying to put the check in places throughout the code, but ChatGPT recommended putting it here
+    if(text.trim() === ''){
+      Alert.alert("Error", "Workout Name cannot be empty");
+      //these two lines are specifically from ChatGPT
+      setSubmitting(false);
+      return;
+    }
     let WorkoutExercises = [];
     for (let i =0; i<exercises.length; i++) {
       const currentExercise = {
@@ -203,8 +212,10 @@ const viewWorkoutDetails = (id : any) => {
 }
 const [listID, setlistID] = useState(0);
 const [exerciseID, setexerciseID] = useState(0);
+const isDarkMode = gblContext?.isDarkMode;
 
 const addExercise = () => {
+
   // User has to enter exercise name and choose the type
   if (!exerciseName || typeOfExercise === null) {
     alert("Exercise name and exercise type are required fields.");
@@ -281,10 +292,10 @@ const addExercise = () => {
           keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}  
         >
 
-          <View style={styles.modalContent}>
+          <View style={isDarkMode?styles.darkModalContent:styles.modalContent}>
             {/* Title and close modal icon */}
             <View style={{ flexDirection: 'row' }}>
-              <TextInput style={{fontSize: 18, fontWeight: '500', flex:1 }}
+              <TextInput style={{fontSize: 18, fontWeight: '500', flex:1 , color:isDarkMode?'white':'black'}}
                 placeholder='Exercise Name'
                 placeholderTextColor={'#B6B6B6'}
                 maxLength={20}
@@ -292,6 +303,7 @@ const addExercise = () => {
                 autoCapitalize='words'
                 defaultValue={exerciseName}
                 onChangeText={setExerciseName}
+                
               />
               {/* Close/ x button */}
               <TouchableOpacity 
@@ -325,8 +337,8 @@ const addExercise = () => {
                   alignSelf: 'center', 
                 }}
               >
-                <Text style={styles.modalLabels}>Set</Text>
-                <Text style={styles.modalLabels}>Reps</Text>
+                <Text style={isDarkMode?styles.darkModalLabels:styles.modalLabels}>Set</Text>
+                <Text style={isDarkMode?styles.darkModalLabels:styles.modalLabels}>Reps</Text>
               </View>
 
               {sets.map((set, index) => (
@@ -341,7 +353,7 @@ const addExercise = () => {
                 >
                   {/* Row for Set Number and Input */}
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Text style={{ fontSize: 16, marginLeft: 10 }}>{set.setNumber}</Text>
+                    <Text style={{ fontSize: 16, marginLeft: 10, color:isDarkMode?'white':'black' }}>{set.setNumber}</Text>
                     <TextInput 
                       style={styles.repInput}
                       maxLength={3}
@@ -502,7 +514,7 @@ const addExercise = () => {
   }
 
   return (    
-    <View style={styles.totalView}>
+    <View style={[isDarkMode ? styles.darkTotalView : styles.totalView]}>
       {/* Workout Name Input */}
       <View style={{marginTop:10, alignSelf:"center", }}>
         <View style={styles.workoutNameContainer}>
@@ -510,7 +522,7 @@ const addExercise = () => {
             placeholder="Workout Name"
             placeholderTextColor={'#B6B6B6'}
             autoCapitalize='words'
-            style={styles.inputStyle}
+            style={[isDarkMode? styles.darkInputStyle : styles.inputStyle]}
             onChangeText={setText}
             onBlur={Keyboard.dismiss}
             autoFocus={true}
@@ -603,6 +615,12 @@ const styles = StyleSheet.create({
     fontSize: 25,
     fontWeight: 'bold',
   },
+  darkInputStyle: {
+    flex: 1, // Ensures the input takes up the remaining space
+    color: 'white',
+    fontSize: 25,
+    fontWeight: 'bold',
+  },
   dragOverlay: {
     position: 'absolute',
     top: 0,
@@ -672,6 +690,13 @@ test: {
     flex:1,
     justifyContent: 'space-between',
     backgroundColor: '#fff', // main background e2e2e2 or f6f6f6
+  },
+  darkTotalView: {
+    // height:'50%',
+    alignItems:'center',
+    flex:1,
+    justifyContent: 'space-between',
+    backgroundColor: 'black', 
   },
   rowItem:{
     borderTopColor:'grey',
@@ -778,6 +803,12 @@ test: {
     padding: 20,
     borderRadius: 10,
   },
+  darkModalContent: {
+    width: '85%',
+    backgroundColor: '#333',
+    padding: 20,
+    borderRadius: 10,
+  },
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -786,6 +817,17 @@ test: {
   modalLabels: {
     fontSize: 16,
     fontWeight: '500'
+  },
+  darkModalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color:'white'
+  },
+  darkModalLabels: {
+    fontSize: 16,
+    fontWeight: '500',
+    color:'white'
   },
   repInput: {
     fontSize: 16,
