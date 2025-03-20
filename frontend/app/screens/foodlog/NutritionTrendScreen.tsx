@@ -23,43 +23,8 @@ interface DataItem {
   date: string;
 }
 
-// Fixed 7-day labels (starting from today backwards)
-const getFixedWeeklyLabels = () => {
-  const labels = [];
-  const date = new Date();
-  for (let i = 6; i >= 0; i--) {
-    date.setDate(date.getDate() - i);
-    labels.push(date.toLocaleDateString("en-US", { weekday: "short" }));
-  }
-  return labels;
-};
-
-// Modified generateData to align with fixed dates
-const generateData = (min: number, max: number, days: number) => {
-  const data = [];
-  const today = new Date();
-  for (let i = days - 1; i >= 0; i--) {
-    const date = new Date(today);
-    date.setDate(today.getDate() - i);
-    data.push({
-      value: Number((Math.random() * (max - min) + min + Math.sin(i) * 10).toFixed(2)),
-      date: date.toISOString().split("T")[0],
-    });
-  }
-  return data;
-};
-
-// Get labels for the last 30 days (display every 5 days)
-const getLast30DaysLabels = (data: number[]) => {
-  if (!data || data.length === 0) return Array(7).fill("");
-  return data.map((_, i) =>
-    i % 5 === 0 ? new Date(Date.now() - (data.length - 1 - i) * 24 * 60 * 60 * 1000).toLocaleString("en-US", { month: "short", day: "2-digit" }) : ""
-  );
-};
-
 export default function NutritionTrendScreen() {
   const context = useContext(GlobalContext);
-
   const [isThirtyDays, setIsThirtyDays] = useState(false);
   const [chartAnimation] = useState(new Animated.Value(0));
   const [selectedDayIndex, setSelectedDayIndex] = useState<number | null>(null);
@@ -67,158 +32,139 @@ export default function NutritionTrendScreen() {
   const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
   const [loadingCount, setLoadingCount] = useState(0); // Track number of active requests
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation();
   const [dotScale] = useState(new Animated.Value(1));
   const [glowAnimation] = useState(new Animated.Value(0.5));
 
   // Define the type for weekly and monthly data
-  type NutritionPeriodData = { [date: string]: { calories: number; carbs: number; fat: number; fiber: number; protein: number; sodium: number; sugars: number } } | null;
+  type NutritionPeriodData = { [date: string]: { calories: number; carbs: number; fat: number; protein: number } } | null;
   const [weekly, setWeekly] = useState<NutritionPeriodData>(null);
   const [monthly, setMonthly] = useState<NutritionPeriodData>(null);
 
-  // Initialize 7-day data with proper dates
-  const initialWeeklyData = {
-    calories: generateData(1700, 2100, 7),
-    protein: generateData(60, 120, 7),
-    carbs: generateData(160, 280, 7),
-    fat: generateData(40, 90, 7),
-  };
+  const [weeklyData, setWeeklyData] = useState<{ calories: DataItem[]; protein: DataItem[]; carbs: DataItem[]; fat: DataItem[] }>({
+    calories: [],
+    protein: [],
+    carbs: [],
+    fat: [],
+  });
 
-  // Pre-store 7-day and 30-day data
-  const [weeklyData, setWeeklyData] = useState<{
-    calories: DataItem[];
-    protein: DataItem[];
-    carbs: DataItem[];
-    fat: DataItem[];
-  }>(initialWeeklyData);
-
-  const [monthlyData, setMonthlyData] = useState<{
-    calories: DataItem[];
-    protein: DataItem[];
-    carbs: DataItem[];
-    fat: DataItem[];
-  }>({
-    calories: generateData(1700, 2100, 30),
-    protein: generateData(60, 120, 30),
-    carbs: generateData(160, 280, 30),
-    fat: generateData(40, 90, 30),
+  const [monthlyData, setMonthlyData] = useState<{ calories: DataItem[]; protein: DataItem[]; carbs: DataItem[]; fat: DataItem[] }>({
+    calories: [],
+    protein: [],
+    carbs: [],
+    fat: [],
   });
 
   // Log initial weeklyData to verify
   console.log("Initial weeklyData:", weeklyData);
-
-  // Helper functions to manage loading state
-  const startLoading = () => setLoadingCount((prev) => prev + 1);
-  const stopLoading = () => setLoadingCount((prev) => Math.max(0, prev - 1));
-  const isLoading = loadingCount > 0;
+  
 
   useEffect(() => {
     loadNutritionWeekly();
     loadNutritionMonthly();
   }, []);
 
+  // Helper function to sanitize data (replace NaN, Infinity, -Infinity with 0)
+  const sanitizeData = (data: DataItem[]): DataItem[] => {
+    return data
+      .filter(item => item.date && isFinite(item.value)) //Filter invalid values
+      .map(item => ({ value: Math.max(0, item.value), date: item.date })); // Negative values ​​are set to 0
+  };
+
   // Handle weekly data updates
   useEffect(() => {
-    if (weekly && typeof weekly === 'object' && !Array.isArray(weekly) && Object.keys(weekly).length > 0) {
-      const today = new Date();
-      const sevenDaysAgo = new Date(today);
-      sevenDaysAgo.setDate(today.getDate() - 6);
-      
+    if (weekly && Object.keys(weekly).length > 0) { 
       const myCalories: DataItem[] = [];
       const myProtein: DataItem[] = [];
       const myCarbs: DataItem[] = [];
       const myFat: DataItem[] = [];
 
-      const dates = Object.keys(weekly).sort();
-      let previousCalories = 0;
-      let previousProtein = 0;
-      let previousCarbs = 0;
-      let previousFat = 0;
+      const sortedDates = Object.keys(weekly).sort();
 
-      for (const weeklyDate of dates) {
-        const { calories, carbs, protein, fat } = weekly[weeklyDate];
+      for (const weeklyDate of sortedDates) {
+        const { calories=0, carbs=0, protein=0, fat=0 } = weekly[weeklyDate] || {};
+
         console.log(`Weekly Date: ${weeklyDate}`);
         console.log(`Raw value - Calories: ${calories}, Carbs: ${carbs}, Protein: ${protein}, Fat: ${fat}`);
 
-        const independentCalories = calories - previousCalories;
-        const independentProtein = protein - previousProtein;
-        const independentCarbs = carbs - previousCarbs;
-        const independentFat = fat - previousFat;
-
-        console.log(`Independent value - Calories: ${independentCalories}, Carbs: ${independentCarbs}, Protein: ${independentProtein}, Fat: ${independentFat}`);
-
-        myCalories.push({ value: independentCalories, date: weeklyDate });
-        myProtein.push({ value: independentProtein, date: weeklyDate });
-        myCarbs.push({ value: independentCarbs, date: weeklyDate });
-        myFat.push({ value: independentFat, date: weeklyDate });
-
-        previousCalories = calories;
-        previousProtein = protein;
-        previousCarbs = carbs;
-        previousFat = fat;
+        myCalories.push({ value: isFinite(calories) ? calories : 0, date: weeklyDate || "" });
+        myProtein.push({ value: isFinite(protein) ? protein : 0, date: weeklyDate || "" });
+        myCarbs.push({ value: isFinite(carbs) ? carbs : 0, date: weeklyDate || "" });
+        myFat.push({ value: isFinite(fat) ? fat : 0, date: weeklyDate || "" });
       }
 
-      console.log("Updated weeklyData:", { calories: myCalories, protein: myProtein, carbs: myCarbs, fat: myFat });
       setWeeklyData({
-        calories: myCalories.length > 0 ? myCalories : initialWeeklyData.calories,
-        protein: myProtein.length > 0 ? myProtein : initialWeeklyData.protein,
-        carbs: myCarbs.length > 0 ? myCarbs : initialWeeklyData.carbs,
-        fat: myFat.length > 0 ? myFat : initialWeeklyData.fat,
+        calories: sanitizeData(myCalories),
+        protein: sanitizeData(myProtein),
+        carbs: sanitizeData(myCarbs),
+        fat: sanitizeData(myFat),
       });
     }
   }, [weekly]);
 
+  // Calculate X-axis label (Mon, Tue, Wed...)
+  const weeklyLabels = useMemo(() => {
+    return weeklyData.calories.map((item) => {
+      return item.date ? new Date(item.date).toLocaleDateString("en-US", { weekday: "short" }) : "";
+    });
+  }, [weeklyData]);
+
   // Handle monthly data updates
   useEffect(() => {
-    if (monthly && typeof monthly === 'object' && !Array.isArray(monthly)) {
+    if (monthly && Object.keys(monthly).length > 0) {
       const myCalories: DataItem[] = [];
       const myProtein: DataItem[] = [];
       const myCarbs: DataItem[] = [];
       const myFat: DataItem[] = [];
 
-      const dates = Object.keys(monthly).sort();
-      let previousCalories = 0;
-      let previousProtein = 0;
-      let previousCarbs = 0;
-      let previousFat = 0;
+      const sortedDates = Object.keys(monthly).sort();
 
-      for (const monthlyDate of dates) {
-        const { calories, carbs, protein, fat } = monthly[monthlyDate];
+      for (const monthlyDate of sortedDates) {
+        const { calories=0, carbs=0, protein=0, fat=0 } = monthly[monthlyDate] || {};
         console.log(`Monthly Date: ${monthlyDate}`);
         console.log(`Raw value - Calories: ${calories}, Carbs: ${carbs}, Protein: ${protein}, Fat: ${fat}`);
 
-        const independentCalories = calories - previousCalories;
-        const independentProtein = protein - previousProtein;
-        const independentCarbs = carbs - previousCarbs;
-        const independentFat = fat - previousFat;
-
-        console.log(`Independent value - Calories: ${independentCalories}, Carbs: ${independentCarbs}, Protein: ${independentProtein}, Fat: ${independentFat}`);
-
-        myCalories.push({ value: independentCalories, date: monthlyDate });
-        myProtein.push({ value: independentProtein, date: monthlyDate });
-        myCarbs.push({ value: independentCarbs, date: monthlyDate });
-        myFat.push({ value: independentFat, date: monthlyDate });
-
-        previousCalories = calories;
-        previousProtein = protein;
-        previousCarbs = carbs;
-        previousFat = fat;
+        myCalories.push({ value: isFinite(calories) ? calories : 0, date: monthlyDate || "" });
+        myProtein.push({ value: isFinite(protein) ? protein : 0, date: monthlyDate || "" });
+        myCarbs.push({ value: isFinite(carbs) ? carbs : 0, date: monthlyDate || "" });
+        myFat.push({ value: isFinite(fat) ? fat : 0, date: monthlyDate || "" });
       }
 
-      console.log("Updated monthlyData:", { calories: myCalories, protein: myProtein, carbs: myCarbs, fat: myFat });
       setMonthlyData({
-        calories: myCalories,
-        protein: myProtein,
-        carbs: myCarbs,
-        fat: myFat,
+        calories: sanitizeData(myCalories),
+        protein: sanitizeData(myProtein),
+        carbs: sanitizeData(myCarbs),
+        fat: sanitizeData(myFat),
       });
     }
   }, [monthly]);
 
-  const loadNutritionWeekly = async () => {
+
+  // Get labels for the last 30 days (display every 5 days)
+  const monthlyLabels = useMemo(() => {
+    return monthlyData.calories.map((item, index) => {
+      // Only keep the dates every 5 days, and the others are empty strings
+      return item.date && index % 5 === 0 
+      ? new Date(item.date).toLocaleDateString("en-US", { month: "short", day: "2-digit" }) : "";
+    });
+  }, [monthlyData]);
+
+
+// Helper functions to manage loading state
+const startLoading = () => setLoadingCount((prev) => prev + 1);
+const stopLoading = () => {
+  setLoadingCount((prev) => {
+    const newCount = Math.max(0, prev - 1);
+    if (newCount === 0) setIsLoading(false); // Set to false when all requests are completed.
+    return newCount;
+  });
+};
+
+//weekly loading
+const loadNutritionWeekly = async () => {
     startLoading();
     setError(null);
-
     try {
       const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getWeeklyTrends`, {
         method: 'GET',
@@ -229,6 +175,7 @@ export default function NutritionTrendScreen() {
       });
       if (response.status === 200) {
         const nutritionWeekly = await response.json();
+        console.log("Raw API Response (Weekly):", nutritionWeekly); // Debug log
         if (nutritionWeekly && typeof nutritionWeekly === 'object' && !Array.isArray(nutritionWeekly)) {
           setWeekly(nutritionWeekly);
         } else {
@@ -251,6 +198,8 @@ export default function NutritionTrendScreen() {
     }
   };
 
+
+  //monthly loading
   const loadNutritionMonthly = async () => {
     startLoading();
     setError(null);
@@ -265,6 +214,7 @@ export default function NutritionTrendScreen() {
       });
       if (response.status === 200) {
         const nutritionMonthly = await response.json();
+        console.log("Raw API Response (Monthly):", nutritionMonthly); // Debug log
         if (nutritionMonthly && typeof nutritionMonthly === 'object' && !Array.isArray(nutritionMonthly)) {
           setMonthly(nutritionMonthly);
         } else {
@@ -312,17 +262,11 @@ export default function NutritionTrendScreen() {
     ).start();
   }, [glowAnimation]);
 
-  const dataSource = isThirtyDays ? monthlyData : weeklyData; // Select dataSource based on isThirtyDays
   const labels = useMemo(() => {
-    if (isThirtyDays) {
-      return getLast30DaysLabels(dataSource.calories.map((item) => item.value));
-    } else {
-      return dataSource.calories.map((item) => {
-        const date = new Date(item.date);
-        return date.toLocaleDateString("en-US", { weekday: "short" });
-      });
-    }
-  }, [isThirtyDays, dataSource]);
+    return isThirtyDays ? monthlyLabels : weeklyLabels;
+  }, [isThirtyDays, weeklyLabels, monthlyLabels]);
+
+  const dataSource = isThirtyDays ? monthlyData : weeklyData; // Select dataSource based on isThirtyDays
 
   const calculateTotal = (dataArray: { value: number; date: string }[]) =>
     Math.round(dataArray.reduce((a, b) => a + b.value, 0));
