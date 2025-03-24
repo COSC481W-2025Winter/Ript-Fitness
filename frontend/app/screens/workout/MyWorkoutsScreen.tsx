@@ -20,19 +20,45 @@ import { Ionicons } from "@expo/vector-icons";
 import Stopwatch from "./Stopwatch";
 import { httpRequests } from "@/api/httpRequests";
 import { WorkoutContext } from "@/context/WorkoutContext";  // Import WorkoutContext for managing workout data and state.
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import { useRoute, RouteProp } from '@react-navigation/native';
+import { WorkoutStackParamList } from '@/app/(tabs)/WorkoutStack';
+
+// Route Prop
+type MyWorkoutsRouteProp = RouteProp<WorkoutStackParamList, 'MyWorkoutsScreen'>;
+
+// add type definitions at the top of the file
+interface WorkoutFromAPI {
+  workoutsId: number;
+  name: string;
+  exercises: Exercise[];
+  isDeleted: boolean;
+  exerciseIds: any;
+  workoutDate: string;
+}
 
 export default function MyWorkoutsScreen() {
   const context = useContext(GlobalContext);
-  const workoutContext = useContext(WorkoutContext); // Access workout data and state using WorkoutContext.
+  const workoutContext = useContext(WorkoutContext);
   const isDarkMode = context?.isDarkMode;
+  //const route = useRoute<MyWorkoutsRouteProp>();
+  //const exercisesFromRoute = route.params?.exercises || [];
+  const exercisesFromContext = context?.selectedExerciseObjects || [];
+
+
+  // add initialization logs
+  console.log("=== MyWorkoutsScreen Initialized ===");
+  console.log("Initial context workouts:", context?.workouts);
+  console.log("Exercises from context:", exercisesFromContext);
 
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [workoutName, setWorkoutName] = useState<string>("");
   const [updatedExercises, setUpdatedExercises] = useState<Exercise[]>([]);
-  const [loading, setLoading] = useState<boolean>(true); // State for loading
+  const [loading, setLoading] = useState<boolean>(true);
   const [isTracking, setIsTracking] = useState<boolean>(false);
+  const [localWorkouts, setLocalWorkouts] = useState<Workout[]>([]);
   const [checkboxStates, setCheckboxState] = useState<{ [key: string]: boolean }>({});
 
   // Stores the interval IDs for each set's timer.
@@ -43,15 +69,73 @@ export default function MyWorkoutsScreen() {
   const [currentTimer, setCurrentTimer] = useState<number | null>(null); 
   // Tracks the key of the currently active set being timed.
   const [activeSet, setActiveSet] = useState<string | null>(null); 
+  
+  
 
+  // initialize data
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); // Show loading indicator
-      await context?.fetchWorkouts();
-      setLoading(false); // Hide loading indicator
+      console.log("Fetching workouts...");
+      setLoading(true);
+      try {
+        if (context?.fetchWorkouts) {
+          setLocalWorkouts(context.workouts);
+          //await context.fetchWorkouts();
+        }
+      } catch (error) {
+        console.error("Error fetching workouts:", error);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, []);
+
+  // process data from SelectedExercisesScreen
+  useEffect(() => {
+    console.log("Processing exercises from Context:", exercisesFromContext);
+    if (exercisesFromContext.length > 0 && context) {
+      // create unique workout name using current time
+      const now = new Date();
+      const formattedDate = now.toLocaleDateString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric'
+      });
+      const formattedTime = now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+      
+      const newWorkout: Workout = {
+        id: Date.now(), // use timestamp as unique ID
+        name: `Workout ${formattedDate}, ${formattedTime}`, // use date and time as name
+        exercises: exercisesFromContext,
+        isDeleted: false,
+      };
+      
+      console.log("Creating new workout:", newWorkout);
+      
+      // update local workouts list, add new workout to existing list
+      setLocalWorkouts(prev => {
+        // add new workout to list
+        const updatedWorkouts = [newWorkout, ...prev];
+        console.log("Updated workouts list:", updatedWorkouts);
+        return updatedWorkouts;
+      });
+
+      // update context, ensure data persistence
+      /*if (context?.addWorkout) {
+        console.log("Adding workout to context");
+        context.addWorkout(newWorkout);
+      }*/
+      context.setSelectedExerciseObjects([]);
+    }
+  }, [exercisesFromContext]);
+
+
+
   const startWorkout = (workout: Workout) => {
     const initialState: { [key: string]: boolean } = {}; // Explicit type for dynamic keys
 
@@ -117,6 +201,10 @@ export default function MyWorkoutsScreen() {
   }
   
   const openModal = (workout: Workout) => {
+    console.log("=== Opening modal for workout ===");
+    console.log("Selected workout:", workout);
+    console.log("Workout exercises:", workout.exercises);
+    
     setSelectedWorkout(workout);
     setWorkoutName(workout.name);
     setUpdatedExercises([...workout.exercises]);
@@ -145,10 +233,14 @@ export default function MyWorkoutsScreen() {
 
   const saveWorkout = async () => {
     if (!selectedWorkout) {
-      Alert.alert("Error", "No workout selected to save.");
+      console.log("No workout selected to save");
       return;
     }
- 
+    
+    console.log("=== Saving workout ===");
+    console.log("Workout name:", workoutName);
+    console.log("Updated exercises:", updatedExercises);
+    
     try {
       // Fetch the workout ID
       const workoutId = await fetchWorkoutById(selectedWorkout.name);
@@ -211,6 +303,7 @@ export default function MyWorkoutsScreen() {
       await context?.fetchWorkouts();
       Alert.alert("Success", "Workout and exercises updated successfully!");
       closeModal();
+      console.log("Workout saved successfully");
     } catch (error) {
       console.error("Error saving workout:", error);
       Alert.alert("Error", "Failed to save workout. Please try again.");
@@ -220,6 +313,8 @@ export default function MyWorkoutsScreen() {
   const deleteWorkout = async (workoutName: string) => {
     try {
       const workoutId = await fetchWorkoutById(workoutName);
+      const isLocalOnly = !context?.workouts.some(w => w.name === workoutName); // Check if it's a local-only workout
+
 
 
       if (!workoutId) {
@@ -283,11 +378,6 @@ export default function MyWorkoutsScreen() {
       return undefined;
     }
   };
-
-
-
-
-
 
   const logWorkout = async () => {
     if (!selectedWorkout) {
@@ -358,20 +448,16 @@ const styles = StyleSheet.create({
   workoutItem: {
     backgroundColor: "#fff",
     width: '95%',
-    height: 90,
+    minHeight: 90,
     borderRadius: 10,
-    // borderWidth: 0.3,
-    // borderColor: 'grey',
-    padding: 5,
+    padding: 15,
     marginBottom: 15,
     elevation: 3,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    flexDirection: "column", // Stack workout name and buttons vertically
-    textAlign: 'left',
-    paddingLeft: 10,
+    flexDirection: "column",
     alignSelf: 'center',
   },
   
@@ -380,14 +466,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "black",
-    padding: 5,
-    marginBottom: 15, // Add space between workout name and buttons
+    marginBottom: 15,
   },
   
   buttonGroup: {
-    flexDirection: "row", // Align buttons in a row
-    justifyContent: "space-evenly", // Even spacing between buttons
-    width: "100%", // Buttons take up full width
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
   },
   
   viewButton: {
@@ -773,6 +858,11 @@ const styles = StyleSheet.create({
    marginVertical: 350,
     // paddingTop: 10
   },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
 
 return (
@@ -784,66 +874,66 @@ return (
       </View>
     ) : (
       <>
-      {/* <Stopwatch /> */}
         <FlatList
-          data={context?.workouts}
+          data={localWorkouts}
           keyExtractor={(item, index) =>
             item.id ? `workout-${item.id}-${index}` : `workout-${index}`
           }
-          // numColumns={1} // Specify two columns
-          // columnWrapperStyle={styles.columnWrapper} // Add spacing between columns
-          showsVerticalScrollIndicator= {false}
-          renderItem={({ item }) => (
-            <View style={styles.workoutItem}>
-              <Text style={styles.workoutName}>{String(item.name)}</Text>
-              <View style={styles.buttonGroup}>
-              <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={() =>
-                    Alert.alert(
-                      "Confirm Delete",
-                      `Are you sure you want to delete the workout "${String(item.name)}"?`,
-                      [
-                        { text: "Cancel", style: "cancel" },
-                        {
-                          text: "Delete",
-                          style: "destructive",
-                          onPress: () => deleteWorkout(item.name),
-                        },
-                      ]
-                    )
-                  }
-                >
-                  <Text style={styles.buttonText}>Delete</Text>
-                  {/* <Ionicons name="trash-outline" size={25} color="#F2505D"></Ionicons> */}
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.viewButton}
-                  onPress={() => openModal(item)} // Open view modal
-                >
-                  <Text style={styles.viewButtonText}>View</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.startButton}
-                  onPress={() => startWorkout(item)} // Open start workout modal
-                >
-                  <Text style={styles.buttonText}>Start</Text>
-                  {/* <Ionicons name="arrow-up-circle" size={60} color="#21BFBF"></Ionicons> */}
-                </TouchableOpacity>
-              </View>
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={() => (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.helperText}>No workouts available. Please add a workout!</Text>
             </View>
           )}
+          renderItem={({ item }) => {
+            console.log("Rendering workout item:", item);
+            return (
+              <View style={styles.workoutItem}>
+                <Text style={styles.workoutName}>{String(item.name)}</Text>
+                <View style={styles.buttonGroup}>
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() =>
+                      Alert.alert(
+                        "Confirm Delete",
+                        `Are you sure you want to delete the workout "${String(item.name)}"?`,
+                        [
+                          { text: "Cancel", style: "cancel" },
+                          {
+                            text: "Delete",
+                            style: "destructive",
+                            onPress: () => deleteWorkout(item.name),
+                          },
+                        ]
+                      )
+                    }
+                  >
+                    <Text style={styles.buttonText}>Delete</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.viewButton}
+                    onPress={() => openModal(item)}
+                  >
+                    <Text style={styles.viewButtonText}>View</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.startButton}
+                    onPress={() => startWorkout(item)}
+                  >
+                    <Text style={styles.buttonText}>Start</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            );
+          }}
         />
+        {localWorkouts.length === 0 && !loading && (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.helperText}>Please add a workout!</Text>
+          </View>
+        )}
       </>
     )}
-      {/* Message/directions for the user */}
-      <View style={{justifyContent: 'center', alignContent: 'center', alignSelf: 'center'}}>
-          {!context?.workouts || context.workouts.length === 0 && (
-            <Text style={styles.helperText} numberOfLines={1}>
-              Please add a workout!
-            </Text>
-          )}
-      </View>
     {/* Modal for View and Edit */}
 <Modal
   visible={isModalVisible && !isTracking}
