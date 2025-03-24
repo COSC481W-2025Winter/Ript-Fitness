@@ -2,41 +2,53 @@ import React, { useState, useEffect,useRef } from 'react';
 import { View, Text, StyleSheet, Modal, Button, FlatList, TouchableOpacity, ActivityIndicator,PanResponder, Animated } from 'react-native';
 import BodyDiagram from '@/components/BodyDiagram';
 import { httpRequests } from '@/api/httpRequests'; // Use named import
-import AuthContext, { useAuth } from '../../../context/AuthContext'; // Adjust the path to the actual location of AuthContext
 import { ScrollView } from 'react-native';
-
+import { useContext } from 'react';
+import { RouteProp } from '@react-navigation/native'; // Import RouteProp
+import { GlobalContext } from '@/context/GlobalContext';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { WorkoutScreenNavigationProp,WorkoutStackParamList } from '@/app/(tabs)/WorkoutStack';
+import { Exercise } from "@/context/GlobalContext";
 
 // Define the BodyPart type
 export type BodyPart = 'Core' | 'Legs' | 'Arms' | 'Back' | 'Shoulders'| 'Chest'| 'Cardio'; // Example of defining BodyPart as a type
 
+// Define the route type for BodyFocusScreen
+type BodyFocusScreenRouteProp = RouteProp<WorkoutStackParamList, 'BodyFocusScreen'>;
+
 export default function BodyFocusScreen() {
+ // Move context declaration to the top
+  const context = useContext(GlobalContext);
+  const token = context?.data?.token??''; //Access the context data with the defined type
+  const exerciseList = context?.exerciseList; // Use from GlobalContext
+  const setExerciseList = context?.setExerciseList; // Use from GlobalContext
+
  // State variables to manage selected body part, exercise list, modal visibility, and view mode
   const [selectedPart, setSelectedPart] = useState<BodyPart | null>(null);
-  const [exerciseList, setExerciseList] = useState<Set<string>>(new Set());
+  //const [exerciseList, setExerciseList] = useState<Set<string>>(new Set());
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedExercises, setSelectedExercises] = useState<Set<string>>(new Set());
   const [isFrontView, setIsFrontView] = useState(true);
   const [loading, setLoading] = useState(false);
-
+  const navigation = useNavigation<WorkoutScreenNavigationProp>();
+  const route = useRoute<BodyFocusScreenRouteProp>(); // Type the route
  // State for tutorial overlay
  const [showTutorial, setShowTutorial] = useState(true); // Show tutorial on first load
  const [tutorialOpacity] = useState(new Animated.Value(1)); // For fade-out animation
 
  // Ref to trigger animation in BodyDiagram
- const bodyDiagramRef = useRef<{ triggerAllAnimations:() => void }>(null);
+  const bodyDiagramRef = useRef<{ triggerAllAnimations:() => void }>(null);
   
   //chatGPT assisted with this section
   const [workoutData, setWorkoutData] = useState<{
-    front: { [key in BodyPart]?: string[] };
-    back: { [key in BodyPart]?: string[] };
+    front: { [key in BodyPart]?: Exercise[] };
+    back: { [key in BodyPart]?: Exercise[] };
   }>({
     front: {},
     back: {},
   });
 
   const [error, setError] = useState<string | null>(null);
-  const { token } = useAuth(); //Access the context data with the defined type
-  
 
 // Map BodyPart to backend `exerciseType`
 const bodyPartToType: { [key in BodyPart]: number[] } = {
@@ -53,7 +65,9 @@ const bodyPartToType: { [key in BodyPart]: number[] } = {
 useEffect(() => {
   let isMounted = true; // Prevents setting state after unmount
 
-  if (!selectedPart || !token) return; // Ensures `useEffect` only runs when both `selectedPart` and `token` exist
+  if (!selectedPart || token.trim() === "") {
+    return;
+  }
 
   const fetchWorkouts = async () => {
     setLoading(true);
@@ -65,26 +79,32 @@ useEffect(() => {
         throw new Error(`Invalid body part: ${selectedPart}`);
       }
 
-      let allExercises: string[] = [];
+      let allExercises: Exercise[] = [];
 
       for (const type of exerciseTypes) {
-        console.log(`\n=======================\nFetching workouts for type: ${type}`);
-        console.log(`\n=======================\n API Call: ${httpRequests.getBaseURL()}/exercises/getByType/${type}`);
-
         const response = await httpRequests.get(`/exercises/getByType/${type}`, token);
 
         if (isMounted && response) {
           const exercisesWithNames = response.map((exercise: any) => exercise.nameOfExercise);
-          allExercises = [...allExercises, ...exercisesWithNames];
+          allExercises = [...allExercises, ...response];
         }
       }
+
+      // remove duplicates based on nameOfExercise
+    const uniqueMap = new Map<string, Exercise>();
+    for (const exercise of allExercises) {
+      if (!uniqueMap.has(exercise.nameOfExercise)) {
+        uniqueMap.set(exercise.nameOfExercise, exercise);
+      }
+    }
+    const uniqueExercises = Array.from(uniqueMap.values());
 
       if (isMounted) {
         setWorkoutData(prev => ({
           ...prev,
           [isFrontView ? 'front' : 'back']: {
             ...prev[isFrontView ? 'front' : 'back'],
-            [selectedPart]: allExercises,
+            [selectedPart]: uniqueExercises,
           },
         }));
       }
@@ -101,7 +121,7 @@ useEffect(() => {
   return () => {
     isMounted = false; // Prevents memory leaks
   };
-}, [selectedPart, token]); // Now correctly dependent on `selectedPart` and `token`
+}, [selectedPart, token]);
 
 // Auto-hide tutorial after 3 seconds
 useEffect(() => {
@@ -122,11 +142,20 @@ useEffect(() => {
 
   // Handles body part selection and opens the modal if valid
   const handleBodyPartClick = (part: BodyPart) => {
-    if (isFrontView && (part === 'Back' || part === 'Shoulders')) return;
-    if (!isFrontView && part !== 'Back' && part !== 'Shoulders') return;
+    console.warn("handleBodyPartClick invoked with:", part);
+    if (isFrontView && (part === 'Back' || part === 'Shoulders')) {
+      console.warn("Ignored: Front view cannot select Back or Shoulders");
+      return;
+    }
+    if (!isFrontView && part !== 'Back' && part !== 'Shoulders') {
+      console.warn("Ignored: Back view allows only Back or Shoulders");
+      return;
+    }
     setSelectedPart(part);
+    console.warn("selectedPart state set to:", part);
     setModalVisible(true);
   };
+  
 
   // Toggles selection of exercises in the modal
   const toggleExerciseSelection = (exercise: string) => {
@@ -137,18 +166,39 @@ useEffect(() => {
     });
   };
 
+  const selectedExercisesList: Exercise[] = isFrontView
+  ? workoutData.front?.[selectedPart as BodyPart] || []
+  : workoutData.back?.[selectedPart as BodyPart] || [];
   // Saves selected exercises to the main exercise list and closes the modal
-  const saveSelectedExercises = () => {
-    setExerciseList(prev => new Set([...prev, ...selectedExercises]));
-    setSelectedExercises(new Set());
-    setModalVisible(false);
-  };
+    const saveSelectedExercises = () => {
+      console.log("Selected exercises to save:", Array.from(selectedExercises));
+        
+ 
+      // extract full objects of current modal display
+      const selectedExerciseObjects = selectedExercisesList.filter(
+        ex => selectedExercises.has(ex.nameOfExercise)
+      );
 
-  // Clears all selected exercises and resets the selected body part
-  const clearAllExercises = () => {
-    setExerciseList(new Set());
-    setSelectedExercises(new Set()); // Clear the selections in the modal.
-    setSelectedPart(null); // Clear the selected body part.
+      // save to context: dynamic reps/weight come from these real objects
+      if (context?.setSelectedExerciseObjects) {
+        const existing = context.selectedExerciseObjects || [];
+        const existingNames = new Set(existing.map(e => e.nameOfExercise));
+        const newUnique = selectedExerciseObjects.filter(e => !existingNames.has(e.nameOfExercise));
+        const merged = [...existing, ...newUnique];
+      
+        context.setSelectedExerciseObjects(merged);
+      }
+      
+  // save nameOfExercise to UI used exerciseList (left list highlight used)
+      if (setExerciseList) {
+        setExerciseList(new Set([...exerciseList || [], ...selectedExercises]));}
+      setSelectedExercises(new Set());
+      setModalVisible(false);
+    };
+
+  const viewSelectedExercises = () => {
+    
+    navigation.navigate('SelectedExercises', { exercises: Array.from(exerciseList || []) });
   };
 
   // Toggles between front and back body diagram views
@@ -198,34 +248,24 @@ useEffect(() => {
     },
   });
 
-  // Retrieves the appropriate exercise list based on the selected body part and view mode
-  const selectedExercisesList = isFrontView
-    ? workoutData.front?.[selectedPart as BodyPart] || []
-    : workoutData.back?.[selectedPart as BodyPart] || [];
+// Flatten just in case items are arrays or weirdly structured
+const flattened = [...(exerciseList || [])].flat().map(e => String(e).trim());
+const uniqueExerciseList = Array.from(new Set(flattened));
+
 
   return (
     <View style={styles.container} {...panResponder.panHandlers}>
-      {/* Displays the selected exercises */}
-      <View style={styles.exerciseContainer}>
-        <Text style={styles.exerciseTitle}>Selected Exercises:</Text>
-        <FlatList
-          data={[...exerciseList]}
-          renderItem={({ item }) => <Text style={styles.exerciseText}>• {item}</Text>}
-          keyExtractor={(item, index) => `${item}-${index}`}
-          numColumns={2}
-          scrollEnabled={false}
-          contentContainerStyle={styles.exerciseListContainer}
-        />
-        
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-          {/* Remove the toggle button and rely on swipe gestures */}
-          {exerciseList.size > 0 && (
-            <TouchableOpacity onPress={clearAllExercises} style={styles.clearButton}>
-              <Text style={styles.clearButtonText}>Clear All</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
+
+      {/* Displays the selected exercises as touchable text */}
+      <TouchableOpacity
+        onPress={viewSelectedExercises}
+        disabled={!exerciseList || exerciseList.size === 0}
+        style={styles.viewExercisesButton}
+      >
+        <Text style={styles.viewExercisesButtonText}>
+          View Selected Exercises ({exerciseList?.size || 0})
+        </Text>
+      </TouchableOpacity>
 
       {/* Displays the interactive body diagram */}
       <View style={styles.bodyDiagramContainer}>
@@ -239,23 +279,51 @@ useEffect(() => {
       </View>
 
        {/* Modal for selecting exercises */}
-      <Modal animationType="slide" transparent visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
+      <Modal animationType="slide" transparent visible={modalVisible} 
+            onRequestClose={() => {
+              setSelectedExercises(new Set()); // clear selection
+              setModalVisible(false);
+            }}
+        >
         <View style={styles.modalView}>
           <Text style={styles.modalTitle}>Select Exercises for {selectedPart}</Text>
+
           <FlatList
+            style={styles.scrollContainer}
             data={selectedExercisesList}
+            keyExtractor={(item) => item.exerciseId?.toString() ?? item.nameOfExercise}
             renderItem={({ item }) => (
-              <Button title={item} onPress={() => toggleExerciseSelection(item)} 
-                      color={selectedExercises.has(item) ? 'rgb(19, 245, 61)' : 'rgb(23, 220, 220)'} />
+              <TouchableOpacity 
+                  onPress={() => toggleExerciseSelection(item.nameOfExercise)} 
+                  style={styles.exerciseOption}
+              >
+                  <Text style = {{
+                    color: selectedExercises.has(item.nameOfExercise) ? 'rgb(19, 245, 61)' : 'rgb(23, 220, 220)',
+                    textAlign: 'center', 
+                    fontSize: 16,
+                    marginBottom: 20, 
+                    }}>
+                      {item.nameOfExercise}
+                    </Text>
+                  </TouchableOpacity>
             )}
-            keyExtractor={item => item}
-            numColumns={2}
-            contentContainerStyle={styles.exerciseListContainer}
+            
+            numColumns={1}           
           />
           <TouchableOpacity onPress={saveSelectedExercises} style={styles.customButton}>
             <Text style={styles.customButtonText}>Save Selected Exercises</Text>
           </TouchableOpacity>
-          <Button title="Close" onPress={() => setModalVisible(false)}/>
+
+          <TouchableOpacity 
+            onPress={() => {
+            setSelectedExercises(new Set()); // clear selection
+            setModalVisible(false); // close Modal
+          }}
+          >
+
+          <Text style={styles.closeText}>Close</Text>
+          </TouchableOpacity>
+
         </View>
       </Modal>
 
@@ -345,10 +413,14 @@ const styles = StyleSheet.create({
   },
 
   modalView: {
-    margin: 60,
+    width: '80%',
+    marginTop: 70, 
+    margin: 38,
+    minHeight: 200, // **Set a minimum height to prevent it from being too small.**
+    maxHeight: '75%', // **Limit the maximum height to prevent it from exceeding the screen**
     backgroundColor: "rgba(4, 4, 25, 0.73)",
     borderRadius: 90,
-    padding: 30,
+    padding: 20,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -362,15 +434,16 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 16,
     marginBottom: 10,
-    color: '#21BFBF',
+    color: 'rgb(72, 243, 10)',
+    fontWeight: 'bold',
   },
   exerciseOption: {
     marginVertical: -3,
   },
 
   customButton: {
-    backgroundColor: '#21BFBF', 
-    padding: 10,
+    backgroundColor: 'rgba(49, 221, 233, 0.79)', 
+    padding: 5,
     borderRadius: 5,
     alignItems: 'center',
     marginVertical: 10, 
@@ -412,5 +485,29 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
     marginBottom: 20,
+  },
+  scrollContainer: {
+    maxHeight: 500,
+    width: '100%',
+  },
+  closeText: {
+    fontSize: 18,
+    color: 'rgba(55, 58, 247, 0.96)',  
+    textAlign: 'center',
+    paddingVertical: 10,
+    fontWeight: 'bold',
+  },
+  viewExercisesButton: {
+    backgroundColor: 'rgba(53, 131, 128, 0)',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 520,
+    alignItems: 'center',
+    width: '60%',
+  },
+  viewExercisesButtonText: {
+    fontSize: 16,
+    color: '#21BFBF',
+    fontWeight: 'bold',
   },
 });
