@@ -1,6 +1,7 @@
 import React, {
   useRef,
   useState,
+  useContext,
   useCallback,
   forwardRef,
   useImperativeHandle,
@@ -20,6 +21,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useSocialFeed } from "@/context/SocialFeedContext";
 import ProfileImage from "../../../assets/images/profile/Profile.png";
 import { TextInput } from "react-native";
+import { GlobalContext } from "@/context/GlobalContext";
+
 
 export interface CreatePostSheetRef {
   snapToIndex: (index: number) => void;
@@ -37,6 +40,10 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef, CreatePostSheetProps>(
     const bottomSheetRef = useRef<BottomSheet>(null);
     const inputRef = useRef<any>(null);
     const snapPoints = React.useMemo(() => ["100%"], []);
+
+    const context = useContext(GlobalContext);
+    const isDarkMode = context?.isDarkMode;
+
 
     // Handle sheet state changes
     const handleSheetChange = useCallback((index: number) => {
@@ -86,16 +93,23 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef, CreatePostSheetProps>(
         keyboardBehavior="interactive"
         keyboardBlurBehavior="none"
         android_keyboardInputMode="adjustResize"
+        handleStyle={{
+          backgroundColor: isDarkMode?'#21BFBF' : 'white',
+          height: 25,
+          borderTopLeftRadius: 10,
+          borderTopRightRadius: 10,
+
+        }}
       >
-        <View style={styles.container}>
+        <View style={isDarkMode? styles.darkContainer : styles.container} testID="create-post-sheet">
           <View style={styles.header}>
             <TouchableOpacity
               style={styles.cancelButton}
               onPress={handleCancel}
             >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
+              <Text style={isDarkMode? styles.darkCancelButtonText : styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
-            <Text style={styles.title}>New Post</Text>
+            <Text style={isDarkMode? styles.darkTitle : styles.title}>New Post</Text>
             <TouchableOpacity
               style={[
                 styles.shareButton,
@@ -127,9 +141,10 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef, CreatePostSheetProps>(
               />
               <BottomSheetTextInput
                 ref={inputRef}
-                style={styles.input}
+                style={isDarkMode? styles.darkInput : styles.input}
                 multiline
                 placeholder="What's happening?"
+                placeholderTextColor={isDarkMode? 'lightgray' : 'darkgray'}
                 value={postText}
                 onChangeText={setPostText}
                 autoFocus={false}
@@ -161,6 +176,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "white",
   },
+  darkContainer: {
+    flex: 1,
+    backgroundColor: "black",
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -177,6 +196,13 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 30,
   },
+  darkTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    flex: 1,
+    marginHorizontal: 30,
+    color: 'white'
+  },
   cancelButton: {
     width: 80,
     padding: 4,
@@ -185,6 +211,10 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     fontSize: 16,
     color: "#000",
+  },
+  darkCancelButtonText: {
+    fontSize: 16,
+    color: "white",
   },
   shareButton: {
     width: "20%",
@@ -227,6 +257,14 @@ const styles = StyleSheet.create({
     paddingTop: 0,
     minHeight: 230,
     maxHeight: 230,
+  },
+  darkInput: {
+    flex: 1,
+    fontSize: 16,
+    paddingTop: 0,
+    minHeight: 230,
+    maxHeight: 230,
+    color: 'white'
   },
   mediaButtonsContainer: {
     flexDirection: "row",

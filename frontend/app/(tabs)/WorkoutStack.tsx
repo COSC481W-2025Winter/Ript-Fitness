@@ -22,7 +22,6 @@ import { BodyPart } from '@/app/screens/workout/BodyFocusScreen';
 
 const Stack = createStackNavigator<WorkoutStackParamList>();
 
-
 export type WorkoutStackParamList = {
   WorkoutApiScreen: {};
   ApiScreen: {};
@@ -38,7 +37,6 @@ export type WorkoutStackParamList = {
     exercises: string[];
     bodyPart?: BodyPart; 
   };
-  
 };
 
 export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamList>;
@@ -261,7 +259,6 @@ export default function WorkoutStack() {
         })}
       />
 
-
       <Stack.Screen
         name="MyNotesScreen"
         component={MyNotesScreen}
@@ -294,6 +291,7 @@ export default function WorkoutStack() {
           headerTitleAlign: 'center',
         })}
       />
+      
     </Stack.Navigator>
   );
 }
