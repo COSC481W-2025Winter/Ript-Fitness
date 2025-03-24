@@ -16,20 +16,29 @@ import { AddWorkoutScreen } from '../screens/workout/AddWorkoutScreen';
 import { Note } from '@/components/MyNotes/NotesContext';
 import { GlobalContext } from '@/context/GlobalContext';
 import BodyFocusScreen from '@/app/screens/workout/BodyFocusScreen';
+import SelectedExercisesScreen from '@/app/screens/workout/SelectedExercisesScreen';
+import { Exercise } from '@/context/GlobalContext'; 
+import { BodyPart } from '@/app/screens/workout/BodyFocusScreen';
 
-const Stack = createStackNavigator();
+const Stack = createStackNavigator<WorkoutStackParamList>();
+
 
 export type WorkoutStackParamList = {
   WorkoutApiScreen: {};
   ApiScreen: {};
   StartWorkoutScreen: {};
   AddWorkoutScreen: {};
-  MyWorkoutsScreen: {};
+  MyWorkoutsScreen: { exercises?: Exercise[] };
   MyNotesScreen: {};
   EditNoteScreen: { note:Note | null };
   RiptWorkoutScreen: {};
   WorkoutDetailScreen: {};
-  BodyFocusScreen: {};
+  BodyFocusScreen: {exercises?: string[]};
+  SelectedExercises: { 
+    exercises: string[];
+    bodyPart?: BodyPart; 
+  };
+  
 };
 
 export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamList>;
@@ -216,11 +225,42 @@ export default function WorkoutStack() {
       />
 
 
+ 
       <Stack.Screen
         name="BodyFocusScreen"
         component={BodyFocusScreen}
-        options={{ title: 'Body Focus' }}
+        options={({ navigation }) => ({
+          title: 'Body Focus',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={[styles.leftButton, styles.button, styles.buttonSize]}
+            >
+              <TabBarIcon name="arrow-back-outline" size={30} color="#454343" />
+            </TouchableOpacity>
+          ),
+          headerTitleAlign: 'center',
+        })}
       />
+
+
+      <Stack.Screen
+        name="SelectedExercises"
+        component={SelectedExercisesScreen}
+        options={({ navigation }) => ({
+          title: 'Selected Exercises',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={[styles.leftButton, styles.button, styles.buttonSize]}
+            >
+              <TabBarIcon name="arrow-back-outline" size={30} color="#454343" />
+            </TouchableOpacity>
+          ),
+          headerTitleAlign: 'center',
+        })}
+      />
+
 
       <Stack.Screen
         name="MyNotesScreen"
