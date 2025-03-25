@@ -16,7 +16,7 @@ import { AddWorkoutScreen } from '../screens/workout/AddWorkoutScreen';
 import { Note } from '@/components/MyNotes/NotesContext';
 import { GlobalContext } from '@/context/GlobalContext';
 import BodyFocusScreen from '@/app/screens/workout/BodyFocusScreen';
-import WorkoutTrendScreen from '@/app/screens/workout/WorkoutTrendScreen';
+import BodyWeightHistory from '@/app/screens/workout/BodyWeightHistoryScreen';
 
 const Stack = createStackNavigator();
 
@@ -31,7 +31,7 @@ export type WorkoutStackParamList = {
   RiptWorkoutScreen: {};
   WorkoutDetailScreen: {};
   BodyFocusScreen: {};
-  WorkoutTrendScreen: {};  
+  BodyWeightHistoryScreen: {};  
 };
 
 export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamList>;
@@ -225,8 +225,8 @@ export default function WorkoutStack() {
       />
 
       <Stack.Screen
-        name="WorkoutTrendScreen"
-        component={WorkoutTrendScreen}
+        name="BodyWeightHistoryScreen"
+        component={BodyWeightHistory}
         options={({ navigation }) => ({
           title: 'Workout Trends',
           headerLeft: () => (

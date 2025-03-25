@@ -78,35 +78,27 @@ export class httpRequests {
   static async put(
     endpoint: string,
     token: string,
-    data: Record<string, any>
+    data?: Record<string, any>
   ): Promise<any> {
     try {
-      let response;
-      console.log("rthrth" + token);
-      if (token != "") {
-        response = await fetch(`${BASE_URL}${endpoint}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(data),
-        });
-      } else {
-        response = await fetch(`${BASE_URL}${endpoint}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-      }
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) headers.Authorization = `Bearer ${token}`;
+  
+      const response = await fetch(`${BASE_URL}${endpoint}`, {
+        method: "PUT",
+        headers,
+        ...(data ? { body: JSON.stringify(data) } : {}),
+      });
+  
       return response;
     } catch (error) {
       console.error("PUT request failed:", error);
       throw error;
     }
   }
+  
 
   // Method to handle DELETE requests and return JSON
   static async delete(
