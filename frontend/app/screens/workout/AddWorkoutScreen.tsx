@@ -229,7 +229,7 @@ const addExercise = () => {
     return;
   }        
   const repNumbers = sets.map((set) => Number(set.reps));
-  const weightNumbers = sets.map((set) => Number(set.weight));  //setting weight to 0 for each set
+  const weightNumbers = sets.map((set) => Number(set.weight));  //changing this so that it's not 0
   console.log("ree1234: " , editing)
   if (editing == -1) {
     setlistID(listID + 1)
@@ -369,7 +369,6 @@ const addExercise = () => {
                       value={set.reps}
                       onChangeText={(value) => handleRepChange(index, value)}
                     />
-                    
                     <TextInput 
                       style={styles.weightInput}
                       maxLength={6}
@@ -512,6 +511,7 @@ const addExercise = () => {
         >  
         {item.reps.map((rep : any, index : any) => (
           <View key={index} style={styles.rowItem}>
+            {/* Next 2 lines were recommended by ChatGPT, adjusted previous code that was only for reps */}
             <ThemedText style={styles.floatRight}>{rep} Reps</ThemedText>
             <ThemedText style={styles.floatLeft}>{item.weight[index]} lbs</ThemedText>
           </View>
@@ -651,10 +651,10 @@ const styles = StyleSheet.create({
     borderRadius:15,
     
   },
-test: {
-  paddingRight:'5%',
-  paddingLeft:'5%',
-},
+  test: {
+    paddingRight:'5%',
+    paddingLeft:'5%',
+  },
   overlayText: {
     color: 'white',
     fontSize: 18,
@@ -837,12 +837,12 @@ test: {
   },
   repModalLabels: {
     fontSize: 16,
-    width: '15.9%',
+    width: '15.5%',
     fontWeight: '500'
   },
   weightModalLabels: {
     fontSize: 16,
-    width: '19%',
+    width: '19.3%',
     fontWeight: '500'
   },
   darkModalTitle: {
