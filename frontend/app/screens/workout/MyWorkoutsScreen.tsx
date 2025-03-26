@@ -20,11 +20,15 @@ import { Ionicons } from "@expo/vector-icons";
 import Stopwatch from "./Stopwatch";
 import { httpRequests } from "@/api/httpRequests";
 import { WorkoutContext } from "@/context/WorkoutContext";  // Import WorkoutContext for managing workout data and state.
+import { useNavigation } from "@react-navigation/native";
+import PlateCalculatorScreen from "./PlateCalculatorScreen";
 
 export default function MyWorkoutsScreen() {
   const context = useContext(GlobalContext);
   const workoutContext = useContext(WorkoutContext); // Access workout data and state using WorkoutContext.
+  const navigation = useNavigation();
   const isDarkMode = context?.isDarkMode;
+  
 
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -911,6 +915,23 @@ const styles = StyleSheet.create({
    marginVertical: 350,
     // paddingTop: 10
   },
+
+  floatingButton: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    backgroundColor: "#21BFBF",
+    padding: 15,
+    borderRadius: 50,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  
 });
 
 return (
@@ -1293,6 +1314,12 @@ return (
                 </View>
               )}
             />
+          <TouchableOpacity
+             style={styles.floatingButton}
+              onPress={() => navigation.navigate("PlateCalculator")} // Navigate to Plate Calculator
+            >
+          <Ionicons name="barbell-outline" size={30} color="white" />
+        </TouchableOpacity>
 
          <TouchableOpacity
                 style={styles.finishButton}
