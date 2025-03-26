@@ -226,7 +226,11 @@ useEffect(() => {
   // PanResponder for handling swipe gestures
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
-    onPanResponderMove: () => {
+    onMoveShouldSetPanResponder: (_, gestureState) => {
+      // Only handle horizontal movements
+      return Math.abs(gestureState.dx) > Math.abs(gestureState.dy) && Math.abs(gestureState.dx) > 10;
+    },
+    onPanResponderMove: (_, gestureState) => {
       // When the user starts swiping, hide the tutorial immediately
       if (showTutorial) {
         Animated.timing(tutorialOpacity, {
@@ -238,7 +242,7 @@ useEffect(() => {
         });
       }
     },
-    onPanResponderRelease: (evt, gestureState) => {
+    onPanResponderRelease: (_, gestureState) => {
       const { dx } = gestureState;
       if (dx > 50) {
         toggleView('right');
