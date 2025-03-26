@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
@@ -365,6 +366,15 @@ public class UserProfileService {
 
 	        return new UserDto() {{ setWeight(newWeight); }};
 	    }
-
+	 
+	 public WeightHistory editWeightHistoryEntry(Long id, Double newWeight) {
+		    Optional<WeightHistory> entryOpt = weightHistoryRepository.findById(id);
+		    if (entryOpt.isPresent()) {
+		        WeightHistory entry = entryOpt.get();
+		        entry.setWeight(newWeight);
+		        return weightHistoryRepository.save(entry);
+		    }
+		    return null;
+		}
 
 }
