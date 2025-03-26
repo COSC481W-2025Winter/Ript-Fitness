@@ -163,4 +163,21 @@ public class WorkoutsControllerTest {
                 .andExpect(jsonPath("$.['" + LocalDate.now().minusDays(10) + "'][0].workoutsId").value(1L))
                 .andExpect(jsonPath("$.['" + LocalDate.now().minusDays(10) + "'][0].name").value("Test Workout"));
     }
+    
+    @Test
+    public void testGetWorkoutsByDate() throws Exception {
+        LocalDate testDate = LocalDate.of(2025, 3, 18);
+        
+        // Mock the service to return a list with one workoutDto
+        when(workoutsService.getWorkoutDataByDate(testDate)).thenReturn(Collections.singletonList(workoutDto));
+
+        // Perform GET request
+        mockMvc.perform(get("/workouts/getWorkoutsByDate/{date}", testDate.toString())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].workoutsId").value(1L))
+                .andExpect(jsonPath("$[0].name").value("Test Workout"));
+    }
+
 }
