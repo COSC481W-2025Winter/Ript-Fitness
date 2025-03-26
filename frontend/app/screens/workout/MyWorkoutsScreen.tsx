@@ -21,6 +21,7 @@ import Stopwatch from "./Stopwatch";
 import { httpRequests } from "@/api/httpRequests";
 import { WorkoutContext } from "@/context/WorkoutContext";  // Import WorkoutContext for managing workout data and state.
 import { useNavigation } from "@react-navigation/native";
+import PlateCalculatorScreen from "./PlateCalculatorScreen";
 
 export default function MyWorkoutsScreen() {
   const context = useContext(GlobalContext);
