@@ -5,22 +5,8 @@ import { useNavigation, useRoute, RouteProp} from '@react-navigation/native';
 import { WorkoutStackParamList} from '@/app/(tabs)/WorkoutStack';
 import { WorkoutScreenNavigationProp } from '@/app/(tabs)/WorkoutStack';
 
-import { httpRequests } from "@/api/httpRequests";
-
 // Defining route parameter types
 type SelectedExercisesRouteProp = RouteProp<WorkoutStackParamList, 'SelectedExercises'>;
-
-// Add an interface to store backend data
-interface ExerciseData {
-  exerciseId: number;
-  sets: number;
-  reps: number[];
-  weight: number[];
-  nameOfExercise: string;
-  description: string | null;
-  exerciseType: number;
-  isDeleted: boolean;
-}
 
 export default function SelectedExercisesScreen() {
   const context = useContext(GlobalContext);
@@ -35,6 +21,22 @@ export default function SelectedExercisesScreen() {
 
   // local state tracking selected exercise
   const [selectedExercises, setSelectedExercises] = useState<Set<string>>(new Set());
+  const [allChecked, setAllChecked] = useState<boolean>(false);
+
+  // toggle all exercises selection
+  const toggleAllExercises = () => {
+    const newState = !allChecked;
+    setAllChecked(newState);
+    
+    if (newState) {
+      // Select all exercises
+      const allExercises = new Set(Array.from(exerciseList));
+      setSelectedExercises(allExercises);
+    } else {
+      // Deselect all exercises
+      setSelectedExercises(new Set());
+    }
+  };
 
   // toggle selected status
   const toggleExerciseSelection = (exerciseName: string) => {
@@ -48,6 +50,8 @@ export default function SelectedExercisesScreen() {
         newSet.add(exerciseName);
         console.log("Added exercise:", exerciseName);
       }
+      // Update allChecked state based on whether all exercises are selected
+      setAllChecked(newSet.size === exerciseList.size);
       console.log("Current selected exercises:", Array.from(newSet));
       return newSet;
     });
@@ -93,87 +97,76 @@ export default function SelectedExercisesScreen() {
     };
 
     // add new context.workouts list
-    context.addWorkout(newWorkout);
-    // clear exerciseList and selectedExerciseObjects
+    context.addWorkout(newWorkout); 
 
-      /*console.log("All converted exercise objects:", exerciseObjects);
-      
-      // set to context
-      context.setSelectedExerciseObjects(exerciseObjects);
-      
-      // navigate to MyWorkoutsScreen, pass new exercises
-      console.log("Navigating to MyWorkoutsScreen with exercises");
-      //context.setSelectedExerciseObjects(exerciseObjects);
-      navigation.navigate('MyWorkoutsScreen', { exercises: [] });*/
-      
+    context.clearExerciseList();
+    context.setSelectedExerciseObjects([]);
+    setSelectedExercises(new Set());
 
-
-      //navigation.navigate('MyWorkoutsScreen', { exercises: exerciseObjects });
-      
-    /*if (context.clearExerciseList) {
-      context.clearExerciseList(); // clear exerciseList
-    }*/
-      if (context.setExerciseList && context.setSelectedExerciseObjects) {
-        // keep unselected exercises
-        const remainingExerciseList = new Set(
-          Array.from(context.exerciseList).filter(
-            exerciseName => !selectedExercises.has(exerciseName)
-          )
-        );
-        const remainingExerciseObjects = context.selectedExerciseObjects.filter(
-          ex => !selectedExercises.has(ex.nameOfExercise)
-        );
-  
-        // update context.exerciseList and context.selectedExerciseObjects
-        context.setExerciseList(remainingExerciseList);
-        context.setSelectedExerciseObjects(remainingExerciseObjects);
-      }
-      // Clear the current selection and prepare for the next selection
-      setSelectedExercises(new Set());
-      //navigation.navigate({ name: 'MyWorkoutsScreen', params: {} });
-      //navigation.navigate('MyWorkoutsScreen', { exercises: exerciseObjects });
-
-    } else {
-      console.error("setSelectedExerciseObjects is not available in context");
-    }
+    navigation.navigate('MyWorkoutsScreen', { exercises: exerciseObjects });
   };
+};
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Selected Exercises</Text>
       {exerciseList.size > 0 ? (
-        <FlatList
-          data={Array.from(exerciseList)}
-          renderItem={({ item }) => (
+        <>
+          <View style={styles.selectAllContainer}>
             <TouchableOpacity
               style={styles.exerciseRow}
-              onPress={() => toggleExerciseSelection(item)}
+              onPress={toggleAllExercises}
             >
-              {/* circular checkbox */}
               <View
                 style={[
-                  styles.circle,
+                  styles.selectAllCircle,
                   {
-                    backgroundColor: selectedExercises.has(item)
+                    backgroundColor: allChecked
                       ? 'rgb(19, 245, 61)' 
                       : 'rgb(23, 220, 220)', 
                   },
                 ]}
               >
-                {selectedExercises.has(item) && (
+                {allChecked && (
                   <Text style={styles.checkmark}>✓</Text>
                 )}
               </View>
-              <Text style={styles.exerciseText}>{item}</Text>
             </TouchableOpacity>
-          )}
-          keyExtractor={(item, index) => `exercise-${index}`}
-          contentContainerStyle={{
-            paddingBottom: 20,
-            paddingLeft: 0,
-            alignItems: 'flex-start',
-          }}
-        />
+          </View>
+          <FlatList
+            data={Array.from(exerciseList)}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.exerciseRow}
+                onPress={() => toggleExerciseSelection(item)}
+              >
+                <View
+                  style={[
+                    styles.circle,
+                    {
+                      backgroundColor: selectedExercises.has(item)
+                        ? 'rgb(19, 245, 61)' 
+                        : 'rgb(23, 220, 220)', 
+                    },
+                  ]}
+                >
+                  {selectedExercises.has(item) && (
+                    <Text style={styles.checkmark}>✓</Text>
+                  )}
+                </View>
+                <Text style={[styles.exerciseText, { marginLeft: 10 }]}>{item}</Text>
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item, index) => `exercise-${index}`}
+            contentContainerStyle={{
+              paddingBottom: 20,
+              paddingLeft: 0,
+              paddingTop: 10,
+              width: '100%',
+              alignItems: 'flex-start',
+            }}
+          />
+        </>
       ) : (
         <Text style={styles.noExercisesText}>No exercises selected yet.</Text>
       )}
@@ -184,7 +177,7 @@ export default function SelectedExercisesScreen() {
               <Text style={styles.buttonText}> Send </Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={clearExerciseList} style={styles.clearButton}>
-              <Text style={styles.buttonText}>Clear All</Text>
+              <Text style={styles.buttonText}>Clear</Text>
             </TouchableOpacity>
           </>
         )}
@@ -196,7 +189,7 @@ export default function SelectedExercisesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     backgroundColor: 'rgba(0, 0, 7, 0.82)',
     paddingTop: 50,
   },
@@ -204,12 +197,15 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#21BFBF',
-    marginBottom: 20,
+    marginBottom: 10,
+    alignSelf: 'center',
   },
   exerciseRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 8,
+    marginVertical: 10,
+    paddingLeft: 70,
+    width: '100%',
   },
   circle: {
     width: 20,
@@ -217,7 +213,19 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: 15,
+    backgroundColor: 'rgb(23, 220, 220)',
+  },
+  selectAllCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 10,
+    marginLeft: -40,
+    marginTop: -40,
+    backgroundColor: 'rgb(23, 220, 220)',
   },
   checkmark: {
     color: 'white',
@@ -227,32 +235,59 @@ const styles = StyleSheet.create({
   exerciseText: {
     fontSize: 16,
     color: '#21BFBF',
+    marginLeft: 10,
   },
   noExercisesText: {
     fontSize: 16,
     color: '#21BFBF',
     marginTop: 20,
+    marginLeft: 100,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    width: '80%',
+    width: '90%',
     marginTop: 20,
-    marginBottom: 30,
+    marginBottom: 40,
+    marginLeft: 20,
   },
   sendButton: {
-    backgroundColor: 'rgba(33, 191, 191, 0.82)',
-    padding: 7,
-    borderRadius: 5,
+    backgroundColor: 'rgba(33, 191, 191, 0.67)',
+    width: 80,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 0,
   },
   clearButton: {
-    backgroundColor: 'rgba(33, 191, 191, 0.82)',
-    padding: 7,
-    borderRadius: 5,
+    backgroundColor: 'rgba(33, 191, 191, 0.67)',
+    width: 80,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 0,
   },
   buttonText: {
     fontSize: 16,
     color: 'white',
     fontWeight: 'bold',
+    textAlign: 'center',
+    includeFontPadding: false,
+    textAlignVertical: 'center',
+    padding: 0,
+    lineHeight: 20,
+  },
+  selectAllContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 40,
+    paddingVertical: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(33, 191, 191, 0.3)',
+    marginBottom: 10,
+    marginTop: -10,
   },
 });
