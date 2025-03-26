@@ -172,7 +172,7 @@ public class UserProfile {
 	}
 
 	public void setBio(String bio) {
-		this.bio = bio + " welcome1";
+		this.bio = bio;
 	}
 
 	public String getUsername() {
