@@ -50,7 +50,7 @@ export function AddWorkoutScreen() {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [exerciseName, setExerciseName] = useState('');
   const [typeOfExercise, setTypeOfExercise] = useState<number | null>(null);
-  const [sets, setSets] = useState<{ setNumber: number; reps: string}[]>([{ setNumber: 1, reps: ''}]);
+  const [sets, setSets] = useState<{ setNumber: number; reps: string; weight: string}[]>([{ setNumber: 1, reps: '', weight: ''}]);
   const [exerciseToEdit, setExerciseToEdit] = useState<Exercise | null>(null);
   const [editing, setEditing] = useState(-1);
 
@@ -63,7 +63,7 @@ export function AddWorkoutScreen() {
   const handleAddSet = () => {
     setSets((prevSets) => [
       ...prevSets,
-      {setNumber: prevSets.length + 1, reps: ''},
+      {setNumber: prevSets.length + 1, reps: '', weight: ''},
     ]);
   };
   const handleRemoveSet = () => {
@@ -82,7 +82,13 @@ export function AddWorkoutScreen() {
       )
     );
   };
-
+  const handleWeightChange = (index: number, value: string) => {
+    setSets((prevSets) =>
+      prevSets.map((set, i) =>
+        i ===index ? {...set, weight: value} : set
+      )
+    );
+  };
   const removeExercise = (delExercise : Exercise) => {
   const updatedExercises = exercises.filter(exercise => exercise !== delExercise);
   setExercises(updatedExercises);
@@ -114,6 +120,7 @@ export function AddWorkoutScreen() {
       Array.from({ length: exerciseToEdit.sets }, (_, index) => ({
         setNumber: index + 1,
         reps: exerciseToEdit.reps[index]?.toString() || "",
+        weight: exerciseToEdit.weight[index]?.toString() || "",
       }))
     );
     //setModalRefresh(1)
@@ -222,7 +229,7 @@ const addExercise = () => {
     return;
   }        
   const repNumbers = sets.map((set) => Number(set.reps));
-  const weightNumbers = sets.map(() => 0);  //setting weight to 0 for each set
+  const weightNumbers = sets.map((set) => Number(set.weight));  //setting weight to 0 for each set
   console.log("ree1234: " , editing)
   if (editing == -1) {
     setlistID(listID + 1)
@@ -265,7 +272,7 @@ const addExercise = () => {
   context?.setVisible(false)
   //setAddModalVisible(false);
   setExerciseName('');
-  setSets([{ setNumber: 1, reps: '' }]);
+  setSets([{ setNumber: 1, reps: '', weight: '' }]);
   setTypeOfExercise(null);
 }
 
@@ -279,7 +286,7 @@ const addExercise = () => {
       onRequestClose={() => {
         context?.setVisible(false)/*setAddModalVisible(false)*/
         setExerciseName('');
-        setSets([{ setNumber: 1, reps: '' }]);
+        setSets([{ setNumber: 1, reps: '', weight: '' }]);
         setTypeOfExercise(null);
         setExerciseToEdit(null); // Reset editing state
       }}
@@ -311,7 +318,7 @@ const addExercise = () => {
                 onPress={() => {
                   context?.setVisible(false)
                   //setAddModalVisible(false);
-                  setSets([{ setNumber: 1, reps: '' }]);
+                  setSets([{ setNumber: 1, reps: '', weight: '' }]);
                   setExerciseName('');
                   setEditing(-1)
                   setTypeOfExercise(null);
@@ -337,8 +344,9 @@ const addExercise = () => {
                   alignSelf: 'center', 
                 }}
               >
-                <Text style={isDarkMode?styles.darkModalLabels:styles.modalLabels}>Set</Text>
-                <Text style={isDarkMode?styles.darkModalLabels:styles.modalLabels}>Reps</Text>
+                <Text style={isDarkMode?styles.setDarkModalLabels:styles.setModalLabels}>Set</Text>
+                <Text style={isDarkMode?styles.repDarkModalLabels:styles.repModalLabels}>Reps</Text>
+                <Text style={isDarkMode?styles.weightDarkModalLabels:styles.weightModalLabels}>Weight</Text>
               </View>
 
               {sets.map((set, index) => (
@@ -360,6 +368,14 @@ const addExercise = () => {
                       keyboardType='numeric'
                       value={set.reps}
                       onChangeText={(value) => handleRepChange(index, value)}
+                    />
+                    
+                    <TextInput 
+                      style={styles.weightInput}
+                      maxLength={6}
+                      keyboardType='numeric'
+                      value={set.weight}
+                      onChangeText={(value) => handleWeightChange(index, value)}
                     />
                   </View>
 
@@ -496,8 +512,8 @@ const addExercise = () => {
         >  
         {item.reps.map((rep : any, index : any) => (
           <View key={index} style={styles.rowItem}>
-            <ThemedText style={styles.floatLeft}>{rep}</ThemedText>
-            <ThemedText style={styles.floatRight}>{"Reps"}</ThemedText>
+            <ThemedText style={styles.floatRight}>{rep} Reps</ThemedText>
+            <ThemedText style={styles.floatLeft}>{item.weight[index]} lbs</ThemedText>
           </View>
         ))}
         </ExerciseButton>
@@ -809,13 +825,24 @@ test: {
     padding: 20,
     borderRadius: 10,
   },
+  
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
   },
-  modalLabels: {
+  setModalLabels: {
     fontSize: 16,
+    fontWeight: '500'
+  },
+  repModalLabels: {
+    fontSize: 16,
+    width: '15.9%',
+    fontWeight: '500'
+  },
+  weightModalLabels: {
+    fontSize: 16,
+    width: '19%',
     fontWeight: '500'
   },
   darkModalTitle: {
@@ -824,9 +851,21 @@ test: {
     marginBottom: 10,
     color:'white'
   },
-  darkModalLabels: {
+  setDarkModalLabels: {
     fontSize: 16,
     fontWeight: '500',
+    color:'white'
+  },
+  repDarkModalLabels: {
+    fontSize: 16,
+    fontWeight: '500',
+    width: '15.5%',
+    color:'white'
+  },
+  weightDarkModalLabels: {
+    fontSize: 16,
+    fontWeight: '500',
+    width: '19.3%',
     color:'white'
   },
   repInput: {
@@ -834,6 +873,18 @@ test: {
     // fontSize: Platform.OS === "ios" ? 16 : 14,
     backgroundColor: '#D9D9D9',
     width: '15%',
+    borderRadius: 5,
+    textAlign: 'center',
+    maxHeight: 30,
+    textAlignVertical: 'center', 
+    paddingVertical: 0,
+
+  },
+  weightInput: {
+    fontSize: 16,
+    // fontSize: Platform.OS === "ios" ? 16 : 14,
+    backgroundColor: '#D9D9D9',
+    width: '20%',
     borderRadius: 5,
     textAlign: 'center',
     maxHeight: 30,
