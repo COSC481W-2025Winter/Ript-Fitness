@@ -79,6 +79,7 @@ export interface Exercise {
   weight: number[];
   description: string;
   exerciseType: number;
+  accountReferenceId: number;
   isDeleted?: boolean;
 
 
