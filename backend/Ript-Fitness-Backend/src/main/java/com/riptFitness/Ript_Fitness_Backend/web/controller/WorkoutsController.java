@@ -3,6 +3,7 @@ package com.riptFitness.Ript_Fitness_Backend.web.controller;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -72,4 +73,16 @@ public class WorkoutsController {
 	public ResponseEntity<Map<LocalDate, List<WorkoutsDto>>> getDetailedWorkoutTrendsFor30Days() {
         return ResponseEntity.ok(workoutsService.getMonthlyWorkoutTrends());
     }
+	
+	//Endpoint for the body diagram that clones exercises
+	@PostMapping("/createWithExerciseClones")
+	public ResponseEntity<WorkoutsDto> createWorkoutWithExerciseClones(@RequestBody Map<String, Object> payload) {
+	    String name = (String) payload.get("name");
+	    List<Integer> rawIds = (List<Integer>) payload.get("exerciseIds");
+	    List<Long> exerciseIds = rawIds.stream().map(Integer::longValue).collect(Collectors.toList());
+
+	    WorkoutsDto newWorkout = workoutsService.createWorkoutWithClonedExercises(name, exerciseIds);
+	    return ResponseEntity.ok(newWorkout);
+	}
+
 }
