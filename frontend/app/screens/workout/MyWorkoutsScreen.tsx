@@ -144,15 +144,13 @@ export default function MyWorkoutsScreen() {
     }
     setSelectedWorkout(null);
   };
- 
-
 
   const saveWorkout = async () => {
     if (!selectedWorkout) {
       Alert.alert("Error", "No workout selected to save.");
       return;
     }
- 
+
     try {
       // Fetch the workout ID
       const workoutId = await fetchWorkoutById(selectedWorkout.name);
