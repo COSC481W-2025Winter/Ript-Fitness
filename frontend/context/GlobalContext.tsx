@@ -79,6 +79,7 @@ export interface Exercise {
   weight: number[];
   description: string;
   exerciseType: number;
+  accountReferenceId: number;
   isDeleted?: boolean;
 
 
@@ -113,6 +114,7 @@ interface GlobalContextType {
   fetchWorkouts: () => Promise<void>;
   addWorkout: (workout: Workout) => void;
   updateWorkout: (updatedWorkout: Workout) => void;
+  setWorkouts: (workouts: Workout[]) => void; 
   reloadFriends: () => void;
 
   // Added by Team A 
@@ -672,6 +674,7 @@ const clearExerciseList = () => {
         fetchWorkouts,
         addWorkout,
         updateWorkout,
+        setWorkouts,
         reloadFriends,
         incrementRemovePending,
         decrementRemovePending,

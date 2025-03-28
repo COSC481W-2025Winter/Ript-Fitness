@@ -403,6 +403,44 @@ public class WorkoutsServiceTest {
 	    }
 	    
 	    @Test
+	    public void testGetWorkoutDataByDate() {
+	        // Arrange
+	        LocalDate targetDate = LocalDate.of(2025, 3, 18); // Test date
+
+	        // Mock logged-in user
+	        when(accountsService.getLoggedInUserId()).thenReturn(1L);
+
+	        // Create workout matching the target date
+	        Workouts workoutForDate = new Workouts();
+	        workoutForDate.workoutsId = 3L;
+	        workoutForDate.name = "Workout For Date";
+	        workoutForDate.setAccount(account);
+	        workoutForDate.setWorkoutDate(targetDate);
+
+	        List<Workouts> workoutsList = Collections.singletonList(workoutForDate);
+
+	        // Mock repository call
+	        when(workoutsRepository.findWorkoutsByDate(1L, targetDate)).thenReturn(workoutsList);
+
+	        // Mock mapper
+	        when(workoutsMapper.toWorkoutsDto(workoutForDate)).thenAnswer(invocation -> {
+	            Workouts w = invocation.getArgument(0);
+	            WorkoutsDto dto = new WorkoutsDto();
+	            dto.setWorkoutsId(w.workoutsId);
+	            dto.setName(w.getName());
+	            dto.setWorkoutDate(w.getWorkoutDate());
+	            return dto;
+	        });
+
+	        // Act
+	        List<WorkoutsDto> result = workoutsService.getWorkoutDataByDate(targetDate);
+
+	        // Assert
+	        assertNotNull(result);
+	        assertEquals(1, result.size());
+	        assertEquals("Workout For Date", result.get(0).getName());
+	        assertEquals(targetDate, result.get(0).getWorkoutDate());
+	    }
 	    public void testCreateWorkoutWithClonedExercises() {
 	        // Setup
 	        Long userId = 1L;

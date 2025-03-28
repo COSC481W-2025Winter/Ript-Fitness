@@ -1,140 +1,159 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
-import { GlobalContext, Exercise, Workout } from '@/context/GlobalContext';
-import { useNavigation, useRoute, RouteProp} from '@react-navigation/native'; 
-import { WorkoutStackParamList} from '@/app/(tabs)/WorkoutStack';
+import React, { useState, useContext } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Alert,
+  Modal,
+  TextInput,
+} from 'react-native';
+import { GlobalContext, Exercise,Workout } from '@/context/GlobalContext';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { WorkoutStackParamList } from '@/app/(tabs)/WorkoutStack';
 import { WorkoutScreenNavigationProp } from '@/app/(tabs)/WorkoutStack';
+import { httpRequests } from '@/api/httpRequests';
 
-import { httpRequests } from "@/api/httpRequests";
-
-// Defining route parameter types
+// Route type
 type SelectedExercisesRouteProp = RouteProp<WorkoutStackParamList, 'SelectedExercises'>;
-
-// Add an interface to store backend data
-interface ExerciseData {
-  exerciseId: number;
-  sets: number;
-  reps: number[];
-  weight: number[];
-  nameOfExercise: string;
-  description: string | null;
-  exerciseType: number;
-  isDeleted: boolean;
-}
 
 export default function SelectedExercisesScreen() {
   const context = useContext(GlobalContext);
-  const exerciseList = context?.exerciseList || new Set<string>(); 
-  const clearExerciseList = context?.clearExerciseList; 
+  const exerciseList = context?.exerciseList || new Set<string>();
+  const clearExerciseList = context?.clearExerciseList;
   const navigation = useNavigation<WorkoutScreenNavigationProp>();
   const route = useRoute<SelectedExercisesRouteProp>();
 
-  // received dataBodyFocusScreen 
-  const exercises: string[] = route.params?.exercises || [];
-  console.log("Received exercises from BodyFocusScreen:", exercises);
-
-  // local state tracking selected exercise
   const [selectedExercises, setSelectedExercises] = useState<Set<string>>(new Set());
+  const [allChecked, setAllChecked] = useState<boolean>(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [workoutName, setWorkoutName] = useState('');
 
-  // toggle selected status
+   // received dataBodyFocusScreen 
+   const exercises: string[] = route.params?.exercises || [];
+   console.log("Received exercises from BodyFocusScreen:", exercises); 
+
+  const toggleAllExercises = () => {
+    const newState = !allChecked;
+    setAllChecked(newState);
+    setSelectedExercises(newState ? new Set(Array.from(exerciseList)) : new Set());
+  };
+
   const toggleExerciseSelection = (exerciseName: string) => {
-    console.log("Toggling exercise:", exerciseName);
     setSelectedExercises((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(exerciseName)) {
-        newSet.delete(exerciseName);
-        console.log("Removed exercise:", exerciseName);
-      } else {
-        newSet.add(exerciseName);
-        console.log("Added exercise:", exerciseName);
-      }
-      console.log("Current selected exercises:", Array.from(newSet));
+      newSet.has(exerciseName) ? newSet.delete(exerciseName) : newSet.add(exerciseName);
+      setAllChecked(newSet.size === exerciseList.size);
       return newSet;
     });
   };
 
-  // send selected exercises to MyWorkoutsScreen
   const sendSelectedExercises = () => {
-    if (context?.addWorkout) {
-      console.log("=== Starting sendSelectedExercises ===");
-      
-      // check selected exercises
-      if (selectedExercises.size === 0) {
-        Alert.alert("Error", "Please select at least one exercise");
-        return;
-      }
+    if (selectedExercises.size === 0) {
+      Alert.alert("Error", "Please select at least one exercise");
+      return;
+    }
+    setModalVisible(true);
+  };
 
-      // check context.selectedExerciseObjects is empty
-    if (!context.selectedExerciseObjects || context.selectedExerciseObjects.length === 0) {
-      Alert.alert("Error", "No exercises available. Please go back and select exercises.");
+  const submitWorkout = async () => {
+    if (workoutName.trim() === '') {
+      Alert.alert("Error", "Workout name cannot be empty");
       return;
     }
-      
-      const exerciseObjects: Exercise[] = context.selectedExerciseObjects.filter(
-        ex => selectedExercises.has(ex.nameOfExercise)
-      );
-    
-      // add logs
-    console.log("Selected exercises:", Array.from(selectedExercises));
-    console.log("context.selectedExerciseObjects:", context.selectedExerciseObjects);
-    console.log("Filtered exerciseObjects:", exerciseObjects);
-    
-    // check exerciseObjects is empty
-    if (exerciseObjects.length === 0) {
-      Alert.alert("Error", "No matching exercises found. Please go back and select exercises.");
+    if (!context?.selectedExerciseObjects || context.selectedExerciseObjects.length === 0) {
+      Alert.alert("Error", "No exercise data found.");
       return;
     }
-      // construct new workout object
-    const newWorkout: Workout = {
-      id: Date.now(), // use timestamp as ID
-      name: `Workout ${new Date().toLocaleString()}`, // eg: "Workout 3/23/2025, 2:10 PM"
-      exercises: exerciseObjects,
-      isDeleted: false
+
+    const currentUserId = context.userProfile.id;
+    console.log("Current userProfile.id:", currentUserId);
+
+    console.log("All selectedExerciseObjects:");
+    context.selectedExerciseObjects.forEach((ex) => {
+    console.log(`${ex.nameOfExercise} → exerciseId: ${ex.exerciseId}, accountReferenceId: ${ex.accountReferenceId}`);
+  });
+
+
+
+    const exerciseObjects: Exercise[] = context.selectedExerciseObjects.filter(
+      ex => selectedExercises.has(ex.nameOfExercise)&&
+      ex.accountReferenceId?.toString() === currentUserId.toString() 
+    );
+
+    const skipped = Array.from(selectedExercises).filter(
+      name => !exerciseObjects.find(ex => ex.nameOfExercise === name)
+    );
+  
+    if (skipped.length > 0) {
+      Alert.alert("Warning", `The following items were not submitted (not your exercise):\n${skipped.join(', ')}`);
+    }
+
+    const exerciseIds = exerciseObjects
+        .map(ex => ex.exerciseId)
+        .filter(id => id); // filter out undefined/null;
+
+    // Added log comparing Slide Modal and selectedExercises
+    console.log("Slide Modal exercise name:", Array.from(selectedExercises));
+    console.log("Filtered exerciseObjects:", 
+      exerciseObjects.map(ex => ({ name: ex.nameOfExercise, 
+                                    id: ex.exerciseId,
+                                    userId: ex.accountReferenceId,
+                                  })));
+    console.log("Submitted exerciseIds:", exerciseIds);
+    console.log("Submitting workout:", JSON.stringify({
+        name: workoutName,
+        exerciseIds: exerciseIds
+    }));
+    
+    // Check consistency
+    const modalNames = Array.from(selectedExercises);
+    const objectNames = exerciseObjects.map(ex => ex.nameOfExercise);
+    const isConsistent = modalNames.every(name => objectNames.includes(name)) && 
+                        objectNames.every(name => modalNames.includes(name));
+    console.log("Are the names in the Slide Modal and exerciseObjects consistent?", isConsistent);
+
+    if (exerciseIds.length === 0) {
+      Alert.alert("Error", "No valid exercises selected.");
+      return;
+    }
+
+    const pushingWorkout = {
+      name: workoutName,
+      exerciseIds: exerciseIds,
     };
 
-    // add new context.workouts list
-    context.addWorkout(newWorkout);
-    // clear exerciseList and selectedExerciseObjects
+    try {
+      const response = await fetch(`${httpRequests.getBaseURL()}/workouts/addWorkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          "Authorization": `Bearer ${context.data.token}`,
+        },
+        body: JSON.stringify(pushingWorkout),
+      });
 
-      /*console.log("All converted exercise objects:", exerciseObjects);
-      
-      // set to context
-      context.setSelectedExerciseObjects(exerciseObjects);
-      
-      // navigate to MyWorkoutsScreen, pass new exercises
-      console.log("Navigating to MyWorkoutsScreen with exercises");
-      //context.setSelectedExerciseObjects(exerciseObjects);
-      navigation.navigate('MyWorkoutsScreen', { exercises: [] });*/
-      
-
-
-      //navigation.navigate('MyWorkoutsScreen', { exercises: exerciseObjects });
-      
-    /*if (context.clearExerciseList) {
-      context.clearExerciseList(); // clear exerciseList
-    }*/
-      if (context.setExerciseList && context.setSelectedExerciseObjects) {
-        // keep unselected exercises
-        const remainingExerciseList = new Set(
-          Array.from(context.exerciseList).filter(
-            exerciseName => !selectedExercises.has(exerciseName)
-          )
-        );
-        const remainingExerciseObjects = context.selectedExerciseObjects.filter(
-          ex => !selectedExercises.has(ex.nameOfExercise)
-        );
-  
-        // update context.exerciseList and context.selectedExerciseObjects
-        context.setExerciseList(remainingExerciseList);
-        context.setSelectedExerciseObjects(remainingExerciseObjects);
+      if (!response.ok) {
+        const errorText = await response.text();  
+        console.error("Workout submission failed with status:", response.status);
+        console.error("Workout submission failed:", errorText); 
+        throw new Error(`HTTP ${response.status}`);
       }
-      // Clear the current selection and prepare for the next selection
-      setSelectedExercises(new Set());
-      //navigation.navigate({ name: 'MyWorkoutsScreen', params: {} });
-      //navigation.navigate('MyWorkoutsScreen', { exercises: exerciseObjects });
 
-    } else {
-      console.error("setSelectedExerciseObjects is not available in context");
+      const json = await response.json();
+      console.log("Workout created with ID:", json.workoutId);
+
+      Alert.alert("Success", "Workout created successfully!");
+      setModalVisible(false);
+      setWorkoutName('');
+      setSelectedExercises(new Set());
+      context.clearExerciseList();
+      context.setSelectedExerciseObjects([]);
+      navigation.navigate("MyWorkoutsScreen", { exercises: exerciseObjects });
+    } catch (error) {
+      console.error("Workout submission failed:", error);
+      Alert.alert("Error", "Workout submission failed.");
     }
   };
 
@@ -142,38 +161,39 @@ export default function SelectedExercisesScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Selected Exercises</Text>
       {exerciseList.size > 0 ? (
-        <FlatList
-          data={Array.from(exerciseList)}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.exerciseRow}
-              onPress={() => toggleExerciseSelection(item)}
-            >
-              {/* circular checkbox */}
+        <>
+          <View style={styles.selectAllContainer}>
+            <TouchableOpacity style={styles.exerciseRow} onPress={toggleAllExercises}>
               <View
-                style={[
-                  styles.circle,
-                  {
-                    backgroundColor: selectedExercises.has(item)
-                      ? 'rgb(19, 245, 61)' 
-                      : 'rgb(23, 220, 220)', 
-                  },
-                ]}
+                style={[styles.selectAllCircle, {
+                  backgroundColor: allChecked ? 'rgb(19, 245, 61)' : 'rgb(23, 220, 220)',
+                }]}
               >
-                {selectedExercises.has(item) && (
-                  <Text style={styles.checkmark}>✓</Text>
-                )}
+                {allChecked && <Text style={styles.checkmark}>✓</Text>}
               </View>
-              <Text style={styles.exerciseText}>{item}</Text>
             </TouchableOpacity>
-          )}
-          keyExtractor={(item, index) => `exercise-${index}`}
-          contentContainerStyle={{
-            paddingBottom: 20,
-            paddingLeft: 0,
-            alignItems: 'flex-start',
-          }}
-        />
+          </View>
+          <FlatList
+            data={Array.from(exerciseList)}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.exerciseRow}
+                onPress={() => toggleExerciseSelection(item)}
+              >
+                <View
+                  style={[styles.circle, {
+                    backgroundColor: selectedExercises.has(item) ? 'rgb(19, 245, 61)' : 'rgb(23, 220, 220)',
+                  }]}
+                >
+                  {selectedExercises.has(item) && <Text style={styles.checkmark}>✓</Text>}
+                </View>
+                <Text style={[styles.exerciseText, { marginLeft: 10 }]}>{item}</Text>
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item, index) => `exercise-${index}`}
+            contentContainerStyle={{ paddingBottom: 20, paddingLeft: 0, paddingTop: 10, width: '100%', alignItems: 'flex-start' }}
+          />
+        </>
       ) : (
         <Text style={styles.noExercisesText}>No exercises selected yet.</Text>
       )}
@@ -184,11 +204,44 @@ export default function SelectedExercisesScreen() {
               <Text style={styles.buttonText}> Send </Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={clearExerciseList} style={styles.clearButton}>
-              <Text style={styles.buttonText}>Clear All</Text>
+              <Text style={styles.buttonText}>Clear</Text>
             </TouchableOpacity>
           </>
         )}
       </View>
+
+      {/* Slide Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Name Your Workout</Text>
+            <TextInput
+              placeholder="Workout name"
+              style={styles.input}
+              value={workoutName}
+              onChangeText={setWorkoutName}
+            />
+            <Text style={{ marginTop: 0, fontWeight: 'bold', color: '#21BFBF' }}>Selected Exercises:</Text>
+            {Array.from(selectedExercises).map((name, index) => (
+              <Text key={index} style={{ color: '#21BFBF' }}>• {name}</Text>
+            ))}
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.clearButton}>
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={submitWorkout} style={styles.sendButton}>
+                <Text style={styles.buttonText}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -196,7 +249,7 @@ export default function SelectedExercisesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     backgroundColor: 'rgba(0, 0, 7, 0.82)',
     paddingTop: 50,
   },
@@ -204,12 +257,15 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#21BFBF',
-    marginBottom: 20,
+    marginBottom: 10,
+    alignSelf: 'center',
   },
   exerciseRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 8,
+    marginVertical: 10,
+    paddingLeft: 70,
+    width: '100%',
   },
   circle: {
     width: 20,
@@ -217,7 +273,19 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: 15,
+    backgroundColor: 'rgb(23, 220, 220)',
+  },
+  selectAllCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 10,
+    marginLeft: -40,
+    marginTop: -40,
+    backgroundColor: 'rgb(23, 220, 220)',
   },
   checkmark: {
     color: 'white',
@@ -227,32 +295,95 @@ const styles = StyleSheet.create({
   exerciseText: {
     fontSize: 16,
     color: '#21BFBF',
+    marginLeft: 10,
   },
   noExercisesText: {
     fontSize: 16,
     color: '#21BFBF',
     marginTop: 20,
+    marginLeft: 100,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    width: '80%',
+    width: '90%',
     marginTop: 20,
-    marginBottom: 30,
+    marginBottom: 40,
+    marginLeft: 20,
   },
   sendButton: {
-    backgroundColor: 'rgba(33, 191, 191, 0.82)',
-    padding: 7,
-    borderRadius: 5,
+    backgroundColor: 'rgba(33, 191, 191, 0.67)',
+    width: 70,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 0,
   },
   clearButton: {
-    backgroundColor: 'rgba(33, 191, 191, 0.82)',
-    padding: 7,
-    borderRadius: 5,
+    backgroundColor: 'rgba(33, 191, 191, 0.67)',
+    width: 70,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 0,
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: 14,
     color: 'white',
     fontWeight: 'bold',
+    textAlign: 'center',
+    includeFontPadding: false,
+    textAlignVertical: 'center',
+    padding: 0,
+    lineHeight: 20,
+  },
+  selectAllContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 40,
+    paddingVertical: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(33, 191, 191, 0.3)',
+    marginBottom: 10,
+    marginTop: -10,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+  },
+  modalContent: {
+    backgroundColor: 'rgba(74, 75, 78, 0.95)',
+    padding: 40,
+    borderTopRightRadius: 30,
+    borderTopLeftRadius: 30,
+    elevation: 10, // Android shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#21BFBF',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ffff',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 20,
+    color: 'white',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 120, 
+    marginTop: 20,
   },
 });

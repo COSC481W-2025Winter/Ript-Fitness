@@ -1,13 +1,17 @@
 
 import { TextInput, StyleSheet, ScrollView, Text, View, KeyboardAvoidingView, Platform, TouchableOpacity, Dimensions, Button, Alert  } from "react-native";
 import React, { useContext, useEffect, useState } from 'react';
+import { Modal } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 import AddFoodButton from "@/components/foodlog/AddFoodButton";
+import BarcodeScannerButton from "@/components/foodlog/BarcodeScannerButton";
+import  Scanner  from "@/components/foodlog/scanner";
 import { httpRequests } from "@/api/httpRequests";
 import { GlobalContext } from "@/context/GlobalContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { AlignJustify } from "react-native-feather";
 
 //Need to figure out how to get the day to work on login and then not switch until the next day 
 
@@ -19,14 +23,35 @@ const FoodLogAddPage = () => {
     const [foodFat, setFat] = useState('');
     const [foodCarbs, setCarbs] = useState('');
     const [foodProtein, setProtein] = useState('');
+    const [foodCholesterol, setCholesterol] = useState('');
+    const [foodSaturatedFat, setSaturatedFat] = useState('');
+    const [foodTransFat, setTransFat] = useState('');
+    const [foodSodium, setSodium] = useState('');
+    const [foodFiber, setFiber] = useState('');
+    const [foodSugars, setSugars] = useState('');
+    const [foodCalcium, setCalcium] = useState('');
+    const [foodIron, setIron] = useState('');
+    const [foodPotassium, setPotassium] = useState('');
+
     const [foodServings, setServings] = useState('');
     const [totalCalories, setTotalCalories] = useState(0);
     const [totalFat, setTotalFat] = useState(0);
     const [totalCarbs, setTotalCarbs] = useState(0);
     const [totalProtein, setTotalProtein] = useState(0);
     const [totalWater, setTotalWater] = useState(0);
+    const [totalCholesterol, setTotalCholesterol] = useState(0);
+    const [totalSaturatedFat, setTotalSaturatedFat] = useState(0);
+    const [totalTransFat, setTotalTransFat] = useState(0);
+    const [totalSodium, setTotalSodium] = useState(0);
+    const [totalFiber, setTotalFiber] = useState(0);
+    const [totalSugars, setTotalSugars] = useState(0);
+    const [totalCalcium, setTotalCalcium] = useState(0);
+    const [totalIron, setTotalIron] = useState(0);
+    const [totalPotassium, setTotalPotassium] = useState(0);
+
     const [day, setDay] = useState();
     const context = useContext(GlobalContext);
+    const [scannerVisible, setScannerVisible] = useState(false);
     const isDarkMode = context?.isDarkMode;
 
 
@@ -38,8 +63,43 @@ const FoodLogAddPage = () => {
      const foodKey = `${userID}_foodDetails`;
      const dayKey = `${userID}_day`;
 
+     async function fetchFoodData(barcode: string) {
+        const token = context?.data?.token;
+        if (!token) {
+            console.error("Token is undefined.");
+            return;
+        }
+        try {
+            // Use httpRequests.get instead of fetch + response.status
+            const data = await httpRequests.get(`/nutritionCalculator/getFoodByBarcode/${barcode}`, token);
 
+            // If no data or missing name, show alert
+            if (!data || !data.name) {
+                Alert.alert("Error", "Food not found in database.");
+                return;
+            }
 
+            // Update states with the returned data
+            setFoodName(data.name || "Unknown");
+            setCalories(data.calories?.toString() || "0");
+            setCarbs(data.carbs?.toString() || "0");
+            setProtein(data.protein?.toString() || "0");
+            setFat(data.fat?.toString() || "0");
+            setCholesterol(data.cholesterol?.toString() || "0");
+            setSaturatedFat(data.saturatedFat?.toString() || "0");
+            setTransFat(data.transFat?.toString() || "0");
+            setSodium(data.sodium?.toString() || "0");
+            setFiber(data.fiber?.toString() || "0");
+            setSugars(data.sugars?.toString() || "0");
+            setCalcium(data.calcium?.toString() || "0");
+            setPotassium(data.potassium?.toString() || "0");
+
+            Alert.alert("Success", `Food Found: ${data.name}`);
+        } catch (error) {
+            console.error("Error fetching food data:", error);
+            Alert.alert("Error", "Failed to fetch food details.");
+        }
+    }
 
     const setTotalForDay = async () => {
         console.log("the day is: ", day);
@@ -68,6 +128,16 @@ const FoodLogAddPage = () => {
                 setTotalCarbs(dayData.totalCarbs);
                 setTotalProtein(dayData.totalProtein);
                 setTotalFat(dayData.totalFat);
+                setTotalCholesterol(dayData.totalCholesterol);
+                setTotalSaturatedFat(dayData.totalSaturatedFat);
+                setTotalTransFat(dayData.totalTransFat);
+                setTotalSodium(dayData.totalSodium);
+                setTotalFiber(dayData.totalFiber);
+                setTotalSugars(dayData.totalSugars);
+                setTotalCalcium(dayData.totalCalcium);
+                setTotalIron(dayData.totalIron);
+                setTotalPotassium(dayData.totalPotassium);
+
                 // updateMacros(dayData.calories, dayData.totalFat, dayData.totalCarbs, dayData.totalProtein);
             } else {
                 console.log('Failed to get day');
@@ -118,6 +188,15 @@ const FoodLogAddPage = () => {
             protein: foodProtein,
             carbs: foodCarbs,  
             fat: foodFat, 
+            cholestreol: foodCholesterol,
+            saturatedfat: foodSaturatedFat,
+            transfat: foodTransFat,
+            sodium: foodSodium,
+            fiber: foodFiber,
+            sugar: foodSugars,
+            calcium: foodCalcium,
+            iron: foodIron,
+            potassium: foodPotassium,
             serving: foodServings, 
             isDeleted: false, 
         };
@@ -155,6 +234,15 @@ const FoodLogAddPage = () => {
             protein: foodProtein,
             carbs: foodCarbs,  
             fat: foodFat, 
+            cholestreol: foodCholesterol,
+            saturatedfat: foodSaturatedFat,
+            transfat: foodTransFat,
+            sodium: foodSodium,
+            fiber: foodFiber,
+            sugar: foodSugars,
+            calcium: foodCalcium,
+            iron: foodIron,
+            potassium: foodPotassium,
             serving: foodServings, 
             isDeleted: false, 
         };
@@ -234,6 +322,15 @@ const FoodLogAddPage = () => {
         setFat('');
         setCarbs('');
         setProtein('');
+        setCholesterol('');
+        setSaturatedFat('');
+        setTransFat('');
+        setSodium('');
+        setFiber('');
+        setSugars('');
+        setCalcium('');
+        setIron('');
+        setPotassium('');
     };
 
 
@@ -242,6 +339,15 @@ const FoodLogAddPage = () => {
     const [validFat, setValidFat] = useState(true);
     const [validCarbs, setValidCarbs] = useState(true);
     const [validProtein, setValidProtein] = useState(true);
+    const [validCholesterol, setValidCholesterol] = useState(true);
+    const [validSaturatedFat, setValidSaturatedFat] = useState(true);
+    const [validTransFat, setValidTransFat] = useState(true);
+    const [validSodium, setValidSodium] = useState(true);
+    const [validFiber, setValidFiber] = useState(true);
+    const [validSugars, setValidSugars] = useState(true);
+    const [validCalcium, setValidCalcium] = useState(true);
+    const [validIron, setValidIron] = useState(true);
+    const [validPotassium, setValidPotassium] = useState(true);
     const [validServings, setValidServings] = useState(true);
     const [validName, setValidName] = useState(true);
 
@@ -297,6 +403,95 @@ const FoodLogAddPage = () => {
         } else {
             setServings('');
             setValidServings(false);
+        }
+    };
+    const handleCholesterolChange = (text: string) => {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+            setCholesterol(text);
+            setValidCholesterol(true);
+        } else {
+            setCholesterol('');
+            setValidCholesterol(false);
+        }
+    };
+    
+    const handleSaturatedFatChange = (text: string) => {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+            setSaturatedFat(text);
+            setValidSaturatedFat(true);
+        } else {
+            setSaturatedFat('');
+            setValidSaturatedFat(false);
+        }
+    };
+    
+    const handleTransFatChange = (text: string) => {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+            setTransFat(text);
+            setValidTransFat(true);
+        } else {
+            setTransFat('');
+            setValidTransFat(false);
+        }
+    };
+    
+    const handleSodiumChange = (text: string) => {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+            setSodium(text);
+            setValidSodium(true);
+        } else {
+            setSodium('');
+            setValidSodium(false);
+        }
+    };
+    
+    const handleFiberChange = (text: string) => {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+            setFiber(text);
+            setValidFiber(true);
+        } else {
+            setFiber('');
+            setValidFiber(false);
+        }
+    };
+    
+    const handleSugarsChange = (text: string) => {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+            setSugars(text);
+            setValidSugars(true);
+        } else {
+            setSugars('');
+            setValidSugars(false);
+        }
+    };
+    
+    const handleCalciumChange = (text: string) => {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+            setCalcium(text);
+            setValidCalcium(true);
+        } else {
+            setCalcium('');
+            setValidCalcium(false);
+        }
+    };
+    
+    const handleIronChange = (text: string) => {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+            setIron(text);
+            setValidIron(true);
+        } else {
+            setIron('');
+            setValidIron(false);
+        }
+    };
+    
+    const handlePotassiumChange = (text: string) => {
+        if ((/^\d*\.?\d*$/.test(text) && parseFloat(text) >= 0)) {
+            setPotassium(text);
+            setValidPotassium(true);
+        } else {
+            setPotassium('');
+            setValidPotassium(false);
         }
     };
 
@@ -365,8 +560,23 @@ const FoodLogAddPage = () => {
                 style={{maxHeight: '100%', marginTop: 10, marginHorizontal: 5, marginBottom: 0, backgroundColor: isDarkMode? 'black' : '#fff'}} 
                 contentContainerStyle={{  }}
             >
-                    <Text style={isDarkMode? styles.darkLabel: styles.label}>Nutrition Facts</Text>
-                    <Text style={styles.description}>Enter the details from the label</Text>
+                    <View style={styles.nutritionHeader}>
+                <Text style={isDarkMode ? styles.darkLabel : styles.label}>Nutrition Facts</Text>
+                <BarcodeScannerButton 
+                    title="Scan"
+                    backgroundColor="#21BFBF"
+                    onPress={() => setScannerVisible(true)}
+                    style={{
+                        width: 140,
+                        height: 50,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        paddingVertical: 10,
+                    }}
+                />
+                </View>
+                <Text style={isDarkMode ? styles.darkDescription : styles.description}>Enter the details from the label or scan a barcode</Text>
+
 
                 {/* Input fields */}
                 <View style = {isDarkMode? styles.darkRowStart:styles.rowStart}>
@@ -374,38 +584,40 @@ const FoodLogAddPage = () => {
                     <TextInput
                         style={isDarkMode? styles.darkInput:styles.input}
                         placeholder={!validName ? "Food name required" : "Add Name"}
-                        placeholderTextColor={!validName ? 'red' : '#999'}
+
                         value={foodName}
-                        onChangeText={handleFoodNameChange}
-                        onBlur={() => handleBlur('foodName', foodName)}
+                        onChangeText={(text) => setFoodName(text)}
                     />
                 </View>
 
+
                 <View style = {isDarkMode? styles.darkRow: styles.row}>
                     <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Calories</Text>
+
                     <TextInput
                         style={isDarkMode? styles.darkInput:styles.input}
                         keyboardType="numeric"
                         value={foodCalories}
-                        onChangeText={handleCaloriesChange}
-                        placeholder={"Add Calories"}
-                        placeholderTextColor={'#999'}
-                        // onBlur={() => handleBlur('calories', foodCalories)}
+                        onChangeText={(text) => setCalories(text)}
+                        placeholder="Add Calories"
+                        placeholderTextColor="#999"
                     />
                 </View>
 
+
                 <View style = {isDarkMode? styles.darkRow: styles.row}>
                     <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Fat (g)</Text>
+
                     <TextInput
                         style={isDarkMode? styles.darkInput:styles.input}
                         keyboardType="numeric"
                         value={foodFat}
-                        onChangeText={handleFatChange}
-                        placeholder={"Add Grams"}
-                        placeholderTextColor={'#999'}
-                        // onBlur={() => handleBlur('fat', foodFat)}
+                        onChangeText={(text) => setFat(text)}
+                        placeholder="Add Grams"
+                        placeholderTextColor="#999"
                     />
                 </View>
+
 
                 <View style = {isDarkMode? styles.darkRow: styles.row}>
                     <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Carbs (g)</Text>
@@ -413,10 +625,9 @@ const FoodLogAddPage = () => {
                         style={isDarkMode? styles.darkInput:styles.input}
                         keyboardType="numeric"
                         value={foodCarbs}
-                        onChangeText={handleCarbsChange}
-                        placeholder={"Add Grams"}
-                        placeholderTextColor={'#999'}
-                        // onBlur={() => handleBlur('carbs', foodCarbs)}
+                        onChangeText={(text) => setCarbs(text)}
+                        placeholder="Add Grams"
+                        placeholderTextColor="#999"
                     />
                 </View>
 
@@ -433,57 +644,178 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Cholesterol (g)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodCholesterol}
+                        onChangeText={handleCholesterolChange}
+                        placeholder={"Add Cholesterol"}
+                        placeholderTextColor={'#999'}
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Saturated Fat (g)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodSaturatedFat}
+                        onChangeText={handleSaturatedFatChange}
+                        placeholder={"Add Saturated Fat"}
+                        placeholderTextColor={'#999'}
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Trans Fat (g)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodTransFat}
+                        onChangeText={handleTransFatChange}
+                        placeholder={"Add Trans Fat"}
+                        placeholderTextColor={'#999'}
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Sodium (g)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodSodium}
+                        onChangeText={handleSodiumChange}
+                        placeholder={"Add Sodium"}
+                        placeholderTextColor={'#999'}
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Fiber (g)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodFiber}
+                        onChangeText={handleFiberChange}
+                        placeholder={"Add Fiber"}
+                        placeholderTextColor={'#999'}
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Sugars (g)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodSugars}
+                        onChangeText={handleSugarsChange}
+                        placeholder={"Add Sugars"}
+                        placeholderTextColor={'#999'}
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Calcium (g)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodCalcium}
+                        onChangeText={handleCalciumChange}
+                        placeholder={"Add Calcium"}
+                        placeholderTextColor={'#999'}
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Iron (g)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodIron}
+                        onChangeText={handleIronChange}
+                        placeholder={"Add Iron"}
+                        placeholderTextColor={'#999'}
+                    />
+                </View>
+
+                <View style={styles.row}>
+                    <Text style={styles.inputLabel}>Potassium (g)</Text>
+                    <TextInput
+                        style={styles.input}
+                        keyboardType="numeric"
+                        value={foodPotassium}
+                        onChangeText={handlePotassiumChange}
+                        placeholder={"Add Potassium"}
+                        placeholderTextColor={'#999'}
+                    />
+                </View>
+
+
                 <View style = {isDarkMode? styles.darkRow: styles.row}>
                     <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Servings:</Text>
                     <TextInput
                         style={isDarkMode? styles.darkInput:styles.input}
                         keyboardType="numeric"
                         value={foodServings}
-                        onChangeText={handleServingsChange}
-                        placeholder={"Add Servings"}
-                        placeholderTextColor={'#999'}
-                        // onBlur={() => handleBlur('servings', foodServings)}
+                        onChangeText={(text) => setServings(text)}
+                        placeholder="Add Servings"
+                        placeholderTextColor="#999"
+                    />
+                </View>
+
+                {/* Save button */}
+                <View style={styles.buttonRow}>
+                    <AddFoodButton   
+                        title="Save Food" 
+                        textColor="white"
+                        backgroundColor="#21BFBF"
+                        borderColor="#21BFBF"
+                        borderWidth={0}
+                        fontSize={16}
+                        width={150}
+                        onPress={() => {
+                            if ((validateAllFields())) {
+                                handleFoodDataSaveOnly();
+                            } else {
+                                alert("A food name is required.");
+                            }
+                        }} 
+                />
+                <AddFoodButton   
+                        title="Log Food Today" 
+                        textColor="#21BFBF"
+                        backgroundColor="white"
+                        borderColor="#21BFBF"
+                        borderWidth={2}
+                        fontSize={16}
+                        width={150}
+                        onPress={() => {
+                            if (validateAllFields()) {
+                                handleFoodDataSaveAddDay();
+                            } else {
+                                alert("A food name is required.");
+                            }
+                        }} 
                     />
                 </View>
                 
             </ScrollView>
-            {/* Save button */}
+            
+            <Modal visible={scannerVisible} animationType="slide">
+                <Scanner 
+                    onClose={() => setScannerVisible(false)}
+                    onScan={(barcode) => fetchFoodData(barcode)}
+                />
+            </Modal>
+            {/* Save buttons */}
             <View style={styles.buttonRow}>
-                    <AddFoodButton   
-                            title="Save Food" 
-                            textColor="white"
-                            backgroundColor="#21BFBF"
-                            borderColor="#21BFBF"
-                            borderWidth={0}
-                            fontSize={16}
-                            width={150}
-                            onPress={() => {
-                                if ((validateAllFields())) {
-                                    handleFoodDataSaveOnly();
-                                } else {
-                                    alert("A food name is required.");
-                                }
-                            }} 
-                    />
-                    <AddFoodButton   
-                            title="Log Food Today" 
-                            textColor="#21BFBF"
-                            backgroundColor="white"
-                            borderColor="#21BFBF"
-                            borderWidth={2}
-                            fontSize={16}
-                            width={150}
-                            onPress={() => {
-                                if (validateAllFields()) {
-                                    handleFoodDataSaveAddDay();
-                                } else {
-                                    alert("A food name is required.");
-                                }
-                            }} 
-                    />
-                </View>
+                {/* handleFoodDataSaveOnly and handleFoodDataSaveAddDay remain unchanged */}
+                {/* Just ensure your "ValidateAllFields()" logic is placed accordingly */}
+            </View>
         </KeyboardAwareScrollView>
-    );
+    )
 };
 const styles = StyleSheet.create({
     addFoodContainer: { 
@@ -579,6 +911,10 @@ const styles = StyleSheet.create({
         width: '90%',
         alignSelf: 'center',
       }, 
+      darkDescription: {
+        fontSize: 15,
+        color: 'white',
+      },      
       darkRow: {
         flexDirection: 'row', // Align items in a row
         alignItems: 'center', // Vertically center the text and input
@@ -595,7 +931,18 @@ const styles = StyleSheet.create({
         alignItems: 'center', // Vertically center the text and input
         justifyContent: 'center',
         marginVertical: 5,
+      },
+
+      nutritionHeader: {
+        flexDirection: 'row',  
+        alignItems: 'center',  
+        justifyContent: 'space-between',  
+        paddingHorizontal: 10,  
+        marginBottom: 5,  
+        width: '100%',  
       }
+      
+      
 })
 
 export default FoodLogAddPage;
