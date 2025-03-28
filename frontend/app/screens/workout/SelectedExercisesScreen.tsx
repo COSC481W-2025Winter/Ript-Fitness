@@ -68,10 +68,18 @@ export default function SelectedExercisesScreen() {
     }
 
     const currentUserId = context.userProfile.id;
+    console.log("Current userProfile.id:", currentUserId);
+
+    console.log("All selectedExerciseObjects:");
+    context.selectedExerciseObjects.forEach((ex) => {
+    console.log(`${ex.nameOfExercise} → exerciseId: ${ex.exerciseId}, accountReferenceId: ${ex.accountReferenceId}`);
+  });
+
+
 
     const exerciseObjects: Exercise[] = context.selectedExerciseObjects.filter(
-      ex => selectedExercises.has(ex.nameOfExercise) &&
-            ex.accountReferenceId?.toString() === currentUserId
+      ex => selectedExercises.has(ex.nameOfExercise)&&
+      ex.accountReferenceId?.toString() === currentUserId.toString() 
     );
 
     const skipped = Array.from(selectedExercises).filter(
