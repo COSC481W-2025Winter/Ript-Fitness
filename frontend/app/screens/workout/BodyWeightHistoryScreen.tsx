@@ -220,66 +220,6 @@ export default function BodyWeightHistory() {
         <Button title="Record Weight" onPress={handleAddWeight} />
       </View>
 
-      {/* Show Full Weight List (Editing) */}
-      <Text
-        style={[
-          styles.subtitle,
-          { color: isDarkMode ? "#fff" : "#48efff" },
-        ]}
-      >
-        Your Entries
-      </Text>
-      {allWeights.map((entry) => (
-        <View key={entry.id} style={styles.entryRow}>
-          {editId === entry.id ? (
-            <>
-              {/* Edit Mode */}
-              <TextInput
-                style={[
-                  styles.editInput,
-                  {
-                    backgroundColor: isDarkMode ? "#333" : "#fff",
-                    color: isDarkMode ? "#fff" : "#000",
-                  },
-                ]}
-                keyboardType="numeric"
-                value={editWeight}
-                onChangeText={setEditWeight}
-                placeholderTextColor={isDarkMode ? "#999" : "#666"}
-              />
-              <Button title="Save" onPress={handleSaveEdit} />
-              <Button title="Cancel" onPress={cancelEdit} color="red" />
-            </>
-          ) : (
-            <>
-              {/* View Mode */}
-              <Text
-                style={[
-                  styles.entryText,
-                  { color: isDarkMode ? "#fff" : "#fff" }, // default to white or some other color
-                ]}
-              >
-                {entry.weight} lbs on{" "}
-                {new Date(entry.recordedAt).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })}
-              </Text>
-              <TouchableOpacity onPress={() => startEdit(entry)}>
-                <Text
-                  style={[
-                    styles.editLink,
-                    { color: isDarkMode ? "#adf" : "#48efff" },
-                  ]}
-                >
-                  Edit
-                </Text>
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
-      ))}
-
       {/* Chart */}
       <Text
         style={[

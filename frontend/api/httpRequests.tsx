@@ -7,17 +7,6 @@ const Azure_URL = "https://ript-fitness.azurewebsites.net";
 const BASE_URL = USE_LOCAL === "true" ? `http://${LOCAL_IP}` : Azure_URL;
 //const BASE_URL = "http://172.22.0.1:8080"; // Force it to use the backend
 
-console.warn(`\n=============================\n Using BASE_URL: ${BASE_URL}\n`);
-
-setTimeout(() => {
-  console.warn(`\n=====================================\n ENV CHECK: USE_LOCAL=${USE_LOCAL}, LOCAL_IP=${LOCAL_IP}\n`);
-  console.warn(`\n=======================================\n Using BASE_URL: ${BASE_URL}\n`);
-  console.warn("\n======================");
-console.warn("🔍 Process.env Debug:");
-console.warn("USE_LOCAL:", USE_LOCAL);
-console.warn("LOCAL_IP:", LOCAL_IP);
-console.warn("======================\n");
-}, 20000); 
 
 export class httpRequests {
   static getBaseURL() {
