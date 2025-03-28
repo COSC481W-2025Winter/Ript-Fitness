@@ -34,13 +34,6 @@ public class WorkoutsController {
 		WorkoutsDto newWorkout = workoutsService.addWorkout(workoutDto);
 		return ResponseEntity.ok(newWorkout);
 	}
-	
-	// Retrieve a workout by ID
-    @GetMapping("/{workoutId}")
-    public ResponseEntity<WorkoutsDto> getWorkout(@PathVariable Long workoutId) {
-        WorkoutsDto workoutDto = workoutsService.getWorkout(workoutId);
-        return ResponseEntity.ok(workoutDto);
-    }
     
     @GetMapping("/getUsersWorkouts/{startIndex}/{endIndex}")
     public ResponseEntity<List<WorkoutsDto>> getUsersWorkouts(@PathVariable Integer startIndex, @PathVariable Integer endIndex) {
@@ -84,5 +77,12 @@ public class WorkoutsController {
 	    WorkoutsDto newWorkout = workoutsService.createWorkoutWithClonedExercises(name, exerciseIds);
 	    return ResponseEntity.ok(newWorkout);
 	}
+	
+	// Retrieve a workout by ID
+    @GetMapping("/{workoutId}")
+    public ResponseEntity<WorkoutsDto> getWorkout(@PathVariable Long workoutId) {
+        WorkoutsDto workoutDto = workoutsService.getWorkout(workoutId);
+        return ResponseEntity.ok(workoutDto);
+    }
 
 }
