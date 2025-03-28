@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { httpRequests } from '@/api/httpRequests';
@@ -119,6 +118,13 @@ interface GlobalContextType {
   // Added by Team A 
   isDarkMode: boolean;
   toggleTheme: () => void;
+
+  // Add exerciseList，selectedExerciseObjects and related methods
+  exerciseList: Set<string>;
+  setExerciseList: (list: Set<string>) => void;
+  clearExerciseList: () => void;
+  selectedExerciseObjects: Exercise[];
+  setSelectedExerciseObjects: (exercises: Exercise[]) => void;
 }
 
 
@@ -157,9 +163,13 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
   const [calendar, setCalendar] = useState<Calendar>({});
   const [calendarLoadTracker, setCalendarLoadTracker] = useState<CalendarLoadTracker>({ startDate:"", endDate:""})
   const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [selectedExerciseObjects, setSelectedExerciseObjects] = useState<Exercise[]>([]);
+  const updateSelectedExerciseObjects = (exercises: Exercise[]) => {
+    setSelectedExerciseObjects([...exercises]); 
+  };
 
-
-
+  // Add exerciseList state
+  const [exerciseList, setExerciseList] = useState<Set<string>>(new Set());
 
   const updateCalendarLoadTracker = (dateRange: { startDate: string; endDate: string }) => {
     setCalendarLoadTracker((prevTracker) => {
@@ -300,6 +310,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
     setMyUserProfile(defaultUserProfile);
     setFriends([])
     clearCalendar();
+    clearExerciseList(); // Clear exerciseList when context is cleared
   };
 
   const clearCalendar =() => {
@@ -630,6 +641,10 @@ const toggleTheme = async () => {
   await AsyncStorage.setItem('isDarkMode', JSON.stringify(newTheme));  
 };
 
+// Add clearExerciseList method
+const clearExerciseList = () => {
+  setExerciseList(new Set());
+};
 
   return (
 
@@ -661,7 +676,12 @@ const toggleTheme = async () => {
         incrementRemovePending,
         decrementRemovePending,
         isDarkMode,
-        toggleTheme
+        toggleTheme,
+        exerciseList,
+        setExerciseList,
+        clearExerciseList,
+        selectedExerciseObjects,
+        setSelectedExerciseObjects: updateSelectedExerciseObjects,
       }}
     >
 
