@@ -403,6 +403,7 @@ public class WorkoutsServiceTest {
 	    }
 	    
 	    @Test
+<<<<<<< HEAD
 	    public void testGetWorkoutDataByDate() {
 	        // Arrange
 	        LocalDate targetDate = LocalDate.of(2025, 3, 18); // Test date
@@ -440,6 +441,51 @@ public class WorkoutsServiceTest {
 	        assertEquals(1, result.size());
 	        assertEquals("Workout For Date", result.get(0).getName());
 	        assertEquals(targetDate, result.get(0).getWorkoutDate());
+=======
+	    public void testCreateWorkoutWithClonedExercises() {
+	        // Setup
+	        Long userId = 1L;
+	        Long originalExerciseId = 123L;
+	        String workoutName = "Cloned Workout";
+
+	        // Mock account
+	        when(accountsService.getLoggedInUserId()).thenReturn(userId);
+	        when(accountsRepository.findById(userId)).thenReturn(Optional.of(account));
+
+	        ExerciseModel original = new ExerciseModel();
+	        original.setExerciseId(originalExerciseId);
+	        original.setNameOfExercise("Original Exercise");
+	        original.setDescription("Clone me");
+	        original.setExerciseType(1);
+	        original.setSets(3);
+	        original.setReps(Arrays.asList(10, 10, 10));
+	        original.setWeight(Arrays.asList(20, 20, 20));
+	        original.setAccount(account);
+
+	        when(exerciseRepository.findById(originalExerciseId)).thenReturn(Optional.of(original));
+
+	        // Mock workout save to inject ID
+	        when(workoutsRepository.save(any(Workouts.class))).thenAnswer(invocation -> {
+	            Workouts w = invocation.getArgument(0);
+	            w.workoutsId = 99L;
+	            return w;
+	        });
+
+	        // Mock exercise clone save
+	        when(exerciseRepository.save(any(ExerciseModel.class))).thenAnswer(invocation -> {
+	            ExerciseModel e = invocation.getArgument(0);
+	            e.setExerciseId(999L);
+	            return e;
+	        });
+
+	        WorkoutsDto result = workoutsService.createWorkoutWithClonedExercises(workoutName, Arrays.asList(originalExerciseId));
+
+	        assertNotNull(result);
+	        assertEquals(workoutName, result.getName());
+	        assertNotNull(result.getExercises());
+	        assertEquals(1, result.getExercises().size());
+	        assertEquals("Original Exercise", result.getExercises().get(0).getNameOfExercise());
+>>>>>>> 828c7b4943bdfa716b5ee324ff933101d9a8a031
 	    }
 
 }
