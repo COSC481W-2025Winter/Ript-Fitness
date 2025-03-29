@@ -231,19 +231,16 @@ public class WorkoutsService {
                 .map(WorkoutsMapper.INSTANCE::toWorkoutsDto)
                 .collect(Collectors.toList());
 }
+	
 	public WorkoutsDto createWorkoutWithClonedExercises(String name, List<Long> exerciseIds) {
 	    Long currentUserId = accountsService.getLoggedInUserId();
 	    AccountsModel account = accountsRepository.findById(currentUserId)
 	        .orElseThrow(() -> new RuntimeException("Account not found"));
 
-	    // Create and save new workout
 	    Workouts newWorkout = new Workouts();
 	    newWorkout.setName(name);
 	    newWorkout.setAccount(account);
-	    workoutsRepository.save(newWorkout);
-
-	    // Clone exercises to new workout
-	    List<ExerciseModel> clonedExercises = new ArrayList<>();
+	    workoutsRepository.save(newWorkout); 
 
 	    for (Long id : exerciseIds) {
 	        ExerciseModel original = exerciseRepository.findById(id)
@@ -261,14 +258,12 @@ public class WorkoutsService {
 	        copy.setIsDeleted(false);
 
 	        exerciseRepository.save(copy);
-	        clonedExercises.add(copy);
+	        newWorkout.getExercises().add(copy); 
 	    }
 
-	    newWorkout.setExercises(clonedExercises);
+	    workoutsRepository.save(newWorkout); 
 
-	    // Convert and return
 	    return WorkoutsMapper.INSTANCE.toWorkoutsDto(newWorkout);
 	}
-
 	
 }
