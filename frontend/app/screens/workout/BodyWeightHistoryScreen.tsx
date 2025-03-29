@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import {View, Text, StyleSheet, ScrollView, Button, Animated, Dimensions, Alert, TouchableOpacity, TextInput,} from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { GlobalContext } from "@/context/GlobalContext";
@@ -59,6 +59,25 @@ const chartConfig = {
   // For editing a weight
   const [editId, setEditId] = useState<number | null>(null);
   const [editWeight, setEditWeight] = useState<string>("");
+
+  const fetchWeightHistory = useCallback(async () => {
+    try {
+      const response = await httpRequests.get("/userProfile/weightHistory", token);
+      if (!Array.isArray(response)) {
+        Alert.alert("Error", "Invalid weight data format");
+        return;
+      }
+      const sorted = response.sort(
+        (a: WeightEntry, b: WeightEntry) =>
+          new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime()
+      );
+      setAllWeights(sorted);
+    } catch (error) {
+      console.error("Failed to fetch weight history:", error);
+      Alert.alert("Error", "Unable to fetch weight history.");
+    }
+  }, [token]);
+  
 
   // Fetch full weight history & store it in allWeights
   useEffect(() => {
@@ -124,24 +143,21 @@ const chartConfig = {
       Alert.alert("Invalid weight", "Please enter a valid positive number.");
       return;
     }
-
+  
     try {
-      const response = await httpRequests.put(`/userProfile/weightHistory=${weightNum}`, token);
-
-      if (!response || !response.id) {
-        Alert.alert("Error", "Failed to add weight entry.");
-        return;
-      }
-
+      const response = await httpRequests.put(`/userProfile/updateWeight?weight=${weightNum}`, token);
       Alert.alert("Success", `Recorded weight: ${weightNum} lbs`);
       setNewWeight("");
-
-      setRange(Range.Seven);
+  
+      await fetchWeightHistory();
+      setRange(Range.Seven); // Optional if you want to re-focus chart
     } catch (error) {
       console.error("Failed to add weight:", error);
       Alert.alert("Error", "Unable to record new weight.");
     }
   };
+  
+  
 
   // Edit an existing weight
   const startEdit = (entry: WeightEntry) => {
