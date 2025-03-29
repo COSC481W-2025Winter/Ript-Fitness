@@ -21,6 +21,25 @@ enum Range {
 export default function BodyWeightHistory() {
   const { data: globalData, isDarkMode } = useContext(GlobalContext)!;
 
+  // Chart config 
+const chartConfig = {
+  backgroundGradientFrom: isDarkMode ? "#0f2027" : "#ffffff",
+  backgroundGradientTo: isDarkMode ? "#203a43" : "#ffffff",
+  decimalPlaces: 0,
+  color: (opacity = 1) => `rgba(72, 239, 255, ${opacity})`,
+  labelColor: (opacity = 1) => isDarkMode ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
+  style: { borderRadius: 16 },
+  propsForLabels: { fontSize: 12 },
+  propsForDots: { r: "3", strokeWidth: "3", stroke: "#48efff" },
+  yAxisMinimum: 0,
+  labelRotation: 0,
+  propsForBackgroundLines: {
+    strokeWidth: 1,
+    stroke: isDarkMode ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)",
+  },
+  strokeWidth: 3,
+};
+
   const token = globalData?.token ?? "";
 
   // Chart filter range
@@ -159,18 +178,9 @@ export default function BodyWeightHistory() {
 
 
   return (
-    <ScrollView
-      style={[
-        styles.container,
-        { backgroundColor: isDarkMode ? "#000" : "rgba(0, 0, 7, 0.82)" },
-      ]}
-    >
-      <Text
-        style={[
-          styles.header,
-          { color: isDarkMode ? "#fff" : "#48efff" },
-        ]}
-      >
+    <ScrollView style={isDarkMode ? styles.darkContainer : styles.container}>
+      {/* HEADER */}
+      <Text style={isDarkMode ? styles.darkHeader : styles.header}>
         Body Weight History
       </Text>
 
@@ -195,22 +205,11 @@ export default function BodyWeightHistory() {
 
       {/* Add Weight */}
       <View style={styles.addWeightContainer}>
-        <Text
-          style={[
-            styles.subtitle,
-            { color: isDarkMode ? "#fff" : "#48efff" },
-          ]}
-        >
+        <Text style={isDarkMode ? styles.darkSubtitle : styles.subtitle}>
           Add Your Weight
         </Text>
         <TextInput
-          style={[
-            styles.weightInput,
-            {
-              backgroundColor: isDarkMode ? "#333" : "#fff",
-              color: isDarkMode ? "#fff" : "#000",
-            },
-          ]}
+          style={isDarkMode ? styles.darkWeightInput : styles.weightInput}
           placeholder="e.g. 170"
           placeholderTextColor={isDarkMode ? "#999" : "#666"}
           keyboardType="numeric"
@@ -221,12 +220,7 @@ export default function BodyWeightHistory() {
       </View>
 
       {/* Chart */}
-      <Text
-        style={[
-          styles.chartTitle,
-          { color: isDarkMode ? "#fff" : "#48efff" },
-        ]}
-      >
+      <Text style={isDarkMode ? styles.darkChartTitle : styles.chartTitle}>
         Weight Trend
       </Text>
       {weightData.length > 0 && weightLabels.length === weightData.length ? (
@@ -238,7 +232,6 @@ export default function BodyWeightHistory() {
             }}
             width={screenWidth - 40}
             height={220}
-            yAxisLabel=""
             chartConfig={chartConfig}
             bezier
             style={styles.chart}
@@ -247,12 +240,7 @@ export default function BodyWeightHistory() {
           />
         </Animated.View>
       ) : (
-        <Text
-          style={{
-            color: isDarkMode ? "#fff" : "#fff",
-            textAlign: "center",
-          }}
-        >
+        <Text style={isDarkMode ? styles.darkNoData : styles.noData}>
           No weight data to display.
         </Text>
       )}
@@ -260,90 +248,111 @@ export default function BodyWeightHistory() {
   );
 }
 
-// Chart configuration
-const chartConfig = {
-  backgroundGradientFrom: "#0f2027",
-  backgroundGradientTo: "#203a43",
-  decimalPlaces: 0,
-  color: (opacity = 1) => `rgba(72, 239, 255, ${opacity})`,
-  labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-  style: { borderRadius: 16 },
-  propsForLabels: { fontSize: 12 },
-  propsForDots: { r: "3", strokeWidth: "3", stroke: "#48efff" },
-  yAxisMinimum: 0,
-  labelRotation: 0,
-  propsForBackgroundLines: {
-    strokeWidth: 1,
-    stroke: "rgba(255,255,255,0.2)",
-  },
-  strokeWidth: 3,
-};
 
-// Base styles. We rely heavily on inline checks for isDarkMode.
+
+// STYLES
 const styles = StyleSheet.create({
+  // Light mode container
   container: {
     flex: 1,
     padding: 20,
-    // backgroundColor will be overridden dynamically
+    backgroundColor: "#fff",
   },
+  // Dark mode container
+  darkContainer: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: "#000",
+  },
+
+  // HEADERS
   header: {
     fontSize: 22,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 20,
-    // color is overridden for dark mode
+    color: "#48efff", // Light mode text color
   },
+  darkHeader: {
+    fontSize: 22,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 20,
+    color: "#fff", // Dark mode text color
+  },
+
+  // SUBTITLES
+  subtitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 5,
+    color: "#48efff", // Light mode
+  },
+  darkSubtitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 5,
+    color: "#fff",
+  },
+
+  // RANGE BUTTONS
   rangeButtons: {
     flexDirection: "row",
     justifyContent: "space-around",
     marginBottom: 20,
   },
+
+  // WEIGHT CONTAINER
   addWeightContainer: {
     marginVertical: 20,
   },
-  subtitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 5,
-    // color is overridden
-  },
+
+  // INPUT
   weightInput: {
     marginBottom: 10,
     padding: 10,
     borderRadius: 6,
-    // color + backgroundColor set inline
+    backgroundColor: "#fff", // Light mode input BG
+    color: "#000",           // Light mode text
   },
-  entryRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 4,
+  darkWeightInput: {
+    marginBottom: 10,
+    padding: 10,
+    borderRadius: 6,
+    backgroundColor: "#333", // Dark mode input BG
+    color: "#fff",
   },
-  entryText: {
-    flex: 1,
-    // color is overridden
-  },
-  editLink: {
-    marginLeft: 10,
-    textDecorationLine: "underline",
-    // color is overridden
-  },
-  editInput: {
-    flex: 1,
-    padding: 6,
-    marginRight: 6,
-    borderRadius: 4,
-    // color + backgroundColor set inline
-  },
+
+  // CHART TITLE
   chartTitle: {
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",
     marginVertical: 10,
-    // color is overridden
+    color: "#48efff",
   },
+  darkChartTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginVertical: 10,
+    color: "#fff",
+  },
+
+  // CHART
   chart: {
     marginVertical: 10,
     borderRadius: 16,
     alignSelf: "center",
+  },
+
+  // NO DATA TEXT
+  noData: {
+    color: "#fff",
+    textAlign: "center",
+  },
+  darkNoData: {
+    color: "#fff",
+    textAlign: "center",
   },
 });

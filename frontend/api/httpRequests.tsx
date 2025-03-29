@@ -2,10 +2,14 @@ import { GlobalContext } from "@/context/GlobalContext";
 import { USE_LOCAL, LOCAL_IP } from "@env";
 import { useContext } from "react";
 console.warn(`\n==============================\n ENV CHECK: USE_LOCAL=${USE_LOCAL}, LOCAL_IP=${LOCAL_IP}\n`);
+/*
+To force the front end to use the backend api, replace the BASE_URL with your hardcoded local IP address.
+Remember to switch it back when done testing
+const BASE_URL = "http://172.22.0.1:8080";
+*/
 
 const Azure_URL = "https://ript-fitness.azurewebsites.net";
 const BASE_URL = USE_LOCAL === "true" ? `http://${LOCAL_IP}` : Azure_URL;
-//const BASE_URL = "http://172.22.0.1:8080"; // Force it to use the backend
 
 
 export class httpRequests {
