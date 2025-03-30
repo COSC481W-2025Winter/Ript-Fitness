@@ -99,28 +99,28 @@ export default function WorkoutApiScreen() {
 
      {/* Body Focus */}
       <TouchableOpacity 
-        style={styles.button} 
+        style={isDarkMode? styles.darkButton:styles.button} 
         onPress={() => navigation.navigate('BodyFocusScreen', {})} 
       >
         <View style={styles.iconStyles}>
             <MuscleIcon width={32} height={32} />
         </View>
         <View style={{ justifyContent: 'flex-start' }}>
-          <Text style={styles.buttonText}>Body Focus</Text>
+          <Text style={isDarkMode? styles.darkButtonText:styles.buttonText}>Body Focus</Text>
           <Text style={{ color: '#757575', }}>Body-based workouts</Text>
         </View>
       </TouchableOpacity>
       
       {/* Workout Trend */}
       <TouchableOpacity 
-        style={styles.button} 
+        style={isDarkMode? styles.darkButton:styles.button} 
         onPress={() => navigation.navigate('WorkoutTrendScreen', {})} 
       >
         <View style={styles.iconStyles}>
           <MaterialCommunityIcons name="chart-line" size={32} color="#aef1f1" />
         </View>
         <View style={{ justifyContent: 'flex-start' }}>
-            <Text style={styles.buttonText}>Workout Trend</Text>
+            <Text style={isDarkMode?styles.darkButtonText:styles.buttonText}>Workout Trend</Text>
             <Text style={{ color: '#757575', }}>Track your progress</Text>
         </View>
       </TouchableOpacity>

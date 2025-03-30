@@ -246,7 +246,7 @@ const SettingsScreen = ({ navigation }: any) => {
         <View style={styles.infoRow}>
           <Text style={[isDarkMode? styles.darkLabel : styles.label]}>Last Name</Text>
           <TextInput
-            style={styles.input}
+            style={[isDarkMode? styles.darkInput : styles.input]}
             value={lastName}
             onChangeText={(text) => {
               setLastName(text);
@@ -273,7 +273,7 @@ const SettingsScreen = ({ navigation }: any) => {
         <View style={styles.infoRow}>
           <Text style={[isDarkMode? styles.darkLabel : styles.label]}>Display Name</Text>
           <TextInput
-            style={styles.input}
+            style={[isDarkMode? styles.darkInput : styles.input]}
             value={displayName}
             onChangeText={(text) => {
               setDisplayName(text);
@@ -301,7 +301,7 @@ const SettingsScreen = ({ navigation }: any) => {
         <View style={styles.infoRow}>
           <Text style={[isDarkMode? styles.darkLabel : styles.label]}>Rest Days</Text>
           <TextInput
-            style={styles.input}
+            style={[isDarkMode? styles.darkInput : styles.input]}
             value={restDays}
             onChangeText={(text) => {
               setRestDays(text);
@@ -329,7 +329,7 @@ const SettingsScreen = ({ navigation }: any) => {
         <View style={styles.infoRow}>
           <Text style={[isDarkMode? styles.darkLabel : styles.label]}>Bio</Text>
           <TextInput
-            style={styles.input}
+            style={[isDarkMode? styles.darkInput : styles.input]}
             value={bio}
             onChangeText={(text) => {
               setBio(text);
@@ -467,7 +467,7 @@ const styles = StyleSheet.create({
   },
   label: { fontSize: 16, fontWeight: '500', color: '#333' },
   darkLabel: { fontSize: 16, fontWeight: '500', color: 'white' },
-  input: { fontSize: 16, color: 'white', flex: 1, textAlign: 'right', minWidth:30, marginRight:10 },
+  input: { fontSize: 16, color: '999', flex: 1, textAlign: 'right', minWidth:30, marginRight:10 },
   darkInput: { fontSize: 16, color: 'white', flex: 1, textAlign: 'right', minWidth:30, marginRight:10 },
   dropdown: { fontSize: 16, color: '#333', flex: 2, textAlign: 'right', minWidth:50, backgroundColor:'grey' },
 });

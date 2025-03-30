@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { View, Text, StyleSheet, ScrollView, Switch, Animated } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
+import { GlobalContext } from '@/context/GlobalContext';
+
 
 // Get screen width
 const screenWidth = Dimensions.get("window").width;
@@ -24,6 +26,9 @@ export default function WorkoutTrendScreen() {
   const [isThirtyDays, setIsThirtyDays] = useState(false); // Toggle between 7-day
   const [chartAnimation] = useState(new Animated.Value(0)); // Animation control
 
+  const context = useContext(GlobalContext);
+  
+  const isDarkMode = context?.isDarkMode;  
   // Start animation
   useEffect(() => {
     Animated.timing(chartAnimation, {
@@ -54,25 +59,25 @@ export default function WorkoutTrendScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.header}>Workout Trend Screen</Text>
+    <ScrollView style={isDarkMode? styles.darkContainer:styles.container}>
+      <Text style={isDarkMode?styles.darkHeader:styles.header}>Workout Trend Screen</Text>
 
       {/* 7-day/30-day toggle */}
       <View style={styles.switchContainer}>
-        <Text style={styles.switchLabel}>7 Days</Text>
+        <Text style={isDarkMode? styles.darkSwitchLabel:styles.switchLabel}>7 Days</Text>
         <Switch value={isThirtyDays} onValueChange={setIsThirtyDays} />
-        <Text style={styles.switchLabel}>30 Days</Text>
+        <Text style={isDarkMode? styles.darkSwitchLabel:styles.switchLabel}>30 Days</Text>
       </View>
 
       {/* Exercise trend */}
-      <Text style={styles.chartTitle}>Exercise Trend</Text>
+      <Text style={isDarkMode? styles.darkChartTitle:styles.chartTitle}>Exercise Trend</Text>
       <Animated.View style={{ opacity: chartAnimation }}>
         <LineChart
           data={exerciseData}
           width={screenWidth - 40}
           height={220}
           yAxisLabel=""
-          chartConfig={chartConfig}
+          chartConfig={isDarkMode? darkChartConfig:chartConfig}
           bezier
           style={styles.chart}
           withVerticalLines={false} // Remove vertical grid lines
@@ -81,14 +86,14 @@ export default function WorkoutTrendScreen() {
       </Animated.View>
 
       {/* Nutrition trend */}
-      <Text style={styles.chartTitle}>Nutrition Trend</Text>
+      <Text style={isDarkMode? styles.darkChartTitle:styles.chartTitle}>Nutrition Trend</Text>
       <Animated.View style={{ opacity: chartAnimation }}>
         <LineChart
           data={nutritionData}
           width={screenWidth - 40}
           height={220}
           yAxisLabel=""
-          chartConfig={chartConfig}
+          chartConfig={isDarkMode? darkChartConfig:chartConfig}
           bezier
           style={styles.chart}
           withVerticalLines={false}
@@ -100,7 +105,7 @@ export default function WorkoutTrendScreen() {
 }
 
 // Chart configuration
-const chartConfig = {
+const darkChartConfig = {
   backgroundGradientFrom: "#0f2027",
   backgroundGradientTo: "#203a43",
   decimalPlaces: 0,
@@ -118,14 +123,45 @@ const chartConfig = {
   strokeWidth: 3, // Thicker curve
 };
 
+const chartConfig = {
+  backgroundGradientFrom: "#fff",
+  backgroundGradientTo: "#e0e0e0",
+  decimalPlaces: 0,
+  color: (opacity = 1) => `rgba(0, 120, 255, ${opacity})`, 
+  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`, // White X-axis labels
+  style: { borderRadius: 16 },
+  propsForLabels: { fontSize: 12 },
+  propsForDots: { r: "3", strokeWidth: "3", stroke: "#48efff" }, //Increase dot size
+  yAxisMinimum: 0,
+  labelRotation: 0, // Prevent rotation
+  propsForBackgroundLines: {
+    strokeWidth: 1,
+    stroke: "rgba(0,0,0,0.1)", // Soften background grid lines
+  },
+  strokeWidth: 3, // Thicker curve
+};
+
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    //backgroundColor: "#1c1c1c", 
+    backgroundColor: "#fff",
+    padding: 20,
+  },
+  darkContainer: {
     flex: 1,
     //backgroundColor: "#1c1c1c", 
     backgroundColor: "rgba(0, 0, 7, 0.82)",
     padding: 20,
   },
   header: {
+    fontSize: 22,
+    fontWeight: "bold",
+    textAlign: "center",
+    color: "black", 
+    marginBottom: 20,
+  },
+  darkHeader: {
     fontSize: 22,
     fontWeight: "bold",
     textAlign: "center",
@@ -142,9 +178,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginHorizontal: 10,
     fontWeight: "bold",
+    color: "black",
+  },
+  darkSwitchLabel: {
+    fontSize: 16,
+    marginHorizontal: 10,
+    fontWeight: "bold",
     color: "#48efff",
   },
   chartTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginVertical: 10,
+    color: "black",
+  },
+  darkChartTitle: {
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",

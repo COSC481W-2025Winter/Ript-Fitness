@@ -221,7 +221,21 @@ export default function WorkoutStack() {
       <Stack.Screen
         name="BodyFocusScreen"
         component={BodyFocusScreen}
-        options={{ title: 'Body Focus' }}
+        options={({ navigation }) => ({
+          title: 'Body Focus',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={[styles.leftButton, styles.button, styles.buttonSize]}
+            > 
+              <TabBarIcon name="arrow-back-outline" size={30} color="#454343" />
+            </TouchableOpacity>  
+          ), 
+          headerTitleStyle: {
+            color: isDarkMode ? 'white' : 'black',
+          },
+          headerTitleAlign: 'center',
+        })} 
       />
 
       <Stack.Screen
