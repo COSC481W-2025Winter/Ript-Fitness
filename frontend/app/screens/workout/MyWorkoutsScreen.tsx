@@ -20,6 +20,10 @@ import { Ionicons } from "@expo/vector-icons";
 import Stopwatch from "./Stopwatch";
 import { httpRequests } from "@/api/httpRequests";
 import { WorkoutContext } from "@/context/WorkoutContext";  // Import WorkoutContext for managing workout data and state.
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import { useRoute } from '@react-navigation/native';
+
+
 
 export default function MyWorkoutsScreen() {
   const context = useContext(GlobalContext);
@@ -140,19 +144,13 @@ export default function MyWorkoutsScreen() {
     }
     setSelectedWorkout(null);
   };
- 
-
 
   const saveWorkout = async () => {
     if (!selectedWorkout) {
       Alert.alert("Error", "No workout selected to save.");
       return;
     }
-    //refer to AddWorkoutScreen starting on line 138 for following 4 lines, from there the code was copy, pasted, and then adjusted
-     if(workoutName.trim() === ''){
-       Alert.alert("Error", "Workout Name cannot be empty");
-       return;
-     }
+
     try {
       // Fetch the workout ID
       const workoutId = await fetchWorkoutById(selectedWorkout.name);
@@ -378,26 +376,6 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     alignSelf: 'center',
   },
-
-  darkWorkoutItem: {
-    backgroundColor: "#333333",
-    width: '95%',
-    height: 90,
-    borderRadius: 10,
-    // borderWidth: 0.3,
-    // borderColor: 'grey',
-    padding: 5,
-    marginBottom: 15,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    flexDirection: "column", // Stack workout name and buttons vertically
-    textAlign: 'left',
-    paddingLeft: 10,
-    alignSelf: 'center',
-  },
   
   
   workoutName: {
@@ -406,14 +384,6 @@ const styles = StyleSheet.create({
     color: "black",
     padding: 5,
     marginBottom: 15, // Add space between workout name and buttons
-  },
-
-  darkWorkoutName: {
-    fontSize: 18,
-    fontWeight: "bold",
-    padding: 5,
-    marginBottom: 15, // Add space between workout name and buttons
-    color: 'white'
   },
   
   buttonGroup: {
@@ -476,29 +446,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
-  darkModalContent: {
-    width: "95%",
-    backgroundColor: "#333",
-    borderRadius: 15,
-    padding: 20,
-    maxHeight: "90%", // Increased max height for better visibility
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-  },
   modalTitle: {
     fontSize: 24,
     fontWeight: "bold",
     color: "black",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  dakrModalTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "white",
     marginBottom: 20,
     textAlign: "center",
   },
@@ -517,13 +468,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "black", // Neutral gray for exercise names
-    marginBottom: 10,
-    textAlign: "center",
-  },
-  darkExerciseName: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "white", // Neutral gray for exercise names
     marginBottom: 10,
     textAlign: "center",
   },
@@ -563,16 +507,6 @@ const styles = StyleSheet.create({
     // color: 'grey',
     // backgroundColor: "#fff",
     backgroundColor: "#f9f9f9",
-  },
-  darkInput: {
-    borderRadius: 10,
-    padding: 10,
-    marginVertical: 10,
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: 'white',
-    // backgroundColor: "#fff",
-    backgroundColor: "#777",
   },
   saveButton: {
     backgroundColor: "#21BFBF",
@@ -657,18 +591,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-  darkExerciseCard: {
-    backgroundColor: "#666",
-    borderRadius: 10,
-    padding: 15,
-    marginTop: 20,
-    marginBottom: 20,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
   exerciseNameInput: {
     fontSize: 18,
     fontWeight: "bold",
@@ -679,17 +601,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 8,
     backgroundColor: "#f9f9f9",
-    marginRight: -7,
-    marginLeft: -7,
-  },
-  darkExerciseNameInput: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 10,
-    borderRadius: 8,
-    padding: 8,
-    backgroundColor: "#777",
     marginRight: -7,
     marginLeft: -7,
   },
@@ -718,13 +629,6 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: "center", // Centers the text horizontally.
   },
-  darkSetLabel: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "white",
-    flex: 1,
-    textAlign: "center", // Centers the text horizontally.
-  },
   setInput: {
     borderWidth: 1,
     borderColor: '#ddd',
@@ -734,17 +638,6 @@ const styles = StyleSheet.create({
     textAlign: 'center', // Center align text
     minWidth: 60, // Keep input size consistent
     height: 30, // Match the height of the input boxes
-  },
-  darkSetInput: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 6, // Match original padding
-    borderRadius: 5,
-    fontSize: 16,
-    textAlign: 'center', // Center align text
-    minWidth: 60, // Keep input size consistent
-    height: 30, // Match the height of the input boxes
-    color: 'white'
   },
   loadingContainer: {
     flex: 1,
@@ -766,29 +659,9 @@ const styles = StyleSheet.create({
     textAlign: "right",
     flex: 1,
   }, 
-  darkSetValueTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: "white",
-    textAlign: "center",
-    flex: 1,
-  }, 
-  darkSetValueTitleStart: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: "white",
-    textAlign: "right",
-    flex: 1,
-  }, 
   setValue: {
     fontSize: 14,
     color: "#555",
-    textAlign: "center",
-    flex: 1,
-  },
-  darkSetValue: {
-    fontSize: 14,
-    color: "white",
     textAlign: "center",
     flex: 1,
   },
@@ -846,7 +719,7 @@ const styles = StyleSheet.create({
   },
   
   checked: {
-    color: "#21BFBF",
+    color: "green",
     fontWeight: "bold",
     fontSize: 16,
   },
@@ -871,16 +744,14 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: 'column',
-    marginRight: 10, // Space between inputs
+    marginRight: 20, // Space between inputs
     marginBottom: 2, // Space below each input container
     flex: 1.3, // Maintain proper sizing within the set row
   },
   inputHeaderContainer: {
     flexDirection: 'row',
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginRight: 200,
-    marginLeft: 15,
+    justifyContent: 'space-between',
+    marginRight: 20, // Space between inputs
     marginBottom: 2, // Space below each input container
     flex: 1.3, // Maintain proper sizing within the set row
   }, 
@@ -890,13 +761,6 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     // marginRight: 50,
     color: '#555',
-  },
-  darkInputHeader: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginBottom: 2,
-    // marginRight: 50,
-    color: 'white',
   },
   // columnWrapper: {
   //   paddingHorizontal: 5, // Add padding to the left and right of the row
@@ -932,8 +796,8 @@ return (
           // columnWrapperStyle={styles.columnWrapper} // Add spacing between columns
           showsVerticalScrollIndicator= {false}
           renderItem={({ item }) => (
-            <View style={isDarkMode? styles.darkWorkoutItem:styles.workoutItem}>
-              <Text style={isDarkMode? styles.darkWorkoutName:styles.workoutName}>{String(item.name)}</Text>
+            <View style={styles.workoutItem}>
+              <Text style={styles.workoutName}>{String(item.name)}</Text>
               <View style={styles.buttonGroup}>
               <TouchableOpacity
                   style={styles.deleteButton}
@@ -990,7 +854,7 @@ return (
   onRequestClose={closeModal}
 >
   <View style={styles.modalOverlay}>
-    <View style={isDarkMode?styles.darkModalContent:styles.modalContent}>
+    <View style={styles.modalContent}>
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: -.1 }}
@@ -1000,7 +864,7 @@ return (
           {isEditing ? (
             <>
               <TextInput
-                style={isDarkMode?styles.darkInput:styles.input}
+                style={styles.input}
                 value={workoutName}
                 onChangeText={setWorkoutName}
                 placeholder="Workout Name"
@@ -1013,9 +877,9 @@ return (
                   `exercise-${item.exerciseId}-${index}`
                 }
                 renderItem={({ item, index }) => (
-                  <View style={isDarkMode?styles.darkExerciseCard:styles.exerciseCard}>
+                  <View style={styles.exerciseCard}>
                     <TextInput
-                      style={isDarkMode?styles.darkExerciseNameInput:styles.exerciseNameInput}
+                      style={styles.exerciseNameInput}
                       value={item.nameOfExercise}
                       onChangeText={(text) => {
                         const updated = [...updatedExercises];
@@ -1025,33 +889,33 @@ return (
                       placeholder="Exercise Name"
                     />
                     <View style={styles.inputHeaderContainer}>
-                      <Text style={isDarkMode?styles.darkInputHeader:styles.inputHeader}>Set</Text>
-                      <Text style={isDarkMode?styles.darkInputHeader:styles.inputHeader}>   Reps</Text>
-                      <Text style={isDarkMode?styles.darkInputHeader:styles.inputHeader}>   Weight</Text>
-                      <Text style={isDarkMode?styles.darkInputHeader:styles.inputHeader}></Text>
+                      <Text style={styles.inputHeader}>Set</Text>
+                      <Text style={styles.inputHeader}>Reps</Text>
+                      <Text style={styles.inputHeader}>     Weight</Text>
+                      <Text style={styles.inputHeader}></Text>
                     </View>
                     <FlatList
                       data={item.reps.map((_, setIndex) => ({
                         reps: item.reps[setIndex],
                         weight: item.weight[setIndex],
                         // Retrieves the recorded time range for the set or defaults to "Not Started".
-                        //timeRange: timeRanges[`${selectedWorkout?.id}-${item.exerciseId}-${setIndex}`] || "Not Started",
+                        timeRange: timeRanges[`${selectedWorkout?.id}-${item.exerciseId}-${setIndex}`] || "Not Started",
                       }))}
                       keyExtractor={(setItem, setIndex) =>
                         `set-${item.exerciseId}-${setIndex}`
                       }
                       renderItem={({ item: setItem, index: setIndex }) => (
                         <View style={styles.setRow}>
-                          <Text style={isDarkMode?styles.darkSetLabel:styles.setLabel}>  {setIndex + 1}</Text>
-                          <Text style={isDarkMode?styles.darkSetValue:styles.setValue}>{setItem.reps ?? "N/A"}</Text>
-                          <Text style={isDarkMode?styles.darkSetValue:styles.setValue}>{setItem.weight !== null ? `${setItem.weight}` : "N/A"} lbs</Text>
-                          <Text style={isDarkMode?styles.darkSetValue:styles.setValue}></Text> {/* keep Time Range */}
+                          <Text style={styles.setLabel}>  {setIndex + 1}</Text>
+                          <Text style={styles.setValue}>{setItem.reps ?? "N/A"}</Text>
+                          <Text style={styles.setValue}>{setItem.weight !== null ? `${setItem.weight} lbs` : "N/A"} lbs</Text>
+                          <Text style={styles.setValue}>{setItem.timeRange}</Text> {/* keep Time Range */}
 
                           {/* Reps Label and Input */}
                           <View style={styles.inputContainer}>
                             {/* <Text style={styles.inputLabel}></Text> */}
                             <TextInput
-                              style={isDarkMode?styles.darkSetInput:styles.setInput}
+                              style={styles.setInput}
                               value={setItem.reps.toString()}
                               onChangeText={(text) => {
                                 const updated = [...updatedExercises];
@@ -1068,7 +932,7 @@ return (
                           <View style={styles.inputContainer}>
                             {/* <Text style={styles.inputLabel}></Text> */}
                             <TextInput
-                              style={isDarkMode?styles.darkSetInput:styles.setInput}
+                              style={styles.setInput}
                               value={setItem.weight.toString()}
                               onChangeText={(text) => {
                                 const updated = [...updatedExercises];
@@ -1124,22 +988,22 @@ return (
             </>
           ) : (
             <>
-              <Text style={isDarkMode?styles.dakrModalTitle:styles.modalTitle}>{selectedWorkout.name}</Text>
+              <Text style={styles.modalTitle}>{selectedWorkout.name}</Text>
               <FlatList
                 data={selectedWorkout.exercises || []}
                 keyExtractor={(item, index) =>
                   `exercise-${item.exerciseId}-${index}`
                 }
                 renderItem={({ item,index: exerciseIndex }) => (
-                  <View style={isDarkMode?styles.darkExerciseCard:styles.exerciseCard}>
-                    <Text style={isDarkMode?styles.darkExerciseName:styles.exerciseName}>
+                  <View style={styles.exerciseCard}>
+                    <Text style={styles.exerciseName}>
                       {item.nameOfExercise}
                     </Text>
                     <View style={styles.setRow}>
-                      <Text style={[isDarkMode?styles.darkSetLabel:styles.setLabel, { flex: 0.5, textAlign: "left", paddingLeft: 10 }]}>Set</Text>
-                      <Text style={[isDarkMode?styles.darkSetValueTitle:styles.setValueTitle, { flex: 1, textAlign: "center", paddingHorizontal: 5 }]}>Reps</Text>
-                      <Text style={[isDarkMode?styles.darkSetValueTitle:styles.setValueTitle, { flex: 1, textAlign: "center", paddingHorizontal: 5 }]}>Weight</Text>
-                      <Text style={[isDarkMode?styles.darkSetValueTitle:styles.setValueTitle, { flex: 1.2, textAlign: "left", paddingRight: 10 }]}>Time</Text>
+                      <Text style={[styles.setLabel, { flex: 0.5, textAlign: "left", paddingLeft: 10 }]}>Set</Text>
+                      <Text style={[styles.setValueTitle, { flex: 1, textAlign: "center", paddingHorizontal: 5 }]}>Reps</Text>
+                      <Text style={[styles.setValueTitle, { flex: 1, textAlign: "center", paddingHorizontal: 5 }]}>Weight</Text>
+                      <Text style={[styles.setValueTitle, { flex: 1.2, textAlign: "left", paddingRight: 10 }]}>Time</Text>
                     </View>
                     <FlatList
                       data={item.reps.map((_, setIndex) => ({
@@ -1160,16 +1024,16 @@ return (
                                               
                      return(
                         <View style={styles.setRow}>
-                          <Text style={isDarkMode?styles.darkSetLabel:styles.setLabel}>
+                          <Text style={styles.setLabel}>
                             {setIndex + 1}
                           </Text>
-                          <Text style={isDarkMode?styles.darkSetValue:styles.setValue}>
+                          <Text style={styles.setValue}>
                             {setItem.reps ?? "N/A"}
                           </Text>
-                          <Text style={isDarkMode?styles.darkSetValue:styles.setValue}>
+                          <Text style={styles.setValue}>
                             {item.weight[setIndex]} lbs
                           </Text>
-                          <Text style={isDarkMode?styles.darkSetValue:styles.setValue}>
+                          <Text style={styles.setValue}>
                             {setItem.timeRange}         {/* Display recorded time range */}
                           </Text>
 
@@ -1231,10 +1095,10 @@ return (
   onRequestClose={() => setIsTracking(false)}
 >
   <View style={styles.modalOverlay}>
-    <View style={isDarkMode?styles.darkModalContent:styles.modalContent}>
+    <View style={styles.modalContent}>
       {selectedWorkout && (
         <>
-          <Text style={isDarkMode?styles.dakrModalTitle:styles.modalTitle}>
+          <Text style={styles.modalTitle}>
             Start {selectedWorkout.name}
           {/* <Stopwatch />  */}
           </Text>
@@ -1242,14 +1106,14 @@ return (
               data={selectedWorkout.exercises || []}
               keyExtractor={(item, index) => `exercise-${item.exerciseId}-${index}`}
               renderItem={({ item, index: exerciseIndex }) => (
-                <View style={isDarkMode?styles.darkExerciseCard:styles.exerciseCard}>
-                  <Text style={isDarkMode?styles.darkExerciseName:styles.exerciseName}>{item.nameOfExercise}</Text>
+                <View style={styles.exerciseCard}>
+                  <Text style={styles.exerciseName}>{item.nameOfExercise}</Text>
                   <View style={styles.labelRow}>
-                      <Text style={isDarkMode?styles.darkSetLabel:styles.setLabel}>Set</Text>
-                      <Text style={isDarkMode?styles.darkSetValueTitleStart:styles.setValueTitleStart}>Reps</Text>
-                      <Text style={isDarkMode?styles.darkSetValueTitleStart:styles.setValueTitleStart}>Weight</Text>
-                      <Text style={isDarkMode?styles.darkSetValueTitle:styles.setValueTitle}>  Time</Text>
-                      <Ionicons style={styles.setLabelIcon} name="checkmark" size={24} color={isDarkMode? "white":"#555"} />
+                      <Text style={styles.setLabel}>Set</Text>
+                      <Text style={styles.setValueTitleStart}>Reps</Text>
+                      <Text style={styles.setValueTitleStart}>Weight</Text>
+                      <Text style={styles.setValueTitle}>  Time</Text>
+                      <Ionicons style={styles.setLabelIcon} name="checkmark" size={24} color="#555" />
                       {/* <Text style={styles.setValueTitleStart}>Finish</Text> */}
                   </View>
                   
@@ -1261,10 +1125,10 @@ return (
                     
                     return (
                       <View key={`set-${exerciseIndex}-${setIndex}`} style={styles.setRow}>
-                        <Text style={isDarkMode?styles.darkSetLabel:styles.setLabel}> {setIndex + 1}</Text>
-                        <Text style={isDarkMode?styles.darkSetValue:styles.setValue}>{rep}</Text>
-                        <Text style={isDarkMode?styles.darkSetValue:styles.setValue}>{item.weight[setIndex]} lbs</Text>
-                        <Text style={isDarkMode?styles.darkSetValue:styles.setValue}>{timeRange}</Text>
+                        <Text style={styles.setLabel}> {setIndex + 1}</Text>
+                        <Text style={styles.setValue}>{rep}</Text>
+                        <Text style={styles.setValue}>{item.weight[setIndex]} lbs</Text>
+                        <Text style={styles.setValue}>{timeRange}</Text>
 
                       {/* Checkbox */}
                       <TouchableOpacity

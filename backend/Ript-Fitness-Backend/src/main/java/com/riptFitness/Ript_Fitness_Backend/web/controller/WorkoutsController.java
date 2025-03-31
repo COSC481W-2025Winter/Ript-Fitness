@@ -3,6 +3,7 @@ package com.riptFitness.Ript_Fitness_Backend.web.controller;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,13 +34,6 @@ public class WorkoutsController {
 		WorkoutsDto newWorkout = workoutsService.addWorkout(workoutDto);
 		return ResponseEntity.ok(newWorkout);
 	}
-	
-	// Retrieve a workout by ID
-    @GetMapping("/{workoutId}")
-    public ResponseEntity<WorkoutsDto> getWorkout(@PathVariable Long workoutId) {
-        WorkoutsDto workoutDto = workoutsService.getWorkout(workoutId);
-        return ResponseEntity.ok(workoutDto);
-    }
     
     @GetMapping("/getUsersWorkouts/{startIndex}/{endIndex}")
     public ResponseEntity<List<WorkoutsDto>> getUsersWorkouts(@PathVariable Integer startIndex, @PathVariable Integer endIndex) {
@@ -79,5 +73,24 @@ public class WorkoutsController {
 	    List<WorkoutsDto> data = workoutsService.getWorkoutDataByDate(parsedDate);
 	    return ResponseEntity.ok(data);
 	}
+
+	
+	//Endpoint for the body diagram that clones exercises
+	@PostMapping("/createWithExerciseClones")
+	public ResponseEntity<WorkoutsDto> createWorkoutWithExerciseClones(@RequestBody Map<String, Object> payload) {
+	    String name = (String) payload.get("name");
+	    List<Integer> rawIds = (List<Integer>) payload.get("exerciseIds");
+	    List<Long> exerciseIds = rawIds.stream().map(Integer::longValue).collect(Collectors.toList());
+
+	    WorkoutsDto newWorkout = workoutsService.createWorkoutWithClonedExercises(name, exerciseIds);
+	    return ResponseEntity.ok(newWorkout);
+	}
+	
+	// Retrieve a workout by ID
+    @GetMapping("/{workoutId}")
+    public ResponseEntity<WorkoutsDto> getWorkout(@PathVariable Long workoutId) {
+        WorkoutsDto workoutDto = workoutsService.getWorkout(workoutId);
+        return ResponseEntity.ok(workoutDto);
+    }
 
 }

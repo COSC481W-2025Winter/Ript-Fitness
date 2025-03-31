@@ -230,7 +230,40 @@ public class WorkoutsService {
 	    return workoutList.stream()
                 .map(WorkoutsMapper.INSTANCE::toWorkoutsDto)
                 .collect(Collectors.toList());
-	}
+}
+	
+	public WorkoutsDto createWorkoutWithClonedExercises(String name, List<Long> exerciseIds) {
+	    Long currentUserId = accountsService.getLoggedInUserId();
+	    AccountsModel account = accountsRepository.findById(currentUserId)
+	        .orElseThrow(() -> new RuntimeException("Account not found"));
 
+	    Workouts newWorkout = new Workouts();
+	    newWorkout.setName(name);
+	    newWorkout.setAccount(account);
+	    workoutsRepository.save(newWorkout); 
+
+	    for (Long id : exerciseIds) {
+	        ExerciseModel original = exerciseRepository.findById(id)
+	            .orElseThrow(() -> new RuntimeException("Exercise not found: " + id));
+
+	        ExerciseModel copy = new ExerciseModel();
+	        copy.setNameOfExercise(original.getNameOfExercise());
+	        copy.setSets(original.getSets());
+	        copy.setReps(new ArrayList<>(original.getReps()));
+	        copy.setWeight(new ArrayList<>(original.getWeight()));
+	        copy.setDescription(original.getDescription());
+	        copy.setExerciseType(original.getExerciseType());
+	        copy.setAccount(account);
+	        copy.setWorkout(newWorkout);
+	        copy.setIsDeleted(false);
+
+	        exerciseRepository.save(copy);
+	        newWorkout.getExercises().add(copy); 
+	    }
+
+	    workoutsRepository.save(newWorkout); 
+
+	    return WorkoutsMapper.INSTANCE.toWorkoutsDto(newWorkout);
+	}
 	
 }
