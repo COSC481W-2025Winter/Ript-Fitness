@@ -749,14 +749,14 @@ function PostsScreen() {
   );
 }
 
-function ProgressScreen() {
-  const navigation = useNavigation<ProfileScreenNavigationProp>();
+function ProgressScreen({ navigation }: any) {
+  //const navigation = useNavigation<ProfileScreenNavigationProp>();
   const context = useContext(GlobalContext);
   const [loadingDates, setLoadingDates] = useState<Date[]>([]);
 
   const isDarkMode = context?.isDarkMode;
   const [workoutName, setWorkoutName] = useState<string>("");
-  const workoutContext = useContext(WorkoutContext); // Access workout data and state using WorkoutContext.
+  const workoutContext = useContext(WorkoutContext); 
 
   
 
@@ -782,42 +782,39 @@ function ProgressScreen() {
     let myStyle;
     let textStyle;
 
+
     const [modalVisible, setModalVisible] = useState(false);
+    const [workouts, setWorkouts] = useState<any[]>([]);
+
+  const fetchWorkoutsByDate = async (formattedDate: string) => {
+    try {
+      const response = await fetch(
+        `${httpRequests.getBaseURL()}/workouts/getUsersWorkoutsByDate/${formattedDate}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${context?.data.token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch workouts: ${response.statusText}`);
+      }
+
+      const workoutsData = await response.json();
+      setWorkouts(workoutsData); // Store the fetched workouts in state
+    } catch (error) {
+      console.error('Error fetching workouts:', error);
+    }
+  };
+
 
   const handlePress = () => {
+
     setModalVisible(true); // Show the modal when the text is clicked
-    const fetchWorkoutById = async (workoutName: string): Promise<number | undefined> => {
-      const selectedDate = new Date (year, month, day);
-      const formattedDate = formatDateForBackend(selectedDate);
-      try {
-        const response = await fetch(
-          `${httpRequests.getBaseURL()}/workouts/getUsersWorkoutsByDate/${formattedDate}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${context?.data.token}`,
-            },
-          }
-        );
-  
-  
-        if (!response.ok) {
-          throw new Error(`Failed to fetch workouts: ${response.statusText}`);
-        }
-  
-  
-        const workouts = await response.json();
-        const matchedWorkout = workouts.find(
-          (workout: any) => workout.name === workoutName
-        );
-  
-  
-        return matchedWorkout ? matchedWorkout.workoutsId : undefined;
-      } catch (error) {
-        console.error("Error fetching workout by name:", error);
-        return undefined;
-      }
-    };
+    const selectedDate = new Date (year, month, day);
+    const formattedDate = formatDateForBackend(selectedDate);
   };
 
   function formatDateForBackend(date: Date): string {
@@ -872,10 +869,10 @@ function ProgressScreen() {
         <TouchableWithoutFeedback onPress={closeModal}>
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
               <View style={{ width: '80%', minHeight: 200, backgroundColor: isDarkMode?'#666':'white', alignItems: 'center', padding: 20, borderRadius: 8 }}>
-                <Text>You've logged </Text>
+                <Text style={{color: isDarkMode? 'white':'black', fontWeight: 'bold', fontSize: 20}}>You've logged </Text>
                 <FlatList
                           style={{alignContent: 'flex-start'}}
-                          data={context?.workouts || []}
+                          data={workouts || []}
                           keyExtractor={(item, index) =>
                             item.id ? `workout-${item.id}-${index}` : `workout-${index}`
                           }
@@ -884,7 +881,7 @@ function ProgressScreen() {
                                                 )}
 
                 />
-                <TouchableOpacity onPress={handlePress} style={styles.logMoreButton}>
+                <TouchableOpacity onPress={navigateToMyWorkoutScreen} style={styles.logMoreButton}>
                   <Text>Log More</Text>
                 </TouchableOpacity>
               </View>
@@ -893,6 +890,10 @@ function ProgressScreen() {
       </Modal>
       </View>
     );
+  };
+
+  const navigateToMyWorkoutScreen = () => {
+    navigation.navigate('Workout', { screen: 'MyWorkoutsScreen' }); // Navigate to the my workouts screen
   };
 
   const getActivityType = (myDate: Date): number => {
