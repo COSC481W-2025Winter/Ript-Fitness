@@ -101,6 +101,7 @@ export default function WorkoutApiScreen() {
       <TouchableOpacity 
         style={styles.button} 
         onPress={() => navigation.navigate('BodyFocusScreen', {})} 
+        testID='touchable-opacity-id'
       >
         <View style={styles.iconStyles}>
             <MuscleIcon width={32} height={32} />
