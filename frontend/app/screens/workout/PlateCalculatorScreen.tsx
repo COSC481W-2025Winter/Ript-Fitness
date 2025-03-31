@@ -7,12 +7,14 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  Animated,
 } from "react-native";
 
 const PlateCalculatorScreen = () => {
   const [weight, setWeight] = useState("");
   const [plates, setPlates] = useState<number[] | null>(null);
   const [loading, setLoading] = useState(false);
+  const barbellAnimation = useState(new Animated.Value(0))[0];
 
   // Define available plate weights (standard)
   const plateSizes = [45, 35, 25, 10, 5, 2.5]; // lbs
@@ -23,7 +25,8 @@ const PlateCalculatorScreen = () => {
     let targetWeight = parseFloat(weight);
 
     if (isNaN(targetWeight) || targetWeight <= barbellWeight) {
-      Alert.alert("Error", "Enter a valid weight above 45 lbs (barbell weight).");
+      Alert.alert("Error", "Enter a valid weight above 45 lbs (barbell weight)."
+      );
       return;
     }
 
@@ -43,7 +46,14 @@ const PlateCalculatorScreen = () => {
 
       setPlates(selectedPlates);
       setLoading(false);
-    }, 500); // Simulate small delay for better UI feedback
+
+      // Trigger animation
+      Animated.timing(barbellAnimation, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start(() => barbellAnimation.setValue(0)); // Reset animation
+    }, 500);
   };
 
   return (
@@ -66,22 +76,33 @@ const PlateCalculatorScreen = () => {
         )}
       </TouchableOpacity>
 
-      {plates !== null && (
-        <View style={styles.plateList}>
-          {plates.length > 0 ? (
-            <>
-              <Text style={styles.resultTitle}>Plates Needed (One Side):</Text>
-              {plates.map((plate, index) => (
-                <Text key={index} style={styles.resultText}>
-                  {plate} lbs
-                </Text>
-              ))}
-            </>
-          ) : (
-            <Text style={styles.resultText}>No plates needed. The bar itself is enough.</Text>
-          )}
+      <Animated.View
+        style={[
+          styles.barbell,
+          {
+            transform: [
+              {
+                scaleX: barbellAnimation.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [1, 1.1],
+                }),
+              },
+            ],
+          },
+        ]}
+      >
+        <View style={styles.plateContainer}>
+          {plates?.map((plate, index) => (
+            <View key={index} style={[styles.plate, { width: plate * 2 }]} />
+          ))}
         </View>
-      )}
+        <View style={styles.bar} />
+        <View style={styles.plateContainer}>
+          {plates?.map((plate, index) => (
+            <View key={index} style={[styles.plate, { width: plate * 2 }]} />
+          ))}
+        </View>
+      </Animated.View>
     </View>
   );
 };
@@ -117,16 +138,23 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
   },
-  plateList: {
-    marginTop: 20,
+  barbell: {
+    flexDirection: "row",
     alignItems: "center",
+    marginTop: 30,
   },
-  resultTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
+  bar: {
+    width: 100,
+    height: 10,
+    backgroundColor: "black",
   },
-  resultText: {
-    fontSize: 16,
+  plateContainer: {
+    flexDirection: "row",
+  },
+  plate: {
+    height: 40,
+    backgroundColor: "gray",
+    marginHorizontal: 2,
   },
 });
 
