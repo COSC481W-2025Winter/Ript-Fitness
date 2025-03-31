@@ -370,7 +370,7 @@ const addExercise = () => {
                       onChangeText={(value) => handleRepChange(index, value)}
                     />
                     <TextInput 
-                      testID="weight-input" // Add this line
+                      testID="weight-input" // recommended by DeepSeek for testing
                       style={styles.weightInput}
                       maxLength={6}
                       keyboardType='numeric'
