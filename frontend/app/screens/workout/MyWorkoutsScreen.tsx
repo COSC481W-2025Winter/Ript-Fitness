@@ -1037,6 +1037,7 @@ return (
                             {setItem.timeRange}         {/* Display recorded time range */}
                           </Text>
 
+
                           {/* Start and Stop button */}
                           {!isActive ? (
                               <TouchableOpacity
