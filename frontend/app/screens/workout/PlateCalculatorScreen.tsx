@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   Text,
@@ -9,12 +9,17 @@ import {
   ActivityIndicator,
   Animated,
 } from "react-native";
+import { GlobalContext } from "@/context/GlobalContext";
+
 
 const PlateCalculatorScreen = () => {
   const [weight, setWeight] = useState("");
   const [plates, setPlates] = useState<number[] | null>(null);
   const [loading, setLoading] = useState(false);
   const barbellAnimation = useState(new Animated.Value(0))[0];
+  const context = useContext(GlobalContext);
+  const isDarkMode = context?.isDarkMode;
+
 
   // Define available plate weights (standard)
   const plateSizes = [45, 35, 25, 10, 5, 2.5]; // lbs
@@ -56,17 +61,65 @@ const PlateCalculatorScreen = () => {
     }, 500);
   };
 
+  const plateToHeight = (plate: number) => {
+    switch (plate) {
+      case 45:
+        return 80;
+      case 35:
+        return 70;
+      case 25:
+        return 60;
+      case 10:
+        return 50;
+      case 5:
+        return 40;
+      case 2.5:
+        return 30;
+      default:
+        return 30;
+    }
+  };
+
+  const plateToColor = (plate: number) => {
+    switch (plate) {
+      case 45: return "red";
+      case 35: return "blue";
+      case 25: return "gold";
+      case 10: return "green";
+      case 5: return "orange";
+      case 2.5: return "gray";
+      default: return "gray";
+    }
+  };
+
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Weight Plate Calculator</Text>
+
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: isDarkMode ? "#121212" : "#F5F5F5" },
+      ]}
+    >
+      <Text style={[styles.title, { color: isDarkMode ? "#fff" : "#000" }]}>Weight Plate Calculator</Text>
 
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            backgroundColor: isDarkMode ? "#333" : "#fff",
+            color: isDarkMode ? "#fff" : "#000", // sets input text color
+            borderColor: isDarkMode ? "#555" : "gray",
+          },
+        ]}
         placeholder="Enter weight (lbs)"
+        placeholderTextColor={isDarkMode ? "#aaa" : "#888"} // ← important!
         keyboardType="numeric"
         value={weight}
         onChangeText={setWeight}
       />
+
+
 
       <TouchableOpacity onPress={calculatePlates} style={styles.button}>
         {loading ? (
@@ -92,17 +145,64 @@ const PlateCalculatorScreen = () => {
         ]}
       >
         <View style={styles.plateContainer}>
-          {plates?.map((plate, index) => (
-            <View key={index} style={[styles.plate, { width: plate * 2 }]} />
+          {plates?.slice().reverse().map((plate, index) => (
+            <View
+              key={index}
+              style={[
+                styles.plate,
+                {
+                  width: 10,
+                  height: plateToHeight(plate),
+                  backgroundColor: plateToColor(plate),
+                  marginHorizontal: 1,
+                  borderRadius: 3,
+                },
+              ]}
+            />
           ))}
         </View>
-        <View style={styles.bar} />
+
+        <View
+          style={[
+            styles.bar,
+            { backgroundColor: isDarkMode ? "#aaa" : "black" },
+          ]}
+        />
+
+
         <View style={styles.plateContainer}>
           {plates?.map((plate, index) => (
-            <View key={index} style={[styles.plate, { width: plate * 2 }]} />
+            <View
+              key={index}
+              style={[
+                styles.plate,
+                {
+                  width: 10,
+                  height: plateToHeight(plate),
+                  backgroundColor: plateToColor(plate),
+                  marginHorizontal: 1,
+                  borderRadius: 3,
+                },
+              ]}
+            />
           ))}
         </View>
       </Animated.View>
+      
+      {plates && plates.length > 0 && (
+          <View style={styles.plateListContainer}>
+            <Text style={[styles.plateListTitle, { color: isDarkMode ? "#fff" : "#000" }]}>
+              Plates per side:
+            </Text>
+            <Text style={[styles.plateListText, { color: isDarkMode ? "#ddd" : "#333" }]}>
+              {plates
+                .slice()
+                .sort((a, b) => b - a)
+                .map((plate) => plate.toString())
+                .join(", ")}
+            </Text>
+          </View>
+        )}
     </View>
   );
 };
@@ -150,12 +250,27 @@ const styles = StyleSheet.create({
   },
   plateContainer: {
     flexDirection: "row",
+    alignItems: "center",
   },
   plate: {
-    height: 40,
-    backgroundColor: "gray",
-    marginHorizontal: 2,
+    marginHorizontal: 1,
+    borderRadius: 3,
   },
+
+  plateListContainer: {
+    marginTop: 20,
+    alignItems: "center",
+  },
+  plateListTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 6,
+  },
+  plateListText: {
+    fontSize: 16,
+    marginTop: 4,
+  },
+
 });
 
 export default PlateCalculatorScreen;
