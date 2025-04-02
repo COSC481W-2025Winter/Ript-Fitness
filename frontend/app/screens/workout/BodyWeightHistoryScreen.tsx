@@ -150,7 +150,6 @@ useEffect(() => {
   // Edit an existing weight
   const startEdit = (entry: WeightEntry) => {
     console.log("startEdit triggered for entryId:", entry.id);
-    Alert.alert("DEBUG", `Edit tapped for ID ${entry.id}`);
     setEditId(entry.id);
     console.log("Current editId in render:", editId);
     setEditWeight(entry.weight.toString());

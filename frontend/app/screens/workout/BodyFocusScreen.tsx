@@ -49,8 +49,6 @@ export default function BodyFocusScreen() {
   });
 
   const [error, setError] = useState<string | null>(null);
-  const context = useContext(GlobalContext);
-  const token = context?.data?.token ?? ""; //Access the context data with the defined type
 
 // Map BodyPart to backend `exerciseType`
 const bodyPartToType: { [key in BodyPart]: number[] } = {
@@ -201,7 +199,7 @@ useEffect(() => {
   const viewSelectedExercises = () => {
     
     navigation.navigate('SelectedExercises', { exercises: Array.from(exerciseList || []) });
-  };
+    };
 
   // Toggles between front and back body diagram views
   const toggleView = (direction: 'left' | 'right') => {
