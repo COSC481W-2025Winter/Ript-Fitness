@@ -16,24 +16,26 @@ import { AddWorkoutScreen } from '../screens/workout/AddWorkoutScreen';
 import { Note } from '@/components/MyNotes/NotesContext';
 import { GlobalContext } from '@/context/GlobalContext';
 import BodyFocusScreen from '@/app/screens/workout/BodyFocusScreen';
-import WorkoutTrendScreen from '@/app/screens/workout/WorkoutTrendScreen';
 import PlateCalculatorScreen from '@/app/screens/workout/PlateCalculatorScreen';
+import BodyWeightHistory from '@/app/screens/workout/BodyWeightHistoryScreen';
 
-const Stack = createStackNavigator();
+
+const Stack = createStackNavigator<WorkoutStackParamList>();
 
 export type WorkoutStackParamList = {
   WorkoutApiScreen: {};
   ApiScreen: {};
   StartWorkoutScreen: {};
   AddWorkoutScreen: {};
-  MyWorkoutsScreen: {};
+  MyWorkoutsScreen: { exercises?: Exercise[] };
   MyNotesScreen: {};
   EditNoteScreen: { note: Note | null };
   RiptWorkoutScreen: {};
   WorkoutDetailScreen: {};
   BodyFocusScreen: {};
-  WorkoutTrendScreen: {};
   PlateCalculatorScreen: {};
+  BodyWeightHistoryScreen: {};  
+
 };
 
 export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamList>;
@@ -220,17 +222,30 @@ export default function WorkoutStack() {
       />
 
 
+ 
       <Stack.Screen
         name="BodyFocusScreen"
         component={BodyFocusScreen}
-        options={{ title: 'Body Focus' }}
+        options={({ navigation }) => ({
+          title: 'Body Focus',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={[styles.leftButton, styles.button, styles.buttonSize]}
+            >
+              <TabBarIcon name="arrow-back-outline" size={30} color="#454343" />
+            </TouchableOpacity>
+          ),
+          headerTitleAlign: 'center',
+        })}
       />
 
+
       <Stack.Screen
-        name="WorkoutTrendScreen"
-        component={WorkoutTrendScreen}
+        name="BodyWeightHistoryScreen"
+        component={BodyWeightHistory}
         options={({ navigation }) => ({
-          title: 'Workout Trends',
+          title: 'Selected Exercises',
           headerLeft: () => (
             <TouchableOpacity
               onPress={() => navigation.goBack()}
@@ -242,6 +257,7 @@ export default function WorkoutStack() {
           headerTitleStyle: {
             color: isDarkMode ? 'white' : 'black',
           },
+
           headerTitleAlign: 'center',
         })}
       />
