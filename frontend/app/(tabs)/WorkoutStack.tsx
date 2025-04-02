@@ -16,9 +16,7 @@ import { AddWorkoutScreen } from '../screens/workout/AddWorkoutScreen';
 import { Note } from '@/components/MyNotes/NotesContext';
 import { GlobalContext } from '@/context/GlobalContext';
 import BodyFocusScreen from '@/app/screens/workout/BodyFocusScreen';
-import SelectedExercisesScreen from '@/app/screens/workout/SelectedExercisesScreen';
-import { Exercise } from '@/context/GlobalContext'; 
-import { BodyPart } from '@/app/screens/workout/BodyFocusScreen';
+import BodyWeightHistory from '@/app/screens/workout/BodyWeightHistoryScreen';
 
 const Stack = createStackNavigator<WorkoutStackParamList>();
 
@@ -32,11 +30,8 @@ export type WorkoutStackParamList = {
   EditNoteScreen: { note:Note | null };
   RiptWorkoutScreen: {};
   WorkoutDetailScreen: {};
-  BodyFocusScreen: {exercises?: string[]};
-  SelectedExercises: { 
-    exercises: string[];
-    bodyPart?: BodyPart; 
-  };
+  BodyFocusScreen: {};
+  BodyWeightHistoryScreen: {};  
 };
 
 export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamList>;
@@ -243,8 +238,8 @@ export default function WorkoutStack() {
 
 
       <Stack.Screen
-        name="SelectedExercises"
-        component={SelectedExercisesScreen}
+        name="BodyWeightHistoryScreen"
+        component={BodyWeightHistory}
         options={({ navigation }) => ({
           title: 'Selected Exercises',
           headerLeft: () => (

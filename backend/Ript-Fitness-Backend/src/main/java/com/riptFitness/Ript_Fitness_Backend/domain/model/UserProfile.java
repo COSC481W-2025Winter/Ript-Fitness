@@ -172,7 +172,11 @@ public class UserProfile {
 	}
 
 	public void setBio(String bio) {
+<<<<<<< HEAD
 		this.bio = bio + "";
+=======
+		this.bio = bio;
+>>>>>>> 10-user---ui-graph-display
 	}
 
 	public String getUsername() {
