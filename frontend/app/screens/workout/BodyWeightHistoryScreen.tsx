@@ -1,5 +1,15 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import {View, Text, StyleSheet, ScrollView, Button, Animated, Dimensions, Alert, TouchableOpacity, TextInput,} from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Button,
+  Animated,
+  Dimensions,
+  Alert,
+  TextInput,
+} from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { GlobalContext } from "@/context/GlobalContext";
 import { httpRequests } from "@/api/httpRequests";
@@ -22,23 +32,24 @@ export default function BodyWeightHistory() {
   const { data: globalData, isDarkMode } = useContext(GlobalContext)!;
 
   // Chart config 
-const chartConfig = {
-  backgroundGradientFrom: isDarkMode ? "#0f2027" : "#ffffff",
-  backgroundGradientTo: isDarkMode ? "#203a43" : "#ffffff",
-  decimalPlaces: 0,
-  color: (opacity = 1) => `rgba(72, 239, 255, ${opacity})`,
-  labelColor: (opacity = 1) => isDarkMode ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
-  style: { borderRadius: 16 },
-  propsForLabels: { fontSize: 12 },
-  propsForDots: { r: "3", strokeWidth: "3", stroke: "#48efff" },
-  yAxisMinimum: 0,
-  labelRotation: 0,
-  propsForBackgroundLines: {
-    strokeWidth: 1,
-    stroke: isDarkMode ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)",
-  },
-  strokeWidth: 3,
-};
+  const chartConfig = {
+    backgroundGradientFrom: isDarkMode ? "#0f2027" : "#ffffff",
+    backgroundGradientTo: isDarkMode ? "#203a43" : "#ffffff",
+    decimalPlaces: 0,
+    color: (opacity = 1) => `rgba(72, 239, 255, ${opacity})`,
+    labelColor: (opacity = 1) =>
+      isDarkMode ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
+    style: { borderRadius: 16 },
+    propsForLabels: { fontSize: 12 },
+    propsForDots: { r: "3", strokeWidth: "3", stroke: "#48efff" },
+    yAxisMinimum: 0,
+    labelRotation: 0,
+    propsForBackgroundLines: {
+      strokeWidth: 1,
+      stroke: isDarkMode ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)",
+    },
+    strokeWidth: 3,
+  };
 
   const token = globalData?.token ?? "";
 
@@ -80,29 +91,12 @@ const chartConfig = {
   
 
   // Fetch full weight history & store it in allWeights
-  useEffect(() => {
-    const fetchWeightHistory = async () => {
-      try {
-        const response = await httpRequests.get("/userProfile/weightHistory", token);
-        if (!Array.isArray(response)) {
-          Alert.alert("Error", "Invalid weight data format");
-          return;
-        }
-        // Sort ascending by date
-        const sorted = response.sort(
-          (a: WeightEntry, b: WeightEntry) =>
-            new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime()
-        );
-        setAllWeights(sorted);
-      } catch (error) {
-        console.error("Failed to fetch weight history:", error);
-        Alert.alert("Error", "Unable to fetch weight history.");
-      }
-    };
-    fetchWeightHistory();
-  }, [token, range]);
+useEffect(() => {
+  fetchWeightHistory();
+}, [fetchWeightHistory, range]);
 
-  // 2) Filter  chart and chart animation
+
+  // 2) Filter chart and chart animation
   useEffect(() => {
     Animated.timing(chartAnimation, {
       toValue: 1,
@@ -143,27 +137,25 @@ const chartConfig = {
       Alert.alert("Invalid weight", "Please enter a valid positive number.");
       return;
     }
-  
     try {
-      const response = await httpRequests.put(`/userProfile/updateWeight?weight=${weightNum}`, token);
+      await httpRequests.put(`/userProfile/updateWeight?weight=${weightNum}`, token);
       Alert.alert("Success", `Recorded weight: ${weightNum} lbs`);
       setNewWeight("");
-  
-      await fetchWeightHistory();
-      setRange(Range.Seven); // Optional if you want to re-focus chart
     } catch (error) {
       console.error("Failed to add weight:", error);
       Alert.alert("Error", "Unable to record new weight.");
     }
   };
-  
-  
 
   // Edit an existing weight
   const startEdit = (entry: WeightEntry) => {
+    console.log("startEdit triggered for entryId:", entry.id);
+    Alert.alert("DEBUG", `Edit tapped for ID ${entry.id}`);
     setEditId(entry.id);
+    console.log("Current editId in render:", editId);
     setEditWeight(entry.weight.toString());
   };
+
 
   const cancelEdit = () => {
     setEditId(null);
@@ -177,21 +169,34 @@ const chartConfig = {
       Alert.alert("Invalid weight", "Please enter a valid positive number.");
       return;
     }
-
     try {
-      await httpRequests.put(`/userProfile/weightHistory/${editId}/${weightNum}`, token);
+      await httpRequests.put(`/userProfile/editWeight/${editId}/${weightNum}`, token);
       Alert.alert("Success", `Updated weight to ${weightNum} lbs`);
       setEditId(null);
       setEditWeight("");
-
-      // Re-fetch or flip range to re-trigger
-      setRange(Range.Seven);
+      await fetchWeightHistory();
     } catch (error) {
       console.error("Failed to update weight:", error);
       Alert.alert("Error", "Unable to update this entry.");
     }
   };
 
+  // Filter list of entries section
+  const now = new Date();
+  let filteredEntries = allWeights.filter((entry) => {
+    if (range === Range.All) return true;
+    const days = range === Range.Thirty ? 30 : 7;
+    const diffTime = now.getTime() - new Date(entry.recordedAt).getTime();
+    return diffTime / (1000 * 60 * 60 * 24) <= days;
+  });
+
+  // If "All time only show up to 15 newest entries
+  if (range === Range.All) {
+    // reversed to show newest first
+    filteredEntries = filteredEntries.reverse().slice(0, 15);
+  } else {
+    filteredEntries = filteredEntries.reverse();
+  }
 
   return (
     <ScrollView style={isDarkMode ? styles.darkContainer : styles.container}>
@@ -222,18 +227,31 @@ const chartConfig = {
       {/* Add Weight */}
       <View style={styles.addWeightContainer}>
         <Text style={isDarkMode ? styles.darkSubtitle : styles.subtitle}>
-          Add Your Weight
+          {editId !== null ? "Edit Weight Entry" : "Add Your Weight"}
         </Text>
+
         <TextInput
           style={isDarkMode ? styles.darkWeightInput : styles.weightInput}
           placeholder="e.g. 170"
           placeholderTextColor={isDarkMode ? "#999" : "#666"}
           keyboardType="numeric"
-          value={newWeight}
-          onChangeText={setNewWeight}
+          value={editId !== null ? editWeight : newWeight}
+          onChangeText={editId !== null ? setEditWeight : setNewWeight}
         />
-        <Button title="Record Weight" onPress={handleAddWeight} />
+
+        <View style={{ flexDirection: "row", marginTop: 5 }}>
+          <Button
+            title={editId !== null ? "Save Changes" : "Record Weight"}
+            onPress={editId !== null ? handleSaveEdit : handleAddWeight}
+          />
+          {editId !== null && (
+            <View style={{ marginLeft: 10 }}>
+              <Button title="Cancel" onPress={cancelEdit} color="red" />
+            </View>
+          )}
+        </View>
       </View>
+
 
       {/* Chart */}
       <Text style={isDarkMode ? styles.darkChartTitle : styles.chartTitle}>
@@ -260,11 +278,35 @@ const chartConfig = {
           No weight data to display.
         </Text>
       )}
+
+      {/* "Manage Entries" section */}
+      <Text
+        style={[
+          isDarkMode ? styles.darkSubtitle : styles.subtitle,
+          { marginTop: 20 },
+        ]}
+      >
+        Manage Entries
+        {range === Range.All ? " (showing newest 15)" : ""}
+      </Text>
+
+      {filteredEntries.map((entry) => (
+        <View key={entry.id} style={styles.entryRow}>
+          <Text
+            style={{
+              flex: 1,
+              color: isDarkMode ? "#fff" : "#000",
+            }}
+          >
+            {new Date(entry.recordedAt).toLocaleDateString("en-US")} –{" "}
+            {entry.weight} lbs
+          </Text>
+          <Button title="Edit" onPress={() => startEdit(entry)} />
+        </View>
+      ))}
     </ScrollView>
   );
 }
-
-
 
 // STYLES
 const styles = StyleSheet.create({
@@ -287,14 +329,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 20,
-    color: "#48efff", // Light mode text color
+    color: "#48efff",
   },
   darkHeader: {
     fontSize: 22,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 20,
-    color: "#fff", // Dark mode text color
+    color: "#fff",
   },
 
   // SUBTITLES
@@ -302,7 +344,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 5,
-    color: "#48efff", // Light mode
+    color: "#48efff",
   },
   darkSubtitle: {
     fontSize: 18,
@@ -328,14 +370,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     padding: 10,
     borderRadius: 6,
-    backgroundColor: "#fff", // Light mode input BG
-    color: "#000",           // Light mode text
+    backgroundColor: "#fff",
+    color: "#000",
   },
   darkWeightInput: {
     marginBottom: 10,
     padding: 10,
     borderRadius: 6,
-    backgroundColor: "#333", // Dark mode input BG
+    backgroundColor: "#333",
     color: "#fff",
   },
 
@@ -364,11 +406,27 @@ const styles = StyleSheet.create({
 
   // NO DATA TEXT
   noData: {
-    color: "#fff",
+    color: "#000",
     textAlign: "center",
   },
   darkNoData: {
     color: "#fff",
     textAlign: "center",
+  },
+
+  entryRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+    borderBottomWidth: 0.5,
+    borderBottomColor: "#888",
+    paddingVertical: 6,
+  },
+
+  editPanel: {
+    marginVertical: 10,
+    padding: 15,
+    borderRadius: 8,
+    backgroundColor: "#fafafa",
   },
 });
