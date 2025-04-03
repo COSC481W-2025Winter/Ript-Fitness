@@ -20,15 +20,23 @@ import { Ionicons } from "@expo/vector-icons";
 import Stopwatch from "./Stopwatch";
 import { httpRequests } from "@/api/httpRequests";
 import { WorkoutContext } from "@/context/WorkoutContext";  // Import WorkoutContext for managing workout data and state.
+import { useNavigation } from "@react-navigation/native";
+import PlateCalculatorScreen from "./PlateCalculatorScreen";
+import { WorkoutScreenNavigationProp } from "@/app/(tabs)/WorkoutStack";
+
+
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import { useRoute } from '@react-navigation/native';
-
 
 
 export default function MyWorkoutsScreen() {
   const context = useContext(GlobalContext);
   const workoutContext = useContext(WorkoutContext); // Access workout data and state using WorkoutContext.
+  //const navigation = useNavigation();
+  const navigation = useNavigation<WorkoutScreenNavigationProp>();
+
   const isDarkMode = context?.isDarkMode;
+
 
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -44,9 +52,9 @@ export default function MyWorkoutsScreen() {
   // Stores the formatted time ranges for each set.
   const [timeRanges, setTimeRanges] = useState<{ [key: string]: string }>({});
   // Tracks the elapsed time (in seconds) for the currently active timer.
-  const [currentTimer, setCurrentTimer] = useState<number | null>(null); 
+  const [currentTimer, setCurrentTimer] = useState<number | null>(null);
   // Tracks the key of the currently active set being timed.
-  const [activeSet, setActiveSet] = useState<string | null>(null); 
+  const [activeSet, setActiveSet] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -64,7 +72,7 @@ export default function MyWorkoutsScreen() {
         initialState[`${exerciseIndex}-${setIndex}`] = false; // This now works
       });
     });
-    
+
     setCheckboxState(initialState);
     setSelectedWorkout(workout);
     setIsTracking(true);
@@ -75,7 +83,7 @@ export default function MyWorkoutsScreen() {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-  
+
     return [
       hrs > 0 ? `${hrs} hr` : "",
       mins > 0 ? `${mins} min` : "",
@@ -86,27 +94,27 @@ export default function MyWorkoutsScreen() {
   // Stops the timer for a specific set and removes its interval reference.
   const stopTimerForSet = (setKey: string) => {
     if (!startTime[setKey]) return;     // Exit if no timer is running for the set.
-      clearInterval(startTime[setKey]); // Stop the timer.
-      setStartTime((prev) => {
-        const updated = { ...prev };
-        delete updated[setKey]; // Remove the timer reference for the set.
-        return updated;
+    clearInterval(startTime[setKey]); // Stop the timer.
+    setStartTime((prev) => {
+      const updated = { ...prev };
+      delete updated[setKey]; // Remove the timer reference for the set.
+      return updated;
     });
 
     // Saves the elapsed time for the specific set key.
     if (currentTimer !== null) {
       const elapsedSeconds = currentTimer; // Get the total elapsed time in seconds.
       const formattedTime = formatTimeRange(elapsedSeconds); // Convert seconds into a human-readable format
-      
+
       // Update the time range in the shared context to synchronize 
       // between the view page and the start page.
-      workoutContext?.setTimeRanges((prev) => ({ 
+      workoutContext?.setTimeRanges((prev) => ({
         ...prev,
         [setKey]: formattedTime,
       }));
 
-       //Updates the time range in current view
-       setTimeRanges((prev) => {
+      //Updates the time range in current view
+      setTimeRanges((prev) => {
         const updatedTimeRanges = {
           ...prev,
           [setKey]: formattedTime, // Assign the formatted time to the corresponding set.
@@ -116,16 +124,47 @@ export default function MyWorkoutsScreen() {
       });
     }
     // Reset active set and timer state after stopping the timer.
-      setActiveSet(null);
-      setCurrentTimer(null);
+    setActiveSet(null);
+    setCurrentTimer(null);
   }
+
+  //This function opens the workout edit modal by fetching full workout details (including exercises) from the backend.
+  const openModal = async(workout: any) => {
+    const workoutId = workout.workoutsId;
+    console.log('fetched workoutID:',workoutId);
+    try {
+      const res = await fetch(`${httpRequests.getBaseURL()}/workouts/${workoutId}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${context?.data.token}`,
+        },
+      });
+      console.log("[DEBUG] Workout details fetch status:", res.status);
+      //const errorText = await res.text();
+      //console.log("[DEBUG] Workout details fetch response:", errorText);
   
-  const openModal = (workout: Workout) => {
-    setSelectedWorkout(workout);
-    setWorkoutName(workout.name);
-    setUpdatedExercises([...workout.exercises]);
+      //if (!res.ok) throw new Error("Failed to fetch workout exercises");
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.log("[DEBUG] Workout details fetch response:", errorText);
+        throw new Error("Failed to fetch workout exercises");
+      }
+      const fullWorkout = await res.json();
+    const patchedWorkout = {
+      ...workout,
+      id: (workout as any).workoutsId ?? workout.id, // Compatible with old fields
+    };
+    setSelectedWorkout(patchedWorkout);
+    setWorkoutName(patchedWorkout.name);
+    setUpdatedExercises([...patchedWorkout.exercises]);
+
+
     setIsEditing(false);
     setIsModalVisible(true);
+  } catch (err) {
+    console.error("Error loading workout details:", err);
+    Alert.alert("Error", "Failed to load workout details.");
+  }
   };
 
 
@@ -136,7 +175,7 @@ export default function MyWorkoutsScreen() {
     // Resets timer state to prevent old data from affecting new timing.
     setStartTime({}); // Clear all active timers.
     setTimeRanges({}); // Reset recorded time ranges.
- 
+
     // Revert changes if unsaved
     if (selectedWorkout) {
       setWorkoutName(selectedWorkout.name);
@@ -150,6 +189,11 @@ export default function MyWorkoutsScreen() {
       Alert.alert("Error", "No workout selected to save.");
       return;
     }
+    //refer to AddWorkoutScreen starting on line 138 for following 4 lines, from there the code was copy, pasted, and then adjusted
+    if (workoutName.trim() === '') {
+      Alert.alert("Error", "Workout Name cannot be empty");
+      return;
+    }
 
     try {
       // Fetch the workout ID
@@ -158,7 +202,7 @@ export default function MyWorkoutsScreen() {
         Alert.alert("Error", "Failed to fetch workout ID.");
         return;
       }
- 
+
       // Update the workout name
       const workoutResponse = await fetch(
         `${httpRequests.getBaseURL()}/workouts/updateWorkout/${workoutId}`,
@@ -171,13 +215,13 @@ export default function MyWorkoutsScreen() {
           body: JSON.stringify({ name: workoutName }),
         }
       );
- 
+
       if (!workoutResponse.ok) {
         throw new Error(`Failed to update workout: ${workoutResponse.statusText}`);
       }
- 
+
       console.log("Workout name updated successfully");
- 
+
       // Update each exercise
       for (const exercise of updatedExercises) {
         const exercisePayload = {
@@ -187,7 +231,7 @@ export default function MyWorkoutsScreen() {
           weight: exercise.weight,
           sets: exercise.reps.length, // Ensure sets matches the number of reps
         };
- 
+
         const exerciseResponse = await fetch(
           `${httpRequests.getBaseURL()}/exercises/updateExercise`,
           {
@@ -199,16 +243,16 @@ export default function MyWorkoutsScreen() {
             body: JSON.stringify(exercisePayload),
           }
         );
- 
+
         if (!exerciseResponse.ok) {
           throw new Error(
             `Failed to update exercise: ${exercise.nameOfExercise} - ${exerciseResponse.statusText}`
           );
         }
- 
+
         console.log(`Exercise updated successfully: ${exercise.nameOfExercise}`);
       }
- 
+
       // Refresh the workout list
       await context?.fetchWorkouts();
       Alert.alert("Success", "Workout and exercises updated successfully!");
@@ -218,7 +262,7 @@ export default function MyWorkoutsScreen() {
       Alert.alert("Error", "Failed to save workout. Please try again.");
     }
   };
- 
+
   const deleteWorkout = async (workoutName: string) => {
     try {
       const workoutId = await fetchWorkoutById(workoutName);
@@ -286,17 +330,12 @@ export default function MyWorkoutsScreen() {
     }
   };
 
-
-
-
-
-
   const logWorkout = async () => {
     if (!selectedWorkout) {
       Alert.alert("Error", "No workout selected to log.");
       return;
     }
-  
+
     try {
       const response = await fetch(
         `${httpRequests.getBaseURL()}/calendar/logWorkout?timeZone=${TimeZone.get()}`,
@@ -309,7 +348,7 @@ export default function MyWorkoutsScreen() {
           body: JSON.stringify({ workoutId: selectedWorkout.id }),
         }
       );
-  
+
       if (!response.ok) {
         const errorMessage = await response.text();
         if (errorMessage.includes("Workout or Rest day already logged for this date")) {
@@ -321,18 +360,17 @@ export default function MyWorkoutsScreen() {
         }
         throw new Error(`Failed to log workout: ${errorMessage}`);
       }
-  
+
       // Success block: Workout logged successfully
       console.log("Workout logged successfully");
       Alert.alert("Success", "Workout logged!");
-  
+
     } catch (error) {
       // Error block: Handle failed attempts
       console.log("Workout or Rest day already logged for this date");
       Alert.alert("Workout or Rest day already logged for this date");
     }
   };
-  
 
 const styles = StyleSheet.create({
   container: {
@@ -832,19 +870,19 @@ return (
                   <Text style={styles.buttonText}>Start</Text>
                   {/* <Ionicons name="arrow-up-circle" size={60} color="#21BFBF"></Ionicons> */}
                 </TouchableOpacity>
+
               </View>
-            </View>
-          )}
-        />
-      </>
-    )}
+            )}
+          />
+        </>
+      )}
       {/* Message/directions for the user */}
-      <View style={{justifyContent: 'center', alignContent: 'center', alignSelf: 'center'}}>
-          {!context?.workouts || context.workouts.length === 0 && (
-            <Text style={styles.helperText} numberOfLines={1}>
-              Please add a workout!
-            </Text>
-          )}
+      <View style={{ justifyContent: 'center', alignContent: 'center', alignSelf: 'center' }}>
+        {!context?.workouts || context.workouts.length === 0 && (
+          <Text style={styles.helperText} numberOfLines={1}>
+            Please add a workout!
+          </Text>
+        )}
       </View>
     {/* Modal for View and Edit */}
 <Modal
@@ -1076,7 +1114,7 @@ return (
 </Modal>
 
 
-   {/* Modal for Start Workout */}
+{/* Modal for Start Workout */}
 <Modal
   visible={isTracking}
   animationType="slide"
@@ -1084,40 +1122,53 @@ return (
   onRequestClose={() => setIsTracking(false)}
 >
   <View style={styles.modalOverlay}>
-    <View style={styles.modalContent}>
+    <View style={isDarkMode ? styles.darkModalContent : styles.modalContent}>
       {selectedWorkout && (
         <>
-          <Text style={styles.modalTitle}>
+          <Text style={isDarkMode ? styles.darkModalTitle : styles.modalTitle}>
             Start {selectedWorkout.name}
-          {/* <Stopwatch />  */}
           </Text>
+
           <FlatList
-              data={selectedWorkout.exercises || []}
-              keyExtractor={(item, index) => `exercise-${item.exerciseId}-${index}`}
-              renderItem={({ item, index: exerciseIndex }) => (
-                <View style={styles.exerciseCard}>
-                  <Text style={styles.exerciseName}>{item.nameOfExercise}</Text>
-                  <View style={styles.labelRow}>
-                      <Text style={styles.setLabel}>Set</Text>
-                      <Text style={styles.setValueTitleStart}>Reps</Text>
-                      <Text style={styles.setValueTitleStart}>Weight</Text>
-                      <Text style={styles.setValueTitle}>  Time</Text>
-                      <Ionicons style={styles.setLabelIcon} name="checkmark" size={24} color="#555" />
-                      {/* <Text style={styles.setValueTitleStart}>Finish</Text> */}
-                  </View>
-                  
-                  {/* Replace the nested FlatList with map() */}
-                  {item.reps.map((rep, setIndex) => {
-                    const setKey = `${selectedWorkout?.id}-${item.exerciseId}-${setIndex}`; // Unique key for each set
-                    const isActive = activeSet === setKey; // Check if the current set is being timed
-                    const timeRange = workoutContext?.timeRanges[setKey] || "Not Started"; // Retrieve the time range from context
-                    
-                    return (
-                      <View key={`set-${exerciseIndex}-${setIndex}`} style={styles.setRow}>
-                        <Text style={styles.setLabel}> {setIndex + 1}</Text>
-                        <Text style={styles.setValue}>{rep}</Text>
-                        <Text style={styles.setValue}>{item.weight[setIndex]} lbs</Text>
-                        <Text style={styles.setValue}>{timeRange}</Text>
+            data={selectedWorkout.exercises || []}
+            keyExtractor={(item, index) => `exercise-${item.exerciseId}-${index}`}
+            renderItem={({ item, index: exerciseIndex }) => (
+              <View style={isDarkMode ? styles.darkExerciseCard : styles.exerciseCard}>
+                <Text style={isDarkMode ? styles.darkExerciseName : styles.exerciseName}>
+                  {item.nameOfExercise}
+                </Text>
+
+                <View style={styles.labelRow}>
+                  <Text style={isDarkMode ? styles.darkSetLabel : styles.setLabel}>Set</Text>
+                  <Text style={isDarkMode ? styles.darkSetValueTitleStart : styles.setValueTitleStart}>Reps</Text>
+                  <Text style={isDarkMode ? styles.darkSetValueTitleStart : styles.setValueTitleStart}>Weight</Text>
+                  <Text style={isDarkMode ? styles.darkSetValueTitle : styles.setValueTitle}> Time</Text>
+                  <Ionicons
+                    style={styles.setLabelIcon}
+                    name="checkmark"
+                    size={24}
+                    color={isDarkMode ? "white" : "#555"}
+                  />
+                </View>
+
+                {/* Replace nested FlatList with a .map(), or stay consistent with FlatList */}
+                {item.reps.map((rep, setIndex) => {
+                  const setKey = `${selectedWorkout?.id}-${item.exerciseId}-${setIndex}`;
+                  const isActive = activeSet === setKey;
+                  const timeRange = workoutContext?.timeRanges[setKey] || "Not Started";
+
+                  return (
+                    <View key={`set-${exerciseIndex}-${setIndex}`} style={styles.setRow}>
+                      <Text style={isDarkMode ? styles.darkSetLabel : styles.setLabel}>
+                        {setIndex + 1}
+                      </Text>
+                      <Text style={isDarkMode ? styles.darkSetValue : styles.setValue}>{rep}</Text>
+                      <Text style={isDarkMode ? styles.darkSetValue : styles.setValue}>
+                        {item.weight[setIndex]} lbs
+                      </Text>
+                      <Text style={isDarkMode ? styles.darkSetValue : styles.setValue}>
+                        {timeRange}
+                      </Text>
 
                       {/* Checkbox */}
                       <TouchableOpacity
@@ -1137,37 +1188,58 @@ return (
                               : styles.unchecked
                           }
                         >
-                        {checkboxStates[`${exerciseIndex}-${setIndex}`] ? "✔" : " "}
+                          {checkboxStates[`${exerciseIndex}-${setIndex}`] ? "✔" : " "}
                         </Text>
                       </TouchableOpacity>
-                    </View> 
-                    );                 
-                  })}
-                </View>
-              )}
-            />
+                    </View>
+                  );
+                })}
+              </View>
+            )}
+          />
 
-         <TouchableOpacity
-                style={styles.finishButton}
+          <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 20 }}>
+            {/* Left side: Finish and Close stacked */}
+            <View style={{ flex: 1, marginRight: 10 }}>
+              <TouchableOpacity
+                style={[styles.miniButton, { marginBottom: 10 }]}
                 onPress={async () => {
                   await logWorkout();
                   setIsTracking(false);
                   Alert.alert("Get Ript!", "You have logged a workout! Check the calendar.");
                 }}
               >
-                <Text style={styles.finishButtonText}>Finish Workout</Text>
+                <Text style={styles.miniButtonText}>Finish</Text>
               </TouchableOpacity>
+
               <TouchableOpacity
-                style={styles.closeButton}
+                style={styles.miniButton}
                 onPress={() => setIsTracking(false)}
               >
-                <Text style={styles.closeButtonText}>Close</Text>
+                <Text style={styles.miniButtonText}>Close</Text>
               </TouchableOpacity>
+            </View>
+
+            {/* Right side: Plate Calculator Icon Button */}
+            <TouchableOpacity
+              style={[
+                styles.miniButton,
+                {
+                  aspectRatio: 1,
+                  height: 92, // roughly two miniButtons stacked
+                  alignSelf: "flex-start",
+                  justifyContent: "center",
+                  alignItems: "center",
+                },
+              ]}
+              onPress={() => navigation.navigate("PlateCalculatorScreen" as never)}
+            >
+              <Ionicons name="barbell-outline" size={32} color="white" />
+            </TouchableOpacity>
+          </View>
         </>
       )}
     </View>
   </View>
 </Modal>
-
-  </View>
-)};
+</View>)}
