@@ -128,12 +128,43 @@ export default function MyWorkoutsScreen() {
     setCurrentTimer(null);
   }
 
-  const openModal = (workout: Workout) => {
-    setSelectedWorkout(workout);
-    setWorkoutName(workout.name);
-    setUpdatedExercises([...workout.exercises]);
+  //This function opens the workout edit modal by fetching full workout details (including exercises) from the backend.
+  const openModal = async(workout: any) => {
+    const workoutId = workout.workoutsId;
+    console.log('fetched workoutID:',workoutId);
+    try {
+      const res = await fetch(`${httpRequests.getBaseURL()}/workouts/${workoutId}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${context?.data.token}`,
+        },
+      });
+      console.log("[DEBUG] Workout details fetch status:", res.status);
+      //const errorText = await res.text();
+      //console.log("[DEBUG] Workout details fetch response:", errorText);
+  
+      //if (!res.ok) throw new Error("Failed to fetch workout exercises");
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.log("[DEBUG] Workout details fetch response:", errorText);
+        throw new Error("Failed to fetch workout exercises");
+      }
+      const fullWorkout = await res.json();
+    const patchedWorkout = {
+      ...workout,
+      id: (workout as any).workoutsId ?? workout.id, // Compatible with old fields
+    };
+    setSelectedWorkout(patchedWorkout);
+    setWorkoutName(patchedWorkout.name);
+    setUpdatedExercises([...patchedWorkout.exercises]);
+
+
     setIsEditing(false);
     setIsModalVisible(true);
+  } catch (err) {
+    console.error("Error loading workout details:", err);
+    Alert.alert("Error", "Failed to load workout details.");
+  }
   };
 
 
