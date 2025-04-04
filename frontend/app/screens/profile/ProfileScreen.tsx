@@ -1357,24 +1357,29 @@ const MainScreen = () => {
             />
             <Text style={[isDarkMode? styles.darkName : styles.name]}>{context?.userProfile.displayname}</Text>
             {context?.userProfile.bio ? (
-              <View style={[styles.bioStyle]}>
-                <TouchableOpacity
-                  onPress={() => {
-                    if (context?.userProfile) {
-                      navigation.navigate('FullBioScreen', { userProfile: context.userProfile });
-                    } else {
-                      console.error('User profile is undefined.');
-                    }
-                  }}
-                >
-                  <Text style={[isDarkMode? styles.darkBio : styles.bio]}>
-                    {context?.userProfile?.bio != null
-                      ? `${(context?.userProfile?.bio.split('\n')[0] || '').slice(0, 50)}`
-                      : null}
-                      {context?.userProfile.bio && (context?.userProfile.bio.length > context?.userProfile.bio.split('\n')[0].length || context?.userProfile.bio.split('\n')[0].length > 50)  ? <Text style={{ color: '#757575', fontWeight: 600 }}>{'...View more'}</Text> : <></>}
-                  </Text>
-                </TouchableOpacity>
-              </View>
+              <View style={styles.bioStyle}>
+              <TouchableOpacity
+                onPress={() => {
+                  if (context?.userProfile) {
+                    navigation.navigate('FullBioScreen', { userProfile: context.userProfile });
+                  } else {
+                    console.error('User profile is undefined.');
+                  }
+                }}
+              >
+                <Text style={isDarkMode ? styles.darkBio : styles.bio}>
+                  {context?.userProfile?.bio
+                    ? `${context.userProfile.bio.split('\n')[0].slice(0, 50)}${
+                        context.userProfile.bio.length > context.userProfile.bio.split('\n')[0].length ||
+                        context.userProfile.bio.split('\n')[0].length > 50
+                          ? '...View more'
+                          : ''
+                      }`
+                    : ''}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            
             ) : null}
 
             <View style={styles.friendsContainer}>

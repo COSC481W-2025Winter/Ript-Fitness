@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "riptfitness",
-    "slug": "Ript",
-    "owner": "sjiang1",
+    "slug": "riptfitness",
+    "owner": "jeccles1",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/final-2nd-logo.png",
@@ -48,7 +48,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "37565054-23c6-429e-9b9c-8999008e91ba"
+        "projectId": "64d90884-788f-46e5-83fa-a6a96d32cb70"
       }
     },
     "runtimeVersion": "1.0.0",
