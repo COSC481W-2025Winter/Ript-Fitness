@@ -169,7 +169,7 @@ useEffect(() => {
       return;
     }
     try {
-      await httpRequests.put(`/userProfile/editWeight/${editId}/${weightNum}`, token);
+      await httpRequests.put(`/userProfile/editWeight/${editId}?weight=${weightNum}`, token);
       Alert.alert("Success", `Updated weight to ${weightNum} lbs`);
       setEditId(null);
       setEditWeight("");
