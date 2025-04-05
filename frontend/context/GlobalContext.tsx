@@ -85,8 +85,11 @@ export interface Exercise {
 
 }
 
-
-interface GlobalContextType {
+/**
+ * Exported interface to define the structure of the GlobalContext.
+ * This is used across the app and in tests for type safety.
+ */
+export interface GlobalContextType {
   data: GlobalData;
   updateGlobalData: (updatedData: GlobalData) => void;
   isLoaded: boolean;
