@@ -152,11 +152,13 @@ export default function SelectedExercisesScreen() {
       context.clearExerciseList();
       context.setSelectedExerciseObjects([]);
 
-      setTimeout(() => {
-        console.log("After clearing:");
-        console.log("exerciseList", context.exerciseList);
-        console.log("selectedExerciseObjects", context.selectedExerciseObjects);
-      }, 300);
+      if (process.env.NODE_ENV !== 'test') {
+        setTimeout(() => {
+          console.log("After clearing:");
+          console.log("exerciseList", context.exerciseList);
+          console.log("selectedExerciseObjects", context.selectedExerciseObjects);
+        }, 300);
+      }
 
       navigation.navigate("MyWorkoutsScreen", { exercises: exerciseObjects });
     } catch (error) {
@@ -185,6 +187,7 @@ export default function SelectedExercisesScreen() {
             data={Array.from(exerciseList)}
             renderItem={({ item }) => (
               <TouchableOpacity
+                testID={`exercise-${item}`} // Assign a unique testID to each exercise item for testing purposes 
                 style={styles.exerciseRow}
                 onPress={() => toggleExerciseSelection(item)}
               >
@@ -208,7 +211,7 @@ export default function SelectedExercisesScreen() {
       <View style={styles.buttonContainer}>
         {exerciseList.size > 0 && (
           <>
-            <TouchableOpacity onPress={sendSelectedExercises} style={styles.sendButton}>
+            <TouchableOpacity testID="send-button" onPress={sendSelectedExercises} style={styles.sendButton}>
               <Text style={styles.buttonText}> Send </Text>
             </TouchableOpacity>
             <TouchableOpacity   onPress={() => {
@@ -232,9 +235,10 @@ export default function SelectedExercisesScreen() {
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View testID="workout-modal" style={styles.modalContent}>
             <Text style={styles.modalTitle}>Name Your Workout</Text>
             <TextInput
+              testID="workout-name-input" // Assign a unique testID to each exercise item for testing purposes
               placeholder="Workout name"
               style={styles.input}
               value={workoutName}
@@ -246,10 +250,10 @@ export default function SelectedExercisesScreen() {
             ))}
 
             <View style={styles.modalButtons}>
-              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.clearButton}>
+              <TouchableOpacity testID="cancel-button" onPress={() => setModalVisible(false)} style={styles.clearButton}>
                 <Text style={styles.buttonText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={submitWorkout} style={styles.sendButton}>
+              <TouchableOpacity testID="confirm-button" onPress={submitWorkout} style={styles.sendButton}>
                 <Text style={styles.buttonText}>Confirm</Text>
               </TouchableOpacity>
             </View>

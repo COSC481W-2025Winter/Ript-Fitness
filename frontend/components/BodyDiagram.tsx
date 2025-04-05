@@ -19,6 +19,11 @@ const BodyDiagram = forwardRef<BodyDiagramRef, BodyDiagramProps>(
   const [selectedPart, setSelectedPart] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
 
+  // Holds references to running animation instances so they can be controlled or stopped later
+  const animationRefs = useRef<Animated.CompositeAnimation[]>([]);
+  // Stores timeout references to allow clearing them if needed (e.g., during cleanup)
+  const timeoutRefs = useRef<NodeJS.Timeout[]>([]);
+
   // Create animated values for each body part's line and text position
   const lineAnimations = useRef({
     Core: { x: new Animated.Value(0), y: new Animated.Value(0) },
@@ -40,21 +45,44 @@ const BodyDiagram = forwardRef<BodyDiagramRef, BodyDiagramProps>(
     Shoulders: { x: new Animated.Value(0), y: new Animated.Value(0) },
   }).current;
 
+  const circleAnimations = useRef(
+    Array.from({ length: 10 }, () => new Animated.Value(0))
+  ).current;
+
+  /**
+ * Stops all active animations and clears any pending timeouts.
+ * Resets both refs to ensure no memory leaks or side effects occur
+ * when the component unmounts or animations are re-triggered.
+ */
+  const cleanupAnimations = () => {
+    animationRefs.current.forEach(anim => anim?.stop());
+    timeoutRefs.current.forEach(timeout => clearTimeout(timeout));
+    animationRefs.current = [];
+    timeoutRefs.current = [];
+  };
+
+  // Ensures all animations and timeouts are cleaned up when the component unmounts,
+// preventing memory leaks or unwanted behavior after the component is removed from the screen.
+  useEffect(() => {
+    return () => {
+      cleanupAnimations(); 
+    };
+  }, []);
+
   const handlePress = (part: BodyPart) => {
     setSelectedPart(part);
     onBodyPartClick(part);
     startCircleAnimation();
   };
 
-  const circleAnimations = useRef(
-    Array.from({ length: 10 }, () => new Animated.Value(0))
-  ).current;
-
+  
   const startCircleAnimation = () => {
     setIsAnimating(true);
+    cleanupAnimations(); // // Reset previous animations before starting new ones to avoid overlap or conflict.
+
 
     const animateCircle = (animatedValue: Animated.Value, delay: number) => {
-      return Animated.loop(
+      const anim = Animated.loop(
         Animated.sequence([
           Animated.delay(delay),
           Animated.timing(animatedValue, {
@@ -69,10 +97,14 @@ const BodyDiagram = forwardRef<BodyDiagramRef, BodyDiagramProps>(
           }),
         ])
       );
+      // Store the animation instance so it can be stopped or managed later during cleanup.
+      animationRefs.current.push(anim);
+      return anim;
     };
 
     circleAnimations.forEach((anim, index) => {
-      animateCircle(anim, index * 200).start();
+      const circleAnim = animateCircle(anim, index * 200);
+      circleAnim.start();
     });
   };
 
@@ -140,6 +172,8 @@ useEffect(() => {
 
   // Trigger animation for all lines and texts
   const triggerAllAnimations = () => {
+    cleanupAnimations(); // Immediately stop all animations and clear timeouts to reset the animation state.
+
     const animationConfig = {
       Core: isFrontView ? 20 : 0, // Right in Front, no move in Back
       Legs: isFrontView ? -20 : 0,
@@ -152,7 +186,8 @@ useEffect(() => {
 
     Object.keys(animationConfig).forEach((part) => {
       const expandX = animationConfig[part as keyof typeof animationConfig];
-      Animated.parallel([
+
+      const parallelAnim = Animated.parallel([
         Animated.timing(lineAnimations[part as BodyPart].x, {
           toValue: expandX,
           duration: 300,
@@ -173,9 +208,13 @@ useEffect(() => {
           duration: 300,
           useNativeDriver: true,
         }),
-      ]).start(() => {
-        setTimeout(() => {
-          Animated.parallel([
+      ])
+      
+      animationRefs.current.push(parallelAnim);
+
+    parallelAnim.start(() => {
+      const newTimeout = setTimeout(() => {
+        const resetAnim =Animated.parallel([
             Animated.timing(lineAnimations[part as BodyPart].x, {
               toValue: 0,
               duration: 300,
@@ -196,8 +235,13 @@ useEffect(() => {
               duration: 300,
               useNativeDriver: true,
             }),
-          ]).start();
+          ])
+          
+    animationRefs.current.push(resetAnim);
+    resetAnim.start();
         }, 500); // 2 seconds delay
+
+    timeoutRefs.current.push(newTimeout);
       });
     });
   };
@@ -205,16 +249,17 @@ useEffect(() => {
   // Expose the triggerAllAnimations method via the ref
   useImperativeHandle(ref, () => ({
     triggerAllAnimations,
+    cleanupAnimations, // Immediately stop all animations and clear timeouts to reset the animation state.
   }));
 
   return (
-    <View style={styles.container}>
+    <View testID="body-diagram-container" style={styles.container}>
       {/* Background human body image */}
-      <Image source={imageSource} style={styles.image} resizeMode="contain" />
+      <Image testID="body-image" source={imageSource} style={styles.image} resizeMode="contain" />
       
       {/* Render circles first (below touch areas) */}
       {(isFrontView ? frontCircles : backCircles).map(({ id, style, animation }) => (
-        <Animated.View key={id} style={[styles.circle, style, animatedStyle(animation)]} />
+        <Animated.View key={id} testID={`circle-${id}`} style={[styles.circle, style, animatedStyle(animation)]} />
       ))}
 
       {/* Transparent touch areas */}
@@ -222,6 +267,7 @@ useEffect(() => {
         <React.Fragment key={part + label}>
           {textStyle && typeof textStyle === 'object' && (
             <Animated.Text
+              testID={`label-${part}`}
               style={[
                 styles.label,
                 textStyle,
@@ -238,12 +284,14 @@ useEffect(() => {
           )}
 
           <TouchableOpacity
+            testID={`body-part-${part}`}
             style={[styles.touchable, touchStyle, selectedPart === part && styles.selected]}
             onPress={() => handlePress(part)}
           />
           {/* Render only when lineStyle is an object */}
           {lineStyle && typeof lineStyle === 'object' && (
             <Animated.View
+              testID={`line-${part}`}
               style={[
                 styles.line,
                 lineStyle,

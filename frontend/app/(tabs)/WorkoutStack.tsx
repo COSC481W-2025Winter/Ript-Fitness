@@ -18,6 +18,10 @@ import { GlobalContext } from '@/context/GlobalContext';
 import BodyFocusScreen from '@/app/screens/workout/BodyFocusScreen';
 import PlateCalculatorScreen from '@/app/screens/workout/PlateCalculatorScreen';
 import BodyWeightHistory from '@/app/screens/workout/BodyWeightHistoryScreen';
+import SelectedExercisesScreen from '@/app/screens/workout/SelectedExercisesScreen';
+import { Exercise } from '@/context/GlobalContext'; 
+import { BodyPart } from '@/app/screens/workout/BodyFocusScreen';
+
 
 
 const Stack = createStackNavigator<WorkoutStackParamList>();
@@ -32,7 +36,11 @@ export type WorkoutStackParamList = {
   EditNoteScreen: { note: Note | null };
   RiptWorkoutScreen: {};
   WorkoutDetailScreen: {};
-  BodyFocusScreen: {};
+  BodyFocusScreen: {exercises?: string[]};
+  SelectedExercises: { 
+    exercises: string[];
+    bodyPart?: BodyPart; 
+  };
   PlateCalculatorScreen: {};
   BodyWeightHistoryScreen: {};  
 
@@ -239,6 +247,24 @@ export default function WorkoutStack() {
           headerTitleAlign: 'center',
         })}
       />
+
+<Stack.Screen
+        name="SelectedExercises"
+        component={SelectedExercisesScreen}
+        options={({ navigation }) => ({
+          title: 'Selected Exercises',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={[styles.leftButton, styles.button, styles.buttonSize]}
+            >
+              <TabBarIcon name="arrow-back-outline" size={30} color="#454343" />
+            </TouchableOpacity>
+          ),
+          headerTitleAlign: 'center',
+        })}
+      />
+
 
 
       <Stack.Screen
