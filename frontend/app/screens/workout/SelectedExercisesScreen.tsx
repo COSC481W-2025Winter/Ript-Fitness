@@ -9,7 +9,7 @@ import {
   Modal,
   TextInput,
 } from 'react-native';
-import { GlobalContext, Exercise,Workout } from '@/context/GlobalContext';
+import { GlobalContext, Exercise} from '@/context/GlobalContext';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { WorkoutStackParamList } from '@/app/(tabs)/WorkoutStack';
 import { WorkoutScreenNavigationProp } from '@/app/(tabs)/WorkoutStack';
@@ -75,24 +75,12 @@ export default function SelectedExercisesScreen() {
     console.log(`${ex.nameOfExercise} → exerciseId: ${ex.exerciseId}, accountReferenceId: ${ex.accountReferenceId}`);
   });
 
-
-
     const exerciseObjects: Exercise[] = context.selectedExerciseObjects.filter(
-      ex => selectedExercises.has(ex.nameOfExercise)&&
-      ex.accountReferenceId?.toString() === currentUserId.toString() 
+      ex => selectedExercises.has(ex.nameOfExercise)
+      
     );
 
-    const skipped = Array.from(selectedExercises).filter(
-      name => !exerciseObjects.find(ex => ex.nameOfExercise === name)
-    );
-  
-    if (skipped.length > 0) {
-      Alert.alert("Warning", `The following items were not submitted (not your exercise):\n${skipped.join(', ')}`);
-    }
-
-    const exerciseIds = exerciseObjects
-        .map(ex => ex.exerciseId)
-        .filter(id => id); // filter out undefined/null;
+    const exerciseIds = exerciseObjects.map(ex => ex.exerciseId).filter(id => id); // filter out undefined/null;
 
     // Added log comparing Slide Modal and selectedExercises
     console.log("Slide Modal exercise name:", Array.from(selectedExercises));
@@ -125,7 +113,7 @@ export default function SelectedExercisesScreen() {
     };
 
     try {
-      const response = await fetch(`${httpRequests.getBaseURL()}/workouts/addWorkout`, {
+      const response = await fetch(`${httpRequests.getBaseURL()}/workouts/createWithExerciseClones`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -143,13 +131,33 @@ export default function SelectedExercisesScreen() {
 
       const json = await response.json();
       console.log("Workout created with ID:", json.workoutId);
+      console.log("Clone exercise ID:", json.exercises?.map((ex: any) => ex.exerciseId));
+      console.log("Full response from backend:", JSON.stringify(json, null, 2));
+
+      if (json.clonedExercises && Array.isArray(json.clonedExercises)) {
+        console.log("Cloned Exercise Details:");
+        json.clonedExercises.forEach((ex: any) => {
+          console.log(`• ID: ${ex.exerciseId}, Name: ${ex.nameOfExercise}, Sets: ${ex.sets}, Reps: ${ex.reps?.join(', ')}`);
+        });
+      } else {
+        console.log("No clonedExercises returned from backend");
+      }
+
 
       Alert.alert("Success", "Workout created successfully!");
       setModalVisible(false);
       setWorkoutName('');
       setSelectedExercises(new Set());
+
       context.clearExerciseList();
       context.setSelectedExerciseObjects([]);
+
+      setTimeout(() => {
+        console.log("After clearing:");
+        console.log("exerciseList", context.exerciseList);
+        console.log("selectedExerciseObjects", context.selectedExerciseObjects);
+      }, 300);
+
       navigation.navigate("MyWorkoutsScreen", { exercises: exerciseObjects });
     } catch (error) {
       console.error("Workout submission failed:", error);
@@ -203,7 +211,13 @@ export default function SelectedExercisesScreen() {
             <TouchableOpacity onPress={sendSelectedExercises} style={styles.sendButton}>
               <Text style={styles.buttonText}> Send </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={clearExerciseList} style={styles.clearButton}>
+            <TouchableOpacity   onPress={() => {
+                   setSelectedExercises(new Set()); // Clear the setSelected
+                   clearExerciseList?.(); // clear global exerciseList
+                   context?.setSelectedExerciseObjects([]); // clear SelectedExerciseObjects
+                }}
+                style={styles.clearButton}
+                >
               <Text style={styles.buttonText}>Clear</Text>
             </TouchableOpacity>
           </>

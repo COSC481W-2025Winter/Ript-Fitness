@@ -1,9 +1,10 @@
-import React, { useContext, useLayoutEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Platform } from 'react-native';
+import React, { useContext, useLayoutEffect,useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Platform,TextInput,Alert } from 'react-native';
 import { GlobalContext, ProfileObject } from '@/context/GlobalContext';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { ProfileStackParamList } from '@/app/(tabs)/ProfileStack';
+import { httpRequests } from "@/api/httpRequests";
 
 
 
@@ -14,9 +15,52 @@ const FullBioScreen: React.FC<any> = ({ route }) => {
 
   const isDarkMode = context?.isDarkMode;
 
+  // Check if the user viewing the profile is the currently logged-in user
+  const isCurrentUser = context?.userProfile.id === userProfile.id;
+
+  // Initialize the bio state with userProfile.bio, or an empty string if it's null or undefined
+  const [editedBio, setEditedBio] = useState(userProfile.bio || '');
+
   if (!context) {
     return <Text>Error: GlobalContext is undefined.</Text>;
   }
+
+  // Sends the updated bio to the backend, updates local context if successful, and navigates back.
+  const handleSaveBio = async () => {
+    try {
+      const payload = { bio: editedBio };
+      console.log("Sending to backend:", payload);
+
+      const response = await fetch(`${httpRequests.getBaseURL()}/userProfile/updateUserProfile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${context?.data.token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const responseText = await response.text();
+      console.log(" Backend response:", responseText);
+
+
+      if (!response.ok) {
+        Alert.alert('Failed to update bio', responseText);
+        return;
+      }
+
+      // Update GlobalContext with new bio
+      context?.updateUserProfile({
+        ...context.userProfile,
+        bio: editedBio,
+      });
+
+      Alert.alert('Success', 'Your bio has been updated!');
+      navigation.goBack();
+    } catch (err) {
+      Alert.alert('Error', 'Something went wrong.');
+    }
+  };
 
   return (
     <View style={[isDarkMode ? styles.darkContainer : styles.container]}>
@@ -35,8 +79,29 @@ const FullBioScreen: React.FC<any> = ({ route }) => {
       {/* Bio Content */}
       <View style={[isDarkMode? styles.darkBioContainer : styles.bioContainer ]}>
         <ScrollView>
-          <Text style={[isDarkMode ? styles.darkBioText : styles.bioText]}>{userProfile.bio}</Text>
+        {isCurrentUser ? (
+            <TextInput
+              multiline
+              value={editedBio}
+              onChangeText={setEditedBio}
+              placeholder="Enter your bio..."
+              placeholderTextColor={isDarkMode ? '#aaa' : '#888'}
+              style={[styles.bioInput, isDarkMode ? styles.darkBioInput : {}]}
+            />
+          ) : (
+            <Text style={[isDarkMode ? styles.darkBioText : styles.bioText]}>{userProfile.bio}</Text>
+          )}
         </ScrollView>
+
+        {isCurrentUser && (
+          <TouchableOpacity style={styles.saveButton} 
+          onPress={() => {
+            handleSaveBio();
+          }}
+        >
+            <Text style={styles.saveButtonText}>Save</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -47,13 +112,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f0f0f0',
     paddingHorizontal: 16,
-    paddingTop: 20,
+    paddingTop: 40,
   },
   darkContainer: {
     flex: 1,
     backgroundColor: 'black',
     paddingHorizontal: 16,
-    paddingTop: 20,
+    paddingTop: 40,
   },
   header: {
     alignItems: 'center',
@@ -116,6 +181,30 @@ const styles = StyleSheet.create({
     position:'absolute',
     top:0,
     left:0,
+  },
+  bioInput: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: '#000',
+    minHeight: 120,
+    textAlignVertical: 'top',
+  },
+  darkBioInput: {
+    color: '#fff',
+  },
+  saveButton: {
+    marginTop: 20,
+    backgroundColor: '#40bcbc',
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    width: 100,
+    alignSelf: 'center',
+  },
+  saveButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 
