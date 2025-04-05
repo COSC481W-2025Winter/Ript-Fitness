@@ -25,8 +25,7 @@ public class WorkoutsController {
 	public WorkoutsService workoutsService;
 	
 	public WorkoutsController(WorkoutsService workoutsService) {
-		this.workoutsService = workoutsService;
-		
+		this.workoutsService = workoutsService;		
 	}
 	
 	@PostMapping("/addWorkout")

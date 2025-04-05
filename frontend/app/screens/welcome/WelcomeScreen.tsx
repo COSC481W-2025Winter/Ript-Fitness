@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, Dimensions } from 'react-native'
 
 // Navigation imports
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../App';
+import { RootStackParamList } from '../../../App';
 
 type WelcomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Welcome'>;
 
