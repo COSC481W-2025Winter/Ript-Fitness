@@ -90,8 +90,9 @@
     ],
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/$1",
-      "\\.svg$": "react-native-svg-mock"
-    }
+      "\\.svg$": "react-native-svg-mock",
+      "^react-native-reanimated$": "<rootDir>/node_modules/react-native-reanimated/mock" 
+    } 
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
