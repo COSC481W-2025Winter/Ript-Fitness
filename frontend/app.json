@@ -5,10 +5,10 @@
     "owner": "jeccles1",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/final-2nd-logo.png",
+    "icon": "./ript_workouts.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/images/ript_workouts.png",
+      "image": "./ript_workouts.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
