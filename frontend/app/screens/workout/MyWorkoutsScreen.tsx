@@ -129,9 +129,9 @@ export default function MyWorkoutsScreen() {
   }
 
   //This function opens the workout edit modal by fetching full workout details (including exercises) from the backend.
-  const openModal = async (workout: any) => {
+  const openModal = async(workout: any) => {
     const workoutId = workout.workoutsId;
-    console.log('fetched workoutID:', workoutId);
+    console.log('fetched workoutID:',workoutId);
     try {
       const res = await fetch(`${httpRequests.getBaseURL()}/workouts/${workoutId}`, {
         method: 'GET',
@@ -142,7 +142,7 @@ export default function MyWorkoutsScreen() {
       console.log("[DEBUG] Workout details fetch status:", res.status);
       //const errorText = await res.text();
       //console.log("[DEBUG] Workout details fetch response:", errorText);
-
+  
       //if (!res.ok) throw new Error("Failed to fetch workout exercises");
       if (!res.ok) {
         const errorText = await res.text();
@@ -150,21 +150,21 @@ export default function MyWorkoutsScreen() {
         throw new Error("Failed to fetch workout exercises");
       }
       const fullWorkout = await res.json();
-      const patchedWorkout = {
-        ...workout,
-        id: (workout as any).workoutsId ?? workout.id, // Compatible with old fields
-      };
-      setSelectedWorkout(patchedWorkout);
-      setWorkoutName(patchedWorkout.name);
-      setUpdatedExercises([...patchedWorkout.exercises]);
+    const patchedWorkout = {
+      ...workout,
+      id: (workout as any).workoutsId ?? workout.id, // Compatible with old fields
+    };
+    setSelectedWorkout(patchedWorkout);
+    setWorkoutName(patchedWorkout.name);
+    setUpdatedExercises([...patchedWorkout.exercises]);
 
 
-      setIsEditing(false);
-      setIsModalVisible(true);
-    } catch (err) {
-      console.error("Error loading workout details:", err);
-      Alert.alert("Error", "Failed to load workout details.");
-    }
+    setIsEditing(false);
+    setIsModalVisible(true);
+  } catch (err) {
+    console.error("Error loading workout details:", err);
+    Alert.alert("Error", "Failed to load workout details.");
+  }
   };
 
 
@@ -415,6 +415,26 @@ export default function MyWorkoutsScreen() {
       alignSelf: 'center',
     },
 
+    darkWorkoutItem: {
+      backgroundColor: "#333333",
+      width: '95%',
+      height: 90,
+      borderRadius: 10,
+      // borderWidth: 0.3,
+      // borderColor: 'grey',
+      padding: 5,
+      marginBottom: 15,
+      elevation: 3,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      flexDirection: "column", // Stack workout name and buttons vertically
+      textAlign: 'left',
+      paddingLeft: 10,
+      alignSelf: 'center',
+    },
+
 
     workoutName: {
       fontSize: 18,
@@ -422,6 +442,14 @@ export default function MyWorkoutsScreen() {
       color: "black",
       padding: 5,
       marginBottom: 15, // Add space between workout name and buttons
+    },
+
+    darkWorkoutName: {
+      fontSize: 18,
+      fontWeight: "bold",
+      padding: 5,
+      marginBottom: 15, // Add space between workout name and buttons
+      color: 'white'
     },
 
     buttonGroup: {
@@ -484,10 +512,29 @@ export default function MyWorkoutsScreen() {
       shadowOpacity: 0.2,
       shadowRadius: 4,
     },
+    darkModalContent: {
+      width: "95%",
+      backgroundColor: "#333",
+      borderRadius: 15,
+      padding: 20,
+      maxHeight: "90%", // Increased max height for better visibility
+      elevation: 5,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+    },
     modalTitle: {
       fontSize: 24,
       fontWeight: "bold",
       color: "black",
+      marginBottom: 20,
+      textAlign: "center",
+    },
+    darkModalTitle: {
+      fontSize: 24,
+      fontWeight: "bold",
+      color: "white",
       marginBottom: 20,
       textAlign: "center",
     },
@@ -506,6 +553,13 @@ export default function MyWorkoutsScreen() {
       fontSize: 18,
       fontWeight: "bold",
       color: "black", // Neutral gray for exercise names
+      marginBottom: 10,
+      textAlign: "center",
+    },
+    darkExerciseName: {
+      fontSize: 18,
+      fontWeight: "bold",
+      color: "white", // Neutral gray for exercise names
       marginBottom: 10,
       textAlign: "center",
     },
@@ -545,6 +599,16 @@ export default function MyWorkoutsScreen() {
       // color: 'grey',
       // backgroundColor: "#fff",
       backgroundColor: "#f9f9f9",
+    },
+    darkInput: {
+      borderRadius: 10,
+      padding: 10,
+      marginVertical: 10,
+      fontSize: 22,
+      fontWeight: 'bold',
+      color: 'white',
+      // backgroundColor: "#fff",
+      backgroundColor: "#777",
     },
     saveButton: {
       backgroundColor: "#21BFBF",
@@ -629,6 +693,18 @@ export default function MyWorkoutsScreen() {
       shadowOpacity: 0.1,
       shadowRadius: 4,
     },
+    darkExerciseCard: {
+      backgroundColor: "#666",
+      borderRadius: 10,
+      padding: 15,
+      marginTop: 20,
+      marginBottom: 20,
+      elevation: 3,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+    },
     exerciseNameInput: {
       fontSize: 18,
       fontWeight: "bold",
@@ -639,6 +715,17 @@ export default function MyWorkoutsScreen() {
       borderRadius: 8,
       padding: 8,
       backgroundColor: "#f9f9f9",
+      marginRight: -7,
+      marginLeft: -7,
+    },
+    darkExerciseNameInput: {
+      fontSize: 18,
+      fontWeight: "bold",
+      color: "white",
+      marginBottom: 10,
+      borderRadius: 8,
+      padding: 8,
+      backgroundColor: "#777",
       marginRight: -7,
       marginLeft: -7,
     },
@@ -667,15 +754,33 @@ export default function MyWorkoutsScreen() {
       flex: 1,
       textAlign: "center", // Centers the text horizontally.
     },
+    darkSetLabel: {
+      fontSize: 16,
+      fontWeight: "bold",
+      color: "white",
+      flex: 1,
+      textAlign: "center", // Centers the text horizontally.
+    },
     setInput: {
       borderWidth: 1,
       borderColor: '#ddd',
       padding: 6, // Match original padding
       borderRadius: 5,
-      fontSize: 14,
+      fontSize: 16,
       textAlign: 'center', // Center align text
-      minWidth: 20, // Keep input size consistent
+      minWidth: 60, // Keep input size consistent
       height: 30, // Match the height of the input boxes
+    },
+    darkSetInput: {
+      borderWidth: 1,
+      borderColor: '#ddd',
+      padding: 6, // Match original padding
+      borderRadius: 5,
+      fontSize: 16,
+      textAlign: 'center', // Center align text
+      minWidth: 60, // Keep input size consistent
+      height: 30, // Match the height of the input boxes
+      color: 'white'
     },
     loadingContainer: {
       flex: 1,
@@ -697,9 +802,29 @@ export default function MyWorkoutsScreen() {
       textAlign: "right",
       flex: 1,
     },
+    darkSetValueTitle: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: "white",
+      textAlign: "center",
+      flex: 1,
+    },
+    darkSetValueTitleStart: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: "white",
+      textAlign: "right",
+      flex: 1,
+    },
     setValue: {
       fontSize: 14,
       color: "#555",
+      textAlign: "center",
+      flex: 1,
+    },
+    darkSetValue: {
+      fontSize: 14,
+      color: "white",
       textAlign: "center",
       flex: 1,
     },
@@ -757,7 +882,7 @@ export default function MyWorkoutsScreen() {
     },
 
     checked: {
-      color: "green",
+      color: "#21BFBF",
       fontWeight: "bold",
       fontSize: 16,
     },
@@ -782,14 +907,16 @@ export default function MyWorkoutsScreen() {
     },
     inputContainer: {
       flexDirection: 'column',
-      marginRight: 20, // Space between inputs
+      marginRight: 10, // Space between inputs
       marginBottom: 2, // Space below each input container
       flex: 1.3, // Maintain proper sizing within the set row
     },
     inputHeaderContainer: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
-      marginRight: 20, // Space between inputs
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginRight: 200,
+      marginLeft: 15,
       marginBottom: 2, // Space below each input container
       flex: 1.3, // Maintain proper sizing within the set row
     },
@@ -800,9 +927,13 @@ export default function MyWorkoutsScreen() {
       // marginRight: 50,
       color: '#555',
     },
-    // columnWrapper: {
-    //   paddingHorizontal: 5, // Add padding to the left and right of the row
-    // },
+    darkInputHeader: {
+      fontSize: 14,
+      fontWeight: 'bold',
+      marginBottom: 2,
+      // marginRight: 50,
+      color: 'white',
+    },
 
     helperText: {
       color: '#888', // grey color
@@ -814,24 +945,85 @@ export default function MyWorkoutsScreen() {
       // paddingTop: 10
     },
 
-    darkModalContent: {
-      backgroundColor: "#121212", // or a preferred dark shade
-      borderRadius: 15,
-      padding: 20,
-      maxHeight: "90%",
+    floatingButton: {
+      position: "absolute",
+      bottom: 20,
+      right: 20,
+      backgroundColor: "#21BFBF",
+      padding: 15,
+      borderRadius: 50,
+      elevation: 5,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      alignItems: "center",
+      justifyContent: "center",
     },
-    darkModalTitle: {
-      fontSize: 24,
-      fontWeight: "bold",
+
+    buttonRow: {
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: 20,
+      marginTop: 20,
+      marginBottom: 10,
+    },
+
+    finishButtonSmall: {
+      backgroundColor: "#21BFBF",
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 8,
+    },
+
+    finishButtonTextSmall: {
       color: "#fff",
-      marginBottom: 20,
-      textAlign: "center",
-    }
+      fontWeight: "bold",
+      fontSize: 14,
+    },
+
+    closeButtonSmall: {
+      backgroundColor: "#ddd",
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 8,
+    },
+
+    closeButtonTextSmall: {
+      color: "#333",
+      fontWeight: "bold",
+      fontSize: 14,
+    },
+
+    trackingButtonRow: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      alignItems: "center",
+      marginTop: 20,
+    },
+
+    miniButton: {
+      backgroundColor: "#21BFBF",
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderRadius: 8,
+      alignItems: "center",
+      justifyContent: "center",
+      minWidth: 80,
+    },
+
+    miniButtonText: {
+      color: "#fff",
+      fontWeight: "bold",
+      fontSize: 14,
+    },
+
 
   });
 
   return (
-    <View testID="screen-container" style={[isDarkMode ? styles.darkContainer : styles.container]}>
+    <View testID='screen-container' style={[isDarkMode ? styles.darkContainer : styles.container]}>
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" />
@@ -845,10 +1037,12 @@ export default function MyWorkoutsScreen() {
             keyExtractor={(item, index) =>
               item.id ? `workout-${item.id}-${index}` : `workout-${index}`
             }
+            // numColumns={1} // Specify two columns
+            // columnWrapperStyle={styles.columnWrapper} // Add spacing between columns
             showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (
-              <View style={styles.workoutItem}>
-                <Text style={styles.workoutName}>{String(item.name)}</Text>
+              <View style={isDarkMode ? styles.darkWorkoutItem : styles.workoutItem}>
+                <Text style={isDarkMode ? styles.darkWorkoutName : styles.workoutName}>{String(item.name)}</Text>
                 <View style={styles.buttonGroup}>
                   <TouchableOpacity
                     style={styles.deleteButton}
@@ -872,33 +1066,31 @@ export default function MyWorkoutsScreen() {
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.viewButton}
-                    onPress={() => openModal(item)}
+                    onPress={() => openModal(item)} // Open view modal
                   >
                     <Text style={styles.viewButtonText}>View</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.startButton}
-                    onPress={() => startWorkout(item)}
+                    onPress={() => startWorkout(item)} // Open start workout modal
                   >
                     <Text style={styles.buttonText}>Start</Text>
                     {/* <Ionicons name="arrow-up-circle" size={60} color="#21BFBF"></Ionicons> */}
                   </TouchableOpacity>
                 </View>
-              </View> // <-- close the workoutItem View
+              </View>
             )}
           />
         </>
       )}
-  
       {/* Message/directions for the user */}
-      <View style={{ justifyContent: "center", alignContent: "center", alignSelf: "center" }}>
-        {(!context?.workouts || context.workouts.length === 0) && (
+      <View style={{ justifyContent: 'center', alignContent: 'center', alignSelf: 'center' }}>
+        {!context?.workouts || context.workouts.length === 0 && (
           <Text style={styles.helperText} numberOfLines={1}>
             Please add a workout!
           </Text>
         )}
       </View>
-  
       {/* Modal for View and Edit */}
       <Modal
         visible={isModalVisible && !isTracking}
@@ -907,48 +1099,221 @@ export default function MyWorkoutsScreen() {
         onRequestClose={closeModal}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={isDarkMode ? styles.darkModalContent : styles.modalContent}>
             <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : "height"}
-              style={{ flex: -0.1 }}
+              style={{ flex: -.1 }}
             >
               {selectedWorkout && (
                 <>
                   {isEditing ? (
                     <>
                       <TextInput
-                        style={styles.input}
+                        style={isDarkMode ? styles.darkInput : styles.input}
                         value={workoutName}
                         onChangeText={setWorkoutName}
                         placeholder="Workout Name"
                       />
                       <FlatList
-                        nestedScrollEnabled={true}
+                        nestedScrollEnabled={true} // Allow FlatList to scroll inside ScrollView
+
                         data={updatedExercises}
-                        keyExtractor={(exItem, exIndex) =>
-                          `exercise-${exItem.exerciseId}-${exIndex}`
+                        keyExtractor={(item, index) =>
+                          `exercise-${item.exerciseId}-${index}`
                         }
-                        renderItem={({ item: exItem, index: exIndex }) => (
-                          <View style={styles.exerciseCard}>
-                            {/* ... Your Edit-Mode content (exercise name, sets, etc.) ... */}
+                        renderItem={({ item, index }) => (
+                          <View style={isDarkMode ? styles.darkExerciseCard : styles.exerciseCard}>
+                            <TextInput
+                              style={isDarkMode ? styles.darkExerciseNameInput : styles.exerciseNameInput}
+                              value={item.nameOfExercise}
+
+                              onChangeText={(text) => {
+                                const updated = [...updatedExercises];
+                                updated[index].nameOfExercise = text;
+                                setUpdatedExercises(updated);
+                              }}
+                              placeholder="Exercise Name"
+                            />
+                            <View style={styles.inputHeaderContainer}>
+                              <Text style={isDarkMode ? styles.darkInputHeader : styles.inputHeader}>Set</Text>
+                              <Text style={isDarkMode ? styles.darkInputHeader : styles.inputHeader}>   Reps</Text>
+                              <Text style={isDarkMode ? styles.darkInputHeader : styles.inputHeader}>   Weight</Text>
+                              <Text style={isDarkMode ? styles.darkInputHeader : styles.inputHeader}></Text>
+                            </View>
+                            <FlatList
+                              data={item.reps.map((_, setIndex) => ({
+                                reps: item.reps[setIndex],
+                                weight: item.weight[setIndex],
+                                // Retrieves the recorded time range for the set or defaults to "Not Started".
+                                //timeRange: timeRanges[`${selectedWorkout?.id}-${item.exerciseId}-${setIndex}`] || "Not Started",
+                              }))}
+                              keyExtractor={(setItem, setIndex) =>
+                                `set-${item.exerciseId}-${setIndex}`
+                              }
+                              renderItem={({ item: setItem, index: setIndex }) => (
+                                <View style={styles.setRow}>
+                                  <Text style={isDarkMode ? styles.darkSetLabel : styles.setLabel}>  {setIndex + 1}</Text>
+                                  <Text style={isDarkMode ? styles.darkSetValue : styles.setValue}>{setItem.reps ?? "N/A"}</Text>
+                                  <Text style={isDarkMode ? styles.darkSetValue : styles.setValue}>{setItem.weight !== null ? `${setItem.weight}` : "N/A"} lbs</Text>
+                                  <Text style={isDarkMode ? styles.darkSetValue : styles.setValue}></Text> {/* keep Time Range */}
+
+
+                                  {/* Reps Label and Input */}
+                                  <View style={styles.inputContainer}>
+                                    {/* <Text style={styles.inputLabel}></Text> */}
+                                    <TextInput
+                                      style={isDarkMode ? styles.darkSetInput : styles.setInput}
+                                      value={setItem.reps.toString()}
+                                      onChangeText={(text) => {
+                                        const updated = [...updatedExercises];
+                                        updated[index].reps[setIndex] =
+                                          parseInt(text, 10) || 0;
+                                        setUpdatedExercises(updated);
+                                      }}
+                                      placeholder="Reps"
+                                      keyboardType="numeric"
+                                    />
+                                  </View>
+
+                                  {/* Weight Label and Input */}
+                                  <View style={styles.inputContainer}>
+                                    {/* <Text style={styles.inputLabel}></Text> */}
+                                    <TextInput
+                                      style={isDarkMode ? styles.darkSetInput : styles.setInput}
+                                      value={setItem.weight.toString()}
+                                      onChangeText={(text) => {
+                                        const updated = [...updatedExercises];
+                                        updated[index].weight[setIndex] =
+                                          parseFloat(text) || 0;
+                                        setUpdatedExercises(updated);
+                                      }}
+                                      placeholder="Weight"
+                                      keyboardType="numeric"
+                                    />
+                                  </View>
+
+
+                                  <TouchableOpacity
+                                    style={styles.removeSetButton}
+                                    onPress={() => {
+                                      const updated = [...updatedExercises];
+                                      updated[index].reps.splice(setIndex, 1);
+                                      updated[index].weight.splice(setIndex, 1);
+                                      setUpdatedExercises(updated);
+                                    }}
+                                  >
+                                    <Ionicons name="trash-outline" size={25} color="#F2505D"></Ionicons>
+                                    {/* <Text style={styles.removeSetText}>
+                              Remove
+                            </Text> */}
+                                  </TouchableOpacity>
+                                </View>
+                              )}
+                            />
+                            <TouchableOpacity
+                              style={styles.addSetButton}
+                              onPress={() => {
+
+                                const updated = [...updatedExercises];
+                                updated[index].reps.push(0);
+                                updated[index].weight.push(0);
+                                setUpdatedExercises(updated);
+                              }}
+                            >
+                              {/* <Text style={styles.addSetText}>Add Set</Text> */}
+                              <Text style={styles.addSetText}>Add Set</Text>
+                              <Ionicons name="add-circle-outline" size={20} color={'#21BFBF'}></Ionicons>
+                            </TouchableOpacity>
                           </View>
                         )}
                       />
-                      <TouchableOpacity style={styles.saveButton} onPress={saveWorkout}>
+                      <TouchableOpacity
+                        style={styles.saveButton}
+                        onPress={saveWorkout}
+                      >
                         <Text style={styles.saveButtonText}>Save</Text>
                       </TouchableOpacity>
                     </>
                   ) : (
                     <>
-                      <Text style={styles.modalTitle}>{selectedWorkout.name}</Text>
+                      <Text style={isDarkMode ? styles.darkModalTitle : styles.modalTitle}>{selectedWorkout.name}</Text>
                       <FlatList
                         data={selectedWorkout.exercises || []}
-                        keyExtractor={(exItem, exIndex) =>
-                          `exercise-${exItem.exerciseId}-${exIndex}`
+                        keyExtractor={(item, index) =>
+                          `exercise-${item.exerciseId}-${index}`
                         }
-                        renderItem={({ item: exItem, index: exIndex }) => (
-                          <View style={styles.exerciseCard}>
-                            {/* ... Your View-Mode content (exercise name, sets, etc.) ... */}
+                        renderItem={({ item, index: exerciseIndex }) => (
+                          <View style={isDarkMode ? styles.darkExerciseCard : styles.exerciseCard}>
+                            <Text style={isDarkMode ? styles.darkExerciseName : styles.exerciseName}>
+                              {item.nameOfExercise}
+                            </Text>
+                            <View style={styles.setRow}>
+                              <Text style={[isDarkMode ? styles.darkSetLabel : styles.setLabel, { flex: 0.5, textAlign: "left", paddingLeft: 10 }]}>Set</Text>
+                              <Text style={[isDarkMode ? styles.darkSetValueTitle : styles.setValueTitle, { flex: 1, textAlign: "center", paddingHorizontal: 5 }]}>Reps</Text>
+                              <Text style={[isDarkMode ? styles.darkSetValueTitle : styles.setValueTitle, { flex: 1, textAlign: "center", paddingHorizontal: 5 }]}>Weight</Text>
+                              <Text style={[isDarkMode ? styles.darkSetValueTitle : styles.setValueTitle, { flex: 1.2, textAlign: "left", paddingRight: 10 }]}>Time</Text>
+                            </View>
+                            <FlatList
+                              data={item.reps.map((_, setIndex) => ({
+                                reps: item.reps[setIndex],
+                                weight: item.weight[setIndex],
+                                // Retrieves the time range for the set, defaulting to "Not Started" if unavailable.
+                                timeRange: timeRanges[`${selectedWorkout?.id}-${item.exerciseId}-${setIndex}`] || "Not Started",
+                              }))}
+                              keyExtractor={(setItem, setIndex) =>
+                                `set-${item.exerciseId}-${setIndex}`
+                              }
+                              renderItem={({
+                                item: setItem,
+                                index: setIndex,
+                              }) => {
+                                const setKey = `${selectedWorkout?.id}-${item.exerciseId}-${setIndex}`;
+                                const isActive = activeSet === setKey; // Check if the current set is being timed.
+
+                                return (
+                                  <View style={styles.setRow}>
+                                    <Text style={isDarkMode ? styles.darkSetLabel : styles.setLabel}>
+                                      {setIndex + 1}
+                                    </Text>
+                                    <Text style={isDarkMode ? styles.darkSetValue : styles.setValue}>
+                                      {setItem.reps ?? "N/A"}
+                                    </Text>
+                                    <Text style={isDarkMode ? styles.darkSetValue : styles.setValue}>
+                                      {item.weight[setIndex]} lbs
+                                    </Text>
+                                    <Text style={isDarkMode ? styles.darkSetValue : styles.setValue}>
+                                      {setItem.timeRange}         {/* Display recorded time range */}
+                                    </Text>
+
+                                    {/* Start and Stop button */}
+                                    {!isActive ? (
+                                      <TouchableOpacity
+                                        style={[styles.startButton, { width: 40, height: 30, padding: 3 }]} // Adjusts start button size and padding
+                                        onPress={() => {
+                                          //const setKey = `${selectedWorkout?.id}-${item.exerciseId}-${setIndex}`;
+                                          setActiveSet(setKey); // Set the currently active set being timed
+                                          setCurrentTimer(0); // Initialize the timer
+                                          const interval = setInterval(() => {
+                                            setCurrentTimer((prev) => (prev !== null ? prev + 1 : 1)); // Increment every second
+                                          }, 1000);
+                                          setStartTime((prev) => ({ ...prev, [setKey]: interval })); // Save the interval ID
+                                        }}
+                                      >
+                                        <Text style={styles.buttonText}>Start</Text>
+                                      </TouchableOpacity>
+                                    ) : (
+                                      <TouchableOpacity
+                                        style={[styles.startButton, { backgroundColor: "red", width: 40, height: 30, padding: 3 }]}// Adjusts button size and padding
+                                        onPress={() => stopTimerForSet(setKey)} // Stop the timer and save the elapsed time             
+                                      >
+                                        <Text style={styles.buttonText}>Stop</Text>
+                                      </TouchableOpacity>
+                                    )}
+                                  </View>
+                                )
+                              }
+                              }
+                            />
                           </View>
                         )}
                       />
@@ -969,5 +1334,134 @@ export default function MyWorkoutsScreen() {
           </View>
         </View>
       </Modal>
-    </View> // <-- final closing tag for the parent View
-  )};
+
+
+{/* Modal for Start Workout */}
+<Modal
+  visible={isTracking}
+  animationType="slide"
+  transparent={true}
+  onRequestClose={() => setIsTracking(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={isDarkMode ? styles.darkModalContent : styles.modalContent}>
+      {selectedWorkout && (
+        <>
+          <Text style={isDarkMode ? styles.darkModalTitle : styles.modalTitle}>
+            Start {selectedWorkout.name}
+          </Text>
+
+          <FlatList
+            data={selectedWorkout.exercises || []}
+            keyExtractor={(item, index) => `exercise-${item.exerciseId}-${index}`}
+            renderItem={({ item, index: exerciseIndex }) => (
+              <View style={isDarkMode ? styles.darkExerciseCard : styles.exerciseCard}>
+                <Text style={isDarkMode ? styles.darkExerciseName : styles.exerciseName}>
+                  {item.nameOfExercise}
+                </Text>
+
+                <View style={styles.labelRow}>
+                  <Text style={isDarkMode ? styles.darkSetLabel : styles.setLabel}>Set</Text>
+                  <Text style={isDarkMode ? styles.darkSetValueTitleStart : styles.setValueTitleStart}>Reps</Text>
+                  <Text style={isDarkMode ? styles.darkSetValueTitleStart : styles.setValueTitleStart}>Weight</Text>
+                  <Text style={isDarkMode ? styles.darkSetValueTitle : styles.setValueTitle}> Time</Text>
+                  <Ionicons
+                    style={styles.setLabelIcon}
+                    name="checkmark"
+                    size={24}
+                    color={isDarkMode ? "white" : "#555"}
+                  />
+                </View>
+
+                {/* Replace nested FlatList with a .map(), or stay consistent with FlatList */}
+                {item.reps.map((rep, setIndex) => {
+                  const setKey = `${selectedWorkout?.id}-${item.exerciseId}-${setIndex}`;
+                  const isActive = activeSet === setKey;
+                  const timeRange = workoutContext?.timeRanges[setKey] || "Not Started";
+
+                  return (
+                    <View key={`set-${exerciseIndex}-${setIndex}`} style={styles.setRow}>
+                      <Text style={isDarkMode ? styles.darkSetLabel : styles.setLabel}>
+                        {setIndex + 1}
+                      </Text>
+                      <Text style={isDarkMode ? styles.darkSetValue : styles.setValue}>{rep}</Text>
+                      <Text style={isDarkMode ? styles.darkSetValue : styles.setValue}>
+                        {item.weight[setIndex]} lbs
+                      </Text>
+                      <Text style={isDarkMode ? styles.darkSetValue : styles.setValue}>
+                        {timeRange}
+                      </Text>
+
+                      {/* Checkbox */}
+                      <TouchableOpacity
+                        style={styles.checkBox}
+                        onPress={() => {
+                          const key = `${exerciseIndex}-${setIndex}`;
+                          setCheckboxState((prev) => ({
+                            ...prev,
+                            [key]: !prev[key],
+                          }));
+                        }}
+                      >
+                        <Text
+                          style={
+                            checkboxStates[`${exerciseIndex}-${setIndex}`]
+                              ? styles.checked
+                              : styles.unchecked
+                          }
+                        >
+                          {checkboxStates[`${exerciseIndex}-${setIndex}`] ? "✔" : " "}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })}
+              </View>
+            )}
+          />
+
+          <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 20 }}>
+            {/* Left side: Finish and Close stacked */}
+            <View style={{ flex: 1, marginRight: 10 }}>
+              <TouchableOpacity
+                style={[styles.miniButton, { marginBottom: 10 }]}
+                onPress={async () => {
+                  await logWorkout();
+                  setIsTracking(false);
+                  Alert.alert("Get Ript!", "You have logged a workout! Check the calendar.");
+                }}
+              >
+                <Text style={styles.miniButtonText}>Finish</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.miniButton}
+                onPress={() => setIsTracking(false)}
+              >
+                <Text style={styles.miniButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Right side: Plate Calculator Icon Button */}
+            <TouchableOpacity
+              style={[
+                styles.miniButton,
+                {
+                  aspectRatio: 1,
+                  height: 92, // roughly two miniButtons stacked
+                  alignSelf: "flex-start",
+                  justifyContent: "center",
+                  alignItems: "center",
+                },
+              ]}
+              onPress={() => navigation.navigate("PlateCalculatorScreen" as never)}
+            >
+              <Ionicons name="barbell-outline" size={32} color="white" />
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
+    </View>
+  </View>
+</Modal>
+</View>)}
