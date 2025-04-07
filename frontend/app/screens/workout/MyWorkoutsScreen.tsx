@@ -893,7 +893,6 @@ export default function MyWorkoutsScreen() {
       {/* ----------------------------------------------------------------
           MODAL #1: View & Edit
          ---------------------------------------------------------------- */}
-         {/* Modal for View and Edit */}
 <Modal
   visible={isModalVisible && !isTracking}
   animationType="slide"
@@ -938,7 +937,7 @@ export default function MyWorkoutsScreen() {
                     <View style={styles.inputHeaderContainer}>
                       <Text style={styles.inputHeader}>Set</Text>
                       <Text style={styles.inputHeader}>Reps</Text>
-                      <Text style={styles.inputHeader}>     Weight</Text>
+                      <Text style={styles.inputHeader}>Weight</Text>
                       <Text style={styles.inputHeader}></Text>
                     </View>
                     <FlatList
@@ -952,49 +951,36 @@ export default function MyWorkoutsScreen() {
                         `set-${item.exerciseId}-${setIndex}`
                       }
                       renderItem={({ item: setItem, index: setIndex }) => (
-                        <View style={styles.setRow}>
-                          <Text style={styles.setLabel}>  {setIndex + 1}</Text>
-                          <Text style={styles.setValue}>{setItem.reps ?? "N/A"}</Text>
-                          <Text style={styles.setValue}>{setItem.weight !== null ? `${setItem.weight} lbs` : "N/A"} lbs</Text>
-                          <Text style={styles.setValue}>{setItem.timeRange}</Text> {/* keep Time Range */}
+                          <View style={[styles.setRow, { alignItems: 'center' }]}>  
+                            <Text style={{ flex: 0.5, fontWeight: 'bold' }}>{setIndex + 1}</Text>
 
                           {/* Reps Label and Input */}
-                          <View style={styles.inputContainer}>
-                            {/* <Text style={styles.inputLabel}></Text> */}
-                            <TextInput
-                              style={styles.setInput}
-                              value={setItem.reps.toString()}
-                              onChangeText={(text) => {
-                                const updated = [...updatedExercises];
-                                updated[index].reps[setIndex] =
-                                  parseInt(text, 10) || 0;
-                                setUpdatedExercises(updated);
-                              }}
-                              placeholder="Reps"
-                              keyboardType="numeric"
-                            />
-                          </View>
+                          <TextInput
+                          style={[styles.setInput, { flex: 0.6, marginHorizontal: 15 }]}
+                          value={setItem.reps.toString()}
+                          onChangeText={(text) => {
+                            const updated = [...updatedExercises];
+                            updated[index].reps[setIndex] = parseInt(text, 10) || 0;
+                            setUpdatedExercises(updated);
+                          }}
+                          placeholder="Reps"
+                          keyboardType="numeric"
+                        />
 
                           {/* Weight Label and Input */}
-                          <View style={styles.inputContainer}>
-                            {/* <Text style={styles.inputLabel}></Text> */}
-                            <TextInput
-                              style={styles.setInput}
-                              value={setItem.weight.toString()}
-                              onChangeText={(text) => {
-                                const updated = [...updatedExercises];
-                                updated[index].weight[setIndex] =
-                                  parseFloat(text) || 0;
-                                setUpdatedExercises(updated);
-                              }}
-                              placeholder="Weight"
-                              keyboardType="numeric"
-                            />
-                          </View>
+                          <TextInput
+                          style={[styles.setInput, {flex: 0.6, marginHorizontal: 15 }]}
+                          value={setItem.weight.toString()}
+                          onChangeText={(text) => {
+                            const updated = [...updatedExercises];
+                            updated[index].weight[setIndex] = parseFloat(text) || 0;
+                            setUpdatedExercises(updated);
+                          }}
+                          placeholder="Weight"
+                          keyboardType="numeric"
+                        />
 
-                          
                           <TouchableOpacity
-                            style={styles.removeSetButton}
                             onPress={() => {
                               const updated = [...updatedExercises];
                               updated[index].reps.splice(setIndex, 1);
@@ -1002,7 +988,7 @@ export default function MyWorkoutsScreen() {
                               setUpdatedExercises(updated);
                             }}
                           >
-                            <Ionicons name="trash-outline" size={25} color="#F2505D"></Ionicons>
+                            <Ionicons name="trash-outline" size={25} style={{ paddingLeft: 20 }} color="#F2505D"></Ionicons>
                             {/* <Text style={styles.removeSetText}>
                               Remove
                             </Text> */}
@@ -1010,6 +996,7 @@ export default function MyWorkoutsScreen() {
                         </View>
                       )}
                     />
+
                     <TouchableOpacity
                       style={styles.addSetButton}
                       onPress={() => {
@@ -1083,6 +1070,7 @@ export default function MyWorkoutsScreen() {
                           <Text style={styles.setValue}>
                             {setItem.timeRange}         {/* Display recorded time range */}
                           </Text>
+
 
                           {/* Start and Stop button */}
                           {!isActive ? (
