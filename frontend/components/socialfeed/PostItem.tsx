@@ -48,6 +48,7 @@ type PostItemType = {
 
 type ItemProps = {
   item: PostItemType;
+  isPublic: boolean; // ADD THIS
   liked: boolean;
   onLikePress: () => void;
   onCommentPress: () => void;
@@ -197,7 +198,7 @@ const PostItem = ({ item, liked, onLikePress, onCommentPress }: ItemProps) => {
           </TouchableOpacity>
           <Text style={isDarkMode? styles.darkCommentCounter:styles.commentCounter}>
             {item.comments.filter((comment) => !comment.isDeleted).length}
-          </Text>
+          </Text>// Add this near the timestamp in the footer
         </View>
         <Text style={styles.timestamp}>{item.dateTimeCreated}</Text>
       </View>
@@ -372,6 +373,15 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     marginRight: -10, // Adjust this value to fine-tune
+  },
+  visibilityBadge: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+  },
+  visibilityText: {
+    fontSize: 12,
+    color: '#999',
   },
 });
 

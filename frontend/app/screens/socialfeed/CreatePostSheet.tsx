@@ -17,7 +17,7 @@ import {
   Keyboard,
 } from "react-native";
 import BottomSheet, { BottomSheetTextInput } from "@gorhom/bottom-sheet";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useSocialFeed } from "@/context/SocialFeedContext";
 import ProfileImage from "../../../assets/images/profile/Profile.png";
 import { TextInput } from "react-native";
@@ -43,6 +43,8 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef, CreatePostSheetProps>(
 
     const context = useContext(GlobalContext);
     const isDarkMode = context?.isDarkMode;
+
+    const [isPublic, setIsPublic] = useState(false);
 
 
     // Handle sheet state changes
@@ -76,8 +78,9 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef, CreatePostSheetProps>(
 
     const handlePost = async () => {
       if (postText.trim()) {
-        await addPost(postText);
+        await addPost(postText, isPublic);
         setPostText("");
+        setIsPublic(false); // Reset to private for next post
         Keyboard.dismiss();
         bottomSheetRef.current?.close();
       }
@@ -153,6 +156,21 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef, CreatePostSheetProps>(
               />
             </View>
           </View>
+          <View style={styles.visibilityContainer}>
+          <Text style={isDarkMode ? styles.darkVisibilityText : styles.visibilityText}>
+            {isPublic ? '🌍 Public' : '🔒 Private (Friends Only)'}
+          </Text>
+          <TouchableOpacity 
+            onPress={() => setIsPublic(!isPublic)}
+            style={styles.toggleButton}
+          >
+            <Ionicons 
+              name={isPublic ? "toggle" : "toggle-outline"} 
+              size={24} 
+              color={isDarkMode ? "#21BFBF" : "#21BFBF"} 
+            />
+          </TouchableOpacity>
+</View>
           {/* remove {display: "none"} to see the media buttons again (to be implemented) */}
           <View style={(styles.mediaButtonsContainer, { display: "none" })}>
             <TouchableOpacity style={styles.mediaButton}>
@@ -289,6 +307,26 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
     justifyContent: "center",
     alignItems: "center",
+  },
+  visibilityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+  visibilityText: {
+    fontSize: 16,
+    color: '#000',
+  },
+  darkVisibilityText: {
+    fontSize: 16,
+    color: 'white',
+  },
+  toggleButton: {
+    padding: 8,
   },
 });
 

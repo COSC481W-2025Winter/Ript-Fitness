@@ -4,8 +4,8 @@ import { useContext } from "react";
 console.warn(`\n==============================\n ENV CHECK: USE_LOCAL=${USE_LOCAL}, LOCAL_IP=${LOCAL_IP}\n`);
 
 const Azure_URL = "https://ript-fitness.azurewebsites.net";
-const BASE_URL = USE_LOCAL === "true" ? `http://${LOCAL_IP}` : Azure_URL;
-//const BASE_URL = "http://172.22.0.1:8080"; // Force it to use the backend
+//const BASE_URL = USE_LOCAL === "true" ? `http://${LOCAL_IP}` : Azure_URL;
+const BASE_URL = "http://164.76.10.168:8080"; // Force it to use the backend
 
 console.warn(`\n=============================\n Using BASE_URL: ${BASE_URL}\n`);
 
