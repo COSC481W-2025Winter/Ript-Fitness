@@ -42,6 +42,8 @@ public class SocialPost {
     
     public boolean isDeleted = false;
     
+    public boolean isPublic = false; 
+    
     @Column(name = "created_date", updatable = false)
     public LocalDateTime dateTimeCreated;
     
