@@ -645,13 +645,13 @@ const FoodLogAddPage = () => {
                 </View>
 
                 <View style={styles.row}>
-                    <Text style={styles.inputLabel}>Cholesterol (g)</Text>
+                    <Text style={styles.inputLabel}>Cholesterol (mg)</Text>
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
                         value={foodCholesterol}
                         onChangeText={handleCholesterolChange}
-                        placeholder={"Add Cholesterol"}
+                        placeholder={"Add Milligrams"}
                         placeholderTextColor={'#999'}
                     />
                 </View>
@@ -663,7 +663,7 @@ const FoodLogAddPage = () => {
                         keyboardType="numeric"
                         value={foodSaturatedFat}
                         onChangeText={handleSaturatedFatChange}
-                        placeholder={"Add Saturated Fat"}
+                        placeholder={"Add Grams"}
                         placeholderTextColor={'#999'}
                     />
                 </View>
@@ -675,19 +675,19 @@ const FoodLogAddPage = () => {
                         keyboardType="numeric"
                         value={foodTransFat}
                         onChangeText={handleTransFatChange}
-                        placeholder={"Add Trans Fat"}
+                        placeholder={"Add Grams"}
                         placeholderTextColor={'#999'}
                     />
                 </View>
 
                 <View style={styles.row}>
-                    <Text style={styles.inputLabel}>Sodium (g)</Text>
+                    <Text style={styles.inputLabel}>Sodium (mg)</Text>
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
                         value={foodSodium}
                         onChangeText={handleSodiumChange}
-                        placeholder={"Add Sodium"}
+                        placeholder={"Add Milligrams"}
                         placeholderTextColor={'#999'}
                     />
                 </View>
@@ -699,7 +699,7 @@ const FoodLogAddPage = () => {
                         keyboardType="numeric"
                         value={foodFiber}
                         onChangeText={handleFiberChange}
-                        placeholder={"Add Fiber"}
+                        placeholder={"Add Grams"}
                         placeholderTextColor={'#999'}
                     />
                 </View>
@@ -711,43 +711,43 @@ const FoodLogAddPage = () => {
                         keyboardType="numeric"
                         value={foodSugars}
                         onChangeText={handleSugarsChange}
-                        placeholder={"Add Sugars"}
+                        placeholder={"Add Grams"}
                         placeholderTextColor={'#999'}
                     />
                 </View>
 
                 <View style={styles.row}>
-                    <Text style={styles.inputLabel}>Calcium (g)</Text>
+                    <Text style={styles.inputLabel}>Calcium (mg)</Text>
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
                         value={foodCalcium}
                         onChangeText={handleCalciumChange}
-                        placeholder={"Add Calcium"}
+                        placeholder={"Add Milligrams"}
                         placeholderTextColor={'#999'}
                     />
                 </View>
 
                 <View style={styles.row}>
-                    <Text style={styles.inputLabel}>Iron (g)</Text>
+                    <Text style={styles.inputLabel}>Iron (mg)</Text>
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
                         value={foodIron}
                         onChangeText={handleIronChange}
-                        placeholder={"Add Iron"}
+                        placeholder={"Add Milligrams"}
                         placeholderTextColor={'#999'}
                     />
                 </View>
 
                 <View style={styles.row}>
-                    <Text style={styles.inputLabel}>Potassium (g)</Text>
+                    <Text style={styles.inputLabel}>Potassium (mg)</Text>
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
                         value={foodPotassium}
                         onChangeText={handlePotassiumChange}
-                        placeholder={"Add Potassium"}
+                        placeholder={"Add Milligrams"}
                         placeholderTextColor={'#999'}
                     />
                 </View>
