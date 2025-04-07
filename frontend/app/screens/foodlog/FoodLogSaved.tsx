@@ -143,7 +143,7 @@ const FoodLogSavedPage = () => {
           }
           
           // Specify the desired order of keys
-          const keysOrder = ["name", "calories", "protein", "carbs", "fat", "cholesterol", "transFat", "sodium", "fiber", "sugars", "calcium", "iron", "potassium", "serving", "isDeleted"];          
+          const keysOrder = ["name", "calories", "protein", "carbs", "fat", "cholesterol", "saturatedFat", "transFat", "sodium", "fiber", "sugars", "calcium", "iron", "potassium", "serving", "isDeleted"];          
           // Serialize updatedFood with the desired key order
           const body = customJSONStringify(updatedFood, keysOrder);
 
