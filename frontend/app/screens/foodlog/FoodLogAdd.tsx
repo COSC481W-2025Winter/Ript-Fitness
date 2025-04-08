@@ -582,8 +582,9 @@ const FoodLogAddPage = () => {
                 <View style = {isDarkMode? styles.darkRowStart:styles.rowStart}>
                     <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Name</Text>
                     <TextInput
-                        style={isDarkMode? styles.darkInput:styles.input}
+                        style={styles.input}
                         placeholder={!validName ? "Food name required" : "Add Name"}
+                        placeholderTextColor="#999"
 
                         value={foodName}
                         onChangeText={(text) => setFoodName(text)}
@@ -595,7 +596,7 @@ const FoodLogAddPage = () => {
                     <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Calories</Text>
 
                     <TextInput
-                        style={isDarkMode? styles.darkInput:styles.input}
+                        style={styles.input}
                         keyboardType="numeric"
                         value={foodCalories}
                         onChangeText={(text) => setCalories(text)}
@@ -609,7 +610,7 @@ const FoodLogAddPage = () => {
                     <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Fat (g)</Text>
 
                     <TextInput
-                        style={isDarkMode? styles.darkInput:styles.input}
+                        style={styles.input}
                         keyboardType="numeric"
                         value={foodFat}
                         onChangeText={(text) => setFat(text)}
@@ -622,7 +623,7 @@ const FoodLogAddPage = () => {
                 <View style = {isDarkMode? styles.darkRow: styles.row}>
                     <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Carbs (g)</Text>
                     <TextInput
-                        style={isDarkMode? styles.darkInput:styles.input}
+                        style={styles.input}
                         keyboardType="numeric"
                         value={foodCarbs}
                         onChangeText={(text) => setCarbs(text)}
@@ -634,7 +635,7 @@ const FoodLogAddPage = () => {
                 <View style = {isDarkMode? styles.darkRow: styles.row}>
                     <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Protein (g)</Text>
                     <TextInput
-                    style={isDarkMode? styles.darkInput:styles.input}
+                    style={styles.input}
                     keyboardType="numeric"
                     value={foodProtein}
                     onChangeText={handleProteinChange}
@@ -644,8 +645,8 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style={styles.row}>
-                    <Text style={styles.inputLabel}>Cholesterol (mg)</Text>
+                <View style={isDarkMode? styles.darkRow: styles.row}>
+                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Cholesterol (g)</Text>
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
@@ -656,8 +657,8 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style={styles.row}>
-                    <Text style={styles.inputLabel}>Saturated Fat (g)</Text>
+                <View style={isDarkMode? styles.darkRow: styles.row}>
+                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Saturated Fat (g)</Text>
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
@@ -668,10 +669,10 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style={styles.row}>
-                    <Text style={styles.inputLabel}>Trans Fat (g)</Text>
+                <View style={isDarkMode? styles.darkRow: styles.row}>
+                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Trans Fat (g)</Text>
                     <TextInput
-                        style={styles.input}
+                        style={ styles.input}
                         keyboardType="numeric"
                         value={foodTransFat}
                         onChangeText={handleTransFatChange}
@@ -680,8 +681,8 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style={styles.row}>
-                    <Text style={styles.inputLabel}>Sodium (mg)</Text>
+                <View style={isDarkMode? styles.darkRow: styles.row}>
+                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Sodium (g)</Text>
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
@@ -692,8 +693,8 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style={styles.row}>
-                    <Text style={styles.inputLabel}>Fiber (g)</Text>
+                <View style={isDarkMode? styles.darkRow: styles.row}>
+                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Fiber (g)</Text>
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
@@ -704,8 +705,8 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style={styles.row}>
-                    <Text style={styles.inputLabel}>Sugars (g)</Text>
+                <View style={isDarkMode? styles.darkRow: styles.row}>
+                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Sugars (g)</Text>
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
@@ -716,8 +717,8 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style={styles.row}>
-                    <Text style={styles.inputLabel}>Calcium (mg)</Text>
+                <View style={isDarkMode? styles.darkRow: styles.row}>
+                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Calcium (g)</Text>
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
@@ -728,8 +729,8 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style={styles.row}>
-                    <Text style={styles.inputLabel}>Iron (mg)</Text>
+                <View style={isDarkMode? styles.darkRow: styles.row}>
+                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Iron (g)</Text>
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
@@ -740,8 +741,8 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style={styles.row}>
-                    <Text style={styles.inputLabel}>Potassium (mg)</Text>
+                <View style={isDarkMode? styles.darkRow: styles.row}>
+                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Potassium (g)</Text>
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
