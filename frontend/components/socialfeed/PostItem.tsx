@@ -48,7 +48,7 @@ type PostItemType = {
 
 type ItemProps = {
   item: PostItemType;
-  isPublic: boolean; // ADD THIS
+  isPublic: boolean; // DeepSeek
   liked: boolean;
   onLikePress: () => void;
   onCommentPress: () => void;
@@ -198,7 +198,7 @@ const PostItem = ({ item, liked, onLikePress, onCommentPress }: ItemProps) => {
           </TouchableOpacity>
           <Text style={isDarkMode? styles.darkCommentCounter:styles.commentCounter}>
             {item.comments.filter((comment) => !comment.isDeleted).length}
-          </Text>// Add this near the timestamp in the footer
+          </Text>
         </View>
         <Text style={styles.timestamp}>{item.dateTimeCreated}</Text>
       </View>
@@ -374,6 +374,7 @@ const styles = StyleSheet.create({
   menuContainer: {
     marginRight: -10, // Adjust this value to fine-tune
   },
+  //from DeepSeek
   visibilityBadge: {
     position: 'absolute',
     right: 0,

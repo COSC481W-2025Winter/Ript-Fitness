@@ -44,7 +44,7 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef, CreatePostSheetProps>(
     const context = useContext(GlobalContext);
     const isDarkMode = context?.isDarkMode;
 
-    const [isPublic, setIsPublic] = useState(false);
+    const [isPublic, setIsPublic] = useState(false); //from DeepSeek
 
 
     // Handle sheet state changes
@@ -78,9 +78,9 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef, CreatePostSheetProps>(
 
     const handlePost = async () => {
       if (postText.trim()) {
-        await addPost(postText, isPublic);
+        await addPost(postText, isPublic); //isPublic from DeepSeek
         setPostText("");
-        setIsPublic(false); // Reset to private for next post
+        setIsPublic(false); // Reset to private for next post (DeepSeek)
         Keyboard.dismiss();
         bottomSheetRef.current?.close();
       }
@@ -156,21 +156,22 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef, CreatePostSheetProps>(
               />
             </View>
           </View>
+          {/* For the public/private toggle from DeepSeek */}
           <View style={styles.visibilityContainer}>
-          <Text style={isDarkMode ? styles.darkVisibilityText : styles.visibilityText}>
-            {isPublic ? '🌍 Public' : '🔒 Private (Friends Only)'}
-          </Text>
-          <TouchableOpacity 
-            onPress={() => setIsPublic(!isPublic)}
-            style={styles.toggleButton}
-          >
-            <Ionicons 
-              name={isPublic ? "toggle" : "toggle-outline"} 
-              size={24} 
-              color={isDarkMode ? "#21BFBF" : "#21BFBF"} 
-            />
-          </TouchableOpacity>
-</View>
+            <Text style={isDarkMode ? styles.darkVisibilityText : styles.visibilityText}>
+              {isPublic ? '🌍 Public' : '🔒 Private (Friends Only)'}
+            </Text>
+            <TouchableOpacity 
+              onPress={() => setIsPublic(!isPublic)}
+              style={styles.toggleButton}
+            >
+              <Ionicons 
+                name={isPublic ? "toggle" : "toggle-outline"} 
+                size={24} 
+                color={isDarkMode ? "#21BFBF" : "#21BFBF"} 
+              />
+            </TouchableOpacity>
+          </View>
           {/* remove {display: "none"} to see the media buttons again (to be implemented) */}
           <View style={(styles.mediaButtonsContainer, { display: "none" })}>
             <TouchableOpacity style={styles.mediaButton}>
@@ -308,6 +309,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  //from DeepSeek for private/public toggle
   visibilityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
