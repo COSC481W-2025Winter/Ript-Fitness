@@ -1166,7 +1166,7 @@ function CustomDrawerContent({ navigation }: any) {
           </View>
         </TouchableOpacity>
 
-        // Dark mode button
+        {/* Dark mode button */}
         
           <View style={styles.switchDrawerItemTextContainer}>
           
