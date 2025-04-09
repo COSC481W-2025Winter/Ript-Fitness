@@ -646,9 +646,9 @@ const FoodLogAddPage = () => {
                 </View>
 
                 <View style={isDarkMode? styles.darkRow: styles.row}>
-                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Cholesterol (g)</Text>
+                    <Text style={isDarkMode? styles.darkInputLabel:styles.inputLabel}>Cholesterol (mg)</Text>
                     <TextInput
-                        style={styles.input}
+                        style={isDarkMode? styles.darkInput:styles.input}
                         keyboardType="numeric"
                         value={foodCholesterol}
                         onChangeText={handleCholesterolChange}
@@ -658,9 +658,9 @@ const FoodLogAddPage = () => {
                 </View>
 
                 <View style={isDarkMode? styles.darkRow: styles.row}>
-                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Saturated Fat (g)</Text>
+                    <Text style={isDarkMode? styles.darkInputLabel:styles.inputLabel}>Saturated Fat (g)</Text>
                     <TextInput
-                        style={styles.input}
+                        style={isDarkMode? styles.darkInput:styles.input}
                         keyboardType="numeric"
                         value={foodSaturatedFat}
                         onChangeText={handleSaturatedFatChange}
@@ -669,10 +669,10 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style={isDarkMode? styles.darkRow: styles.row}>
-                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Trans Fat (g)</Text>
+                <View style={isDarkMode? styles.darkRow:styles.row}>
+                    <Text style={isDarkMode? styles.darkInputLabel:styles.inputLabel}>Trans Fat (g)</Text>
                     <TextInput
-                        style={ styles.input}
+                        style={isDarkMode?styles.darkInput:styles.input}
                         keyboardType="numeric"
                         value={foodTransFat}
                         onChangeText={handleTransFatChange}
@@ -681,10 +681,10 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style={isDarkMode? styles.darkRow: styles.row}>
-                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Sodium (g)</Text>
+                <View style={isDarkMode? styles.darkRow:styles.row}>
+                    <Text style={isDarkMode?styles.darkInputLabel:styles.inputLabel}>Sodium (mg)</Text>
                     <TextInput
-                        style={styles.input}
+                        style={isDarkMode?styles.darkInput:styles.input}
                         keyboardType="numeric"
                         value={foodSodium}
                         onChangeText={handleSodiumChange}
@@ -693,10 +693,10 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style={isDarkMode? styles.darkRow: styles.row}>
-                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Fiber (g)</Text>
+                <View style={isDarkMode?styles.darkRow:styles.row}>
+                    <Text style={isDarkMode?styles.darkInputLabel:styles.inputLabel}>Fiber (g)</Text>
                     <TextInput
-                        style={styles.input}
+                        style={isDarkMode?styles.darkInput:styles.input}
                         keyboardType="numeric"
                         value={foodFiber}
                         onChangeText={handleFiberChange}
@@ -705,10 +705,10 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style={isDarkMode? styles.darkRow: styles.row}>
-                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Sugars (g)</Text>
+                <View style={isDarkMode?styles.darkRow:styles.row}>
+                    <Text style={isDarkMode?styles.darkInputLabel:styles.inputLabel}>Sugars (g)</Text>
                     <TextInput
-                        style={styles.input}
+                        style={isDarkMode?styles.darkInput:styles.input}
                         keyboardType="numeric"
                         value={foodSugars}
                         onChangeText={handleSugarsChange}
@@ -717,10 +717,10 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style={isDarkMode? styles.darkRow: styles.row}>
-                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Calcium (g)</Text>
+                <View style={isDarkMode?styles.darkRow:styles.row}>
+                    <Text style={isDarkMode?styles.darkInputLabel:styles.inputLabel}>Calcium (mg)</Text>
                     <TextInput
-                        style={styles.input}
+                        style={isDarkMode?styles.darkInput:styles.input}
                         keyboardType="numeric"
                         value={foodCalcium}
                         onChangeText={handleCalciumChange}
@@ -729,10 +729,10 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style={isDarkMode? styles.darkRow: styles.row}>
-                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Iron (g)</Text>
+                <View style={isDarkMode?styles.darkRow:styles.row}>
+                    <Text style={isDarkMode?styles.darkInputLabel:styles.inputLabel}>Iron (mg)</Text>
                     <TextInput
-                        style={styles.input}
+                        style={isDarkMode?styles.darkInput:styles.input}
                         keyboardType="numeric"
                         value={foodIron}
                         onChangeText={handleIronChange}
@@ -741,10 +741,10 @@ const FoodLogAddPage = () => {
                     />
                 </View>
 
-                <View style={isDarkMode? styles.darkRow: styles.row}>
-                    <Text style={isDarkMode? styles.darkInputLabel : styles.inputLabel}>Potassium (g)</Text>
+                <View style={isDarkMode?styles.darkRow:styles.row}>
+                    <Text style={isDarkMode?styles.darkInputLabel:styles.inputLabel}>Potassium (mg)</Text>
                     <TextInput
-                        style={styles.input}
+                        style={isDarkMode?styles.darkInput:styles.input}
                         keyboardType="numeric"
                         value={foodPotassium}
                         onChangeText={handlePotassiumChange}
