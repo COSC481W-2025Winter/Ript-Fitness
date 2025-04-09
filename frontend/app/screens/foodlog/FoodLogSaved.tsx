@@ -143,7 +143,7 @@ const FoodLogSavedPage = () => {
           }
           
           // Specify the desired order of keys
-          const keysOrder = ["name", "calories", "protein", "carbs", "fat", "cholesterol", "transFat", "sodium", "fiber", "sugars", "calcium", "iron", "potassium", "serving", "isDeleted"];          
+          const keysOrder = ["name", "calories", "protein", "carbs", "fat", "cholesterol", "saturatedFat", "transFat", "sodium", "fiber", "sugars", "calcium", "iron", "potassium", "serving", "isDeleted"];          
           // Serialize updatedFood with the desired key order
           const body = customJSONStringify(updatedFood, keysOrder);
 
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
         paddingBottom: 20, 
     }, 
     foodItemContainer: {
-        padding: 30, 
+        padding: 40, 
         backgroundColor: 'white', 
         borderBottomWidth: 1, 
         borderColor: 'black',
@@ -448,13 +448,13 @@ const styles = StyleSheet.create({
     }, 
     foodName: {
         position: 'absolute',
-        fontSize: 16,
+        fontSize: 20,
         fontWeight: 'bold',
         left: 10, 
     },
     foodTextRight: {
         position: 'absolute',
-        fontSize: 16, 
+        fontSize: 20, 
         right: 10, 
     },
     bottomContainer: {

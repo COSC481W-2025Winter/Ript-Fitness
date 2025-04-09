@@ -199,7 +199,7 @@ useEffect(() => {
   const viewSelectedExercises = () => {
     
     navigation.navigate('SelectedExercises', { exercises: Array.from(exerciseList || []) });
-  };
+    };
 
   // Toggles between front and back body diagram views
   const toggleView = (direction: 'left' | 'right') => {

@@ -16,9 +16,13 @@ import { AddWorkoutScreen } from '../screens/workout/AddWorkoutScreen';
 import { Note } from '@/components/MyNotes/NotesContext';
 import { GlobalContext } from '@/context/GlobalContext';
 import BodyFocusScreen from '@/app/screens/workout/BodyFocusScreen';
+import PlateCalculatorScreen from '@/app/screens/workout/PlateCalculatorScreen';
+import BodyWeightHistory from '@/app/screens/workout/BodyWeightHistoryScreen';
 import SelectedExercisesScreen from '@/app/screens/workout/SelectedExercisesScreen';
 import { Exercise } from '@/context/GlobalContext'; 
 import { BodyPart } from '@/app/screens/workout/BodyFocusScreen';
+
+
 
 const Stack = createStackNavigator<WorkoutStackParamList>();
 
@@ -29,7 +33,7 @@ export type WorkoutStackParamList = {
   AddWorkoutScreen: {};
   MyWorkoutsScreen: { exercises?: Exercise[] };
   MyNotesScreen: {};
-  EditNoteScreen: { note:Note | null };
+  EditNoteScreen: { note: Note | null };
   RiptWorkoutScreen: {};
   WorkoutDetailScreen: {};
   BodyFocusScreen: {exercises?: string[]};
@@ -37,6 +41,9 @@ export type WorkoutStackParamList = {
     exercises: string[];
     bodyPart?: BodyPart; 
   };
+  PlateCalculatorScreen: {};
+  BodyWeightHistoryScreen: {};  
+
 };
 
 export type WorkoutScreenNavigationProp = StackNavigationProp<WorkoutStackParamList>;
@@ -54,8 +61,8 @@ export default function WorkoutStack() {
         headerShown: true,
         headerStyleInterpolator: HeaderStyleInterpolators.forNoAnimation,
         headerStyle: {
-          backgroundColor: isDarkMode? 'black' : 'white',
-         
+          backgroundColor: isDarkMode ? 'black' : 'white',
+
         },
       }}
     >
@@ -113,11 +120,11 @@ export default function WorkoutStack() {
             </TouchableOpacity>
           ),
           headerStyle: {
-            backgroundColor: isDarkMode? 'black' : 'white',
-           
+            backgroundColor: isDarkMode ? 'black' : 'white',
+
           },
           headerTitleStyle: {
-            color: isDarkMode? 'white' : 'black',
+            color: isDarkMode ? 'white' : 'black',
           },
           headerTitleAlign: 'center',
         })}
@@ -141,7 +148,7 @@ export default function WorkoutStack() {
           ),
 
           headerTitleStyle: {
-            color: isDarkMode? 'white' : 'black',
+            color: isDarkMode ? 'white' : 'black',
           },
           headerTitleAlign: 'center',
         })}
@@ -165,7 +172,7 @@ export default function WorkoutStack() {
           ),
 
           headerTitleStyle: {
-            color: isDarkMode? 'white' : 'black',
+            color: isDarkMode ? 'white' : 'black',
           },
           headerTitleAlign: 'center',
         })}
@@ -208,7 +215,7 @@ export default function WorkoutStack() {
             </TouchableOpacity>
           ),
           headerTitleStyle: {
-            color: isDarkMode? 'white' : 'black',
+            color: isDarkMode ? 'white' : 'black',
           },
           headerRight: () => (
             <TouchableOpacity
@@ -241,8 +248,7 @@ export default function WorkoutStack() {
         })}
       />
 
-
-      <Stack.Screen
+<Stack.Screen
         name="SelectedExercises"
         component={SelectedExercisesScreen}
         options={({ navigation }) => ({
@@ -255,6 +261,29 @@ export default function WorkoutStack() {
               <TabBarIcon name="arrow-back-outline" size={30} color="#454343" />
             </TouchableOpacity>
           ),
+          headerTitleAlign: 'center',
+        })}
+      />
+
+
+
+      <Stack.Screen
+        name="BodyWeightHistoryScreen"
+        component={BodyWeightHistory}
+        options={({ navigation }) => ({
+          title: 'Selected Exercises',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={[styles.leftButton, styles.button, styles.buttonSize]}
+            >
+              <TabBarIcon name="arrow-back-outline" size={30} color="#454343" />
+            </TouchableOpacity>
+          ),
+          headerTitleStyle: {
+            color: isDarkMode ? 'white' : 'black',
+          },
+
           headerTitleAlign: 'center',
         })}
       />
@@ -278,7 +307,7 @@ export default function WorkoutStack() {
           ),
 
           headerTitleStyle: {
-            color: isDarkMode? 'white' : 'black',
+            color: isDarkMode ? 'white' : 'black',
           },
           headerRight: () => (
             <TouchableOpacity
@@ -291,7 +320,28 @@ export default function WorkoutStack() {
           headerTitleAlign: 'center',
         })}
       />
-      
+
+      <Stack.Screen
+        name="PlateCalculatorScreen"
+        component={PlateCalculatorScreen}
+        options={({ navigation }) => ({
+          title: 'Plate Calculator',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={[styles.leftButton, styles.button, styles.buttonSize]}
+            >
+              <TabBarIcon name="arrow-back-outline" size={30} color="#454343" />
+            </TouchableOpacity>
+          ),
+          headerTitleStyle: {
+            color: isDarkMode ? 'white' : 'black',
+          },
+          headerTitleAlign: 'center',
+        })}
+      />
+
+
     </Stack.Navigator>
   );
 }
