@@ -84,7 +84,7 @@ const ChangePasswordScreen = ({ navigation } : any) => {
 
   return (
     <View style={[isDarkMode? styles.darkContainer : styles.container]}>
-      <View style={styles.header}>
+      <View style={isDarkMode?styles.darkHeader:styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color={isDarkMode ? "white" : "black"} />
         </TouchableOpacity>
@@ -99,22 +99,25 @@ const ChangePasswordScreen = ({ navigation } : any) => {
       </Text>
 
       <TextInput
-        style={styles.input}
+        style={isDarkMode?styles.darkInput:styles.input}
         placeholder="Current password"
+        placeholderTextColor={'#999'}
         secureTextEntry
         value={currentPassword}
         onChangeText={setCurrentPassword}
       />
       <TextInput
-        style={styles.input}
+        style={isDarkMode?styles.darkInput:styles.input}
         placeholder="New password"
+        placeholderTextColor={'#999'}
         secureTextEntry
         value={newPassword}
         onChangeText={setNewPasswordWithWarning}
       />
       <TextInput
-        style={styles.input}
+        style={isDarkMode?styles.darkInput:styles.input}
         placeholder="Confirm password"
+        placeholderTextColor={'#999'}
         secureTextEntry
         value={confirmPassword}
         onChangeText={setNewConfirmPasswordWithWarning}
@@ -155,6 +158,13 @@ const styles = StyleSheet.create({
       borderBottomColor: '#ddd',
       marginTop: Platform.OS === "ios" ? '10%' : 0
     },
+    darkHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: 16,
+      marginTop: Platform.OS === "ios" ? '10%' : 0
+    },
     title: { fontSize: 18, fontWeight: 'bold' },
     darkTitle: { fontSize: 18, fontWeight: 'bold', color: 'white' },
     saveButton: {
@@ -171,6 +181,13 @@ const styles = StyleSheet.create({
     },
     input: {
       backgroundColor: '#f2f2f2',
+      padding: 12,
+      marginHorizontal: 16,
+      marginVertical: 8,
+      borderRadius: 8,
+    },
+    darkInput: {
+      backgroundColor: '#555',
       padding: 12,
       marginHorizontal: 16,
       marginVertical: 8,
