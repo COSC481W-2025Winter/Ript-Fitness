@@ -114,7 +114,7 @@ export default function WorkoutApiScreen() {
       {/* Body Weight History Trend */}
       <TouchableOpacity 
         style={isDarkMode? styles.darkButton:styles.button} 
-        onPress={() => navigation.navigate('WorkoutTrendScreen', {})} 
+        onPress={() => navigation.navigate('BodyWeightHistoryScreen', {})} 
       >
         <View style={styles.iconStyles}>
           <MaterialCommunityIcons name="chart-line" size={32} color="#aef1f1" />

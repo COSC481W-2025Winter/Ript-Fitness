@@ -49,9 +49,6 @@ export default function BodyFocusScreen() {
   });
 
   const [error, setError] = useState<string | null>(null);
-  const context = useContext(GlobalContext);
-  const token = context?.data?.token; //Access the context data with the defined type
-  
   const isDarkMode = context?.isDarkMode; 
 
 // Map BodyPart to backend `exerciseType`
