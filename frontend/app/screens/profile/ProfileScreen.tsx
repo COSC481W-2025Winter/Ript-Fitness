@@ -2003,7 +2003,7 @@ const styles = StyleSheet.create({
   },
   darkExerciseText: {
     fontSize: 16,
-    color: '333',
+    color: 'white',
     textAlign: 'center',
     marginHorizontal: 5,
   },
