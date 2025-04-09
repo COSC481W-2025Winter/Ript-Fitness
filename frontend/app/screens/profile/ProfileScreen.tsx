@@ -35,7 +35,7 @@ import timeZone from '@/api/timeZone'
 import TimeZone from '@/api/timeZone';
 import { Background, Timer } from 'victory';
 import { useColorScheme } from 'react-native';
-import { WorkoutContext } from "@/context/WorkoutContext";  // Import WorkoutContext for managing workout data and state.
+import { WorkoutContext } from "@/context/WorkoutContext"; 
 
 
 const Tab = createMaterialTopTabNavigator();
@@ -786,10 +786,10 @@ function ProgressScreen({ navigation }: any) {
     const [modalVisible, setModalVisible] = useState(false);
     const [workouts, setWorkouts] = useState<any[]>([]);
 
-  const fetchWorkoutsByDate = async (formattedDate: string) => {
+    const fetchWorkoutsByDate = async (formattedDate: string): Promise<number | undefined> => {
     try {
       const response = await fetch(
-        `${httpRequests.getBaseURL()}/workouts/getUsersWorkoutsByDate/${formattedDate}`,
+        `${httpRequests.getBaseURL()}/workouts/getWorkoutsByDate/${formattedDate}`,
         {
           method: 'GET',
           headers: {
@@ -803,7 +803,10 @@ function ProgressScreen({ navigation }: any) {
       }
 
       const workoutsData = await response.json();
-      setWorkouts(workoutsData); // Store the fetched workouts in state
+      const workoutNames = workoutsData.map((workout: { name: string }) => workout.name);
+      setWorkouts(workoutsData); 
+      return workoutNames;
+      
     } catch (error) {
       console.error('Error fetching workouts:', error);
     }
@@ -815,6 +818,7 @@ function ProgressScreen({ navigation }: any) {
     setModalVisible(true); // Show the modal when the text is clicked
     const selectedDate = new Date (year, month, day);
     const formattedDate = formatDateForBackend(selectedDate);
+    fetchWorkoutsByDate(formattedDate);
   };
 
   function formatDateForBackend(date: Date): string {
@@ -828,13 +832,6 @@ function ProgressScreen({ navigation }: any) {
   const closeModal = () => {
     setModalVisible(false); // Close the modal
   };
-
-  const logMore = async (navigation: any) => {
-    setModalVisible(false);
-    //navigation.navigate('MyWorkoutScreen');
-  };
-
-  
 
     if (day == 0) {
       spacerKey++;
@@ -870,17 +867,27 @@ function ProgressScreen({ navigation }: any) {
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
               <View style={{ width: '80%', minHeight: 200, backgroundColor: isDarkMode?'#666':'white', alignItems: 'center', padding: 20, borderRadius: 8 }}>
                 <Text style={{color: isDarkMode? 'white':'black', fontWeight: 'bold', fontSize: 20}}>You've logged </Text>
-                <FlatList
-                          style={{alignContent: 'flex-start'}}
-                          data={workouts || []}
-                          keyExtractor={(item, index) =>
-                            item.id ? `workout-${item.id}-${index}` : `workout-${index}`
-                          }
-                          renderItem={({ item }) => (
-                                        <Text style={styles.bio}>{String(item.name)}</Text>
-                                                )}
-
-                />
+                {workouts && workouts.length === 0 ? (
+                  console.log('Workouts data:', workouts),
+                  <Text>nothing yet!</Text>
+                ) : (
+                  <FlatList
+                    style={{ alignContent: 'flex-start' }}
+                    data={workouts || []}
+                    keyExtractor={(item, index) =>
+                      item.workoutsId ? `workout-${item.workoutsId}-${index}` : `workout-${index}`
+                    }
+                    renderItem={({ item }) => {
+                      // If there are exercises, map them to display their names
+                      const exercisesList = item.exercises && item.exercises.length > 0 
+                        ? item.exercises.map((exercise: { name: string }) => exercise.name).join(", ")
+                        : "No exercises logged";
+                      return (
+                        <Text style={styles.bio}>{exercisesList}</Text>
+                      );
+                    }}
+                  />
+                )}
                 <TouchableOpacity onPress={navigateToMyWorkoutScreen} style={styles.logMoreButton}>
                   <Text>Log More</Text>
                 </TouchableOpacity>
