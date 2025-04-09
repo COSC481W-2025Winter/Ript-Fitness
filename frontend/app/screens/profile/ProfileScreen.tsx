@@ -757,6 +757,9 @@ function ProgressScreen({ navigation }: any) {
   const isDarkMode = context?.isDarkMode;
   const [workoutName, setWorkoutName] = useState<string>("");
   const workoutContext = useContext(WorkoutContext); 
+  const token = context?.data?.token;
+  const [exerciseList, setExerciseList] = useState<Set<string>>(new Set());
+  
 
   
 
@@ -793,7 +796,7 @@ function ProgressScreen({ navigation }: any) {
         {
           method: 'GET',
           headers: {
-            Authorization: `Bearer ${context?.data.token}`,
+           Authorization: `Bearer ${context?.data.token}`,
           },
         }
       );
@@ -802,9 +805,14 @@ function ProgressScreen({ navigation }: any) {
         throw new Error(`Failed to fetch workouts: ${response.statusText}`);
       }
 
+      console.log('');
+
+
       const workoutsData = await response.json();
       const workoutNames = workoutsData.map((workout: { name: string }) => workout.name);
-      setWorkouts(workoutsData); 
+      console.log('workouts:' + workoutNames);
+      //setExerciseList(workoutNames);
+      setWorkouts(workoutNames);
       return workoutNames;
       
     } catch (error) {
@@ -832,6 +840,10 @@ function ProgressScreen({ navigation }: any) {
   const closeModal = () => {
     setModalVisible(false); // Close the modal
   };
+
+
+  const flattened = [...exerciseList].flat().map(e => String(e).trim());
+  const uniqueExerciseList = Array.from(new Set(flattened));
 
     if (day == 0) {
       spacerKey++;
@@ -869,23 +881,14 @@ function ProgressScreen({ navigation }: any) {
                 <Text style={{color: isDarkMode? 'white':'black', fontWeight: 'bold', fontSize: 20}}>You've logged </Text>
                 {workouts && workouts.length === 0 ? (
                   console.log('Workouts data:', workouts),
-                  <Text>nothing yet!</Text>
+                  <Text style={{color: isDarkMode? 'white':'black'}}>nothing yet!</Text>
                 ) : (
                   <FlatList
                     style={{ alignContent: 'flex-start' }}
-                    data={workouts || []}
-                    keyExtractor={(item, index) =>
-                      item.workoutsId ? `workout-${item.workoutsId}-${index}` : `workout-${index}`
-                    }
-                    renderItem={({ item }) => {
-                      // If there are exercises, map them to display their names
-                      const exercisesList = item.exercises && item.exercises.length > 0 
-                        ? item.exercises.map((exercise: { name: string }) => exercise.name).join(", ")
-                        : "No exercises logged";
-                      return (
-                        <Text style={styles.bio}>{exercisesList}</Text>
-                      );
-                    }}
+                    data={workouts}
+                    renderItem={({ item }) => <Text style={isDarkMode? styles.darkExerciseText:styles.exerciseText}>• {item}</Text>}
+                    keyExtractor={(item, index) => `exercise-${item.replace(/\s+/g, "_")}-${index}`}
+                    
                   />
                 )}
                 <TouchableOpacity onPress={navigateToMyWorkoutScreen} style={styles.logMoreButton}>
@@ -975,7 +978,7 @@ function ProgressScreen({ navigation }: any) {
       if (i === 0) {
         const firstDay = new Date(myDate.getFullYear(), myDate.getMonth(), 1).getDay(); // Get first weekday of the month
         for (let j = 0; j < firstDay; j++) {
-          spacers.push(renderCalendarDay(0, myDate.getFullYear(), myDate.getMonth(), 5)); // Render empty spacers
+          spacers.push(renderCalendarDay(0, myDate.getMonth(), myDate.getFullYear(), 5)); // Render empty spacers
         }
       }
       // if date is in context
@@ -987,9 +990,12 @@ function ProgressScreen({ navigation }: any) {
         <React.Fragment key={i}>
           {renderCalendarDay(
             day,
-            myDate.getFullYear(),
             myDate.getMonth(),
-            getActivityType(new Date(myDate.getFullYear(), myDate.getMonth(), day))
+            myDate.getFullYear(),
+
+            
+            getActivityType(new Date(myDate.getFullYear(), myDate.getMonth(), day)),
+
           )}
         </React.Fragment>
       );
@@ -1988,6 +1994,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 5,
+  },
+  exerciseText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginHorizontal: 5,
+    color: '666'
+  },
+  darkExerciseText: {
+    fontSize: 16,
+    color: '333',
+    textAlign: 'center',
+    marginHorizontal: 5,
   },
 
 });
