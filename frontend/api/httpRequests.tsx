@@ -71,35 +71,23 @@ export class httpRequests {
     endpoint: string,
     token: string,
     data?: Record<string, any>
-  ): Promise<any> {
+  ): Promise<Response> {
     try {
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
       };
       if (token) headers.Authorization = `Bearer ${token}`;
-      if (data) headers["Content-Type"] = "application/json"; // only set if body exists
-  
       const response = await fetch(`${BASE_URL}${endpoint}`, {
         method: "PUT",
         headers,
         ...(data ? { body: JSON.stringify(data) } : {}),
       });
-
-      if (response.status === 204) return true;
-  
-      // parse JSON response if applicable
-    const contentType = response.headers.get("Content-Type");
-    if (contentType?.includes("application/json")) {
-      return await response.json();
+      return response; 
+    } catch (error) {
+      console.error("PUT request failed:", error);
+      throw error;
     }
-
-    return await response.text();
-  } catch (error) {
-    console.error("PUT request failed:", error);
-    throw error;
-    }
-  }
-  
+  }  
 
   // Method to handle DELETE requests and return JSON
   static async delete(
