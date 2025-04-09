@@ -75,14 +75,26 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef, CreatePostSheetProps>(
         bottomSheetRef.current?.close();
       },
     }));
-
+    //adjusted handlePost by DeepSeek to try to fix the issue of add post page not 
+    //completely disapearing after saving a post
     const handlePost = async () => {
-      if (postText.trim()) {
-        await addPost(postText, isPublic); //isPublic from DeepSeek
-        setPostText("");
-        setIsPublic(false); // Reset to private for next post (DeepSeek)
-        Keyboard.dismiss();
+      if (!postText.trim()) return;
+    
+      try {
+        // Immediately close the sheet while the post is being submitted
         bottomSheetRef.current?.close();
+        
+        // Reset UI state
+        setPostText("");
+        setIsPublic(false);
+        Keyboard.dismiss();
+        
+        // Submit the post after closing the sheet
+        await addPost(postText, isPublic);
+      } catch (error) {
+        console.error("Failed to post:", error);
+        // Optionally re-open the sheet if posting fails
+        bottomSheetRef.current?.snapToIndex(0);
       }
     };
 
@@ -163,6 +175,7 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef, CreatePostSheetProps>(
             </Text>
             <TouchableOpacity 
               onPress={() => setIsPublic(!isPublic)}
+              testID="visibility-toggle"  // DeepSeek - for test
               style={styles.toggleButton}
             >
               <Ionicons 
