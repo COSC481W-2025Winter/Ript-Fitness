@@ -200,8 +200,7 @@ public class WorkoutsService {
 
 	public Map<LocalDate, ExerciseDto> getWorkoutTrendsfor7Days() {
 		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
-		LocalDate sevenDaysAgo = LocalDate.now().minusDays(7);
-		
+		LocalDate sevenDaysAgo = LocalDate.now().minusDays(7);		
 		return null;
 	}
 	

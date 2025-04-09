@@ -1,6 +1,7 @@
 package com.riptFitness.Ript_Fitness_Backend.domain.repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,7 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.riptFitness.Ript_Fitness_Backend.domain.model.Day;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Workouts;
 
 
@@ -29,8 +29,6 @@ public interface WorkoutsRepository extends JpaRepository <Workouts, Long> {
 		List<Workouts> findWorkoutsByDateRange(@Param("accountId") Long accountId, @Param("startDate") LocalDate startDate);
 	
 	@Query("SELECT w FROM Workouts w WHERE w.account.id = :accountId AND w.workoutDate = :date AND w.isDeleted = false")
-	List<Workouts> findWorkoutsByDate(@Param("accountId") Long accountId, @Param("date") LocalDate date);
-
-
+		List<Workouts> findWorkoutsByDate(@Param("accountId") Long accountId, @Param("date") LocalDate date);
 
 }

@@ -35,7 +35,7 @@ import timeZone from '@/api/timeZone'
 import TimeZone from '@/api/timeZone';
 import { Background, Timer } from 'victory';
 import { useColorScheme } from 'react-native';
-import { WorkoutContext } from "@/context/WorkoutContext";  // Import WorkoutContext for managing workout data and state.
+import { WorkoutContext } from "@/context/WorkoutContext"; 
 
 
 const Tab = createMaterialTopTabNavigator();
@@ -240,6 +240,7 @@ function PhotosScreen() {
             Authorization: `Bearer ${context?.data.token}`,
           },
           body: '', // Convert the data to a JSON string
+        
         }
       ); // Use endpoint or replace with BASE_URL if needed
       if (!response.ok) {
@@ -749,14 +750,14 @@ function PostsScreen() {
   );
 }
 
-function ProgressScreen() {
-  const navigation = useNavigation<ProfileScreenNavigationProp>();
+function ProgressScreen({ navigation }: any) {
+  //const navigation = useNavigation<ProfileScreenNavigationProp>();
   const context = useContext(GlobalContext);
   const [loadingDates, setLoadingDates] = useState<Date[]>([]);
 
   const isDarkMode = context?.isDarkMode;
   const [workoutName, setWorkoutName] = useState<string>("");
-  const workoutContext = useContext(WorkoutContext); // Access workout data and state using WorkoutContext.
+  const workoutContext = useContext(WorkoutContext); 
 
   
 
@@ -782,52 +783,59 @@ function ProgressScreen() {
     let myStyle;
     let textStyle;
 
+
     const [modalVisible, setModalVisible] = useState(false);
+    const [workouts, setWorkouts] = useState<any[]>([]);
+
+    const fetchWorkoutsByDate = async (formattedDate: string): Promise<number | undefined> => {
+    try {
+      const response = await fetch(
+        `${httpRequests.getBaseURL()}/calendar/getWorkoutsByDate/${formattedDate}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${context?.data.token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch workouts: ${response.statusText}`);
+      }
+
+      const workoutsData = await response.json();
+      const workoutNames = workoutsData.map((workout: { name: string }) => workout.name);
+      setWorkouts(workoutsData); 
+      return workoutNames;
+      
+    } catch (error) {
+      console.error('Error fetching workouts:', error);
+    }
+  };
+
 
   const handlePress = () => {
+
     setModalVisible(true); // Show the modal when the text is clicked
-    const fetchWorkoutById = async (workoutName: string): Promise<number | undefined> => {
-      try {
-        const response = await fetch(
-          `${httpRequests.getBaseURL()}/workouts/getUsersWorkouts/0/10000`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${context?.data.token}`,
-            },
-          }
-        );
-  
-  
-        if (!response.ok) {
-          throw new Error(`Failed to fetch workouts: ${response.statusText}`);
-        }
-  
-  
-        const workouts = await response.json();
-        const matchedWorkout = workouts.find(
-          (workout: any) => workout.name === workoutName
-        );
-  
-  
-        return matchedWorkout ? matchedWorkout.workoutsId : undefined;
-      } catch (error) {
-        console.error("Error fetching workout by name:", error);
-        return undefined;
-      }
-    };
+    const selectedDate = new Date (month, year, day);
+    console.log('Debug date params:', { month, year, day });
+    console.log('entered selected date:', {selectedDate});
+    const formattedDate = formatDateForBackend(selectedDate);
+    console.log('formated date:', {formattedDate});
+    fetchWorkoutsByDate(formattedDate);
   };
+
+  function formatDateForBackend(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  
 
   const closeModal = () => {
     setModalVisible(false); // Close the modal
   };
-
-  const logMore = async (navigation: any) => {
-    setModalVisible(false);
-    //navigation.navigate('MyWorkoutScreen');
-  };
-
-  
 
     if (day == 0) {
       spacerKey++;
@@ -862,19 +870,29 @@ function ProgressScreen() {
         <TouchableWithoutFeedback onPress={closeModal}>
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
               <View style={{ width: '80%', minHeight: 200, backgroundColor: isDarkMode?'#666':'white', alignItems: 'center', padding: 20, borderRadius: 8 }}>
-                <Text>You've logged </Text>
-                <FlatList
-                          style={{alignContent: 'flex-start'}}
-                          data={context?.workouts || []}
-                          keyExtractor={(item, index) =>
-                            item.id ? `workout-${item.id}-${index}` : `workout-${index}`
-                          }
-                          renderItem={({ item }) => (
-                                        <Text style={styles.bio}>{String(item.name)}</Text>
-                                                )}
-
-                />
-                <TouchableOpacity onPress={handlePress} style={styles.logMoreButton}>
+                <Text style={{color: isDarkMode? 'white':'black', fontWeight: 'bold', fontSize: 20}}>You've logged </Text>
+                {workouts && workouts.length === 0 ? (
+                  console.log('Workouts data:', workouts),
+                  <Text>nothing yet!</Text>
+                ) : (
+                  <FlatList
+                    style={{ alignContent: 'flex-start' }}
+                    data={workouts || []}
+                    keyExtractor={(item, index) =>
+                      item.workoutsId ? `workout-${item.workoutsId}-${index}` : `workout-${index}`
+                    }
+                    renderItem={({ item }) => {
+                      // If there are exercises, map them to display their names
+                      const exercisesList = item.exercises && item.exercises.length > 0 
+                        ? item.exercises.map((exercise: { name: string }) => exercise.name).join(", ")
+                        : "No exercises logged";
+                      return (
+                        <Text style={styles.bio}>{exercisesList}</Text>
+                      );
+                    }}
+                  />
+                )}
+                <TouchableOpacity onPress={navigateToMyWorkoutScreen} style={styles.logMoreButton}>
                   <Text>Log More</Text>
                 </TouchableOpacity>
               </View>
@@ -883,6 +901,10 @@ function ProgressScreen() {
       </Modal>
       </View>
     );
+  };
+
+  const navigateToMyWorkoutScreen = () => {
+    navigation.navigate('Workout', { screen: 'MyWorkoutsScreen' }); // Navigate to the my workouts screen
   };
 
   const getActivityType = (myDate: Date): number => {
@@ -957,7 +979,7 @@ function ProgressScreen() {
       if (i === 0) {
         const firstDay = new Date(myDate.getFullYear(), myDate.getMonth(), 1).getDay(); // Get first weekday of the month
         for (let j = 0; j < firstDay; j++) {
-          spacers.push(renderCalendarDay(0, myDate.getFullYear(), myDate.getMonth(), 5)); // Render empty spacers
+          spacers.push(renderCalendarDay(0, myDate.getMonth(), myDate.getFullYear(), 5)); // Render empty spacers
         }
       }
       // if date is in context
@@ -969,8 +991,8 @@ function ProgressScreen() {
         <React.Fragment key={i}>
           {renderCalendarDay(
             day,
-            myDate.getFullYear(),
             myDate.getMonth(),
+            myDate.getFullYear(),
             getActivityType(new Date(myDate.getFullYear(), myDate.getMonth(), day))
           )}
         </React.Fragment>
