@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
     }, 
     foodItemContainer: {
         position: 'relative',
-        padding: 15, 
+        padding: 35, 
         backgroundColor: 'white', 
         borderBottomWidth: 1, 
         borderColor: 'black',
@@ -344,12 +344,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     }, 
     foodName: {
-        fontSize: 16,
+        fontSize: 20,
         fontWeight: 'bold',
     },
     foodTextRight: {
         position: 'absolute',
-        fontSize: 16, 
+        fontSize: 20, 
         right: 5, 
     },
     bottomContainer: {
