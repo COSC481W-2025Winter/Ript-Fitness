@@ -1,5 +1,6 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -10,13 +11,18 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.riptFitness.Ript_Fitness_Backend.domain.mapper.CalendarMapper;
+import com.riptFitness.Ript_Fitness_Backend.domain.mapper.WorkoutsMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Calendar;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.Workouts;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.CalendarRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.UserProfileRepository;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.WorkoutsRepository;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.CalendarDto;
+import com.riptFitness.Ript_Fitness_Backend.web.dto.WorkoutsDto;
 
 @Service
 public class CalendarService {
@@ -32,6 +38,10 @@ public class CalendarService {
 
 	@Autowired
 	private UserProfileRepository userProfileRepository;
+	
+	@Autowired
+	private WorkoutsRepository workoutsRepository;
+
 
 	private void validateTimeZone(String timeZone) {
 		// Convert the array to a list and check if it contains the timeZone
@@ -164,4 +174,12 @@ public class CalendarService {
 				calendar.getTimeZoneWhenLogged())).collect(Collectors.toList());
 	}
 
+	public List<WorkoutsDto> getWorkoutsByDate(LocalDate date) {
+	    Long userId = accountsService.getLoggedInUserId();
+	    List<Workouts> workouts = workoutsRepository.findWorkoutsByDate(userId, date);
+	    return workouts.stream()
+	        .map(WorkoutsMapper.INSTANCE::toWorkoutsDto)
+	        .collect(Collectors.toList());
+	}
+	
 }

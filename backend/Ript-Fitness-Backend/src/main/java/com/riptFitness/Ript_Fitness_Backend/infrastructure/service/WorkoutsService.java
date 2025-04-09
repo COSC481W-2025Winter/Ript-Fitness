@@ -224,13 +224,7 @@ public class WorkoutsService {
 	    return result;
 	}
 	
-	public List<WorkoutsDto> getWorkoutDataByDate(LocalDate date) {
-	    Long currentUserId = accountsService.getLoggedInUserId();
-	    List<Workouts> workoutList = workoutsRepository.findWorkoutsByDate(currentUserId, date);
-	    return workoutList.stream()
-                .map(WorkoutsMapper.INSTANCE::toWorkoutsDto)
-                .collect(Collectors.toList());
-	}
+
 
 	
 }
