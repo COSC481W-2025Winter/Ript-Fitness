@@ -226,7 +226,7 @@ useEffect(() => {
       {/* Add Weight */}
       <View style={styles.addWeightContainer}>
         <Text style={isDarkMode ? styles.darkSubtitle : styles.subtitle}>
-          {editId !== null ? "Edit Weight Entry" : "Add Your Weight"}
+          <Text>{editId !== null ? "Edit Weight Entry" : "Add Your Weight"}</Text>
         </Text>
 
         <TextInput

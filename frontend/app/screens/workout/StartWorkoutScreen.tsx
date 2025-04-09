@@ -727,7 +727,7 @@ return (
       disabled={exercises.length === 0} // Disable when no exercises
     >
       <Text style={styles.submitButtonText}>
-        {exercises.length === 0 ? "Add Exercises to Submit" : "Submit Workout"}
+        <Text>{exercises.length === 0 ? "Add Exercises to Submit" : "Submit Workout"}</Text>
       </Text>
     </TouchableOpacity>
   </View>

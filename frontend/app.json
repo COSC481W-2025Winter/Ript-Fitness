@@ -1,24 +1,25 @@
 {
   "expo": {
     "name": "riptfitness",
-    "slug": "riptfitness",
-    "owner": "jeccles1",
+    "slug": "Ript",
+    "owner": "sjiang1",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/final-2nd-logo.png",
+    "icon": "./final-2nd-logo.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/images/ript_workouts.png",
+      "image": "./ript_workouts.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.RiptFitness.Ript"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./final-2nd-logo.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.RiptFitness.Ript"
@@ -33,19 +34,27 @@
         {
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 34,
+            "buildToolsVersion": "35.0.0",
+            "kotlinVersion": "1.9.25"
+          }
+        }
       ]
     ],
     "extra": {
       "eas": {
-        "projectId": "64d90884-788f-46e5-83fa-a6a96d32cb70"
+        "projectId": "37565054-23c6-429e-9b9c-8999008e91ba"
       }
     },
-    "runtimeVersion": "1.0.0"
-
-    ,
+    "runtimeVersion": "1.0.0",
     "updates": {
-      "url": "https://u.expo.dev/64d90884-788f-46e5-83fa-a6a96d32cb70"
+      "url": "https://u.expo.dev/37565054-23c6-429e-9b9c-8999008e91ba"
     }
-  },
-  "name": "ript"
+  }
 }

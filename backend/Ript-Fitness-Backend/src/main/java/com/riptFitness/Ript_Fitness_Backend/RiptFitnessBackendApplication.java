@@ -16,6 +16,7 @@ public class RiptFitnessBackendApplication {
         System.setProperty("JWT_SECRET", dotenv.get("JWT_SECRET"));
         System.setProperty("BLOB_CONNECTION_STRING", dotenv.get("BLOB_CONNECTION_STRING"));
         System.setProperty("BLOB_CONTAINER_NAME", dotenv.get("BLOB_CONTAINER_NAME"));
+        System.setProperty("USDA_API_KEY", dotenv.get("USDA_API_KEY"));
 
      
 		SpringApplication.run(RiptFitnessBackendApplication.class, args);
