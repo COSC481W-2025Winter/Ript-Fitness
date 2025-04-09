@@ -1,9 +1,17 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.serviceTests;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -19,13 +27,16 @@ import org.springframework.test.context.ActiveProfiles;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Calendar;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.Workouts;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.CalendarRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.UserProfileRepository;
-import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.CalendarService;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.WorkoutsRepository;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.SecurityConfig;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AccountsService;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.CalendarService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.CalendarDto;
+import com.riptFitness.Ript_Fitness_Backend.web.dto.WorkoutsDto;
 
 @ActiveProfiles("test")
 @Import(SecurityConfig.class)
@@ -42,6 +53,9 @@ public class CalendarServiceTest {
 
 	@Mock
 	private UserProfileRepository userProfileRepository;
+	
+	@Mock
+	private WorkoutsRepository workoutsRepository;
 
 	@InjectMocks
 	private CalendarService calendarService;
@@ -152,6 +166,37 @@ public class CalendarServiceTest {
 	    assertEquals("America/New_York", result.get(0).getTimeZoneWhenLogged());
 	    assertEquals(1, result.get(0).getActivityType());
 	    assertEquals(LocalDateTime.of(2023, 12, 5, 12, 0), result.get(0).getDate());
+	}
+	
+	@Test
+	public void testGetWorkoutsByDateReturnsExpectedWorkouts() {
+	    // Given
+	    LocalDate testDate = LocalDate.of(2025, 3, 18);
+
+	    Workouts workout1 = new Workouts();
+	    workout1.setWorkoutDate(testDate);
+	    workout1.setName("Leg Day");
+	    workout1.setAccount(account);
+
+	    Workouts workout2 = new Workouts();
+	    workout2.setWorkoutDate(testDate);
+	    workout2.setName("Push Day");
+	    workout2.setAccount(account);
+
+	    List<Workouts> mockWorkouts = List.of(workout1, workout2);
+
+	    when(workoutsRepository.findWorkoutsByDate(1L, testDate)).thenReturn(mockWorkouts);
+
+	    // When
+	    List<WorkoutsDto> result = calendarService.getWorkoutsByDate(testDate);
+
+	    // Then
+	    assertNotNull(result);
+	    assertEquals(2, result.size());
+	    assertTrue(result.stream().anyMatch(w -> w.getName().equals("Leg Day")));
+	    assertTrue(result.stream().anyMatch(w -> w.getName().equals("Push Day")));
+
+	    verify(workoutsRepository, times(1)).findWorkoutsByDate(1L, testDate);
 	}
 
 }
