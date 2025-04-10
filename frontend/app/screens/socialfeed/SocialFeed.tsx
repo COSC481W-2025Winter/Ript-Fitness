@@ -181,6 +181,7 @@ export default function SocialFeed() {
               name: displayname,
               profilePicture: profilePictureSource,
               id: item.accountId,
+              isPublic: item.isPublic // Ensure this is passed
             },
             dateTimeCreated: item.dateTimeCreated,
             likes: Array.isArray(item.likes) ? item.likes : [],
