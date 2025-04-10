@@ -1,8 +1,14 @@
 package com.riptFitness.Ript_Fitness_Backend.infrastructure.serviceTests;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,12 +25,15 @@ import org.springframework.test.context.ActiveProfiles;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Calendar;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.Workouts;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.CalendarRepository;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.CalendarWorkoutLinkRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.UserProfileRepository;
-import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.CalendarService;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.WorkoutsRepository;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.SecurityConfig;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AccountsService;
+import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.CalendarService;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.CalendarDto;
 
 @ActiveProfiles("test")
@@ -42,6 +51,13 @@ public class CalendarServiceTest {
 
 	@Mock
 	private UserProfileRepository userProfileRepository;
+	
+	@Mock
+	private WorkoutsRepository workoutsRepository;
+
+	@Mock
+	private CalendarWorkoutLinkRepository calendarWorkoutLinkRepository;
+
 
 	@InjectMocks
 	private CalendarService calendarService;
@@ -73,27 +89,40 @@ public class CalendarServiceTest {
 		when(accountsService.getLoggedInUserId()).thenReturn(1L);
 		when(accountsRepository.findById(1L)).thenReturn(Optional.of(account));
 		when(userProfileRepository.findUserProfileByAccountId(1L)).thenReturn(Optional.of(userProfile));
+		
+		Workouts testWorkout = new Workouts();
+		testWorkout.setWorkoutsId(101L);
+		testWorkout.setName("Push Day A");
+
+		when(workoutsRepository.findById(101L)).thenReturn(Optional.of(testWorkout));
+
 	}
 
 	@Test
 	public void testLogWorkoutDay() {
-		when(calendarRepository.findTopByAccountIdOrderByDateDesc(1L)).thenReturn(Optional.empty());
-		calendarService.logWorkoutDay("Etc/GMT+5");
-		verify(calendarRepository, times(1)).save(any(Calendar.class));
+	    when(calendarRepository.findTopByAccountIdOrderByDateDesc(1L)).thenReturn(Optional.empty());
+
+	    calendarService.logWorkoutDay("Etc/GMT+5", 101L);
+
+	    verify(calendarRepository, times(1)).save(any(Calendar.class));
+	    verify(workoutsRepository, times(1)).findById(101L);
+	    verify(calendarWorkoutLinkRepository, times(1)).save(any());
 	}
+
 
 	@Test
 	public void testLogWorkoutDayAlreadyLogged() {
-		Calendar existingEntry = new Calendar(account, LocalDateTime.now(), 1, "Etc/GMT+5"); // Activity type 1 = Workout
-		existingEntry.setTimeZoneWhenLogged("Etc/GMT+5"); // Set a valid time zone
-		when(calendarRepository.findTopByAccountIdOrderByDateDesc(1L)).thenReturn(Optional.of(existingEntry));
+	    Calendar existingEntry = new Calendar(account, LocalDateTime.now(), 1, "Etc/GMT+5");
+	    existingEntry.setTimeZoneWhenLogged("Etc/GMT+5");
+	    when(calendarRepository.findTopByAccountIdOrderByDateDesc(1L)).thenReturn(Optional.of(existingEntry));
 
-		IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-			calendarService.logWorkoutDay("Etc/GMT+5");
-		});
+	    IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+	        calendarService.logWorkoutDay("Etc/GMT+5", 101L);
+	    });
 
-		assertEquals("Something was already logged for this day.", exception.getMessage());
+	    assertEquals("Something was already logged for this day.", exception.getMessage());
 	}
+
 
 	@Test
 	public void testLogRestDay() {
