@@ -49,8 +49,6 @@ export default function BodyFocusScreen() {
   });
 
   const [error, setError] = useState<string | null>(null);
-  const context = useContext(GlobalContext);
-  const token = context?.data?.token; //Access the context data with the defined type
   
   const isDarkMode = context?.isDarkMode; 
 
@@ -263,28 +261,16 @@ const uniqueExerciseList = Array.from(new Set(flattened));
 
   return (
     <View style={isDarkMode?styles.darkContainer:styles.container} {...panResponder.panHandlers}>
-      {/* Displays the selected exercises */}
-      <View style={styles.exerciseContainer}>
-        <Text style={styles.exerciseTitle}>Selected Exercises:</Text>
-        <FlatList
-          data={uniqueExerciseList}
-          renderItem={({ item }) => <Text style={styles.exerciseText}>• {item}</Text>}
-          keyExtractor={(item, index) => `exercise-${item.replace(/\s+/g, "_")}-${index}`}
-
-          numColumns={2}
-          scrollEnabled={false}
-          contentContainerStyle={styles.exerciseListContainer}
-        />
-        
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-          {/* Remove the toggle button and rely on swipe gestures */}
-          {exerciseList.size > 0 && (
-            <TouchableOpacity onPress={clearAllExercises} style={styles.clearButton}>
-              <Text style={styles.clearButtonText}>Clear All</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
+       {/* Displays the selected exercises as touchable text */}
+       <TouchableOpacity
+        onPress={viewSelectedExercises}
+        disabled={!exerciseList || exerciseList.size === 0}
+        style={styles.viewExercisesButton}
+      >
+        <Text style={styles.viewExercisesButtonText}>
+          View Selected Exercises ({exerciseList?.size || 0})
+        </Text>
+      </TouchableOpacity>
 
       {/* Displays the interactive body diagram */}
       <View style={styles.bodyDiagramContainer}>
