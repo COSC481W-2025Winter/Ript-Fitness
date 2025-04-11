@@ -817,7 +817,7 @@ function ProgressScreen({ navigation }: any) {
   const handlePress = () => {
 
     setModalVisible(true); // Show the modal when the text is clicked
-    const selectedDate = new Date (month, year, day);
+    const selectedDate = new Date (year, month, day);
     console.log('Debug date params:', { month, year, day });
     console.log('entered selected date:', {selectedDate});
     const formattedDate = formatDateForBackend(selectedDate);

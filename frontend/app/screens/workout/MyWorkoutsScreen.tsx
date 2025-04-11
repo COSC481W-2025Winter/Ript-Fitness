@@ -320,15 +320,17 @@ export default function MyWorkoutsScreen() {
     }
 
     try {
+      const formBody = new URLSearchParams();
+      formBody.append("workoutId", String(selectedWorkout.id));
       const response = await fetch(
-        `${httpRequests.getBaseURL()}/calendar/logWorkout?timeZone=${TimeZone.get()}`,
+        `${httpRequests.getBaseURL()}/calendar/logWorkout?workoutId=${selectedWorkout.id}`,
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
             Authorization: `Bearer ${context?.data.token}`,
           },
-          body: JSON.stringify({ workoutId: selectedWorkout.id }),
+          body: formBody.toString()
         }
       );
 

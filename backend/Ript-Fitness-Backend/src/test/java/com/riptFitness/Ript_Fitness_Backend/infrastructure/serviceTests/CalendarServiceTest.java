@@ -10,6 +10,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,9 +33,12 @@ import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Calendar;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Workouts;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.Workouts;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.CalendarRepository;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.CalendarWorkoutLinkRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.UserProfileRepository;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.WorkoutsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.WorkoutsRepository;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.config.SecurityConfig;
 import com.riptFitness.Ript_Fitness_Backend.infrastructure.service.AccountsService;
@@ -56,6 +64,10 @@ public class CalendarServiceTest {
 	
 	@Mock
 	private WorkoutsRepository workoutsRepository;
+
+	@Mock
+	private CalendarWorkoutLinkRepository calendarWorkoutLinkRepository;
+
 
 	@InjectMocks
 	private CalendarService calendarService;
@@ -87,27 +99,40 @@ public class CalendarServiceTest {
 		when(accountsService.getLoggedInUserId()).thenReturn(1L);
 		when(accountsRepository.findById(1L)).thenReturn(Optional.of(account));
 		when(userProfileRepository.findUserProfileByAccountId(1L)).thenReturn(Optional.of(userProfile));
+		
+		Workouts testWorkout = new Workouts();
+		//testWorkout.setWorkoutsId(101L);
+		testWorkout.setName("Push Day A");
+
+		when(workoutsRepository.findById(101L)).thenReturn(Optional.of(testWorkout));
+
 	}
 
 	@Test
 	public void testLogWorkoutDay() {
-		when(calendarRepository.findTopByAccountIdOrderByDateDesc(1L)).thenReturn(Optional.empty());
-		calendarService.logWorkoutDay("Etc/GMT+5");
-		verify(calendarRepository, times(1)).save(any(Calendar.class));
+	    when(calendarRepository.findTopByAccountIdOrderByDateDesc(1L)).thenReturn(Optional.empty());
+
+	    calendarService.logWorkoutDay( 101L);
+
+	    verify(calendarRepository, times(1)).save(any(Calendar.class));
+	    verify(workoutsRepository, times(1)).findById(101L);
+	    verify(calendarWorkoutLinkRepository, times(1)).save(any());
 	}
+
 
 	@Test
 	public void testLogWorkoutDayAlreadyLogged() {
-		Calendar existingEntry = new Calendar(account, LocalDateTime.now(), 1, "Etc/GMT+5"); // Activity type 1 = Workout
-		existingEntry.setTimeZoneWhenLogged("Etc/GMT+5"); // Set a valid time zone
-		when(calendarRepository.findTopByAccountIdOrderByDateDesc(1L)).thenReturn(Optional.of(existingEntry));
+	    Calendar existingEntry = new Calendar(account, LocalDateTime.now(), 1, "Etc/GMT+5");
+	    existingEntry.setTimeZoneWhenLogged("Etc/GMT+5");
+	    when(calendarRepository.findTopByAccountIdOrderByDateDesc(1L)).thenReturn(Optional.of(existingEntry));
 
-		IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-			calendarService.logWorkoutDay("Etc/GMT+5");
-		});
+	    IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+	        calendarService.logWorkoutDay( 101L);
+	    });
 
-		assertEquals("Something was already logged for this day.", exception.getMessage());
+	    assertEquals("Something was already logged for this day.", exception.getMessage());
 	}
+
 
 	@Test
 	public void testLogRestDay() {
@@ -169,7 +194,7 @@ public class CalendarServiceTest {
 	}
 	
 	@Test
-	public void testGetWorkoutsByDateReturnsExpectedWorkouts() {
+	public void testGetWorkoutsByDateReturnsExpectedWorkouts_LinkRepoUsed() {
 	    // Given
 	    LocalDate testDate = LocalDate.of(2025, 3, 18);
 
@@ -184,8 +209,8 @@ public class CalendarServiceTest {
 	    workout2.setAccount(account);
 
 	    List<Workouts> mockWorkouts = List.of(workout1, workout2);
-
-	    when(workoutsRepository.findWorkoutsByDate(1L, testDate)).thenReturn(mockWorkouts);
+	    when(calendarWorkoutLinkRepository.findWorkoutsByDateRange(eq(1L), any(), any()))
+	        .thenReturn(mockWorkouts);
 
 	    // When
 	    List<WorkoutsDto> result = calendarService.getWorkoutsByDate(testDate);
@@ -196,7 +221,9 @@ public class CalendarServiceTest {
 	    assertTrue(result.stream().anyMatch(w -> w.getName().equals("Leg Day")));
 	    assertTrue(result.stream().anyMatch(w -> w.getName().equals("Push Day")));
 
-	    verify(workoutsRepository, times(1)).findWorkoutsByDate(1L, testDate);
+	    verify(calendarWorkoutLinkRepository, times(1))
+	    .findWorkoutsByDateRange(eq(1L), any(), any());
+
 	}
 
 }

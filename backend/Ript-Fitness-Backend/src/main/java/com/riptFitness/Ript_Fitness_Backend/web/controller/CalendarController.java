@@ -22,10 +22,10 @@ public class CalendarController {
 	private CalendarService calendarService;
 
 	@PostMapping("/logWorkout")
-	public void logWorkout(@RequestParam String timeZone) {
-		// Validate the timeZone string (optional)
-		calendarService.logWorkoutDay(timeZone);
+	public void logWorkout(@RequestParam Long workoutId) {
+	    calendarService.logWorkoutDay(workoutId);
 	}
+
 
 	@PostMapping("/logRestDay")
 	public void logRestDay(@RequestParam String timeZone) {

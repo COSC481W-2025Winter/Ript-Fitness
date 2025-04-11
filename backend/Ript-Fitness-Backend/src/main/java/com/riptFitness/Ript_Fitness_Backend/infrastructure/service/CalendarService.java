@@ -15,12 +15,14 @@ import com.riptFitness.Ript_Fitness_Backend.domain.mapper.CalendarMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.WorkoutsMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Calendar;
+import com.riptFitness.Ript_Fitness_Backend.domain.model.CalendarWorkoutLink;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.UserProfile;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Workouts;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.CalendarRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.UserProfileRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.WorkoutsRepository;
+import com.riptFitness.Ript_Fitness_Backend.domain.repository.CalendarWorkoutLinkRepository;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.CalendarDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.WorkoutsDto;
 
@@ -42,6 +44,8 @@ public class CalendarService {
 	@Autowired
 	private WorkoutsRepository workoutsRepository;
 
+	@Autowired
+	private CalendarWorkoutLinkRepository calendarWorkoutLinkRepository;
 
 	private void validateTimeZone(String timeZone) {
 		// Convert the array to a list and check if it contains the timeZone
@@ -50,54 +54,53 @@ public class CalendarService {
 		}
 	}
 
-	public void logWorkoutDay(String timezone) {
-		Long accountId = accountsService.getLoggedInUserId();
+	public void logWorkoutDay(Long workoutId) {
+	    Long accountId = accountsService.getLoggedInUserId();
 
-		AccountsModel account = accountsRepository.findById(accountId)
-				.orElseThrow(() -> new IllegalStateException("Account not found with ID: " + accountId));
+	    AccountsModel account = accountsRepository.findById(accountId)
+	            .orElseThrow(() -> new IllegalStateException("Account not found with ID: " + accountId));
 
-		// Retrieve the user's profile to update rest days
-		UserProfile userProfile = userProfileRepository.findUserProfileByAccountId(accountId)
-				.orElseThrow(() -> new IllegalStateException("User profile not found for account ID: " + accountId));
+	    UserProfile userProfile = userProfileRepository.findUserProfileByAccountId(accountId)
+	            .orElseThrow(() -> new IllegalStateException("User profile not found for account ID: " + accountId));
+	    
+	    String timezone = userProfile.getTimeZone() != null && !userProfile.getTimeZone().isEmpty()
+	    	    ? userProfile.getTimeZone() : "Etc/GMT+5";
 
-		validateTimeZone(timezone);
+	    validateTimeZone(timezone);
 
-		LocalDateTime localNow = LocalDateTime.now(); // Now in GMT
+	    LocalDateTime localNow = LocalDateTime.now();
 
-		// Get the user's zone ID. Default to Eastern US
-		ZoneId userZoneId = (userProfile.getTimeZone() != null && !userProfile.getTimeZone().equals(""))
-				? ZoneId.of(userProfile.getTimeZone())
-				: ZoneId.of("Etc/GMT+5");
+	    ZoneId userZoneId = (userProfile.getTimeZone() != null && !userProfile.getTimeZone().equals(""))
+	            ? ZoneId.of(userProfile.getTimeZone())
+	            : ZoneId.of("Etc/GMT+5");
 
-		// use the localDateTime (gmt), and convert it using the user's userProfile to
-		// their timezone.
-		ZonedDateTime zonedDateTime = LocalDateTime.now().atZone(ZoneId.of("GMT")).withZoneSameInstant(userZoneId);
+	    ZonedDateTime zonedDateTime = localNow.atZone(ZoneId.of("GMT")).withZoneSameInstant(userZoneId);
 
-		// get the last logged entry into the calendar
-		Optional<Calendar> lastLoggedEntryOpt = calendarRepository
-				.findTopByAccountIdOrderByDateDesc(userProfile.getAccount().getId());
+	    // Prevent duplicate logs on same day
+	    Optional<Calendar> lastLoggedEntryOpt = calendarRepository.findTopByAccountIdOrderByDateDesc(accountId);
+	    if (lastLoggedEntryOpt.isPresent()) {
+	        ZonedDateTime lastLoggedDate = lastLoggedEntryOpt.get().getDate()
+	                .atZone(ZoneId.of("GMT"))
+	                .withZoneSameInstant(ZoneId.of(lastLoggedEntryOpt.get().getTimeZoneWhenLogged()));
+	        if (lastLoggedDate.toLocalDate().equals(zonedDateTime.toLocalDate())) {
+	            throw new IllegalStateException("Something was already logged for this day.");
+	        }
+	    }
 
-		if (lastLoggedEntryOpt.isPresent()) { // If data was found in the calendar
+	    // Create calendar entry
+	    Calendar calendarEntry = new Calendar(account, localNow, 1, timezone);
+	    calendarRepository.save(calendarEntry);
 
-			Calendar lastLoggedEntry = lastLoggedEntryOpt.get();
+	    // Link to workout
+	    Workouts workout = workoutsRepository.findById(workoutId)
+	        .orElseThrow(() -> new IllegalArgumentException("Workout not found"));
 
-			// Convert last logged date to the timezone the user was using when it was
-			// logged.
-			ZonedDateTime lastLoggedDateInUserZone = lastLoggedEntry.getDate().atZone(ZoneId.of("GMT"))
-					.withZoneSameInstant(ZoneId.of(lastLoggedEntry.getTimeZoneWhenLogged()));
-
-			if (lastLoggedDateInUserZone.toLocalDate().equals(zonedDateTime.toLocalDate())) { // if zoned times are in
-																								// same day
-				throw new IllegalStateException("Something was already logged for this day.");
-			}
-		}
-
-		// Removed resetting rest days here. No need to do it if it's added to
-		// getUserProfile
-
-		Calendar workoutEntry = new Calendar(account, localNow, 1, timezone); // Activity type 1 for workout
-		calendarRepository.save(workoutEntry);
+	    CalendarWorkoutLink link = new CalendarWorkoutLink();
+	    link.setCalendarEntry(calendarEntry);
+	    link.setWorkout(workout);
+	    calendarWorkoutLinkRepository.save(link);
 	}
+
 
 	public void logRestDay(String timezone) {
 		Long accountId = accountsService.getLoggedInUserId();
@@ -176,10 +179,16 @@ public class CalendarService {
 
 	public List<WorkoutsDto> getWorkoutsByDate(LocalDate date) {
 	    Long userId = accountsService.getLoggedInUserId();
-	    List<Workouts> workouts = workoutsRepository.findWorkoutsByDate(userId, date);
+	    LocalDateTime startOfDay = date.atStartOfDay();
+	    LocalDateTime endOfDay = date.atTime(23, 59, 59);
+
+	    List<Workouts> workouts = calendarWorkoutLinkRepository.findWorkoutsByDateRange(userId, startOfDay, endOfDay);
+	    System.out.println("Querying for userId: " + userId);
+	    System.out.println("Date range: " + startOfDay + " to " + endOfDay);
+
 	    return workouts.stream()
-	        .map(WorkoutsMapper.INSTANCE::toWorkoutsDto)
-	        .collect(Collectors.toList());
+	            .map(WorkoutsMapper.INSTANCE::toWorkoutsDto)
+	            .collect(Collectors.toList());
 	}
-	
+
 }
