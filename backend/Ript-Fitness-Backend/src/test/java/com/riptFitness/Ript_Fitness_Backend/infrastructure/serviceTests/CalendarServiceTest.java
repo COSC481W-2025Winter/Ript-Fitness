@@ -91,7 +91,7 @@ public class CalendarServiceTest {
 		when(userProfileRepository.findUserProfileByAccountId(1L)).thenReturn(Optional.of(userProfile));
 		
 		Workouts testWorkout = new Workouts();
-		testWorkout.setWorkoutsId(101L);
+		//testWorkout.setWorkoutsId(101L);
 		testWorkout.setName("Push Day A");
 
 		when(workoutsRepository.findById(101L)).thenReturn(Optional.of(testWorkout));
@@ -102,7 +102,7 @@ public class CalendarServiceTest {
 	public void testLogWorkoutDay() {
 	    when(calendarRepository.findTopByAccountIdOrderByDateDesc(1L)).thenReturn(Optional.empty());
 
-	    calendarService.logWorkoutDay("Etc/GMT+5", 101L);
+	    calendarService.logWorkoutDay( 101L);
 
 	    verify(calendarRepository, times(1)).save(any(Calendar.class));
 	    verify(workoutsRepository, times(1)).findById(101L);
@@ -117,7 +117,7 @@ public class CalendarServiceTest {
 	    when(calendarRepository.findTopByAccountIdOrderByDateDesc(1L)).thenReturn(Optional.of(existingEntry));
 
 	    IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-	        calendarService.logWorkoutDay("Etc/GMT+5", 101L);
+	        calendarService.logWorkoutDay( 101L);
 	    });
 
 	    assertEquals("Something was already logged for this day.", exception.getMessage());

@@ -22,8 +22,8 @@ public class CalendarController {
 	private CalendarService calendarService;
 
 	@PostMapping("/logWorkout")
-	public void logWorkout(@RequestParam String timeZone, @RequestParam Long workoutId) {
-	    calendarService.logWorkoutDay(timeZone, workoutId);
+	public void logWorkout(@RequestParam Long workoutId) {
+	    calendarService.logWorkoutDay(workoutId);
 	}
 
 

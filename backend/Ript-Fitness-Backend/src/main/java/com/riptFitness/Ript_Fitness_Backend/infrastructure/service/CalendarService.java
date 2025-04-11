@@ -54,7 +54,7 @@ public class CalendarService {
 		}
 	}
 
-	public void logWorkoutDay(String timezone, Long workoutId) {
+	public void logWorkoutDay(Long workoutId) {
 	    Long accountId = accountsService.getLoggedInUserId();
 
 	    AccountsModel account = accountsRepository.findById(accountId)
@@ -62,6 +62,9 @@ public class CalendarService {
 
 	    UserProfile userProfile = userProfileRepository.findUserProfileByAccountId(accountId)
 	            .orElseThrow(() -> new IllegalStateException("User profile not found for account ID: " + accountId));
+	    
+	    String timezone = userProfile.getTimeZone() != null && !userProfile.getTimeZone().isEmpty()
+	    	    ? userProfile.getTimeZone() : "Etc/GMT+5";
 
 	    validateTimeZone(timezone);
 
@@ -176,7 +179,13 @@ public class CalendarService {
 
 	public List<WorkoutsDto> getWorkoutsByDate(LocalDate date) {
 	    Long userId = accountsService.getLoggedInUserId();
-	    List<Workouts> workouts = calendarWorkoutLinkRepository.findWorkoutsByAccountAndDate(userId, date);
+	    LocalDateTime startOfDay = date.atStartOfDay();
+	    LocalDateTime endOfDay = date.atTime(23, 59, 59);
+
+	    List<Workouts> workouts = calendarWorkoutLinkRepository.findWorkoutsByDateRange(userId, startOfDay, endOfDay);
+	    System.out.println("Querying for userId: " + userId);
+	    System.out.println("Date range: " + startOfDay + " to " + endOfDay);
+
 	    return workouts.stream()
 	            .map(WorkoutsMapper.INSTANCE::toWorkoutsDto)
 	            .collect(Collectors.toList());
