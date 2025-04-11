@@ -67,33 +67,32 @@ public class CalendarService {
 	    	    ? userProfile.getTimeZone() : "Etc/GMT+5";
 
 	    validateTimeZone(timezone);
+	    
+	    ZoneId userZoneId = ZoneId.of(timezone);
+	    ZonedDateTime userNow = ZonedDateTime.now(userZoneId);
 
-	    LocalDateTime localNow = LocalDateTime.now();
-
-	    ZoneId userZoneId = (userProfile.getTimeZone() != null && !userProfile.getTimeZone().equals(""))
-	            ? ZoneId.of(userProfile.getTimeZone())
-	            : ZoneId.of("Etc/GMT+5");
+	    ZonedDateTime utcNow = userNow.withZoneSameInstant(ZoneId.of("UTC"));
+	    LocalDateTime localNow = utcNow.toLocalDateTime();
 
 	    ZonedDateTime zonedDateTime = localNow.atZone(ZoneId.of("GMT")).withZoneSameInstant(userZoneId);
 
 	    // Prevent duplicate logs on same day
 	    Optional<Calendar> lastLoggedEntryOpt = calendarRepository.findTopByAccountIdOrderByDateDesc(accountId);
 	    if (lastLoggedEntryOpt.isPresent()) {
-	        ZonedDateTime lastLoggedDate = lastLoggedEntryOpt.get().getDate()
-	                .atZone(ZoneId.of("GMT"))
-	                .withZoneSameInstant(ZoneId.of(lastLoggedEntryOpt.get().getTimeZoneWhenLogged()));
-	        if (lastLoggedDate.toLocalDate().equals(zonedDateTime.toLocalDate())) {
+	        Calendar lastCalendarEntry = lastLoggedEntryOpt.get();
+	        ZonedDateTime lastLoggedUTC = lastCalendarEntry.getDate().atZone(ZoneId.of("UTC"));
+	        ZonedDateTime lastLoggedInUserZone = lastLoggedUTC.withZoneSameInstant(userZoneId);
+	        if (lastLoggedInUserZone.toLocalDate().equals(userNow.toLocalDate())) {
 	            throw new IllegalStateException("Something was already logged for this day.");
 	        }
 	    }
 
-	    // Create calendar entry
 	    Calendar calendarEntry = new Calendar(account, localNow, 1, timezone);
 	    calendarRepository.save(calendarEntry);
 
-	    // Link to workout
+	    // 6. Link to the workout
 	    Workouts workout = workoutsRepository.findById(workoutId)
-	        .orElseThrow(() -> new IllegalArgumentException("Workout not found"));
+	        .orElseThrow(() -> new IllegalArgumentException("Workout not found for ID: " + workoutId));
 
 	    CalendarWorkoutLink link = new CalendarWorkoutLink();
 	    link.setCalendarEntry(calendarEntry);

@@ -886,9 +886,9 @@ function ProgressScreen({ navigation }: any) {
                       const exercisesList = item.exercises && item.exercises.length > 0 
                         ? item.exercises.map((exercise: { name: string }) => exercise.name).join(", ")
                         : "No exercises logged";
-                      return (
-                        <Text style={styles.bio}>{exercisesList}</Text>
-                      );
+                        return (
+                          <Text style={styles.bio}>{item.name || "Unnamed Workout"}</Text>
+                        );                        
                     }}
                   />
                 )}
