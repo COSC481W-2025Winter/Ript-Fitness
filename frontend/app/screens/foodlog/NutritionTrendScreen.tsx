@@ -288,8 +288,12 @@ const loadNutritionWeekly = async () => {
       ...dataSource.carbs.map(item => item.value),
       ...dataSource.fat.map(item => item.value),
     ];
-    const min = Math.min(...allValues);
-    const max = Math.max(...allValues);
+
+    if (allValues.length === 0 || allValues.every((v) => !isFinite(v))) {
+      return { min: 0, max: 100, interval: 25, labels };
+    }
+    
+    const max = Math.max(...allValues);  
     
     // Ensure the minimum is 0 and round the maximum to the nearest 200 (or larger)
     const roundedMax = Math.ceil(max / 200) * 200; // Round up to the nearest 200
