@@ -81,7 +81,7 @@ public class NutritionTrackerService {
 		foodToBeAdded.potassium = (foodToBeAdded.potassium == null || foodDto.potassium.toString().isEmpty()) ? 0.0 : foodToBeAdded.potassium;
 		foodToBeAdded.calcium = (foodToBeAdded.calcium == null || foodDto.calcium.toString().isEmpty()) ? 0.0 : foodToBeAdded.calcium;
 		foodToBeAdded.cholesterol = (foodToBeAdded.cholesterol == null || foodDto.cholesterol.toString().isEmpty()) ? 0.0 : foodToBeAdded.cholesterol;
-		foodToBeAdded.saturatedFat = (foodToBeAdded.saturatedFat == null || foodDto.saturatedFat.toString().isEmpty()) ? 0.0 : foodToBeAdded.saturatedFat;
+		foodToBeAdded.saturatedFat = (foodDto.saturatedFat == null || foodDto.saturatedFat.toString().isEmpty()) ? 0.0 : foodDto.saturatedFat;
 		foodToBeAdded.transFat = (foodToBeAdded.transFat == null || foodDto.transFat.toString().isEmpty()) ? 0.0 : foodToBeAdded.transFat;
 
 		logger.info("After setting defaults: ", foodToBeAdded);
@@ -339,8 +339,8 @@ public class NutritionTrackerService {
 			totalCarbs += food.carbs * food.serving;
 			totalFat += food.fat * food.serving;
 			totalCholesterol += food.cholesterol * food.serving;
-			totalSaturatedFat += food.saturatedFat * food.serving;
-			totalTransFat += food.transFat * food.serving;
+			totalSaturatedFat += (food.saturatedFat != null ? food.saturatedFat : 0.0) * food.serving;
+			totalTransFat += (food.transFat !=null ? food.transFat :0.0) * food.serving;
 			totalSodium += food.sodium * food.serving;
 			totalFiber += food.fiber * food.serving;
 			totalSugars += food.sugars * food.serving;
