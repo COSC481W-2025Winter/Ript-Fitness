@@ -86,7 +86,7 @@ describe('NutritionTrendScreen', () => {
 
     // Get the toggle switch and label elements
     const toggle = await waitFor(() => getByTestId('range-switch'));
-    const label = getByTestId('range-label'); // 👈 你要确保 NutritionTrendScreen 里加了这个 testID
+    const label = getByTestId('range-label');
 
     // Expect default view to be 7 Days
     expect(label.props.children).toBe('7 Days');
