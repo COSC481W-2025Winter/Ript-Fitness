@@ -251,6 +251,23 @@ export default function WorkoutStack() {
         })} 
       />
 
+<Stack.Screen
+        name="SelectedExercises"
+        component={SelectedExercisesScreen}
+        options={({ navigation }) => ({
+          title: 'Selected Exercises',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={[styles.leftButton, styles.button, styles.buttonSize]}
+            >
+              <TabBarIcon name="arrow-back-outline" size={30} color="#454343" />
+            </TouchableOpacity>
+          ),
+          headerTitleAlign: 'center',
+        })}
+      />
+
       <Stack.Screen
         name="BodyWeightHistoryScreen"
         component={BodyWeightHistory}
