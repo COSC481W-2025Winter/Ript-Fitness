@@ -48,6 +48,7 @@ type PostItemType = {
 
 type ItemProps = {
   item: PostItemType;
+  isPublic: boolean; // DeepSeek
   liked: boolean;
   onLikePress: () => void;
   onCommentPress: () => void;
@@ -372,6 +373,16 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     marginRight: -10, // Adjust this value to fine-tune
+  },
+  //from DeepSeek
+  visibilityBadge: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+  },
+  visibilityText: {
+    fontSize: 12,
+    color: '#999',
   },
 });
 
