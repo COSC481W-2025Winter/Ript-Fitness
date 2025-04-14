@@ -67,4 +67,38 @@ public class SocialPost {
     public void setPublic(boolean isPublic) {
         this.isPublic = isPublic;
     }
+    
+    //added for debugging below
+    public Long getId() {
+        return id;
+    }
+
+    public AccountsModel getAccount() {
+        return account;
+    }
+
+    public UserProfile getUserProfile() {
+        return userProfile;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public int getNumberOfLikes() {
+        return numberOfLikes;
+    }
+
+    public List<Long> getUserIDsOfLikes() {
+        return userIDsOfLikes;
+    }
+
+    public List<SocialPostComment> getSocialPostComments() {
+        return socialPostComments;
+    }
+
+    public LocalDateTime getDateTimeCreated() {
+        return dateTimeCreated;
+    }
+
 }
