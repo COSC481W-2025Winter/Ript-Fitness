@@ -114,6 +114,20 @@ describe('CreatePostSheet', () => {
     
     expect(container).toHaveStyle({ backgroundColor: 'black' });
   });
+
+  test('it should pop up a modal after button press', () => {
+    // Render the component
+    const { getByText } = render(<Calendar />);
+
+    // Find the "Press me" button and simulate a press
+    const pressButton = getByText('Press me');
+    
+    // Fire the press event
+    fireEvent.press(pressButton);
+
+    // Check if the "You pressed the button!" text appears after the press
+    expect(getByText('You pressed the button!')).toBeTruthy();
+  });
 });
 
   

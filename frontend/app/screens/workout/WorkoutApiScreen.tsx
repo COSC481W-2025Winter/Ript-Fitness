@@ -101,6 +101,7 @@ export default function WorkoutApiScreen() {
       <TouchableOpacity 
         style={isDarkMode? styles.darkButton:styles.button} 
         onPress={() => navigation.navigate('BodyFocusScreen', {})} 
+        testID='touchable-opacity-id'
       >
         <View style={styles.iconStyles}>
             <MuscleIcon width={32} height={32} />
@@ -114,7 +115,7 @@ export default function WorkoutApiScreen() {
       {/* Body Weight History Trend */}
       <TouchableOpacity 
         style={isDarkMode? styles.darkButton:styles.button} 
-        onPress={() => navigation.navigate('WorkoutTrendScreen', {})} 
+        onPress={() => navigation.navigate('BodyWeightHistoryScreen', {})} 
       >
         <View style={styles.iconStyles}>
           <MaterialCommunityIcons name="chart-line" size={32} color="#aef1f1" />

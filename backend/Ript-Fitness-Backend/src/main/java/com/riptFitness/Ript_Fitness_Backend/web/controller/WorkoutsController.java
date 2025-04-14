@@ -67,12 +67,7 @@ public class WorkoutsController {
         return ResponseEntity.ok(workoutsService.getMonthlyWorkoutTrends());
     }
 	
-	@GetMapping("/getWorkoutsByDate/{date}")
-	public ResponseEntity<List<WorkoutsDto>> getWorkoutDataByDate(@PathVariable String date) {
-	    LocalDate parsedDate = LocalDate.parse(date);
-	    List<WorkoutsDto> data = workoutsService.getWorkoutDataByDate(parsedDate);
-	    return ResponseEntity.ok(data);
-	}
+
 
 	
 	//Endpoint for the body diagram that clones exercises
