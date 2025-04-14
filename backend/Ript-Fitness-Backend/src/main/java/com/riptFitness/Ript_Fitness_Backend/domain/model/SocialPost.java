@@ -42,7 +42,15 @@ public class SocialPost {
     
     public boolean isDeleted = false;
     
-    public boolean isPublic = false; 
+    public boolean isDeleted() {
+		return isDeleted;
+	}
+
+	public void setDeleted(boolean isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
+	public boolean isPublic = false; 
     
     @Column(name = "created_date", updatable = false)
     public LocalDateTime dateTimeCreated;
@@ -50,5 +58,13 @@ public class SocialPost {
     @PrePersist
     protected void onCreate() {
     	dateTimeCreated = LocalDateTime.now();
+    }
+    
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    public void setPublic(boolean isPublic) {
+        this.isPublic = isPublic;
     }
 }
