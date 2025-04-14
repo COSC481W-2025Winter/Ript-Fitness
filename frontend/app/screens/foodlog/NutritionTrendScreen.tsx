@@ -35,10 +35,42 @@ const formatLocalDateLabel = (isoDate: string): string => {
 
 // Replace invalid chart values (NaN, Infinity) with 0 for safe rendering
 const cleanChartData = (data: DataItem[]): number[] => {
-  return data.map((item) => {
+  return data.map((item, i) => {
     const value = Number(item?.value);
+    if (!isFinite(value) || isNaN(value)) {
+      console.warn(`⚠️ Invalid chart value at index ${i}:`, item);
+    }
     return isFinite(value) && !isNaN(value) ? value : 0;
   });
+};
+
+//Align all datasets by date and fill missing dates with 0 values
+const ensureUniformLength = (datasets: {
+  calories: DataItem[];
+  protein: DataItem[];
+  carbs: DataItem[];
+  fat: DataItem[];
+}): typeof datasets => {
+  const allDatesSet = new Set<string>();
+  Object.values(datasets).forEach(metric =>
+    metric.forEach(item => allDatesSet.add(item.date))
+  );
+  const allDates = Array.from(allDatesSet).sort();
+
+  const fillMissing = (data: DataItem[]): DataItem[] => {
+    const map = new Map(data.map(d => [d.date, d.value]));
+    return allDates.map(date => ({
+      date,
+      value: isFinite(map.get(date)!) ? map.get(date)! : 0,
+    }));
+  };
+
+  return {
+    calories: fillMissing(datasets.calories),
+    protein: fillMissing(datasets.protein),
+    carbs: fillMissing(datasets.carbs),
+    fat: fillMissing(datasets.fat),
+  };
 };
 
 export default function NutritionTrendScreen() {
@@ -86,8 +118,6 @@ export default function NutritionTrendScreen() {
     fat: [],
   });
 
-  // Log initial weeklyData to verify
-  console.log("Initial weeklyData:", weeklyData);
   
   // Fetch weekly and monthly data on component mount
   useEffect(() => {
@@ -111,12 +141,16 @@ export default function NutritionTrendScreen() {
       const myCarbs = sortedDates.map(date => ({ value: weekly[date].carbs, date }));
       const myFat = sortedDates.map(date => ({ value: weekly[date].fat, date }));
   
-      setWeeklyData({
-        calories: sanitizeData(myCalories),
-        protein: sanitizeData(myProtein),
-        carbs: sanitizeData(myCarbs),
-        fat: sanitizeData(myFat),
-      });
+      setWeeklyData(
+        ensureUniformLength({
+          calories: sanitizeData(myCalories),
+          protein: sanitizeData(myProtein),
+          carbs: sanitizeData(myCarbs),
+          fat: sanitizeData(myFat),
+        })
+      );
+
+      console.log("Initial weeklyData:", weeklyData); // Log initial weeklyData to verify
     }
   }, [weekly]);
 
@@ -139,14 +173,38 @@ export default function NutritionTrendScreen() {
       const myCarbs = sortedDates.map(date => ({ value: monthly[date].carbs, date }));
       const myFat = sortedDates.map(date => ({ value: monthly[date].fat, date }));
   
-      setMonthlyData({
-        calories: sanitizeData(myCalories),
-        protein: sanitizeData(myProtein),
-        carbs: sanitizeData(myCarbs),
-        fat: sanitizeData(myFat),
-      });
+      setMonthlyData(
+        ensureUniformLength({
+          calories: sanitizeData(myCalories),
+          protein: sanitizeData(myProtein),
+          carbs: sanitizeData(myCarbs),
+          fat: sanitizeData(myFat),
+        })
+      );
     }
   }, [monthly]);
+
+  //Validate all nutrition datasets to detect and log any invalid (NaN/Infinity) values
+useEffect(() => {
+  const logDatasetCheck = (data: DataItem[], label: string) => {
+    data.forEach((item, idx) => {
+      if (!isFinite(item.value)) {
+        console.warn(`⚠️ ${label} dataset contains invalid value at index ${idx}:`, item);
+      }
+    });
+  };
+
+  logDatasetCheck(weeklyData.calories, "weekly-calories");
+  logDatasetCheck(weeklyData.protein, "weekly-protein");
+  logDatasetCheck(weeklyData.carbs, "weekly-carbs");
+  logDatasetCheck(weeklyData.fat, "weekly-fat");
+
+  logDatasetCheck(monthlyData.calories, "monthly-calories");
+  logDatasetCheck(monthlyData.protein, "monthly-protein");
+  logDatasetCheck(monthlyData.carbs, "monthly-carbs");
+  logDatasetCheck(monthlyData.fat, "monthly-fat");
+}, [weeklyData, monthlyData]);
+
 
 
   // Memoized X-axis labels for monthly data 
@@ -281,12 +339,22 @@ const loadNutritionWeekly = async () => {
   // Select dataSource based on current view
   const dataSource = isThirtyDays ? monthlyData : weeklyData; 
 
+  // Check if chart data is ready (to prevent invalid path rendering)
+const isDataReady = useMemo(() => {
+  return (
+    dataSource.calories.length > 0 &&
+    dataSource.protein.length > 0 &&
+    dataSource.carbs.length > 0 &&
+    dataSource.fat.length > 0
+  );
+}, [dataSource]);
+
   // Calculate the maximum value and generate Y-axis labels dynamically
   const yAxisRange = useMemo(() => {
     const allValues = [
-      ...dataSource.protein.map(item => item.value),
-      ...dataSource.carbs.map(item => item.value),
-      ...dataSource.fat.map(item => item.value),
+      ...dataSource.protein.map(item => item.value ?? []),
+      ...dataSource.carbs.map(item => item.value ?? []),
+      ...dataSource.fat.map(item => item.value ?? []),
     ];
 
     if (allValues.length === 0 || allValues.every((v) => !isFinite(v))) {
@@ -294,6 +362,7 @@ const loadNutritionWeekly = async () => {
     }
     
     const max = Math.max(...allValues);  
+    console.log("🔎 yAxis max:", max, "allValues:", allValues);
     
     // Ensure the minimum is 0 and round the maximum to the nearest 200 (or larger)
     const roundedMax = Math.ceil(max / 200) * 200; // Round up to the nearest 200
@@ -523,6 +592,7 @@ const loadNutritionWeekly = async () => {
           <View style={styles.chartContainer}>
             {selectedMetric === "calories" && <View style={styles.shadowEffect} />}
           </View>
+          {isDataReady ? (  //Render charts only when all datasets are loaded and non-empty
           <Animated.View style={{ opacity: chartAnimation }}>
             <LineChart
               data={{
@@ -530,7 +600,7 @@ const loadNutritionWeekly = async () => {
                 datasets: [
                   {
                     key: "calories-dataset",
-                    data: cleanChartData(dataSource.calories),
+                    data: cleanChartData(dataSource?.calories ?? []),
                     strokeWidth: selectedMetric === "calories" ? 5 : 3,
                     color: () => (selectedMetric === "calories" ? "rgb(246, 57, 48)" : "rgb(235, 27, 16)"),
                   },
@@ -550,6 +620,11 @@ const loadNutritionWeekly = async () => {
               }
             />
           </Animated.View>
+          ) : (
+            <Text style={{ color: "#ccc", textAlign: "center", marginVertical: 20 }}>
+              No data to display.
+            </Text>
+          )}
 
           {/* Protein, Carbs, Fat Line Chart */}
           <Text style={[styles.chartTitle, { marginTop: 25 }]}>Protein, Carbs & Fat</Text>
@@ -565,6 +640,8 @@ const loadNutritionWeekly = async () => {
                 ]}
               />
             )}
+          </View>
+          {isDataReady ? (  //Render charts only when all datasets are loaded and non-empty
             <Animated.View style={{ opacity: chartAnimation }}>
               <LineChart
                 data={{
@@ -572,30 +649,22 @@ const loadNutritionWeekly = async () => {
                   datasets: [
                     {
                       key: "protein-dataset",
-                      data: cleanChartData(dataSource.protein),
+                      data: cleanChartData(dataSource?.protein ?? []),
                       strokeWidth: selectedMetric === "protein" ? 6 : 2,
                       color: () => (selectedMetric === "protein" ? "rgb(4, 187, 248)" : "rgba(0, 191, 255, 0.89)"),
                     },
                     {
                       key: "carbs-dataset",
-                      data: cleanChartData(dataSource.carbs),
+                      data: cleanChartData(dataSource?.carbs ?? []),
                       strokeWidth: selectedMetric === "carbs" ? 6 : 2,
                       color: () => (selectedMetric === "carbs" ? "rgba(50, 205, 50, 1)" : "rgba(50, 205, 50, 0.89)"),
                     },
                     {
                       key: "fat-dataset",
-                      data: cleanChartData(dataSource.fat),
+                      data: cleanChartData(dataSource?.fat ?? []),
                       strokeWidth: selectedMetric === "fat" ? 6 : 2,
                       color: () => (selectedMetric === "fat" ? "rgba(255, 165, 0, 1)" : "rgba(255, 166, 0, 0.98)"),
-                    },
-                    // Add a dummy dataset to extend the Y-axis range
-                    {
-                      key: "dummy-dataset",
-                      data: Array(labels.length).fill(yAxisRange.max), // Set to the maximum value to extend the Y-axis
-                      strokeWidth: 0, // Invisible line
-                      color: () => "rgba(0, 0, 0, 0)", // Invisible color
-                      withDots: false,
-                    },
+                    },                
                   ],
                 }}
                 width={screenWidth - 40}
@@ -628,7 +697,12 @@ const loadNutritionWeekly = async () => {
                 }}
               />
             </Animated.View>
-          </View>
+          ) : (
+            <Text style={{ color: "#ccc", textAlign: "center", marginVertical: 20 }}>
+              No data to display.
+            </Text>
+          )}
+          
 
           {/* Total Data Display (Aligned in Two Columns) */}
           <View style={styles.totalContainer}>
