@@ -121,7 +121,7 @@ export default function WorkoutApiScreen() {
           <MaterialCommunityIcons name="chart-line" size={32} color="#aef1f1" />
         </View>
         <View style={{ justifyContent: 'flex-start' }}>
-            <Text style={isDarkMode?styles.darkButtonText:styles.buttonText}>Workout Trend</Text>
+            <Text style={isDarkMode?styles.darkButtonText:styles.buttonText}>Bodyweight History</Text>
             <Text style={{ color: '#757575', }}>Track your progress</Text>
         </View>
       </TouchableOpacity>
