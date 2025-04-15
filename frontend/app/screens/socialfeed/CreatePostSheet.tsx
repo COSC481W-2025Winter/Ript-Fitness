@@ -17,7 +17,7 @@ import {
   Keyboard,
 } from "react-native";
 import BottomSheet, { BottomSheetTextInput } from "@gorhom/bottom-sheet";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useSocialFeed } from "@/context/SocialFeedContext";
 import ProfileImage from "../../../assets/images/profile/Profile.png";
 import { TextInput } from "react-native";
@@ -43,6 +43,8 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef, CreatePostSheetProps>(
 
     const context = useContext(GlobalContext);
     const isDarkMode = context?.isDarkMode;
+
+    const [isPublic, setIsPublic] = useState(false); //from DeepSeek
 
 
     // Handle sheet state changes
@@ -73,13 +75,26 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef, CreatePostSheetProps>(
         bottomSheetRef.current?.close();
       },
     }));
-
+    //adjusted handlePost by DeepSeek to try to fix the issue of add post page not 
+    //completely disapearing after saving a post
     const handlePost = async () => {
-      if (postText.trim()) {
-        await addPost(postText);
-        setPostText("");
-        Keyboard.dismiss();
+      if (!postText.trim()) return;
+    
+      try {
+        // Immediately close the sheet while the post is being submitted
         bottomSheetRef.current?.close();
+        
+        // Reset UI state
+        setPostText("");
+        setIsPublic(false);
+        Keyboard.dismiss();
+        
+        // Submit the post after closing the sheet
+        await addPost(postText, isPublic);
+      } catch (error) {
+        console.error("Failed to post:", error);
+        // Optionally re-open the sheet if posting fails
+        bottomSheetRef.current?.snapToIndex(0);
       }
     };
 
@@ -152,6 +167,23 @@ const CreatePostSheet = forwardRef<CreatePostSheetRef, CreatePostSheetProps>(
                 onSubmitEditing={handlePost}
               />
             </View>
+          </View>
+          {/* For the public/private toggle from DeepSeek */}
+          <View style={styles.visibilityContainer}>
+            <Text style={isDarkMode ? styles.darkVisibilityText : styles.visibilityText}>
+              {isPublic ? '🌍 Public' : '🔒 Private (Friends Only)'}
+            </Text>
+            <TouchableOpacity 
+              onPress={() => setIsPublic(!isPublic)}
+              testID="visibility-toggle"  // DeepSeek - for test
+              style={styles.toggleButton}
+            >
+              <Ionicons 
+                name={isPublic ? "toggle" : "toggle-outline"} 
+                size={24} 
+                color={isDarkMode ? "#21BFBF" : "#21BFBF"} 
+              />
+            </TouchableOpacity>
           </View>
           {/* remove {display: "none"} to see the media buttons again (to be implemented) */}
           <View style={(styles.mediaButtonsContainer, { display: "none" })}>
@@ -289,6 +321,27 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
     justifyContent: "center",
     alignItems: "center",
+  },
+  //from DeepSeek for private/public toggle
+  visibilityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+  visibilityText: {
+    fontSize: 16,
+    color: '#000',
+  },
+  darkVisibilityText: {
+    fontSize: 16,
+    color: 'white',
+  },
+  toggleButton: {
+    padding: 8,
   },
 });
 

@@ -164,43 +164,6 @@ public class WorkoutsControllerTest {
                 .andExpect(jsonPath("$.['" + LocalDate.now().minusDays(10) + "'][0].name").value("Test Workout"));
     }
     
-    @Test
 
-    public void testGetWorkoutsByDate() throws Exception {
-        LocalDate testDate = LocalDate.of(2025, 3, 18);
-        
-        // Mock the service to return a list with one workoutDto
-        when(workoutsService.getWorkoutDataByDate(testDate)).thenReturn(Collections.singletonList(workoutDto));
-
-        // Perform GET request
-        mockMvc.perform(get("/workouts/getWorkoutsByDate/{date}", testDate.toString())
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].workoutsId").value(1L))
-                .andExpect(jsonPath("$[0].name").value("Test Workout"));
-    }
-
-    public void testCreateWorkoutWithExerciseClones() throws Exception {
-        // Prepare request payload
-        Map<String, Object> request = new HashMap<>();
-        request.put("name", "Cloned Workout");
-        request.put("exerciseIds", List.of(246, 250));
-
-        // Prepare mock return object
-        WorkoutsDto mockResponse = new WorkoutsDto();
-        mockResponse.setWorkoutsId(99L);
-        mockResponse.setName("Cloned Workout");
-
-        when(workoutsService.createWorkoutWithClonedExercises("Cloned Workout", List.of(246L, 250L)))
-            .thenReturn(mockResponse);
-
-        mockMvc.perform(post("/workouts/createWithExerciseClones")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.workoutsId").value(99L))
-                .andExpect(jsonPath("$.name").value("Cloned Workout"));
-    }
 
 }

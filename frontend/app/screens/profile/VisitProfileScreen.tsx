@@ -314,6 +314,7 @@ const confirmRemoveFriend = () => {
                 </View>
 
         {/* Add Friend Button */}
+        {item.id !== context?.userProfile.id && (
         <TouchableOpacity style={[
     styles.addFriendButton,
             (context?.friends.some(friend => friend.username === item.username)
@@ -366,9 +367,7 @@ const confirmRemoveFriend = () => {
       : 'Add Friend'}
           </Text>
         </TouchableOpacity>
-
-
- 
+        )}
 
       </View>
 

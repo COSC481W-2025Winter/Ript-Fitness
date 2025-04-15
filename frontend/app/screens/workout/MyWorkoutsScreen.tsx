@@ -320,15 +320,17 @@ export default function MyWorkoutsScreen() {
     }
 
     try {
+      const formBody = new URLSearchParams();
+      formBody.append("workoutId", String(selectedWorkout.id));
       const response = await fetch(
-        `${httpRequests.getBaseURL()}/calendar/logWorkout?timeZone=${TimeZone.get()}`,
+        `${httpRequests.getBaseURL()}/calendar/logWorkout?workoutId=${selectedWorkout.id}`,
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
             Authorization: `Bearer ${context?.data.token}`,
           },
-          body: JSON.stringify({ workoutId: selectedWorkout.id }),
+          body: formBody.toString()
         }
       );
 
@@ -783,6 +785,37 @@ export default function MyWorkoutsScreen() {
       marginTop: "60%",
       marginVertical: 350,
     },
+    editButtonText: {
+      color: "#fff",
+      fontWeight: "bold",
+      fontSize: 16,
+    },
+    saveButtonText: {
+      color: "#fff",
+      fontWeight: "bold",
+      fontSize: 16,
+    },
+    inputContainer: {
+      flexDirection: 'column',
+      marginRight: 20, // Space between inputs
+      marginBottom: 2, // Space below each input container
+      flex: 1.3, // Maintain proper sizing within the set row
+    },
+    inputHeaderContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginRight: 20, // Space between inputs
+      marginBottom: 2, // Space below each input container
+      flex: 1.3, // Maintain proper sizing within the set row
+    }, 
+    inputHeader: {
+      fontSize: 14,
+      fontWeight: 'bold',
+      marginBottom: 2,
+      // marginRight: 50,
+      color: '#555',
+    },
+    
   });
 
   // ------------------------------------------------------------------
@@ -862,102 +895,233 @@ export default function MyWorkoutsScreen() {
       {/* ----------------------------------------------------------------
           MODAL #1: View & Edit
          ---------------------------------------------------------------- */}
-      <Modal
-        visible={isModalVisible && !isTracking}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={closeModal}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={isDarkMode ? styles.darkModalContent : styles.modalContent}>
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : "height"}
-              style={{ flex: -.1 }}
-            >
-              {selectedWorkout && (
-                <>
-                  {isEditing ? (
-                    <>
-                      {/* Edit Mode */}
-                      <TextInput
-                        style={isDarkMode ? styles.darkInput : styles.input}
-                        value={workoutName}
-                        onChangeText={setWorkoutName}
-                        placeholder="Workout Name"
-                      />
-                      <FlatList
-                        nestedScrollEnabled={true} // Allow FlatList to scroll inside ScrollView
+<Modal
+  visible={isModalVisible && !isTracking}
+  animationType="slide"
+  transparent={true}
+  onRequestClose={closeModal}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContent}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: -.1 }}
+    >
+      {selectedWorkout && (
+        <>
+          {isEditing ? (
+            <>
+              <TextInput
+                style={styles.input}
+                value={workoutName}
+                onChangeText={setWorkoutName}
+                placeholder="Workout Name"
+              />
+              <FlatList
+              nestedScrollEnabled={true} // Allow FlatList to scroll inside ScrollView
 
-                        data={updatedExercises}
-                        keyExtractor={(exItem, exIndex) =>
-                          `exercise-${exItem.exerciseId}-${exIndex}`
-                        }
-                        renderItem={({ item: exItem, index: exIndex }) => (
-                          <View style={isDarkMode ? styles.darkExerciseCard : styles.exerciseCard}>
-                            {/* For example, editing exercise name */}
-                            <TextInput
-                              style={
-                                isDarkMode
-                                  ? styles.darkExerciseNameInput
-                                  : styles.exerciseNameInput
-                              }
-                              value={exItem.nameOfExercise}
-                              onChangeText={(txt) => {
-                                const clone = [...updatedExercises];
-                                clone[exIndex].nameOfExercise = txt;
-                                setUpdatedExercises(clone);
-                              }}
-                              placeholder="Exercise Name"
-                            />
-                            {/* You can also render sets in here if you want to allow editing reps, weights, etc. */}
-                          </View>
-                        )}
-                      />
-                      <TouchableOpacity style={styles.saveButton} onPress={saveWorkout}>
-                        <Text style={styles.buttonText}>Save</Text>
-                      </TouchableOpacity>
-                    </>
-                  ) : (
-                    <>
-                      {/* View Mode */}
-                      <Text style={isDarkMode ? styles.darkModalTitle : styles.modalTitle}>
-                        {selectedWorkout.name}
-                      </Text>
-                      <FlatList
-                        data={selectedWorkout.exercises || []}
-                        keyExtractor={(item, index) =>
-                          `exercise-${item.exerciseId}-${index}`
-                        }
-                        renderItem={({ item: exItem }) => (
-                          <View style={isDarkMode ? styles.darkExerciseCard : styles.exerciseCard}>
-                            <Text
-                              style={
-                                isDarkMode ? styles.darkExerciseName : styles.exerciseName
-                              }
-                            >
-                              {exItem.nameOfExercise}
-                            </Text>
-                            {/* Optionally show sets here */}
-                          </View>
-                        )}
-                      />
-                      <TouchableOpacity
-                        style={styles.editButton}
-                        onPress={() => setIsEditing(true)}
-                      >
-                        <Text style={styles.buttonText}>Edit</Text>
-                      </TouchableOpacity>
-                    </>
-                  )}
-                  <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-                    <Text style={styles.closeButtonText}>Close</Text>
-                  </TouchableOpacity>
-                </>
-              )}
-            </KeyboardAvoidingView>
-          </View>
-        </View>
-      </Modal>
+                data={updatedExercises}
+                keyExtractor={(item, index) =>
+                  `exercise-${item.exerciseId}-${index}`
+                }
+                renderItem={({ item, index }) => (
+                  <View style={styles.exerciseCard}>
+                    <TextInput
+                      style={styles.exerciseNameInput}
+                      value={item.nameOfExercise}
+                      onChangeText={(text) => {
+                        const updated = [...updatedExercises];
+                        updated[index].nameOfExercise = text;
+                        setUpdatedExercises(updated);
+                      }}
+                      placeholder="Exercise Name"
+                    />
+                    <View style={styles.inputHeaderContainer}>
+                      <Text style={styles.inputHeader}>Set</Text>
+                      <Text style={styles.inputHeader}>Reps</Text>
+                      <Text style={styles.inputHeader}>Weight</Text>
+                      <Text style={styles.inputHeader}></Text>
+                    </View>
+                    <FlatList
+                      data={item.reps.map((_, setIndex) => ({
+                        reps: item.reps[setIndex],
+                        weight: item.weight[setIndex],
+                        // Retrieves the recorded time range for the set or defaults to "Not Started".
+                        timeRange: timeRanges[`${selectedWorkout?.id}-${item.exerciseId}-${setIndex}`] || "Not Started",
+                      }))}
+                      keyExtractor={(setItem, setIndex) =>
+                        `set-${item.exerciseId}-${setIndex}`
+                      }
+                      renderItem={({ item: setItem, index: setIndex }) => (
+                          <View style={[styles.setRow, { alignItems: 'center' }]}>  
+                            <Text style={{ flex: 0.5, fontWeight: 'bold' }}>{setIndex + 1}</Text>
+
+                          {/* Reps Label and Input */}
+                          <TextInput
+                          style={[styles.setInput, { flex: 0.6, marginHorizontal: 15 }]}
+                          value={setItem.reps.toString()}
+                          onChangeText={(text) => {
+                            const updated = [...updatedExercises];
+                            updated[index].reps[setIndex] = parseInt(text, 10) || 0;
+                            setUpdatedExercises(updated);
+                          }}
+                          placeholder="Reps"
+                          keyboardType="numeric"
+                        />
+
+                          {/* Weight Label and Input */}
+                          <TextInput
+                          style={[styles.setInput, {flex: 0.6, marginHorizontal: 15 }]}
+                          value={setItem.weight.toString()}
+                          onChangeText={(text) => {
+                            const updated = [...updatedExercises];
+                            updated[index].weight[setIndex] = parseFloat(text) || 0;
+                            setUpdatedExercises(updated);
+                          }}
+                          placeholder="Weight"
+                          keyboardType="numeric"
+                        />
+
+                          <TouchableOpacity
+                            onPress={() => {
+                              const updated = [...updatedExercises];
+                              updated[index].reps.splice(setIndex, 1);
+                              updated[index].weight.splice(setIndex, 1);
+                              setUpdatedExercises(updated);
+                            }}
+                          >
+                            <Ionicons name="trash-outline" size={25} style={{ paddingLeft: 20 }} color="#F2505D"></Ionicons>
+                            {/* <Text style={styles.removeSetText}>
+                              Remove
+                            </Text> */}
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                    />
+
+                    <TouchableOpacity
+                      style={styles.addSetButton}
+                      onPress={() => {
+                        const updated = [...updatedExercises];
+                        updated[index].reps.push(0);
+                        updated[index].weight.push(0);
+                        setUpdatedExercises(updated);
+                      }}
+                    >
+                      {/* <Text style={styles.addSetText}>Add Set</Text> */}
+                      <Text style={styles.addSetText}>Add Set</Text>
+                      <Ionicons name="add-circle-outline" size={20} color={'#21BFBF'}></Ionicons>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              />
+              <TouchableOpacity
+                style={styles.saveButton}
+                onPress={saveWorkout}
+              >
+                <Text style={styles.saveButtonText}>Save</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <Text style={styles.modalTitle}>{selectedWorkout.name}</Text>
+              <FlatList
+                data={selectedWorkout.exercises || []}
+                keyExtractor={(item, index) =>
+                  `exercise-${item.exerciseId}-${index}`
+                }
+                renderItem={({ item,index: exerciseIndex }) => (
+                  <View style={styles.exerciseCard}>
+                    <Text style={styles.exerciseName}>
+                      {item.nameOfExercise}
+                    </Text>
+                    <View style={styles.setRow}>
+                      <Text style={[styles.setLabel, { flex: 0.5, textAlign: "left", paddingLeft: 10 }]}>Set</Text>
+                      <Text style={[styles.setValueTitle, { flex: 1, textAlign: "center", paddingHorizontal: 5 }]}>Reps</Text>
+                      <Text style={[styles.setValueTitle, { flex: 1, textAlign: "center", paddingHorizontal: 5 }]}>Weight</Text>
+                      <Text style={[styles.setValueTitle, { flex: 1.2, textAlign: "left", paddingRight: 10 }]}>Time</Text>
+                    </View>
+                    <FlatList
+                      data={item.reps.map((_, setIndex) => ({
+                        reps: item.reps[setIndex],
+                        weight: item.weight[setIndex],
+                         // Retrieves the time range for the set, defaulting to "Not Started" if unavailable.
+                        timeRange: timeRanges[`${selectedWorkout?.id}-${item.exerciseId}-${setIndex}`] || "Not Started",
+                      }))}
+                      keyExtractor={(setItem, setIndex) =>
+                        `set-${item.exerciseId}-${setIndex}`
+                      }
+                      renderItem={({
+                        item: setItem,
+                        index: setIndex,
+                      }) => {
+                        const setKey = `${selectedWorkout?.id}-${item.exerciseId}-${setIndex}`;
+                        const isActive = activeSet === setKey; // Check if the current set is being timed.
+                                              
+                     return(
+                        <View style={styles.setRow}>
+                          <Text style={styles.setLabel}>
+                            {setIndex + 1}
+                          </Text>
+                          <Text style={styles.setValue}>
+                            {setItem.reps ?? "N/A"}
+                          </Text>
+                          <Text style={styles.setValue}>
+                            {item.weight[setIndex]} lbs
+                          </Text>
+                          <Text style={styles.setValue}>
+                            {setItem.timeRange}         {/* Display recorded time range */}
+                          </Text>
+
+
+                          {/* Start and Stop button */}
+                          {!isActive ? (
+                              <TouchableOpacity
+                                style={[styles.startButton, { width: 40, height: 30, padding: 3 }]} // Adjusts start button size and padding
+                                onPress={() => {
+                                  //const setKey = `${selectedWorkout?.id}-${item.exerciseId}-${setIndex}`;
+                                  setActiveSet(setKey); // Set the currently active set being timed
+                                  setCurrentTimer(0); // Initialize the timer
+                                  const interval = setInterval(() => {
+                                    setCurrentTimer((prev) => (prev !== null ? prev + 1 : 1)); // Increment every second
+                                  }, 1000);  
+                                  setStartTime((prev) => ({ ...prev, [setKey]: interval })); // Save the interval ID
+                                }}
+                              >
+                                <Text style={styles.buttonText}>Start</Text>
+                                </TouchableOpacity>
+                              ) : (
+                                <TouchableOpacity
+                                  style={[styles.startButton, { backgroundColor: "red",  width: 40, height: 30, padding: 3 }]}// Adjusts button size and padding
+                                  onPress={() => stopTimerForSet(setKey)} // Stop the timer and save the elapsed time             
+                                >
+                                  <Text style={styles.buttonText}>Stop</Text>
+                                </TouchableOpacity>
+                              )}
+                        </View>
+                      )}
+                      }
+                    />
+                  </View>
+                )}
+              />
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => setIsEditing(true)}
+              >
+                <Text style={styles.editButtonText}>Edit</Text>
+              </TouchableOpacity>
+            </>
+          )}
+          <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+            <Text style={styles.closeButtonText}>Close</Text>
+          </TouchableOpacity>
+        </>
+      )}
+    </KeyboardAvoidingView>
+    </View>
+  </View>
+</Modal>
 
       {/* ----------------------------------------------------------------
           MODAL #2: Start Workout

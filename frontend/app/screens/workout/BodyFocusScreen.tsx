@@ -50,6 +50,8 @@ export default function BodyFocusScreen() {
 
   const [error, setError] = useState<string | null>(null);
 
+  const isDarkMode = context?.isDarkMode; 
+
 // Map BodyPart to backend `exerciseType`
 const bodyPartToType: { [key in BodyPart]: number[] } = {
   Arms: [1],
@@ -258,10 +260,9 @@ const uniqueExerciseList = Array.from(new Set(flattened));
 
 
   return (
-    <View style={styles.container} {...panResponder.panHandlers}>
-
-      {/* Displays the selected exercises as touchable text */}
-      <TouchableOpacity
+    <View style={isDarkMode?styles.darkContainer:styles.container} {...panResponder.panHandlers}>
+       {/* Displays the selected exercises as touchable text */}
+       <TouchableOpacity
         onPress={viewSelectedExercises}
         disabled={!exerciseList || exerciseList.size === 0}
         style={styles.viewExercisesButton}
@@ -347,6 +348,12 @@ const uniqueExerciseList = Array.from(new Set(flattened));
 // Styles for the component
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    backgroundColor: "#fff", 
+  },
+  darkContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',

@@ -240,12 +240,15 @@ export default function WorkoutStack() {
             <TouchableOpacity
               onPress={() => navigation.goBack()}
               style={[styles.leftButton, styles.button, styles.buttonSize]}
-            >
+            > 
               <TabBarIcon name="arrow-back-outline" size={30} color="#454343" />
-            </TouchableOpacity>
-          ),
+            </TouchableOpacity>  
+          ), 
+          headerTitleStyle: {
+            color: isDarkMode ? 'white' : 'black',
+          },
           headerTitleAlign: 'center',
-        })}
+        })} 
       />
 
 <Stack.Screen
@@ -264,8 +267,6 @@ export default function WorkoutStack() {
           headerTitleAlign: 'center',
         })}
       />
-
-
 
       <Stack.Screen
         name="BodyWeightHistoryScreen"

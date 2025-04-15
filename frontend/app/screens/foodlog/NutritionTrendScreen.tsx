@@ -7,9 +7,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { httpRequests } from "@/api/httpRequests";
 import { GlobalContext } from "@/context/GlobalContext";
 
+// Get the screen width for responsive chart sizing
 const screenWidth = Dimensions.get("window").width;
 
-// Color mapping
+// Color mapping for different nutrition metrics displayed in charts
 const metricColors = {
   calories: "red",
   protein: "#00BFFF", // Bright blue
@@ -17,184 +18,221 @@ const metricColors = {
   fat: "#FFA500", // Orange
 };
 
-// Define the interface for data items
+// Interface for individual data items (value and date)
 interface DataItem {
   value: number;
   date: string;
 }
 
-// Generate data for 7 days and 30 days (moderate fluctuations)
-const generateData = (min: number, max: number, days: number) => {
-  return Array.from({ length: days }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (days - 1) + i); // Start from "days" ago
-    return {
-      value: Number((Math.random() * (max - min) + min + Math.sin(i) * 10).toFixed(2)),
-      date: date.toISOString().split("T")[0], // Date (format: YYYY-MM-DD)
-    };
+// Modified: Convert UTC "YYYY-MM-DD" to Local date string using timezone offset
+const formatLocalDateLabel = (isoDate: string): string => {
+  const [year, month, day] = isoDate.split("-").map(Number);
+  const localDate = new Date(year, month - 1, day); // Convert ISO date to local time
+  const label = localDate.toLocaleDateString("en-US", { month: "numeric", day: "numeric" });
+  console.log(`📅 formatLocalDateLabel | ISO: ${isoDate} → Local: ${label}`);
+  return label;
+};
+
+// Replace invalid chart values (NaN, Infinity) with 0 for safe rendering
+const cleanChartData = (data: DataItem[]): number[] => {
+  return data.map((item, i) => {
+    const value = Number(item?.value);
+    if (!isFinite(value) || isNaN(value)) {
+      console.warn(`⚠️ Invalid chart value at index ${i}:`, item);
+    }
+    return isFinite(value) && !isNaN(value) ? value : 0;
   });
 };
 
-// Get labels for the last 30 days (display every 5 days)
-const getLast30DaysLabels = (data: number[]) => {
-  if (!data || data.length === 0) return Array(7).fill("");
-  return data.map((_, i) =>
-    i % 5 === 0 ? new Date(Date.now() - (data.length - 1 - i) * 24 * 60 * 60 * 1000).toLocaleString("en-US", { month: "short", day: "2-digit" }) : ""
+//Align all datasets by date and fill missing dates with 0 values
+const ensureUniformLength = (datasets: {
+  calories: DataItem[];
+  protein: DataItem[];
+  carbs: DataItem[];
+  fat: DataItem[];
+}): typeof datasets => {
+  const allDatesSet = new Set<string>();
+  Object.values(datasets).forEach(metric =>
+    metric.forEach(item => allDatesSet.add(item.date))
   );
+  const allDates = Array.from(allDatesSet).sort();
+
+  const fillMissing = (data: DataItem[]): DataItem[] => {
+    const map = new Map(data.map(d => [d.date, d.value]));
+    return allDates.map(date => ({
+      date,
+      value: isFinite(map.get(date)!) ? map.get(date)! : 0,
+    }));
+  };
+
+  return {
+    calories: fillMissing(datasets.calories),
+    protein: fillMissing(datasets.protein),
+    carbs: fillMissing(datasets.carbs),
+    fat: fillMissing(datasets.fat),
+  };
 };
 
 export default function NutritionTrendScreen() {
   const context = useContext(GlobalContext);
-
+  // State to toggle between 7-day and 30-day views
   const [isThirtyDays, setIsThirtyDays] = useState(false);
+  // Animation value for fading in the chart
   const [chartAnimation] = useState(new Animated.Value(0));
+  // Index of the selected day when a dot is clicked
   const [selectedDayIndex, setSelectedDayIndex] = useState<number | null>(null);
+  // Index of the clicked dot for visual feedback
   const [clickedDotIndex, setClickedDotIndex] = useState<number | null>(null);
+  // Selected metric (calories, protein, carbs, fat) for highlighting in charts
   const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
-  const [loadingCount, setLoadingCount] = useState(0); // Track number of active requests
+  // Counter for active loading requests to manage the loading spinner
+  const [loadingCount, setLoadingCount] = useState(0); 
   const [error, setError] = useState<string | null>(null);
+  // Loading state to show/hide the spinner
+  const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation();
+  // Animation value for scaling the clicked dot
   const [dotScale] = useState(new Animated.Value(1));
   const [glowAnimation] = useState(new Animated.Value(0.5));
 
-  // Define the type for weekly and monthly data
-  type NutritionPeriodData = { [date: string]: { calories: number; carbs: number; fat: number; fiber: number; protein: number; sodium: number; sugars: number } } | null;
+  // Type definition for nutrition data (weekly or monthly)
+  type NutritionPeriodData = { [date: string]: { calories: number; carbs: number; fat: number; protein: number } } | null;
+  
+  // State for weekly and monthly nutrition data from API
   const [weekly, setWeekly] = useState<NutritionPeriodData>(null);
   const [monthly, setMonthly] = useState<NutritionPeriodData>(null);
 
-  // Pre-store 7-day and 30-day data
-  const [weeklyData, setWeeklyData] = useState<{
-    calories: DataItem[];
-    protein: DataItem[];
-    carbs: DataItem[];
-    fat: DataItem[];
-  }>({
-    calories: generateData(1700, 2100, 7),
-    protein: generateData(60, 120, 7),
-    carbs: generateData(160, 280, 7),
-    fat: generateData(40, 90, 7),
+  // State for processed weekly data, structured by metric
+  const [weeklyData, setWeeklyData] = useState<{ calories: DataItem[]; protein: DataItem[]; carbs: DataItem[]; fat: DataItem[] }>({
+    calories: [],
+    protein: [],
+    carbs: [],
+    fat: [],
   });
 
-  const [monthlyData, setMonthlyData] = useState<{
-    calories: DataItem[];
-    protein: DataItem[];
-    carbs: DataItem[];
-    fat: DataItem[];
-  }>({
-    calories: generateData(1700, 2100, 30),
-    protein: generateData(60, 120, 30),
-    carbs: generateData(160, 280, 30),
-    fat: generateData(40, 90, 30),
+  // State for processed monthly data, structured by metric
+  const [monthlyData, setMonthlyData] = useState<{ calories: DataItem[]; protein: DataItem[]; carbs: DataItem[]; fat: DataItem[] }>({
+    calories: [],
+    protein: [],
+    carbs: [],
+    fat: [],
   });
 
-  // Helper functions to manage loading state
-  const startLoading = () => setLoadingCount((prev) => prev + 1);
-  const stopLoading = () => setLoadingCount((prev) => Math.max(0, prev - 1));
-  const isLoading = loadingCount > 0;
-
+  
+  // Fetch weekly and monthly data on component mount
   useEffect(() => {
     loadNutritionWeekly();
     loadNutritionMonthly();
   }, []);
 
-  // Handle weekly data updates
+  // Helper function to sanitize data by filtering out invalid values and ensuring non-negative numbers
+  const sanitizeData = (data: DataItem[]): DataItem[] => {
+    return data
+      .filter(item => item.date && isFinite(item.value)) // Remove items with no date or non-finite values
+      .map(item => ({ value: Math.max(0, item.value), date: item.date })); // Ensure values are >= 0
+  };
+
+  // Process weekly data when it changes
   useEffect(() => {
-    if (weekly && typeof weekly === 'object' && !Array.isArray(weekly)) {
-      const myCalories: DataItem[] = [];
-      const myProtein: DataItem[] = [];
-      const myCarbs: DataItem[] = [];
-      const myFat: DataItem[] = [];
+    if (weekly && Object.keys(weekly).length > 0) {
+      const sortedDates = Object.keys(weekly).sort();
+      const myCalories = sortedDates.map(date => ({ value: weekly[date].calories, date }));
+      const myProtein = sortedDates.map(date => ({ value: weekly[date].protein, date }));
+      const myCarbs = sortedDates.map(date => ({ value: weekly[date].carbs, date }));
+      const myFat = sortedDates.map(date => ({ value: weekly[date].fat, date }));
+  
+      setWeeklyData(
+        ensureUniformLength({
+          calories: sanitizeData(myCalories),
+          protein: sanitizeData(myProtein),
+          carbs: sanitizeData(myCarbs),
+          fat: sanitizeData(myFat),
+        })
+      );
 
-      const dates = Object.keys(weekly).sort();
-      let previousCalories = 0;
-      let previousProtein = 0;
-      let previousCarbs = 0;
-      let previousFat = 0;
-
-      for (const weeklyDate of dates) {
-        const { calories, carbs, protein, fat } = weekly[weeklyDate];
-        console.log(`Weekly Date: ${weeklyDate}`);
-        console.log(`Raw value - Calories: ${calories}, Carbs: ${carbs}, Protein: ${protein}, Fat: ${fat}`);
-
-        const independentCalories = calories - previousCalories;
-        const independentProtein = protein - previousProtein;
-        const independentCarbs = carbs - previousCarbs;
-        const independentFat = fat - previousFat;
-
-        console.log(`Independent value - Calories: ${independentCalories}, Carbs: ${independentCarbs}, Protein: ${independentProtein}, Fat: ${independentFat}`);
-
-        myCalories.push({ value: independentCalories, date: weeklyDate });
-        myProtein.push({ value: independentProtein, date: weeklyDate });
-        myCarbs.push({ value: independentCarbs, date: weeklyDate });
-        myFat.push({ value: independentFat, date: weeklyDate });
-
-        previousCalories = calories;
-        previousProtein = protein;
-        previousCarbs = carbs;
-        previousFat = fat;
-      }
-
-      console.log("Updated weeklyData:", { calories: myCalories, protein: myProtein, carbs: myCarbs, fat: myFat });
-      setWeeklyData({
-        calories: myCalories,
-        protein: myProtein,
-        carbs: myCarbs,
-        fat: myFat,
-      });
+      console.log("Initial weeklyData:", weeklyData); // Log initial weeklyData to verify
     }
   }, [weekly]);
 
-  // Handle monthly data updates
+  // Memoized X-axis labels for weekly data
+  const weeklyLabels = useMemo(() => {
+    const labels = weeklyData.calories.map((item) =>
+      item.date ? formatLocalDateLabel(item.date) : ""
+    );
+    console.log("Weekly Labels:", labels);
+    return labels;
+  }, [weeklyData]);
+  
+
+  // Process monthly data when it changes
   useEffect(() => {
-    if (monthly && typeof monthly === 'object' && !Array.isArray(monthly)) {
-      const myCalories: DataItem[] = [];
-      const myProtein: DataItem[] = [];
-      const myCarbs: DataItem[] = [];
-      const myFat: DataItem[] = [];
-
-      const dates = Object.keys(monthly).sort();
-      let previousCalories = 0;
-      let previousProtein = 0;
-      let previousCarbs = 0;
-      let previousFat = 0;
-
-      for (const monthlyDate of dates) {
-        const { calories, carbs, protein, fat } = monthly[monthlyDate];
-        console.log(`Monthly Date: ${monthlyDate}`);
-        console.log(`Raw value - Calories: ${calories}, Carbs: ${carbs}, Protein: ${protein}, Fat: ${fat}`);
-
-        const independentCalories = calories - previousCalories;
-        const independentProtein = protein - previousProtein;
-        const independentCarbs = carbs - previousCarbs;
-        const independentFat = fat - previousFat;
-
-        console.log(`Independent value - Calories: ${independentCalories}, Carbs: ${independentCarbs}, Protein: ${independentProtein}, Fat: ${independentFat}`);
-
-        myCalories.push({ value: independentCalories, date: monthlyDate });
-        myProtein.push({ value: independentProtein, date: monthlyDate });
-        myCarbs.push({ value: independentCarbs, date: monthlyDate });
-        myFat.push({ value: independentFat, date: monthlyDate });
-
-        previousCalories = calories;
-        previousProtein = protein;
-        previousCarbs = carbs;
-        previousFat = fat;
-      }
-
-      console.log("Updated monthlyData:", { calories: myCalories, protein: myProtein, carbs: myCarbs, fat: myFat });
-      setMonthlyData({
-        calories: myCalories,
-        protein: myProtein,
-        carbs: myCarbs,
-        fat: myFat,
-      });
+    if (monthly && Object.keys(monthly).length > 0) {
+      const sortedDates = Object.keys(monthly).sort();
+      const myCalories = sortedDates.map(date => ({ value: monthly[date].calories, date }));
+      const myProtein = sortedDates.map(date => ({ value: monthly[date].protein, date }));
+      const myCarbs = sortedDates.map(date => ({ value: monthly[date].carbs, date }));
+      const myFat = sortedDates.map(date => ({ value: monthly[date].fat, date }));
+  
+      setMonthlyData(
+        ensureUniformLength({
+          calories: sanitizeData(myCalories),
+          protein: sanitizeData(myProtein),
+          carbs: sanitizeData(myCarbs),
+          fat: sanitizeData(myFat),
+        })
+      );
     }
   }, [monthly]);
 
-  const loadNutritionWeekly = async () => {
+  //Validate all nutrition datasets to detect and log any invalid (NaN/Infinity) values
+useEffect(() => {
+  const logDatasetCheck = (data: DataItem[], label: string) => {
+    data.forEach((item, idx) => {
+      if (!isFinite(item.value)) {
+        console.warn(`⚠️ ${label} dataset contains invalid value at index ${idx}:`, item);
+      }
+    });
+  };
+
+  logDatasetCheck(weeklyData.calories, "weekly-calories");
+  logDatasetCheck(weeklyData.protein, "weekly-protein");
+  logDatasetCheck(weeklyData.carbs, "weekly-carbs");
+  logDatasetCheck(weeklyData.fat, "weekly-fat");
+
+  logDatasetCheck(monthlyData.calories, "monthly-calories");
+  logDatasetCheck(monthlyData.protein, "monthly-protein");
+  logDatasetCheck(monthlyData.carbs, "monthly-carbs");
+  logDatasetCheck(monthlyData.fat, "monthly-fat");
+}, [weeklyData, monthlyData]);
+
+
+
+  // Memoized X-axis labels for monthly data 
+  const monthlyLabels = useMemo(() => {
+    const labels = monthlyData.calories.map((item) =>
+      item.date ? formatLocalDateLabel(item.date) : ""
+    );
+    console.log("Monthly Labels:", labels);
+    return labels;
+  }, [monthlyData]);
+
+
+// Helper functions to increment loading counter
+const startLoading = () => setLoadingCount((prev) => prev + 1);
+
+// Helper function to decrement loading counter and update isLoading state
+const stopLoading = () => {
+  setLoadingCount((prev) => {
+    const newCount = Math.max(0, prev - 1);
+    if (newCount === 0) setIsLoading(false); // Hide spinner when all requests complete
+    return newCount;
+  });
+};
+
+//Fetch weekly nutrition trends from the API
+const loadNutritionWeekly = async () => {
     startLoading();
     setError(null);
-
     try {
       const response = await fetch(`${httpRequests.getBaseURL()}/nutritionCalculator/getWeeklyTrends`, {
         method: 'GET',
@@ -205,6 +243,7 @@ export default function NutritionTrendScreen() {
       });
       if (response.status === 200) {
         const nutritionWeekly = await response.json();
+        console.log("Raw API Response (Weekly):", nutritionWeekly); // Debug log
         if (nutritionWeekly && typeof nutritionWeekly === 'object' && !Array.isArray(nutritionWeekly)) {
           setWeekly(nutritionWeekly);
         } else {
@@ -227,6 +266,7 @@ export default function NutritionTrendScreen() {
     }
   };
 
+  //Fetch monthly nutrition trends from the API
   const loadNutritionMonthly = async () => {
     startLoading();
     setError(null);
@@ -241,6 +281,7 @@ export default function NutritionTrendScreen() {
       });
       if (response.status === 200) {
         const nutritionMonthly = await response.json();
+        console.log("Raw API Response (Monthly):", nutritionMonthly); // Debug log
         if (nutritionMonthly && typeof nutritionMonthly === 'object' && !Array.isArray(nutritionMonthly)) {
           setMonthly(nutritionMonthly);
         } else {
@@ -263,14 +304,16 @@ export default function NutritionTrendScreen() {
     }
   };
 
+  // Animate chart fade-in when weeklyData changes
   useEffect(() => {
     Animated.timing(chartAnimation, {
       toValue: 1,
       duration: 2000,
       useNativeDriver: false,
     }).start();
-  }, [isThirtyDays]);
+  }, [weeklyData]);
 
+  // Loop glow animation for dots
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
@@ -288,27 +331,73 @@ export default function NutritionTrendScreen() {
     ).start();
   }, [glowAnimation]);
 
-  const dataSource = isThirtyDays ? monthlyData : weeklyData; // Select dataSource based on isThirtyDays
+  // Memoized labels based on the current view (7 or 30 days)
   const labels = useMemo(() => {
-    if (isThirtyDays) {
-      return getLast30DaysLabels(dataSource.calories.map((item) => item.value));
-    } else {
-      return dataSource.calories.map((item) => {
-        const date = new Date(item.date);
-        return date.toLocaleDateString("en-US", { weekday: "short" });
-      });
-    }
-  }, [isThirtyDays, dataSource]);
+    return isThirtyDays ? monthlyLabels : weeklyLabels;
+  }, [isThirtyDays, weeklyLabels, monthlyLabels]);
 
+  // Select dataSource based on current view
+  const dataSource = isThirtyDays ? monthlyData : weeklyData; 
+
+  // Check if chart data is ready (to prevent invalid path rendering)
+const isDataReady = useMemo(() => {
+  return (
+    dataSource.calories.length > 0 &&
+    dataSource.protein.length > 0 &&
+    dataSource.carbs.length > 0 &&
+    dataSource.fat.length > 0
+  );
+}, [dataSource]);
+
+  // Calculate the maximum value and generate Y-axis labels dynamically
+  const yAxisRange = useMemo(() => {
+    const allValues = [
+      ...dataSource.protein.map(item => item.value ?? []),
+      ...dataSource.carbs.map(item => item.value ?? []),
+      ...dataSource.fat.map(item => item.value ?? []),
+    ];
+
+    if (allValues.length === 0 || allValues.every((v) => !isFinite(v))) {
+      return { min: 0, max: 100, interval: 25, labels };
+    }
+    
+    const max = Math.max(...allValues);  
+    console.log("🔎 yAxis max:", max, "allValues:", allValues);
+    
+    // Ensure the minimum is 0 and round the maximum to the nearest 200 (or larger)
+    const roundedMax = Math.ceil(max / 200) * 200; // Round up to the nearest 200
+    const interval = 100; // Fixed interval of 100 for Y-axis labels
+  
+    return { min: 0, max: roundedMax, interval, labels };
+  }, [dataSource]);
+
+  // Calculate total values for a metric over the selected period or day
   const calculateTotal = (dataArray: { value: number; date: string }[]) =>
     Math.round(dataArray.reduce((a, b) => a + b.value, 0));
 
+  // Total values for display (either for a single day or the entire period)
   const totalValues = selectedDayIndex !== null
     ? {
-        total_calories: Math.round(dataSource.calories[selectedDayIndex].value),
-        total_protein: Math.round(dataSource.protein[selectedDayIndex].value),
-        total_carbs: Math.round(dataSource.carbs[selectedDayIndex].value),
-        total_fat: Math.round(dataSource.fat[selectedDayIndex].value),
+        total_calories: Math.round(
+          isFinite(dataSource.calories[selectedDayIndex]?.value)
+          ? dataSource.calories[selectedDayIndex].value
+          : 0
+        ),
+        total_protein: Math.round(
+          isFinite(dataSource.protein[selectedDayIndex]?.value)
+          ? dataSource.protein[selectedDayIndex].value
+          : 0
+        ),
+        total_carbs: Math.round(
+          isFinite(dataSource.carbs[selectedDayIndex]?.value)
+          ? dataSource.carbs[selectedDayIndex].value
+          : 0
+        ),
+        total_fat: Math.round(
+          isFinite(dataSource.fat[selectedDayIndex]?.value)
+          ? dataSource.fat[selectedDayIndex].value
+          : 0
+        ),
       }
     : {
         total_calories: calculateTotal(dataSource.calories),
@@ -317,15 +406,18 @@ export default function NutritionTrendScreen() {
         total_fat: calculateTotal(dataSource.fat),
       };
 
+  // Handle metric selection (toggle highlighting)
   const handleMetricClick = (metric: string) => {
     setSelectedMetric(selectedMetric === metric ? null : metric);
   };
 
+  // Handle dot click (toggle selection)
   const handleDotClick = (index: number) => {
     setClickedDotIndex((prevIndex) => (prevIndex === index ? null : index));
     setSelectedDayIndex((prevIndex) => (prevIndex === index ? null : index));
   };
 
+  // Animate dot scale on click
   const animateDot = () => {
     Animated.sequence([
       Animated.timing(dotScale, {
@@ -341,11 +433,13 @@ export default function NutritionTrendScreen() {
     ]).start();
   };
 
+  // Combine dot click and animation
   const handleDotClickWithAnimation = (index: number) => {
     handleDotClick(index);
     animateDot();
   };
 
+  // Render a bright, interactive dot for the calories chart
   const renderBrightDot = ({ x, y, index, datasetKey }: { 
     x: number; 
     y: number; 
@@ -378,15 +472,17 @@ export default function NutritionTrendScreen() {
     );
   };
 
+  // Render a normal dot for macronutrient charts
   const renderNormalDot = ({ x, y, index, datasetKey }: { 
     x: number; 
     y: number; 
     index: number; 
     datasetKey: string; 
   }) => {
-    const dataset = dataSource[datasetKey.replace('-dataset', '') as keyof typeof dataSource] as DataItem[] | undefined;
+    const metric = datasetKey.replace('-dataset', '') as keyof typeof dataSource;
+    const dataset = dataSource[metric] as DataItem[] | undefined;
     const date = dataset && dataset[index] ? dataset[index].date : `index-${index}`;
-    const value = dataset && dataset[index] ? dataset[index].value : `value-${index}`;
+    const value = dataset && dataset[index] ? dataset[index].value : 0;
 
     return (
       <View
@@ -407,7 +503,8 @@ export default function NutritionTrendScreen() {
     );
   };
 
-  const chartConfig = {
+  // Chart configuration for calories
+  const chartConfigCalories = {
     backgroundGradientFrom: "#0f2027",
     backgroundGradientTo: "#203a43",
     decimalPlaces: 0,
@@ -422,47 +519,80 @@ export default function NutritionTrendScreen() {
     propsForDots: { r: "4", strokeWidth: "3", stroke: "#48efff" },
     yAxisMinimum: 0,
     propsForHorizontalLabels: {
-      fontSize: 12,
+      fontSize: 10,
       textAlign: "center",
-      dx: isThirtyDays ? 0 : 0,
+      dx: 0,
     },
     propsForVerticalLabels: {
-      fontSize: 12,
-      dx: isThirtyDays ? 25 : 0,
+      fontSize: 10,
+      dx: 0,
     },
   };
 
+  // Chart configuration for macronutrients (protein, carbs, fat)
+  const chartConfigMacros = {
+    backgroundGradientFrom: "#0f2027",
+    backgroundGradientTo: "#203a43",
+    decimalPlaces: 0,
+    color: (opacity = 1) => `rgba(72, 239, 255, ${opacity})`,
+    labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+    fillShadowGradient: "rgba(10, 101, 192, 0.25)",
+    fillShadowGradientOpacity: 0.3,
+    propsForBackgroundLines: {
+      strokeWidth: 1,
+      stroke: "rgba(233, 244, 244, 0.34)",
+    },
+    propsForDots: { r: "4", strokeWidth: "3", stroke: "#48efff" },
+    yAxisMinimum: 0,
+    yAxisInterval: yAxisRange.interval, // Use the dynamically calculated interval
+    propsForHorizontalLabels: {
+      fontSize: 10,
+      textAlign: "center",
+      dx: 0,
+    },
+    propsForVerticalLabels: {
+      fontSize: 10,
+      dx: 0,
+    },
+  };
+
+  // Render the component
   return (
     <ScrollView style={styles.container}>
       {isLoading ? (
+        // Display loading spinner while data is being fetched
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#48efff" />
           <Text style={styles.loadingText}>Loading...</Text>
         </View>
       ) : (
         <>
+          {/* Header */}
           <Text style={styles.header}>Nutrition Trend</Text>
 
-          {/* Toggle between 7 days and 30 days */}
+          {/* Toggle switch for 7-day vs 30-day view */}
           <View style={styles.switchContainer}>
-            <Text style={styles.switchLabel}>7 Days</Text>
+            <Text testID="range-label" style={styles.switchLabel}>
+                {isThirtyDays ? '30 Days' : '7 Days'}
+            </Text>
             <Switch
-              value={isThirtyDays}
-              onValueChange={() => {
-                setIsThirtyDays(!isThirtyDays);
-                setSelectedDayIndex(null);
-                setClickedDotIndex(null);
-              }}
-            />
-            <Text style={styles.switchLabel}>30 Days</Text>
+                testID="range-switch"
+                value={isThirtyDays}
+                onValueChange={() => {
+                    setIsThirtyDays(!isThirtyDays);
+                    setSelectedDayIndex(null);
+                    setClickedDotIndex(null);
+                }}
+              />
           </View>
 
-          {/* Calories Line Chart (with click interaction) */}
+          {/* Calories Line Chart */}
           <Text style={[styles.chartTitle, { marginBottom: 7 }]}>Calories</Text>
 
           <View style={styles.chartContainer}>
             {selectedMetric === "calories" && <View style={styles.shadowEffect} />}
           </View>
+          {isDataReady ? (  //Render charts only when all datasets are loaded and non-empty
           <Animated.View style={{ opacity: chartAnimation }}>
             <LineChart
               data={{
@@ -470,7 +600,7 @@ export default function NutritionTrendScreen() {
                 datasets: [
                   {
                     key: "calories-dataset",
-                    data: dataSource.calories.map((item) => item.value),
+                    data: cleanChartData(dataSource?.calories ?? []),
                     strokeWidth: selectedMetric === "calories" ? 5 : 3,
                     color: () => (selectedMetric === "calories" ? "rgb(246, 57, 48)" : "rgb(235, 27, 16)"),
                   },
@@ -478,9 +608,10 @@ export default function NutritionTrendScreen() {
               }}
               width={screenWidth - 40}
               height={170}
-              chartConfig={chartConfig}
+              chartConfig={chartConfigCalories}
               bezier
               withVerticalLines={false}
+              withHorizontalLines={true}
               withDots={true}
               style={styles.chart}
               onDataPointClick={({ index }) => handleDotClickWithAnimation(index)}
@@ -489,6 +620,11 @@ export default function NutritionTrendScreen() {
               }
             />
           </Animated.View>
+          ) : (
+            <Text style={{ color: "#ccc", textAlign: "center", marginVertical: 20 }}>
+              No data to display.
+            </Text>
+          )}
 
           {/* Protein, Carbs, Fat Line Chart */}
           <Text style={[styles.chartTitle, { marginTop: 25 }]}>Protein, Carbs & Fat</Text>
@@ -504,6 +640,8 @@ export default function NutritionTrendScreen() {
                 ]}
               />
             )}
+          </View>
+          {isDataReady ? (  //Render charts only when all datasets are loaded and non-empty
             <Animated.View style={{ opacity: chartAnimation }}>
               <LineChart
                 data={{
@@ -511,31 +649,35 @@ export default function NutritionTrendScreen() {
                   datasets: [
                     {
                       key: "protein-dataset",
-                      data: dataSource.protein.map((item) => item.value),
+                      data: cleanChartData(dataSource?.protein ?? []),
                       strokeWidth: selectedMetric === "protein" ? 6 : 2,
                       color: () => (selectedMetric === "protein" ? "rgb(4, 187, 248)" : "rgba(0, 191, 255, 0.89)"),
                     },
                     {
                       key: "carbs-dataset",
-                      data: dataSource.carbs.map((item) => item.value),
+                      data: cleanChartData(dataSource?.carbs ?? []),
                       strokeWidth: selectedMetric === "carbs" ? 6 : 2,
                       color: () => (selectedMetric === "carbs" ? "rgba(50, 205, 50, 1)" : "rgba(50, 205, 50, 0.89)"),
                     },
                     {
                       key: "fat-dataset",
-                      data: dataSource.fat.map((item) => item.value),
+                      data: cleanChartData(dataSource?.fat ?? []),
                       strokeWidth: selectedMetric === "fat" ? 6 : 2,
                       color: () => (selectedMetric === "fat" ? "rgba(255, 165, 0, 1)" : "rgba(255, 166, 0, 0.98)"),
-                    },
+                    },                
                   ],
                 }}
                 width={screenWidth - 40}
                 height={170}
-                chartConfig={chartConfig}
+                
+                chartConfig={chartConfigMacros}
                 bezier
-                style={styles.chart}
+                fromZero={true}  // Ensure Y-axis starts from 0
+                yAxisInterval={yAxisRange.interval} // Set the interval dynamically
                 withVerticalLines={false}
-                withDots={!isThirtyDays}
+                withHorizontalLines={true}
+                style={styles.chart}
+                withDots={!isThirtyDays}  // Show dots only for 7-day view
                 renderDotContent={({ x, y, index }) => {
                   let datasetKey = "";
                   let datasetIndex = index; // The index within the specific dataset
@@ -548,13 +690,19 @@ export default function NutritionTrendScreen() {
                   } else if (index < dataSource.protein.length + dataSource.carbs.length + dataSource.fat.length) {
                     datasetKey = "fat-dataset";
                     datasetIndex = index - dataSource.protein.length - dataSource.carbs.length;
+                  }else {
+                    return null; 
                   }
-
                   return renderNormalDot({ x, y, index: datasetIndex, datasetKey });
                 }}
               />
             </Animated.View>
-          </View>
+          ) : (
+            <Text style={{ color: "#ccc", textAlign: "center", marginVertical: 20 }}>
+              No data to display.
+            </Text>
+          )}
+          
 
           {/* Total Data Display (Aligned in Two Columns) */}
           <View style={styles.totalContainer}>
@@ -564,6 +712,7 @@ export default function NutritionTrendScreen() {
               </Text>
             </View>
 
+            {/* Two-column layout for totals */}
             <View style={styles.rowContainer}>
               <TouchableOpacity
                 style={[styles.column, { flexDirection: "row", alignItems: "center", marginBottom: 8 }]}
@@ -658,7 +807,7 @@ export default function NutritionTrendScreen() {
   );
 }
 
-// Styles
+// Styles for the component
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "rgba(0, 0, 7, 0.9)", padding: 20 },
   loadingContainer: {

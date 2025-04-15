@@ -99,28 +99,29 @@ export default function WorkoutApiScreen() {
 
      {/* Body Focus */}
       <TouchableOpacity 
-        style={isDarkMode ? styles.darkButton : styles.button}  
+        style={isDarkMode? styles.darkButton:styles.button} 
         onPress={() => navigation.navigate('BodyFocusScreen', {})} 
+        testID='touchable-opacity-id'
       >
         <View style={styles.iconStyles}>
             <MuscleIcon width={32} height={32} />
         </View>
         <View style={{ justifyContent: 'flex-start' }}>
-            <Text style={isDarkMode ? styles.darkButtonText : styles.buttonText}>Body Focus</Text>
-            <Text style={{ color: '#757575', }}>Body-based workouts</Text>
+          <Text style={isDarkMode? styles.darkButtonText:styles.buttonText}>Body Focus</Text>
+          <Text style={{ color: '#757575', }}>Body-based workouts</Text>
         </View>
       </TouchableOpacity>
       
       {/* Body Weight History Trend */}
       <TouchableOpacity 
-        style={isDarkMode ? styles.darkButton : styles.button} 
+        style={isDarkMode? styles.darkButton:styles.button} 
         onPress={() => navigation.navigate('BodyWeightHistoryScreen', {})} 
       >
         <View style={styles.iconStyles}>
           <MaterialCommunityIcons name="chart-line" size={32} color="#aef1f1" />
         </View>
         <View style={{ justifyContent: 'flex-start' }}>
-            <Text style={isDarkMode ? styles. darkButtonText : styles.buttonText}>Body Weight History</Text>
+            <Text style={isDarkMode?styles.darkButtonText:styles.buttonText}>Bodyweight History</Text>
             <Text style={{ color: '#757575', }}>Track your progress</Text>
         </View>
       </TouchableOpacity>

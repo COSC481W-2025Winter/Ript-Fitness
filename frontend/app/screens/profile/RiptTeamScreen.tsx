@@ -163,40 +163,52 @@ function WinterScreen() {
 const RiptTeamScreen = ({ navigation }: any) => {
   const context = useContext(GlobalContext);  
   const isDarkMode = context?.isDarkMode;
+
+  const [activeTab, setActiveTab] = useState("Fall");
+
   return (
-    <View style={{flex: 1,}}>
-      <View style={[isDarkMode? styles.darkEntireContainer : styles.entireContainer]}>
-        {/* Header */}
-        {/* <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color="black" />
-          </TouchableOpacity>
-        </View> */}
-        {/* Top half */}
+    <View style={{ flex: 1 }}>
+      <View style={[isDarkMode ? styles.darkEntireContainer : styles.entireContainer]}>
+        
+        {/* Top Section */}
         <View style={styles.topContainer}>
-            <View style={{width: '100%', paddingHorizontal: 12,}}>
-              <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Ionicons name="arrow-back" size={24} color={isDarkMode? "white" : "black"} />
-              </TouchableOpacity>
-              <Text style={styles.heading}>Ript Fitness Team</Text>
-            </View>
-            <Image
-              style={styles.mainImage} 
-              source={require('@/assets/images/team-photo-1.jpg')}/>
+          <View style={{ width: '100%', paddingHorizontal: 12 }}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons name="arrow-back" size={24} color={isDarkMode ? "white" : "black"} />
+            </TouchableOpacity>
+            <Text style={styles.heading}>Ript Fitness Team</Text>
+          </View>
+
+          {/* Conditional image based on tab */}
+          <Image
+            style={styles.mainImage}
+            source={
+              activeTab === "Fall"
+                ? require('@/assets/images/team-photo-1.jpg')
+                : require('@/assets/images/Team-photo-2.jpg') 
+            }
+          />
         </View>
+
+        {/* Tabs */}
         <View style={{ height: 500 }}>
-          
-            <Tab.Navigator
+          <Tab.Navigator
             screenOptions={{
               tabBarLabelStyle: { fontSize: 14, fontWeight: 'bold', color: isDarkMode ? 'white' : 'black' },
-              tabBarStyle: { backgroundColor: isDarkMode? 'black' : '#fff' },
-              tabBarIndicatorStyle: { backgroundColor: '#21BFBF', height: 3, },
-            }}>
-
+              tabBarStyle: { backgroundColor: isDarkMode ? 'black' : '#fff' },
+              tabBarIndicatorStyle: { backgroundColor: '#21BFBF', height: 3 },
+            }}
+            screenListeners={{
+              state: (e) => {
+                const index = e.data.state.index;
+                const tabName = e.data.state.routeNames[index];
+                setActiveTab(tabName);
+              },
+            }}
+          >
             <Tab.Screen name="Fall" component={FallScreen} />
             <Tab.Screen name="Winter" component={WinterScreen} />
           </Tab.Navigator>
-
         </View>
       </View>
     </View>

@@ -82,10 +82,19 @@ export class httpRequests {
         headers,
         ...(data ? { body: JSON.stringify(data) } : {}),
       });
-      return response; 
-    } catch (error) {
-      console.error("PUT request failed:", error);
-      throw error;
+
+      if (response.status === 204) return true;
+  
+      // parse JSON response if applicable
+    const contentType = response.headers.get("Content-Type");
+    if (contentType?.includes("application/json")) {
+      return await response.json();
+    }
+
+    return await response.text();
+  } catch (error) {
+    console.error("PUT request failed:", error);
+    throw error;
     }
   }  
 
