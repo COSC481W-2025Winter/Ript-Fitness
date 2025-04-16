@@ -248,26 +248,29 @@ const confirmRemoveFriend = () => {
           style={styles.avatar}
         />
         <Text style={isDarkMode?styles.darkName:styles.name}>{item.displayname}</Text>
-        <View style={styles.bioStyle}><TouchableOpacity 
-        onPress={() => {
-            if (item) {
-              navigation.navigate('FullBioScreen', { userProfile: item });
-            } else {
-              console.error('User profile is undefined.');
-            }
-          }}>
-            
-            <Text style={isDarkMode?styles.darkBio:styles.bio}>
-  {item.bio != null
-    ? `${(item.bio.split('\n')[0] || '').slice(0, 50)}`
-    : ''}
-
-{item.bio && (item.bio.length > item.bio.split('\n')[0].length || item.bio.split('\n')[0].length > 50)  ? <Text style={{ color: '#757575', fontWeight: 600 }}>{'...View more'}</Text> : <></>}
-</Text>
-
-</TouchableOpacity>
-
+        <View style={styles.bioStyle}>
+  <TouchableOpacity
+    onPress={() => {
+      if (item) {
+        navigation.navigate('FullBioScreen', { userProfile: item });
+      } else {
+        console.error('User profile is undefined.');
+      }
+    }}
+  >
+    <Text style={isDarkMode ? styles.darkBio : styles.bio}>
+      {item.bio
+        ? `${item.bio.split('\n')[0].slice(0, 50)}${
+            item.bio.length > item.bio.split('\n')[0].length ||
+            item.bio.split('\n')[0].length > 50
+              ? '...View more'
+              : ''
+          }`
+        : ''}
+    </Text>
+  </TouchableOpacity>
 </View>
+
 <View style={styles.friendsContainer}>
 <View style={styles.friendsSection}>
 <View style={styles.friendsList}>
@@ -872,7 +875,7 @@ const styles = StyleSheet.create({
   },
   addFriendButtonText: {
     color: '#1D1B20',
-    fontWeight: 600,
+    fontWeight: '600',
     fontSize: 14,
     marginLeft: 5,
   },

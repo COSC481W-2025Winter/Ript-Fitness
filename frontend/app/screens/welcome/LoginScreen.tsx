@@ -123,7 +123,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                 }
               />
               {/* Username Error Message Popup */}
-              {errorMessage ? (
+              {usernameErrorMessage ? (
               <View style={{ marginTop: height * -0.01, flexWrap: 'wrap', width: width * 0.75, flexDirection: 'row'  }}>
                 <Text style={styles.secondaryErrorText}>{usernameErrorMessage}</Text>
               </View>
@@ -157,7 +157,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                 </TouchableOpacity>
               </View>
               {/* Username Error Message Popup */}
-              {errorMessage ? (
+              {passwordErrorMessage ? (
                 <View style={{ marginTop: height * -0.01, flexWrap: 'wrap', width: width * 0.75, flexDirection: 'row'  }}>
                   <Text style={styles.secondaryErrorText}>{passwordErrorMessage}</Text>
                 </View>

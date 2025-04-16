@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity, Dimensions, SafeAreaView } from 'react-native';
 
 // Navigation imports
-import { RootStackParamList } from '../../App';
+import { RootStackParamList } from '../../../App';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { httpRequests } from '@/api/httpRequests';
 import { GlobalContext } from '@/context/GlobalContext';
@@ -21,7 +21,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
   const [usernameErrorMessage, setusernameErrorMessage] = useState('');
   const [passwordErrorMessage, setpasswordErrorMessage] = useState('');
 
-  const [submitted, setSubmitted] = useState(false); 
+  const [submitted, setSubmitted] = useState(false);
 
   //States for inputs
   const [email, setEmail] = useState('');
@@ -71,7 +71,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
 
     // Validate inputs
     let isValid = true;
-  
+
     //Email validation
     if (!emailRegex.test(email)) {
       setIsEmailValid(false);
@@ -81,11 +81,11 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
       setemailErrorMessage("");
       setIsEmailValid(true);
     }
-  
+
     if (!usernameRegex.test(username)) {
       setIsUsernameValid(false);
       isValid = false;
-  
+
       //Set error message for username based on specific condition
       if (username.length < 3) {
         setusernameErrorMessage("Username must be at least 3 characters.");
@@ -106,12 +106,12 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
       setIsUsernameValid(true);
       setusernameErrorMessage("");
     }
-  
+
     if (!passwordRegex.test(password)) {
       setIsPasswordValid(false);
       isValid = false;
       setpasswordErrorMessage(
-`Password must have:
+        `Password must have:
 • At least 8 characters
 • At least 1 number
 • At least 1 uppercase letter
@@ -122,7 +122,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
       setIsPasswordValid(true);
       setpasswordErrorMessage("");
     }
-  
+
     // If any field is invalid, stop the signup process
     if (!isValid) {
       return;
@@ -207,9 +207,12 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
             {submitted && errorMessage ? (
               <View style={[styles.errorContainer, { marginTop: height * -0.01, marginBottom: height * 0.01 }]}>
                 <Ionicons name="alert-circle" size={24} color={'#F2505D'} />
-                <Text style={styles.errorText}>{errorMessage}</Text>
+                {errorMessage.split('\n').map((line, index) => (
+                  <Text key={index} style={styles.errorText}>{line}</Text>
+                ))}
               </View>
             ) : null}
+
             {/* Email input */}
             <View style={styles.buttonContainer}>
               <CustomTextInput
@@ -226,13 +229,13 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                   isEmailFocused
                     ? styles.focusInput
                     : !isEmailValid && submitted
-                    ? styles.errorInput
-                    : styles.defaultInput
+                      ? styles.errorInput
+                      : styles.defaultInput
                 }
               />
               {/* Email Error message */}
               {submitted && emailErrorMessage ? (
-                <View style={{ marginTop: height * -0.01, flexWrap: 'wrap', width: width * 0.75, flexDirection: 'row'  }}>
+                <View style={{ marginTop: height * -0.01, flexWrap: 'wrap', width: width * 0.75, flexDirection: 'row' }}>
                   <Text style={styles.secondaryErrorText}>{emailErrorMessage}</Text>
                 </View>
               ) : null}
@@ -250,13 +253,13 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                   isUsernameFocused
                     ? styles.focusInput
                     : !isUsernameValid && submitted
-                    ? styles.errorInput
-                    : styles.defaultInput
+                      ? styles.errorInput
+                      : styles.defaultInput
                 }
               />
               {/* Username Error message */}
               {submitted && usernameErrorMessage ? (
-                <View style={{ marginTop: height * -0.01, flexWrap: 'wrap', width: width * 0.75, flexDirection: 'row'  }}>
+                <View style={{ marginTop: height * -0.01, flexWrap: 'wrap', width: width * 0.75, flexDirection: 'row' }}>
                   {/* <Ionicons name="alert-circle" size={24} color={'#F2505D'} /> */}
                   <Text style={styles.secondaryErrorText}>{usernameErrorMessage}</Text>
                 </View>
@@ -276,8 +279,8 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                     isPasswordFocused
                       ? styles.focusInput
                       : !isPasswordValid && submitted
-                      ? styles.errorInput
-                      : styles.defaultInput
+                        ? styles.errorInput
+                        : styles.defaultInput
                   }
                 />
                 {/* Password icon */}
@@ -287,10 +290,10 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
               </View>
               {/* Password Error message */}
               {submitted && passwordErrorMessage ? (
-              <View style={{ marginTop: height * -0.01, flexWrap: 'wrap', width: width * 0.75, flexDirection: 'row',  }}>
-                {/* <Ionicons name="alert-circle" size={24} color={'#F2505D'} /> */}
-                <Text style={styles.secondaryErrorText}>{passwordErrorMessage}</Text>
-              </View>
+                <View style={{ marginTop: height * -0.01, flexWrap: 'wrap', width: width * 0.75, flexDirection: 'row', }}>
+                  {/* <Ionicons name="alert-circle" size={24} color={'#F2505D'} /> */}
+                  <Text style={styles.secondaryErrorText}>{passwordErrorMessage}</Text>
+                </View>
               ) : null}
               {/* Signup button */}
               <CustomButton

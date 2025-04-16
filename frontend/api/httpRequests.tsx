@@ -1,7 +1,6 @@
 import { GlobalContext } from "@/context/GlobalContext";
 import { USE_LOCAL, LOCAL_IP } from "@env";
 import { useContext } from "react";
-console.warn(`\n==============================\n ENV CHECK: USE_LOCAL=${USE_LOCAL}, LOCAL_IP=${LOCAL_IP}\n`);
 /*
 To force the front end to use the backend api, replace the BASE_URL with your hardcoded local IP address.
 Remember to switch it back when done testing
@@ -89,7 +88,6 @@ export class httpRequests {
       throw error;
     }
   }
-  
 
   // Method to handle DELETE requests and return JSON
   static async delete(

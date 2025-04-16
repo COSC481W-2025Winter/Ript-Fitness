@@ -14,13 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.riptFitness.Ript_Fitness_Backend.domain.mapper.WorkoutsMapper;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.AccountsModel;
-import com.riptFitness.Ript_Fitness_Backend.domain.model.Day;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.ExerciseModel;
 import com.riptFitness.Ript_Fitness_Backend.domain.model.Workouts;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.AccountsRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.ExerciseRepository;
 import com.riptFitness.Ript_Fitness_Backend.domain.repository.WorkoutsRepository;
-import com.riptFitness.Ript_Fitness_Backend.web.dto.ExerciseDto;
 import com.riptFitness.Ript_Fitness_Backend.web.dto.WorkoutsDto;
 
 @Service
@@ -197,12 +195,6 @@ public class WorkoutsService {
     public Map<LocalDate, List<WorkoutsDto>> getMonthlyWorkoutTrends() {
         return getWorkoutTrendsForXDays(30);
     }
-
-	public Map<LocalDate, ExerciseDto> getWorkoutTrendsfor7Days() {
-		Long currentlyLoggedInUserId = accountsService.getLoggedInUserId();
-		LocalDate sevenDaysAgo = LocalDate.now().minusDays(7);		
-		return null;
-	}
 	
 	private Map<LocalDate, List<WorkoutsDto>> getWorkoutTrendsForXDays(int days) {
 	    Long userId = accountsService.getLoggedInUserId();
